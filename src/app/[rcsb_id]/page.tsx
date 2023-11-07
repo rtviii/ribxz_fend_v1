@@ -1,19 +1,17 @@
 'use client'
-import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { MolStarWrapper } from '@/components/mstar/mstar_wrapper'
-
+import {StructureSelectionManager,StructureSelectionModifier,StructureSelectionSnapshot} from 'molstar/lib/mol-plugin-state/manager/structure/selection'
+import {StructureComponentManager} from 'molstar/lib/mol-plugin-state/manager/structure/component'
+import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
 import { Fragment, useState } from 'react'
+import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
 import { Dialog } from '@headlessui/react'
-import {
-  CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
-  HomeIcon,
-  UsersIcon,
-} from '@heroicons/react/24/outline'
+import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
+import { Loci } from 'molstar/lib/mol-model/loci'
 
+import {Structure, StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure/structure'
+import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
+import { log } from 'console';
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides', href: '#', icon: FolderIcon, current: false },
@@ -33,10 +31,49 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function Example() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  return (
+const try_select_chain = () =>{
+  var selection:any = (l:any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
+  var k             = Queries.combinators.merge([ Queries.generators.atoms(selection)])
+  const { core, struct } = MolScriptBuilder;
+  const expressions= []
 
+  var proteins = StructureSelectionQueries.protein
+
+  const propTests: Parameters<typeof struct.generator.atomGroups>[0] = {
+    'chain-test' : core.rel.eq([struct.atomProperty.macromolecular.auth_asym_id, 'A']), 
+    'group-by': struct.atomProperty.core.operatorName(),
+  }    
+  expressions.push(struct.filter.first([struct.generator.atomGroups(propTests)]));
+  const e = struct.combinator.merge(expressions);
+
+  const sq1_prot = StructureSelectionQuery('some_name', proteins.expression)
+  const sq2 = StructureSelectionQuery('chain_A', e)
+
+  console.log(sq1_prot)
+  console.log(sq2)
+  const sel  = window.molstar?.managers.structure.selection.fromSelectionQuery('add',sq1_prot )
+  console.log(sel);
+  
+  // console.log(window.molstar?.managers.structure.selection.fromLoci('add', ))
+
+}
+
+const log_selection_manager = () =>{
+  console.log(window.molstar?.managers.structure.hierarchy.selection.structures);
+  
+  // const ligandPlusSurroundings = StructureSelectionQuery('Surrounding Residues (5 \u212B) of Ligand plus Ligand itself', MS.struct.modifier.union([
+  //     MS.struct.modifier.includeSurroundings({
+  //         0: StructureSelectionQueries.ligand.expression,
+  //         radius: 5,
+  //         'as-whole-residues': true
+  //     })
+  // ]));
+  console.log(StructureSelectionQueries.ligand)
+}
+
+
+export default function Example() {
+  return (
     <>
       <div>
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
@@ -80,7 +117,10 @@ export default function Example() {
                   <div className="text-xs font-semibold leading-6 text-gray-400">Structure Tools</div>
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
                     {tools.map((team) => (
-                      <li key={team.name}>
+                      <li 
+                      onClick={()=>{console.log()}}
+                      
+                      key={team.name}>
                         <a
                           href={team.href}
                           className={classNames(
@@ -90,20 +130,20 @@ export default function Example() {
                             'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                           )}
                         >
-                          <span
-                            className={classNames(
-                              team.current
-                                ? 'text-indigo-600 border-indigo-600'
-                                : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600',
-                              'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
-                            )}
-                          >
+                          <span className={classNames( team.current ? 'text-indigo-600 border-indigo-600' : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600', 'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white' )} >
                             {team.initial}
                           </span>
                           <span className="truncate">{team.name}</span>
                         </a>
                       </li>
                     ))}
+                    <li>
+                       <button onClick={()=>{try_select_chain()}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button>
+                    </li>
+                    <li>
+                       <button onClick={()=>{log_selection_manager()}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > Log Manager </button>
+
+                    </li>
                   </ul>
                 </li>
               </ul>
