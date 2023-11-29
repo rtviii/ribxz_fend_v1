@@ -3,9 +3,11 @@ import { MolStarWrapper } from '@/components/mstar/mstar_wrapper'
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
 import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
 import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
-import {Structure, StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure/structure'
+import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure/structure'
 import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
-import {compileIdListSelection} from 'molstar/lib/mol-script/util/id-list'
+import { compileIdListSelection } from 'molstar/lib/mol-script/util/id-list'
+import { Expression } from 'molstar/lib/mol-script/language/expression';
+import { log } from 'console';
 
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
@@ -26,41 +28,70 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-const try_select_chain = () =>{
-  var   selection:any    = (l:any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
-  var   k                = Queries.combinators.merge([ Queries.generators.atoms(selection)])
+function chainSelection(auth_asym_id: string) {
+  return MS.struct.generator.atomGroups({
+    'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id])
+  });
+}
+
+function select_multiple() {
+    const args = [['A', 10,15],['F',10,15]]
+
+    const groups: Expression[] = [];
+    for (var chain of args) {
+      groups.push(MS.struct.generator.atomGroups({
+        "chain-test"  : MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain[0]]),
+        "residue-test": MS.core.rel.inRange([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain[1],chain[2]])
+      }));
+    }    
+    
+    return MS.struct.combinator.merge(groups);
+
+}
+
+
+const try_select_chain = () => {
+  var selection: any = (l: any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
+  var k = Queries.combinators.merge([Queries.generators.atoms(selection)])
   const { core, struct } = MolScriptBuilder;
 
-  const expressions      = []
+  const expressions = []
 
   var proteins = StructureSelectionQueries.protein
-  var polymer= StructureSelectionQueries.polymer
- 
+  var polymer = StructureSelectionQueries.polymer
+
 
   const propTests: Parameters<typeof struct.generator.atomGroups>[0] = {
     'chain-test': core.rel.eq([struct.atomProperty.macromolecular.auth_asym_id, 'A']),
-    'group-by'  : struct.atomProperty.core.operatorName(),
-  }    
+    'group-by': struct.atomProperty.core.operatorName(),
+  }
 
   expressions.push(struct.filter.first([struct.generator.atomGroups(propTests)]));
   const e = struct.combinator.merge(expressions);
 
-  const sq1_prot = StructureSelectionQuery('some_name', proteins.expression)
-  const sq2 = StructureSelectionQuery('chain_A', e)
+  // const select_chain = StructureSelectionQuery('chain_A', chainSelection('B'))
+  const select_20 = StructureSelectionQuery('chain_A', Select20())
+  const select_multiple_chains = StructureSelectionQuery('multiple', select_multiple())
+  console.log(select_multiple_chains);
+  
+
+ 
+
+
 
   // ! Via compiled selection
   // const query = compileIdListSelection('A 12-200', 'auth');
-  // window.molstar?.managers.structure.selection.fromCompiledQuery('add',query)
+  window.molstar?.managers.structure.selection.fromSelectionQuery('set', select_multiple_chains)
   // ! Via loci
   // const getLoci = async (s: Structure) => StructurSelection.toLociWithSourceUnits(await params.selection.getSelection(this.plugin, ctx, s));
-  // window.molstar?.managers.structure.selection.fromLoci('add', )
-  window.molstar?.managers.structure.component.currentStructures
+
+
 
 }
 
-const log_selection_manager = () =>{
+const log_selection_manager = () => {
   console.log(window.molstar?.managers.structure.hierarchy.selection.structures);
-  
+
   // const ligandPlusSurroundings = StructureSelectionQuery('Surrounding Residues (5 \u212B) of Ligand plus Ligand itself', MS.struct.modifier.union([
   //     MS.struct.modifier.includeSurroundings({
   //         0: StructureSelectionQueries.ligand.expression,
@@ -69,7 +100,10 @@ const log_selection_manager = () =>{
   //     })
   // ]));
   // console.log(StructureSelectionQueries.ligand)
-  
+
+  MS.struct.generator.atomGroups({
+
+  })
   console.log(window.molstar?.managers.structure.component.currentStructures[0].cell)
 
 }
@@ -84,7 +118,7 @@ export default function Example() {
             <div className="flex h-16 shrink-0 items-center">
               <img
                 className="h-8 w-auto"
-                       src="/ray-logo-transp.png" 
+                src="/ray-logo-transp.png"
                 alt="riboxyz"
               />
             </div>
@@ -120,10 +154,10 @@ export default function Example() {
                   <div className="text-xs font-semibold leading-6 text-gray-400">Structure Tools</div>
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
                     {tools.map((team) => (
-                      <li 
-                      onClick={()=>{console.log()}}
-                      
-                      key={team.name}>
+                      <li
+                        onClick={() => { console.log() }}
+
+                        key={team.name}>
                         <a
                           href={team.href}
                           className={classNames(
@@ -133,7 +167,7 @@ export default function Example() {
                             'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                           )}
                         >
-                          <span className={classNames( team.current ? 'text-indigo-600 border-indigo-600' : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600', 'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white' )} >
+                          <span className={classNames(team.current ? 'text-indigo-600 border-indigo-600' : 'text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600', 'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white')} >
                             {team.initial}
                           </span>
                           <span className="truncate">{team.name}</span>
@@ -141,10 +175,10 @@ export default function Example() {
                       </li>
                     ))}
                     <li>
-                       <button onClick={()=>{try_select_chain()}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button>
+                      <button onClick={() => { try_select_chain() }} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button>
                     </li>
                     <li>
-                       <button onClick={()=>{log_selection_manager()}} type="button"
+                      <button onClick={() => { log_selection_manager() }} type="button"
                         className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > Log Manager </button>
 
                     </li>
