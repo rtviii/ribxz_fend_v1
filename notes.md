@@ -10,9 +10,22 @@
 rtkushner1@r8-kdd.math.ubc.ca
 
 
+# Molstar Desirables 
 
-# molstar actions
+- highlight chain
+- create object
+- superimpose 
+- superimpose two chains
+- superimpose two structures
+- create separate chain object
+- select arbitrary residues across the structure
+- density maps
 
+
+
+# Molstar Notes
+
+MolScript Builder for expressions: core, topology and macromolecular properties logic. What is it matched against? mmcif, surely?
 
 
 Expressions

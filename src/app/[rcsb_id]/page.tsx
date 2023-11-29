@@ -48,15 +48,13 @@ const try_select_chain = () =>{
   const sq1_prot = StructureSelectionQuery('some_name', proteins.expression)
   const sq2 = StructureSelectionQuery('chain_A', e)
 
-  // console.log(sq1_prot)
-  // console.log(sq2)
-  // const sel  = window.molstar?.managers.structure.selection.fromSelectionQuery('add',sq1_prot )
-
-    const query = compileIdListSelection('A 12-200', 'auth');
-  window.molstar?.managers.structure.selection.fromCompiledQuery('add',query)
-  // console.log(sel);
-  
-  // console.log(window.molstar?.managers.structure.selection.fromLoci('add', ))
+  // ! Via compiled selection
+  // const query = compileIdListSelection('A 12-200', 'auth');
+  // window.molstar?.managers.structure.selection.fromCompiledQuery('add',query)
+  // ! Via loci
+  // const getLoci = async (s: Structure) => StructurSelection.toLociWithSourceUnits(await params.selection.getSelection(this.plugin, ctx, s));
+  // window.molstar?.managers.structure.selection.fromLoci('add', )
+  window.molstar?.managers.structure.component.currentStructures
 
 }
 
@@ -70,7 +68,10 @@ const log_selection_manager = () =>{
   //         'as-whole-residues': true
   //     })
   // ]));
-  console.log(StructureSelectionQueries.ligand)
+  // console.log(StructureSelectionQueries.ligand)
+  
+  console.log(window.molstar?.managers.structure.component.currentStructures[0].cell)
+
 }
 
 
@@ -143,7 +144,8 @@ export default function Example() {
                        <button onClick={()=>{try_select_chain()}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button>
                     </li>
                     <li>
-                       <button onClick={()=>{log_selection_manager()}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > Log Manager </button>
+                       <button onClick={()=>{log_selection_manager()}} type="button"
+                        className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > Log Manager </button>
 
                     </li>
                   </ul>
