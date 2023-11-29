@@ -1,17 +1,12 @@
 'use client'
 import { MolStarWrapper } from '@/components/mstar/mstar_wrapper'
-import {StructureSelectionManager,StructureSelectionModifier,StructureSelectionSnapshot} from 'molstar/lib/mol-plugin-state/manager/structure/selection'
-import {StructureComponentManager} from 'molstar/lib/mol-plugin-state/manager/structure/component'
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
-import { Fragment, useState } from 'react'
 import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
-import { Dialog } from '@headlessui/react'
 import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
-import { Loci } from 'molstar/lib/mol-model/loci'
-
 import {Structure, StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure/structure'
 import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
-import { log } from 'console';
+import {compileIdListSelection} from 'molstar/lib/mol-script/util/id-list'
+
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides', href: '#', icon: FolderIcon, current: false },
@@ -32,27 +27,34 @@ function classNames(...classes: any[]) {
 }
 
 const try_select_chain = () =>{
-  var selection:any = (l:any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
-  var k             = Queries.combinators.merge([ Queries.generators.atoms(selection)])
+  var   selection:any    = (l:any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
+  var   k                = Queries.combinators.merge([ Queries.generators.atoms(selection)])
   const { core, struct } = MolScriptBuilder;
-  const expressions= []
+
+  const expressions      = []
 
   var proteins = StructureSelectionQueries.protein
+  var polymer= StructureSelectionQueries.polymer
+ 
 
   const propTests: Parameters<typeof struct.generator.atomGroups>[0] = {
-    'chain-test' : core.rel.eq([struct.atomProperty.macromolecular.auth_asym_id, 'A']), 
-    'group-by': struct.atomProperty.core.operatorName(),
+    'chain-test': core.rel.eq([struct.atomProperty.macromolecular.auth_asym_id, 'A']),
+    'group-by'  : struct.atomProperty.core.operatorName(),
   }    
+
   expressions.push(struct.filter.first([struct.generator.atomGroups(propTests)]));
   const e = struct.combinator.merge(expressions);
 
   const sq1_prot = StructureSelectionQuery('some_name', proteins.expression)
   const sq2 = StructureSelectionQuery('chain_A', e)
 
-  console.log(sq1_prot)
-  console.log(sq2)
-  const sel  = window.molstar?.managers.structure.selection.fromSelectionQuery('add',sq1_prot )
-  console.log(sel);
+  // console.log(sq1_prot)
+  // console.log(sq2)
+  // const sel  = window.molstar?.managers.structure.selection.fromSelectionQuery('add',sq1_prot )
+
+    const query = compileIdListSelection('A 12-200', 'auth');
+  window.molstar?.managers.structure.selection.fromCompiledQuery('add',query)
+  // console.log(sel);
   
   // console.log(window.molstar?.managers.structure.selection.fromLoci('add', ))
 
