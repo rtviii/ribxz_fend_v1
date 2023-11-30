@@ -13,12 +13,14 @@ rtkushner1@r8-kdd.math.ubc.ca
 # Molstar Desirables 
 
 - highlight chain
+- select arbitrary residues across the structure
+
+- create separate chain object
 - create object
+
 - superimpose 
 - superimpose two chains
 - superimpose two structures
-- create separate chain object
-- select arbitrary residues across the structure
 - density maps
 
 

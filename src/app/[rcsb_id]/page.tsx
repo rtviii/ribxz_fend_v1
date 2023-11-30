@@ -8,7 +8,9 @@ import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/
 import { compileIdListSelection } from 'molstar/lib/mol-script/util/id-list'
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { log } from 'console';
+import { Asset } from 'molstar/lib/mol-util/assets';
 
+const CUSTOM_FILE='file::///home/rtviii/dev/RIBETL_DATA/8T8C/8T8C.cif'
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides', href: '#', icon: FolderIcon, current: false },
@@ -50,6 +52,92 @@ function select_multiple() {
 }
 
 
+function create_fromSelection(){
+
+  window.molstar?.managers.structure.component.add({}, )
+
+}
+
+
+// ===========
+
+        // const data       = await this.plugin.builders.data.download({ url: Asset.Url(url, downloadOptions), isBinary }, { state: { isGhost: true } });
+        // const trajectory = await this.plugin.builders.structure.parseTrajectory(data, format);
+        //   const model = await this.plugin.builders.structure.createModel(trajectory);
+        //   await this.plugin.builders.structure.createStructure(model, { name: 'model', params: { } });
+        // if(this.initParams.selection) {
+        //     this.visual.select(this.initParams.selection);}
+
+        // const pivotIndex = this.plugin.managers.structure.hierarchy.selection.structures.length - 1;
+        // const pivot      = this.plugin.managers.structure.hierarchy.selection.structures[pivotIndex];
+        // if(pivot && pivot.cell.parent) this.assemblyRef = pivot.cell.transform.ref;
+// ===========
+async function load(){
+
+    window.molstar?.clear()
+        // const data       = await window.molstar!.builders.data.download({ url: Asset.Url("127.0.0.1:8000/comp/get_chain/?auth_asym_id=A&rcsb_id=3j7z"), isBinary:false }, { state: { isGhost: true } });
+
+const myUrl = new URL('http://127.0.0.1:8000/comp/get_chain/')
+myUrl.searchParams.append('auth_asym_id', 'A');
+myUrl.searchParams.append('rcsb_id', '3j7z');
+
+console.log(myUrl);
+
+      const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary:false }, { state: { isGhost: true } });
+      console.log("Got data:" ,data);
+        
+        const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
+                           await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+            structure: 1 ? {
+                name: 'assembly',
+                params: { id: 1 }
+            } : {
+                name: 'model',
+                params: {}
+            },
+            showUnitcell: false,
+            representationPreset: 'auto'
+        });
+    }
+
+function load_custom_model(){
+  fetch(CUSTOM_FILE)
+    .then((response) => response.blob())
+    .then(async (blob) => {
+      // Create a File object from the Blob
+    const _file: File = new File([blob], CUSTOM_FILE );
+
+    const ab = await _file.arrayBuffer()
+      // Now you have a File object representing the local file
+      console.log("opened file succesfully", _file);
+
+
+    var objectURL = URL.createObjectURL(_file);
+
+    window.molstar?.clear()
+    // const data       = await window.molstar!.builders.data.download({url:"file:///home/rtviii/dev/RIBETL_DATA/8T8C/8T8C.cif", isBinary:true}, { state: { isGhost: true } })
+    // const data       = await window.molstar!.builders.data.readFile({file: _file, isBinary:true}, { state: { isGhost: true } })
+    // const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
+    // const model      = await window.molstar!.builders.structure.createModel(trajectory);
+
+
+      const data       = await window.molstar!.builders.data.rawData({ data: ab }, { state: { isGhost: true } });
+      console.log("Got data:" ,data);
+      
+      const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
+      const model      = await window.molstar!.builders.structure.createModel(trajectory);
+      const structure  = await window.molstar!.builders.structure.createStructure(model);
+
+
+
+    })
+    .catch((error) => {
+      console.error("Error fetching or creating the File:", error);
+    });
+
+
+}
+
 const try_select_chain = () => {
   var selection: any = (l: any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
   var k = Queries.combinators.merge([Queries.generators.atoms(selection)])
@@ -70,14 +158,9 @@ const try_select_chain = () => {
   const e = struct.combinator.merge(expressions);
 
   // const select_chain = StructureSelectionQuery('chain_A', chainSelection('B'))
-  const select_20 = StructureSelectionQuery('chain_A', Select20())
   const select_multiple_chains = StructureSelectionQuery('multiple', select_multiple())
   console.log(select_multiple_chains);
   
-
- 
-
-
 
   // ! Via compiled selection
   // const query = compileIdListSelection('A 12-200', 'auth');
@@ -150,6 +233,7 @@ export default function Example() {
                     ))}
                   </ul>
                 </li>
+
                 <li>
                   <div className="text-xs font-semibold leading-6 text-gray-400">Structure Tools</div>
                   <ul role="list" className="-mx-2 mt-2 space-y-1">
@@ -174,6 +258,9 @@ export default function Example() {
                         </a>
                       </li>
                     ))}
+                    <li>
+                      <button onClick={() => {load()}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > custom model</button>
+                    </li>
                     <li>
                       <button onClick={() => { try_select_chain() }} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button>
                     </li>

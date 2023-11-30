@@ -27,6 +27,7 @@ export function MolStarWrapper() {
               window.molstar = await createPluginUI(parent.current as HTMLDivElement, MySpec);
         const data           = await window.molstar.builders.data.download( { url: "https://files.rcsb.org/download/3j7z.pdb" }, { state: { isGhost: true } } );
         const trajectory     = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+
         await window.molstar.builders.structure.hierarchy.applyPreset( trajectory, "default" );
     }
 
