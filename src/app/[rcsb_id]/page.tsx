@@ -9,8 +9,14 @@ import { compileIdListSelection } from 'molstar/lib/mol-script/util/id-list'
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { log } from 'console';
 import { Asset } from 'molstar/lib/mol-util/assets';
+import { Mat4 } from 'molstar/lib/mol-math/linear-algebra';
+import { PluginContext } from 'molstar/lib/mol-plugin/context';
+import { BuiltInTrajectoryFormat } from 'molstar/lib/mol-plugin-state/formats/trajectory';
+import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
+import { StateObjectRef } from 'molstar/lib/mol-state';
+import { PluginStateObject as PSO } from 'molstar/lib/mol-plugin-state/objects';
 
-const CUSTOM_FILE='file::///home/rtviii/dev/RIBETL_DATA/8T8C/8T8C.cif'
+const msp = window.molstar!;
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides', href: '#', icon: FolderIcon, current: false },
@@ -37,106 +43,111 @@ function chainSelection(auth_asym_id: string) {
 }
 
 function select_multiple() {
-    const args = [['A', 10,15],['F',10,15]]
+  const args = [['A', 10, 15], ['F', 10, 15]]
 
-    const groups: Expression[] = [];
-    for (var chain of args) {
-      groups.push(MS.struct.generator.atomGroups({
-        "chain-test"  : MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain[0]]),
-        "residue-test": MS.core.rel.inRange([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain[1],chain[2]])
-      }));
-    }    
-    
-    return MS.struct.combinator.merge(groups);
+  const groups: Expression[] = [];
+  for (var chain of args) {
+    groups.push(MS.struct.generator.atomGroups({
+      "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain[0]]),
+      "residue-test": MS.core.rel.inRange([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain[1], chain[2]])
+    }));
+  }
 
-}
-
-
-function create_fromSelection(){
-
-  window.molstar?.managers.structure.component.add({}, )
+  return MS.struct.combinator.merge(groups);
 
 }
 
 
-// ===========
-
-        // const data       = await this.plugin.builders.data.download({ url: Asset.Url(url, downloadOptions), isBinary }, { state: { isGhost: true } });
-        // const trajectory = await this.plugin.builders.structure.parseTrajectory(data, format);
-        //   const model = await this.plugin.builders.structure.createModel(trajectory);
-        //   await this.plugin.builders.structure.createStructure(model, { name: 'model', params: { } });
-        // if(this.initParams.selection) {
-        //     this.visual.select(this.initParams.selection);}
-
-        // const pivotIndex = this.plugin.managers.structure.hierarchy.selection.structures.length - 1;
-        // const pivot      = this.plugin.managers.structure.hierarchy.selection.structures[pivotIndex];
-        // if(pivot && pivot.cell.parent) this.assemblyRef = pivot.cell.transform.ref;
-// ===========
-async function load(){
-
-    window.molstar?.clear()
-        // const data       = await window.molstar!.builders.data.download({ url: Asset.Url("127.0.0.1:8000/comp/get_chain/?auth_asym_id=A&rcsb_id=3j7z"), isBinary:false }, { state: { isGhost: true } });
-
-const myUrl = new URL('http://127.0.0.1:8000/comp/get_chain/')
-myUrl.searchParams.append('auth_asym_id', 'A');
-myUrl.searchParams.append('rcsb_id', '3j7z');
-
-console.log(myUrl);
-
-      const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary:false }, { state: { isGhost: true } });
-      console.log("Got data:" ,data);
-        
-        const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
-                           await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
-            structure: 1 ? {
-                name: 'assembly',
-                params: { id: 1 }
-            } : {
-                name: 'model',
-                params: {}
-            },
-            showUnitcell: false,
-            representationPreset: 'auto'
-        });
-    }
-
-function load_custom_model(){
-  fetch(CUSTOM_FILE)
-    .then((response) => response.blob())
-    .then(async (blob) => {
-      // Create a File object from the Blob
-    const _file: File = new File([blob], CUSTOM_FILE );
-
-    const ab = await _file.arrayBuffer()
-      // Now you have a File object representing the local file
-      console.log("opened file succesfully", _file);
+function create_fromSelection() {
+  // window.molstar?.managers.structure.component.add({},)
+}
 
 
-    var objectURL = URL.createObjectURL(_file);
+function transform(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structure>, matrix: Mat4) {
+    const b = plugin.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
+    return plugin.runTask(plugin.state.data.updateTree(b));
+}
+export type SuperpositionTestInput = {
+    pdbId: string,
+    auth_asym_id: string,
+    matrix: Mat4
+}[];
+async function loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, assemblyId?: string) {
+    const data       = await plugin.builders.data.download({ url: Asset.Url(url) });
+    const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
+    const model      = await plugin.builders.structure.createModel(trajectory);
+    const structure  = await plugin.builders.structure.createStructure(model, assemblyId ? { name: 'assembly', params: { id: assemblyId } } : void 0);
 
-    window.molstar?.clear()
-    // const data       = await window.molstar!.builders.data.download({url:"file:///home/rtviii/dev/RIBETL_DATA/8T8C/8T8C.cif", isBinary:true}, { state: { isGhost: true } })
-    // const data       = await window.molstar!.builders.data.readFile({file: _file, isBinary:true}, { state: { isGhost: true } })
-    // const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
-    // const model      = await window.molstar!.builders.structure.createModel(trajectory);
-
-
-      const data       = await window.molstar!.builders.data.rawData({ data: ab }, { state: { isGhost: true } });
-      console.log("Got data:" ,data);
-      
-      const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
-      const model      = await window.molstar!.builders.structure.createModel(trajectory);
-      const structure  = await window.molstar!.builders.structure.createStructure(model);
-
-
-
-    })
-    .catch((error) => {
-      console.error("Error fetching or creating the File:", error);
+    return { data, trajectory, model, structure };
+}
+export function buildStaticSuperposition(plugin: PluginContext, src: SuperpositionTestInput) {
+    return plugin.dataTransaction(async () => {
+        for (const s of src) {
+            const { structure } = await loadStructure(plugin, `https://www.ebi.ac.uk/pdbe/static/entry/${s.pdbId}_updated.cif`, 'mmcif');
+            await transform(plugin, structure, s.matrix);
+            const chain = await plugin.builders.structure.tryCreateComponentFromExpression(structure, chainSelection(s.auth_asym_id), `Chain ${s.auth_asym_id}`);
+            if (chain) { await plugin.builders.structure.representation.addRepresentation(chain, { type: 'cartoon' }); }
+        }
     });
+}
+export const StaticSuperpositionTestData: SuperpositionTestInput = [
+  {
+      pdbId: '1aj5', auth_asym_id: 'A', matrix: Mat4.identity()
+  },
+  {
+      pdbId: '1df0', auth_asym_id: 'B', matrix: Mat4.ofRows([
+          [0.406, 0.879, 0.248, -200.633],
+          [0.693, -0.473, 0.544, 73.403],
+          [0.596, -0.049, -0.802, -14.209],
+          [0, 0, 0, 1]])
+  },
+  {
+      pdbId: '1dvi', auth_asym_id: 'A', matrix: Mat4.ofRows([
+          [-0.053, -0.077, 0.996, -45.633],
+          [-0.312, 0.949, 0.057, -12.255],
+          [-0.949, -0.307, -0.074, 53.562],
+          [0, 0, 0, 1]])
+  }
+];
 
+
+
+
+function superimpose(){
 
 }
+
+//  ----------------------------------------------------
+
+
+async function load() {
+
+  window.molstar?.clear()
+  // const data       = await window.molstar!.builders.data.download({ url: Asset.Url("127.0.0.1:8000/comp/get_chain/?auth_asym_id=A&rcsb_id=3j7z"), isBinary:false }, { state: { isGhost: true } });
+
+  const myUrl = new URL('http://127.0.0.1:8000/comp/get_chain/')
+  myUrl.searchParams.append('auth_asym_id', 'A');
+  myUrl.searchParams.append('rcsb_id', '3j7z');
+
+  console.log(myUrl);
+
+  const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
+  console.log("Got data:", data);
+
+  const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
+  await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+    structure: 1 ? {
+      name: 'assembly',
+      params: { id: 1 }
+    } : {
+      name: 'model',
+      params: {}
+    },
+    showUnitcell: false,
+    representationPreset: 'auto'
+  });
+}
+
 
 const try_select_chain = () => {
   var selection: any = (l: any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
@@ -160,7 +171,7 @@ const try_select_chain = () => {
   // const select_chain = StructureSelectionQuery('chain_A', chainSelection('B'))
   const select_multiple_chains = StructureSelectionQuery('multiple', select_multiple())
   console.log(select_multiple_chains);
-  
+
 
   // ! Via compiled selection
   // const query = compileIdListSelection('A 12-200', 'auth');
@@ -259,7 +270,7 @@ export default function Example() {
                       </li>
                     ))}
                     <li>
-                      <button onClick={() => {load()}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > custom model</button>
+                      <button onClick={() => { load() }} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > custom model</button>
                     </li>
                     <li>
                       <button onClick={() => { try_select_chain() }} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button>
