@@ -1,6 +1,7 @@
 - you have a tailwind subscription
 
 # Molstar Development
+
 - desirable features: highlight chain 
 
 
@@ -10,7 +11,6 @@
 rtkushner1@r8-kdd.math.ubc.ca
 
 
-# Molstar Desirables 
 
 - [x] highlight chain
 - [x] select arbitrary residues across the structure
