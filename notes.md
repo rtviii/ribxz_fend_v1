@@ -36,3 +36,11 @@ MolScript Builder for expressions: core, topology and macromolecular properties 
 Expressions
 
 look at molscript -- query-compilation
+
+
+#--------------------------------
+
+Residue id/hovers/selection
+https://github.com/molstar/molstar/issues/888
+https://github.com/molstar/molstar/issues/120
+https://github.com/molstar/molstar/issues/168
