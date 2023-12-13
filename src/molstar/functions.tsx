@@ -1,11 +1,11 @@
 
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
+import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
 import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
 import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure/structure'
 import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
 import { compileIdListSelection } from 'molstar/lib/mol-script/util/id-list'
-import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { log } from 'console';
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/interactivity';
@@ -13,7 +13,10 @@ import { debounceTime } from 'rxjs';
 import { Script } from 'molstar/lib/mol-script/script';
 import { InitVolumeStreaming } from 'molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers';
 
-async function load_from_server() {
+
+const mstar = window.molstar!;
+
+export async function load_from_server() {
 
   window.molstar?.clear()
   const myUrl = new URL('http://127.0.0.1:8000/comp/get_chain/')
@@ -51,7 +54,7 @@ export function select_multiple() {
       "residue-test": MS.core.rel.inRange([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain[1], chain[2]])
     }));
   }
-
+  mstar.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
   return MS.struct.combinator.merge(groups);
 
 }
@@ -77,6 +80,11 @@ export async function stream_volume() {
 
 }
 
+export async function download_another_struct(){
+      const data       = await mstar.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+      const trajectory = await mstar.builders.structure.parseTrajectory(data, "mmcif");
+      await mstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+}
 
 // const __select_chain = () => {
 //   var selection: any = (l: any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
@@ -102,8 +110,8 @@ export async function stream_volume() {
 //   console.log(select_multiple_chains);
 
 //   // ! Via compiled selection
-//   // const query = compileIdListSelection('A 12-200', 'auth');
-//   window.molstar?.managers.structure.selection.fromSelectionQuery('set', select_multiple_chains)
+  const query = compileIdListSelection('A 12-200', 'auth');
+  window.molstar?.managers.structure.selection.fromCompiledQuery('add',query);
 
 // }
 
