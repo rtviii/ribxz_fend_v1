@@ -19,14 +19,10 @@ export function MolStarWrapper() {
     async function init() {
 
       window.molstar = await createPluginUI(parent.current as HTMLDivElement, MySpec);
-      // ^ your actual "viewer"
-
       const data       = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3j7z.pdb" }, { state: { isGhost: true } });
       const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
       await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
-
     }
-
     init();
 
     return () => {

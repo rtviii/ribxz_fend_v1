@@ -2,6 +2,7 @@
 import { MolStarWrapper } from '@/molstar/mstar_wrapper'
 import { download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar/functions'
 import { DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
+import { SequenceView } from 'molstar/lib/mol-plugin-ui/sequence'
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides (Protein)', href: '#', icon: FolderIcon, current: false },
@@ -112,8 +113,7 @@ export default function Example() {
       {/* Column 2 */}
       <div className="w-3/5 flex flex-col">
         <div className="h-1/5 bg-gray-400"> 
-        
-                        {/* <SequenceView /> */}
+                        <SequenceView />
         </div>
         <div className="h-3/5 bg-gray-500">
           <MolStarWrapper />
