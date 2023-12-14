@@ -1,5 +1,4 @@
 'use client'
-import { MolstarNode } from '@/molstar/mstar_wrapper'
 import { download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar/functions'
 import { DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
 import { SequenceView } from 'molstar/lib/mol-plugin-ui/sequence'
@@ -8,7 +7,7 @@ import { createPluginUI } from 'molstar/lib/mol-plugin-ui'
 import { MySpec } from '@/molstar/mstar_config'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
 import { PluginContextContainer } from 'molstar/lib/mol-plugin-ui/plugin';
-import { ribxzMolstarPlugin } from '@/molstar/molstar_plugin'
+import { MolstarNode, ribxzMolstarPlugin } from '@/molstar/molstar_plugin'
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides (Protein)', href: '#', icon: FolderIcon, current: false },
