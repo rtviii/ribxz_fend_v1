@@ -7,6 +7,8 @@ import { RefObject, createContext, useContext, useEffect, useRef, useState } fro
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui'
 import { MySpec } from '@/molstar/mstar_config'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
+import { PluginContextContainer } from 'molstar/lib/mol-plugin-ui/plugin';
+import { ribxzMolstarPlugin } from '@/molstar/molstar_plugin'
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides (Protein)', href: '#', icon: FolderIcon, current: false },
@@ -29,25 +31,25 @@ function classNames(...classes: any[]) {
 }
 
 
+
+
+
 const MolstarStateContext = createContext<PluginUIContext | undefined>(undefined);
 export default function StructurePage({ ...props }) {
+  ribxz_plugin: PluginUIContext;
+
   const molstarNodeRef = useRef<HTMLDivElement>(null);
-  const [ molstarState, setMolstarState ]   = useState<PluginUIContext | undefined>(undefined);
+  const [plugin, setPlugin] = useState<PluginUIContext | undefined>(undefined);
 
 
   useEffect(() => {
 
-      async function init(node_ref:RefObject<HTMLDivElement>) {
-        window.molstar = await createPluginUI(node_ref.current, MySpec);
-        setMolstarState(window.molstar)
-        const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3j7z.pdb" }, { state: { isGhost: true } });
-        const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-        await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
-      }
     if (molstarNodeRef.current !== null) {
-
       if (molstarNodeRef.current) {
-        init(molstarNodeRef);
+        (async () => {
+          const plugin = await new ribxzMolstarPlugin().init(molstarNodeRef);
+          setPlugin(plugin)
+        })()
       }
       return () => {
         window.molstar?.dispose();
@@ -146,8 +148,8 @@ export default function StructurePage({ ...props }) {
       {/* Column 2 */}
       <div className="w-3/5 flex flex-col">
         <div className="h-1/5 bg-gray-400">
+          {plugin ? <PluginContextContainer plugin={plugin}><SequenceView/></PluginContextContainer> : null}
           {/* <MolstarStateContext.Provider value={molstarState}>
-          <SequenceView/>
           </MolstarStateContext.Provider > */}
         </div>
         <div className="h-3/5 bg-gray-500">

@@ -31,18 +31,12 @@ export const MySpec: PluginUISpec = {
     ],
     components: {
         structureTools: CustomStructureTools,
-        // hideTaskOverlay: ,
         controls: {  bottom: 'none' },
         remoteState: 'none',
-
     },
     layout: {
-        
-        
         initial: {
-            
             controlsDisplay:'portrait',
-            // isExpanded: true,
             showControls: false,
         },
     },
