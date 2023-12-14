@@ -1,10 +1,12 @@
 'use client'
-import { MolStarWrapper, MolstarNode } from '@/molstar/mstar_wrapper'
+import { MolstarNode } from '@/molstar/mstar_wrapper'
 import { download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar/functions'
 import { DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
 import { SequenceView } from 'molstar/lib/mol-plugin-ui/sequence'
-import { useEffect, useRef } from 'react'
+import { RefObject, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui'
+import { MySpec } from '@/molstar/mstar_config'
+import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides (Protein)', href: '#', icon: FolderIcon, current: false },
@@ -27,28 +29,34 @@ function classNames(...classes: any[]) {
 }
 
 
-export default function StructurePage() {
+const MolstarStateContext = createContext<PluginUIContext | undefined>(undefined);
+export default function StructurePage({ ...props }) {
+  const molstarNodeRef = useRef<HTMLDivElement>(null);
+  const [ molstarState, setMolstarState ]   = useState<PluginUIContext | undefined>(undefined);
 
-  const molstarNodeRef = useRef(null);
 
   useEffect(() => {
-    async function init() {
-      window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-      const data       = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3j7z.pdb" }, { state: { isGhost: true } });
-      const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-      await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+
+      async function init(node_ref:RefObject<HTMLDivElement>) {
+        window.molstar = await createPluginUI(node_ref.current, MySpec);
+        setMolstarState(window.molstar)
+        const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3j7z.pdb" }, { state: { isGhost: true } });
+        const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+        await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+      }
+    if (molstarNodeRef.current !== null) {
+
+      if (molstarNodeRef.current) {
+        init(molstarNodeRef);
+      }
+      return () => {
+        window.molstar?.dispose();
+        window.molstar = undefined;
+      };
+
     }
 
-    if ( molstarNodeRef.current ) {
-    init();
-    }
-
-
-    return () => {
-      window.molstar?.dispose();
-      window.molstar = undefined;
-    };
-  }, []);
+  }, [molstarNodeRef]);
 
 
   return (
@@ -137,12 +145,13 @@ export default function StructurePage() {
 
       {/* Column 2 */}
       <div className="w-3/5 flex flex-col">
-        <div className="h-1/5 bg-gray-400"> 
-                        {/* <SequenceView /> */}
+        <div className="h-1/5 bg-gray-400">
+          {/* <MolstarStateContext.Provider value={molstarState}>
+          <SequenceView/>
+          </MolstarStateContext.Provider > */}
         </div>
         <div className="h-3/5 bg-gray-500">
           <MolstarNode ref={molstarNodeRef} />
-          {/* <MolStarWrapper /> */}
         </div>
         <div className="h-1/5 bg-gray-400">Row 3</div>
       </div>

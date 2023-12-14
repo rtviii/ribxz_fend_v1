@@ -52,6 +52,6 @@ declare global {
 // });
 
 
-export const MolstarNode = forwardRef<HTMLDivElement>(function MolstarNode(props, ref){
-  return <div ref={ref} {...props} />
+export const MolstarNode = forwardRef<HTMLDivElement, {}>(function MolstarNode(_, ref){
+  return <div ref={ref} id='molstar-wrapper'/>
 })
