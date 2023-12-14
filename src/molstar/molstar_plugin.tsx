@@ -30,7 +30,7 @@ export class ribxzMolstarPlugin {
     async init(node_ref:RefObject<HTMLDivElement>) {
 
               this.ribxz_plugin = await createPluginUI(node_ref.current, MySpec);
-        const data              = await this.ribxz_plugin.builders.data.download({ url: "https://files.rcsb.org/download/3j7z.pdb" }, { state: { isGhost: true } });
+        const data              = await this.ribxz_plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
         const trajectory        = await this.ribxz_plugin.builders.structure.parseTrajectory(data, "pdb");
         await this.ribxz_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
         return this.ribxz_plugin
