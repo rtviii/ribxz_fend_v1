@@ -21,9 +21,6 @@ declare global {
 }
 
 
-export const MolstarNode = forwardRef<HTMLDivElement, {}>(function MolstarNode(_, ref){
-  return <div ref={ref} id='molstar-wrapper'/>
-})
 export class ribxzMolstarPlugin {
     ribxz_plugin: PluginUIContext;
 
@@ -157,3 +154,6 @@ export class ribxzMolstarPlugin {
     //     });
     // }
 }
+export const MolstarNode = forwardRef<HTMLDivElement, {}>(function MolstarNode(_, ref){
+  return <div ref={ref} id='molstar-wrapper'/>
+})

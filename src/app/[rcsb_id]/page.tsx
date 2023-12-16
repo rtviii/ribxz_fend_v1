@@ -1,5 +1,5 @@
 'use client'
-import { download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar/functions'
+import { apply_style, download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar/functions'
 import { DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
 import { SequenceView } from 'molstar/lib/mol-plugin-ui/sequence'
 import { RefObject, createContext, useContext, useEffect, useRef, useState } from 'react'
@@ -47,6 +47,7 @@ export default function StructurePage({ ...props }) {
       if (molstarNodeRef.current) {
         (async () => {
           const plugin = await new ribxzMolstarPlugin().init(molstarNodeRef);
+          window.molstar = plugin;
           setPlugin(plugin)
         })()
       }
@@ -140,6 +141,9 @@ export default function StructurePage({ ...props }) {
             <li>
               <button onClick={() => download_another_struct()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > add struct</button>
             </li>
+            <li>
+              <button onClick={() => apply_style()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > apply style</button>
+            </li>
           </ul>
         </div>
       </div>
@@ -147,7 +151,7 @@ export default function StructurePage({ ...props }) {
       {/* Column 2 */}
       <div className="w-3/5 flex flex-col">
         <div className="h-1/5 bg-gray-400">
-          {plugin ? <PluginContextContainer plugin={plugin}><SequenceView/></PluginContextContainer> : null}
+          {/* {plugin ? <PluginContextContainer plugin={plugin}><SequenceView/></PluginContextContainer> : null} */}
           {/* <MolstarStateContext.Provider value={molstarState}>
           </MolstarStateContext.Provider > */}
         </div>

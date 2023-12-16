@@ -86,6 +86,25 @@ export async function download_another_struct(){
       await mstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
 }
 
+export async function apply_style(){
+  var mst = window.molstar!;
+  var builder = mst.build()
+  console.log(builder);
+  
+
+
+
+}
+
+
+// export async function apply_style(){
+//   const mstar = window.molstar!;
+//   var builder  = mstar?.build()
+//     const structure = builder.toRoot();
+//     console.log(structure);
+    
+
+// }
 // const __select_chain = () => {
 //   var selection: any = (l: any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
 //   var k = Queries.combinators.merge([Queries.generators.atoms(selection)])
@@ -109,10 +128,9 @@ export async function download_another_struct(){
 //   const select_multiple_chains = StructureSelectionQuery('multiple', select_multiple())
 //   console.log(select_multiple_chains);
 
-//   // ! Via compiled selection
-  const query = compileIdListSelection('A 12-200', 'auth');
-  window.molstar?.managers.structure.selection.fromCompiledQuery('add',query);
-
+// //   // ! Via compiled selection
+//   const query = compileIdListSelection('A 12-200', 'auth');
+//   window.molstar?.managers.structure.selection.fromCompiledQuery('add',query);
 // }
 
 
