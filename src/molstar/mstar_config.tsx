@@ -12,13 +12,12 @@ import { BuildSvg, Icon } from 'molstar/lib/mol-plugin-ui/controls/icons';
 export class CustomStructureTools extends PluginUIComponent {
     render() {
         return <>
-            <div className='msp-section-header'>
-                    <Icon svg={BuildSvg} />
-                Structure Tools</div>
-            <StructureSourceControls />
-            <StructureComponentControls />
-            <VolumeStreamingControls />
-            <VolumeSourceControls />
+            <div className='msp-section-header'> 
+            <Icon svg={BuildSvg} /> Structure Tools</div>
+                <StructureSourceControls />
+                <StructureComponentControls />
+                <VolumeStreamingControls />
+                <VolumeSourceControls />
             <StructureQuickStylesControls />
         </>;
     }

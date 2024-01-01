@@ -8,6 +8,7 @@ import { MySpec } from '@/molstar/mstar_config'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
 import { PluginContextContainer } from 'molstar/lib/mol-plugin-ui/plugin';
 import { MolstarNode, ribxzMolstarPlugin } from '@/molstar/molstar_plugin'
+import StructureCard, { TaxonomyBreadcrumbs } from '@/structure_quickview/page'
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides (Protein)', href: '#', icon: FolderIcon, current: false },
@@ -30,10 +31,8 @@ function classNames(...classes: any[]) {
 }
 
 
-
-
-
 const MolstarStateContext = createContext<PluginUIContext | undefined>(undefined);
+
 export default function StructurePage({ ...props }) {
   ribxz_plugin: PluginUIContext;
 
@@ -67,7 +66,11 @@ export default function StructurePage({ ...props }) {
       <div className="w-1/5 flex flex-col">
 
         <div className="h-1/5 bg-gray-200">
-          Row 1</div>
+          Row 1
+          <StructureCard />
+          <TaxonomyBreadcrumbs />
+
+        </div>
         <div className="h-3/5 bg-gray-300">
           <nav className="flex mx-20 my-10 flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
