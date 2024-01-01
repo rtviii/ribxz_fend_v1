@@ -82,6 +82,7 @@ export async function stream_volume() {
 
 export async function download_another_struct(){
       const data       = await mstar.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+
       const trajectory = await mstar.builders.structure.parseTrajectory(data, "mmcif");
       await mstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
 }
@@ -89,7 +90,7 @@ export async function download_another_struct(){
 export async function apply_style(){
   var mst = window.molstar!;
   var builder = mst.build()
-  console.log(builder);
+  builder.toRoot()
   
 
 
