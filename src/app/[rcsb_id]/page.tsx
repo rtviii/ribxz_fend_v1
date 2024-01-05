@@ -1,14 +1,12 @@
 'use client'
-import { apply_style, download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar/functions'
+import { apply_style, download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar_lib/functions'
 import { DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
 import { SequenceView } from 'molstar/lib/mol-plugin-ui/sequence'
 import { RefObject, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui'
-import { MySpec } from '@/molstar/mstar_config'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
 import { PluginContextContainer } from 'molstar/lib/mol-plugin-ui/plugin';
-import { MolstarNode, ribxzMolstarPlugin } from '@/molstar/molstar_plugin'
-import StructureCard, { TaxonomyBreadcrumbs } from '@/structure_quickview/page'
+import { MolstarNode, ribxzMolstarPlugin } from '@/molstar_lib/molstar_plugin'
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
   { name: 'Polynucleotides (Protein)', href: '#', icon: FolderIcon, current: false },
@@ -67,8 +65,8 @@ export default function StructurePage({ ...props }) {
 
         <div className="h-1/5 bg-gray-200">
           Row 1
-          <StructureCard />
-          <TaxonomyBreadcrumbs />
+          {/* <StructureCard />
+          <TaxonomyBreadcrumbs /> */}
 
         </div>
         <div className="h-3/5 bg-gray-300">
