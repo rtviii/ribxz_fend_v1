@@ -1,8 +1,10 @@
-- you have a tailwind subscription
 
-# Molstar Development
+# State management issues that might come up
 
-- desirable features: highlight chain 
+- Nextjs/Redux <-> Backend interactions
+- combining global state with server components
+- look at `next/server` 
+
 
 
 
@@ -10,7 +12,10 @@
 
 rtkushner1@r8-kdd.math.ubc.ca
 
+# Molstar Development
 
+* desirable features: highlight chain 
+* you have a tailwind subscription
 
 - [x] highlight chain
 - [x] select arbitrary residues across the structure
@@ -23,7 +28,6 @@ rtkushner1@r8-kdd.math.ubc.ca
 - superimpose 
 - superimpose two chains
 - superimpose two structures
-
 - density maps
 
 
@@ -44,3 +48,4 @@ Residue id/hovers/selection
 https://github.com/molstar/molstar/issues/888
 https://github.com/molstar/molstar/issues/120
 https://github.com/molstar/molstar/issues/168
+
