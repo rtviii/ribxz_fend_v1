@@ -6,6 +6,18 @@
 - look at `next/server` 
 
 
+look at normalizing state. meh
+selectors
+thunk middleware
+
+( memoize at lowest level via output selectors )[https://redux.js.org/usage/deriving-data-selectors#writing-memoized-selectors-with-reselect]
+
+
+for api requests, use trifect asyncthunks : https://redux.js.org/usage/writing-logic-thunks#using-createasyncthunk
+
+rtk-query/no thunks : https://redux.js.org/usage/writing-logic-thunks#fetching-data-with-rtk-query
+
+
 
 
 # UBC migration details
