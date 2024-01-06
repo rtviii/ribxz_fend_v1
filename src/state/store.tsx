@@ -1,8 +1,13 @@
 import {configureStore} from '@reduxjs/toolkit'
+import counterReducer from './counter/counter'
+import structureReducer from './structure/structure'
 
 export const makeStore = () => {
   return configureStore({
-    reducer: {}
+    reducer: {
+      counter: counterReducer,
+      struct : structureReducer
+    }
   })
 }
 

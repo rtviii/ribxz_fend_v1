@@ -1,40 +1,44 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 interface StructData {
-    title  : string
+    title: string
     authors: string[],
-    pdbid  : string
+    pdbid: string
 }
 
-export interface StructState{
-    data: StructData, 
+export interface StructState {
+    data: StructData,
     error: string | null,
     loading: boolean
 }
 const initialState = {
-    data   : {},
-    error  : null,
+    data: {},
+    error: null,
     loading: false
 
 };
 
 const structSlice = createSlice({
-  name: "counter",
-  initialState,
-  reducers: {
-  setStructureData: (state, action) => {
-      state.data    = action.payload;
-      state.loading = false;
-      state.error   = null;
+    name: "structure",
+    initialState,
+    reducers: {
+        setStructureData: (state, action) => {
+            state.data = {
+                title  : action.payload.citation_title,
+                authors: action.payload.citation_rcsb_authors,
+                pdbid  : action.payload.rcsb_id
+            };
+            state.loading = false;
+            state.error = null;
+        },
+        setStructureLoading: (state, action) => {
+            state.loading = action.payload;
+        },
+        setStructureError: (state, action) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
     },
-    setStructureLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-    setStructureError : (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-  },
 });
 
 
