@@ -8,7 +8,7 @@ import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
 import { PluginContextContainer } from 'molstar/lib/mol-plugin-ui/plugin';
 import { MolstarNode, ribxzMolstarPlugin } from '@/molstar_lib/molstar_plugin'
 import { useDispatch, useSelector } from 'react-redux'
-import {StructState, setStructureData,setStructureError,setStructureLoading } from '@/state/structure/structure'
+import {StructState, setStructureData,setStructureError,setStructureLoading, useGetStructureProfileQuery } from '@/state/structure/structure'
 
 const navigation = [
   { name: 'Structures', href: '#', icon: HomeIcon, current: true },
@@ -37,22 +37,16 @@ function classNames(...classes: any[]) {
 export default function StructurePage({params: page_params }:{params:{rcsb_id:string}}) {
 
   console.log("This is the page for ", page_params.rcsb_id)
+
   const dispatch     = useDispatch();
   const structState  = useSelector((state: { struct: StructState }) => state.struct);
-  useEffect(() => {
-    async function fetchStructData() {
-      try {
-        dispatch(setStructureLoading(true));
-       const response = await (await fetch(`http://localhost:8000/comp/get_profile?rcsb_id=${page_params.rcsb_id}`)).json()
-        dispatch(setStructureData(response))
-        dispatch(setStructureLoading(false));
-      } catch (error: any) {
-        dispatch(setStructureLoading(error.message));
-        dispatch(setStructureLoading(false));
-      }
-    }
-    fetchStructData();
-  }, [dispatch]);
+  const { data, error, isLoading } = useGetStructureProfileQuery('3j7z')
+
+  useEffect(()=>{
+    console.log(data);
+    console.log(error);
+    console.log(isLoading);
+  },[data,error,isLoading])
 
   ribxz_plugin: PluginUIContext;
 
@@ -76,7 +70,6 @@ export default function StructurePage({params: page_params }:{params:{rcsb_id:st
       };
 
     }
-
   }, [molstarNodeRef]);
 
 
@@ -86,9 +79,7 @@ export default function StructurePage({params: page_params }:{params:{rcsb_id:st
       <div className="w-1/5 flex flex-col">
 
         <div className="h-1/5 bg-gray-200">
-          <button onClick={()=>console.log(structState)}>Struct State</button>
-          {/* <StructureCard />
-          <TaxonomyBreadcrumbs /> */}
+          <button onClick={()=>console.log(data)}>Struct State</button>
 
         </div>
         <div className="h-3/5 bg-gray-300">

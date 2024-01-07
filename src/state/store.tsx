@@ -1,13 +1,16 @@
-import {configureStore} from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import counterReducer from './counter/counter'
 import structureReducer from './structure/structure'
+import { structAPI } from './structure/structure'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       counter: counterReducer,
-      struct : structureReducer
-    }
+      struct: structureReducer,
+      [structAPI.reducerPath]: structAPI.reducer
+    },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(structAPI.middleware),
   })
 }
 

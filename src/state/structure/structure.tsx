@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
+
 
 interface StructData {
     title: string
@@ -45,19 +47,37 @@ const structSlice = createSlice({
 export const { setStructureData, setStructureLoading, setStructureError } = structSlice.actions;
 export default structSlice.reducer;
 
-export function fetchStructureProfile(rcsb_id: string) {
-    return async function fetchStructureProfile(dispatch, getState)=> {
-        console.log("hi");
-            
-        try {
-            dispatch(setStructureLoading(true));
-            const response = await(await fetch(`http://localhost:8000/comp/get_profile?rcsb_id=3j7z`)).json()
-            dispatch(setStructureData(response))
-            dispatch(setStructureLoading(false));
-        } catch (error: any) {
-            dispatch(setStructureLoading(error.message));
-            dispatch(setStructureLoading(false));
-        }
+//!                                   -->> [ RTK ] <<--                                 !//
 
-    }
-}
+
+export const structAPI = createApi({
+  reducerPath: 'structureApi',
+  baseQuery  : fetchBaseQuery({ baseUrl: 'http://localhost:8000/' }),
+  endpoints  : builder => ({
+    getStructureProfile: builder.query({
+      query: (rcsb_id: string) => `comp/get_profile?rcsb_id=${rcsb_id}`
+    })
+  })
+})
+
+export const { useGetStructureProfileQuery } = structAPI
+
+
+
+
+// export function fetchStructureProfile(rcsb_id: string) {
+//     return async function fetchStructureProfile(dispatch, getState)=> {
+//         console.log("hi");
+            
+//         try {
+//             dispatch(setStructureLoading(true));
+//             const response = await(await fetch(`http://localhost:8000/comp/get_profile?rcsb_id=3j7z`)).json()
+//             dispatch(setStructureData(response))
+//             dispatch(setStructureLoading(false));
+//         } catch (error: any) {
+//             dispatch(setStructureLoading(error.message));
+//             dispatch(setStructureLoading(false));
+//         }
+
+//     }
+// }
