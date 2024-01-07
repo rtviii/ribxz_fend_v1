@@ -18,6 +18,8 @@ for api requests, use trifect asyncthunks : https://redux.js.org/usage/writing-l
 rtk-query/no thunks : https://redux.js.org/usage/writing-logic-thunks#fetching-data-with-rtk-query
 
 
+- should we or should we not use `next-redux-wrapper`?????
+
 
 
 # UBC migration details
