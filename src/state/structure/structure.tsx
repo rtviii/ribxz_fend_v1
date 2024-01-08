@@ -51,6 +51,7 @@ export default structSlice.reducer;
 
 
 export const structAPI = createApi({
+
   reducerPath: 'structureApi',
   baseQuery  : fetchBaseQuery({ baseUrl: 'http://localhost:8000/' }),
   endpoints  : builder => ({

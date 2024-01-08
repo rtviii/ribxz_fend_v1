@@ -1,10 +1,16 @@
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { DefaultPluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
+import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
 import { useEffect, createRef, createContext, Ref, forwardRef, RefObject } from "react";
 import './mstar.css'
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
-import { MySpec } from "./mstar_config";
+import { PluginConfig } from 'molstar/lib/mol-plugin/config';
+import { StructureComponentControls } from 'molstar/lib/mol-plugin-ui/structure/components';
+import { StructureSourceControls } from 'molstar/lib/mol-plugin-ui/structure/source';
+import { StructureQuickStylesControls } from 'molstar/lib/mol-plugin-ui/structure/quick-styles';
+import { VolumeStreamingControls, VolumeSourceControls } from 'molstar/lib/mol-plugin-ui/structure/volume'
+import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
+import { BuildSvg, Icon } from 'molstar/lib/mol-plugin-ui/controls/icons';
 import React from "react";
 
 
@@ -20,17 +26,85 @@ declare global {
   }
 }
 
+export class CustomStructureTools extends PluginUIComponent {
+    render() {
+        return <>
+            <div className='msp-section-header'> 
+            <Icon svg={BuildSvg} /> Structure Tools</div>
+                <StructureSourceControls />
+                <StructureComponentControls />
+                <VolumeStreamingControls />
+                <VolumeSourceControls />
+            <StructureQuickStylesControls />
+        </>;
+    }
+}
 
-export class ribxzMolstarPlugin {
-    ribxz_plugin: PluginUIContext;
+export const MySpec: PluginUISpec = {
+    ...DefaultPluginUISpec(),
+    config: [
+        [PluginConfig.VolumeStreaming.Enabled, true],
+    ],
+    components: {
+        structureTools: CustomStructureTools,
+        controls: {  bottom: 'none' },
+        remoteState: 'none',
+    },
+    layout: {
+        initial: {
+            controlsDisplay:'portrait',
+            showControls: false,
+        },
+    },
+}
+export class BasicWrapper {
 
-    async init(node_ref:RefObject<HTMLDivElement>) {
+    plugin: PluginUIContext 
 
-              this.ribxz_plugin = await createPluginUI(node_ref.current, MySpec);
-        const data              = await this.ribxz_plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
-        const trajectory        = await this.ribxz_plugin.builders.structure.parseTrajectory(data, "pdb");
-        await this.ribxz_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-        return this.ribxz_plugin
+    async init(target: string | HTMLElement) {
+
+        this.plugin = await createPluginUI(typeof target === 'string' ? document.getElementById(target)! : target, {
+            ...DefaultPluginUISpec(),
+            layout: {
+                initial: {
+                    isExpanded: false,
+                    showControls: false
+                }
+            },
+            components: {
+                remoteState: 'none'
+            }
+        });
+
+        // this.plugin.representation.structure.themes.colorThemeRegistry.add(StripedResidues.colorThemeProvider!);
+        // this.plugin.representation.structure.themes.colorThemeRegistry.add(CustomColorThemeProvider);
+        // this.plugin.managers.lociLabels.addProvider(StripedResidues.labelProvider!);
+        // this.plugin.customModelProperties.register(StripedResidues.propertyProvider, true);
+    }
+  }
+
+
+export class RibosomeXYZMolstarViewer {
+
+    constructor(public plugin: PluginUIContext) {
+    }
+
+    // static async create(element: Ref<HTMLDivElement>) {
+    //     const defaultSpec = DefaultPluginUISpec();
+    //     // const element = typeof elementOrId === 'string'
+    //     //     ? document.getElementById(elementOrId)
+    //     //     : elementOrId;
+    //     // if (!element) throw new Error(`Could not get element with id '${elementOrId}'`);
+    //     return new RibosomeXYZMolstarViewer();
+    // }
+
+    static async create(node_ref:RefObject<HTMLDivElement>) {
+        const ribxz_plugin = await createPluginUI(node_ref.current, MySpec);
+        const data              = await ribxz_plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+        const trajectory        = await ribxz_plugin.builders.structure.parseTrajectory(data, "pdb");
+        await ribxz_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+
+        return new RibosomeXYZMolstarViewer(ribxz_plugin);
       }
 
 
@@ -154,6 +228,7 @@ export class ribxzMolstarPlugin {
     //     });
     // }
 }
+
 export const MolstarNode = forwardRef<HTMLDivElement, {}>(function MolstarNode(_, ref){
-  return <div ref={ref} id='molstar-wrapper'/>
+  return <div ref={ref} id='molstar-wrapper' className="min-h-screen"/>
 })

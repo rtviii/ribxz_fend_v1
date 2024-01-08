@@ -14,13 +14,9 @@ console.log("setUserData", setCounter);
 
 export default function Home() {
 
-  const dispatch     = useDispatch();
   const counterState = useSelector((state: { counter: CounterState }) => state.counter.count);
+  const dispatch     = useDispatch();
   const structState  = useSelector((state: { struct: StructState }) => state.struct);
-
-
-  useEffect(()=>{console.log(counterState);
-  },[counterState])
   useEffect(() => {
     async function fetchStructData() {
       try {

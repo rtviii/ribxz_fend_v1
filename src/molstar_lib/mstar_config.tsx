@@ -8,35 +8,3 @@ import { VolumeStreamingControls, VolumeSourceControls } from 'molstar/lib/mol-p
 import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
 import { BuildSvg, Icon } from 'molstar/lib/mol-plugin-ui/controls/icons';
 
-
-export class CustomStructureTools extends PluginUIComponent {
-    render() {
-        return <>
-            <div className='msp-section-header'> 
-            <Icon svg={BuildSvg} /> Structure Tools</div>
-                <StructureSourceControls />
-                <StructureComponentControls />
-                <VolumeStreamingControls />
-                <VolumeSourceControls />
-            <StructureQuickStylesControls />
-        </>;
-    }
-}
-
-export const MySpec: PluginUISpec = {
-    ...DefaultPluginUISpec(),
-    config: [
-        [PluginConfig.VolumeStreaming.Enabled, true],
-    ],
-    components: {
-        structureTools: CustomStructureTools,
-        controls: {  bottom: 'none' },
-        remoteState: 'none',
-    },
-    layout: {
-        initial: {
-            controlsDisplay:'portrait',
-            showControls: false,
-        },
-    },
-}

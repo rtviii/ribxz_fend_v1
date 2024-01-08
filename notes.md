@@ -12,15 +12,13 @@ thunk middleware
 
 ( memoize at lowest level via output selectors )[https://redux.js.org/usage/deriving-data-selectors#writing-memoized-selectors-with-reselect]
 
-
 for api requests, use trifect asyncthunks : https://redux.js.org/usage/writing-logic-thunks#using-createasyncthunk
 
 rtk-query/no thunks : https://redux.js.org/usage/writing-logic-thunks#fetching-data-with-rtk-query
 
-
 - should we or should we not use `next-redux-wrapper`?????
 
-
+- how to type rtk query responses
 
 # UBC migration details
 
