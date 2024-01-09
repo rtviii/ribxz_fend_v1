@@ -15,7 +15,6 @@ import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 
 function ComponentsTableCard() {
     const proteins_data = [
-
         {
             auth_asym_id: "J",
             seq: "ASHDASFHAGASG",
@@ -344,6 +343,7 @@ function ComponentsTableCard() {
 
     ]
 
+
     return (
         <Card className="w-full max-w-screen">
             <CardContent>
@@ -438,17 +438,21 @@ export default function StructurePage() {
 
     // const ribxz_api_query = 
 
+    const [test_active, test_active_set] = useState<boolean>(false)
+
+
     return (
 
 
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal" className=" rounded-lg border" >
-                <ResizablePanel defaultSize={25}>
+            <ResizablePanelGroup direction="horizontal" className={ "rounded-lg border "+ (test_active ? 'bg-black' : 'bg-white') }  >
+                <ResizablePanel defaultSize={25} >
 
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
                             <CardTitle>7UNW Pseudomonas aeruginosa PAO1</CardTitle>
+                            <button onClick={()=>{test_active_set(!test_active)}}>toggle activd {test_active}</button>
                             <p className="text-gray-500 text-sm">
                                 Compact IF2 allows initiator tRNA accommodation into the P site and gates the ribosome to elongation
                             </p>
