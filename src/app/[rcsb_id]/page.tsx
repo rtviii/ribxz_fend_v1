@@ -63,7 +63,7 @@ function ComponentsTableCard() {
     )
 }
 
-function OptionIcon(props) {
+function OptionIcon(props:any) {
     return (
         <svg
             {...props}
@@ -82,7 +82,6 @@ function OptionIcon(props) {
         </svg>
     )
 }
-
 
 
 export default function StructurePage() {

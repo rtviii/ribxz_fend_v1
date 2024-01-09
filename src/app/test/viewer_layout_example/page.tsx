@@ -1,12 +1,12 @@
 'use client'
-import { apply_style, download_another_struct, load_from_server, select_multiple, stream_volume } from '@/molstar_lib/functions'
+import { apply_style, load_from_server, select_multiple, stream_volume } from '@/molstar_lib/functions'
 import { DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
 import { SequenceView } from 'molstar/lib/mol-plugin-ui/sequence'
 import { RefObject, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context'
 import { PluginContextContainer } from 'molstar/lib/mol-plugin-ui/plugin';
-import { MolstarNode, RibosomeXYZMolstarViewer } from '@/molstar_lib/molstar_plugin'
+import { MolstarNode } from '@/molstar_lib/molstar_plugin'
 import { useDispatch, useSelector } from 'react-redux'
 import {StructState, setStructureData,setStructureError,setStructureLoading, useGetStructureProfileQuery } from '@/state/structure/structure'
 
@@ -55,22 +55,6 @@ export default function StructurePage({params: page_params }:{params:{rcsb_id:st
   const [plugin, setPlugin] = useState<PluginUIContext | undefined>(undefined);
 
 
-  useEffect(() => {
-    if (molstarNodeRef.current !== null) {
-      if (molstarNodeRef.current) {
-        (async () => {
-          const plugin = await new ribxzMolstarPlugin().init(molstarNodeRef);
-          window.molstar = plugin;
-          setPlugin(plugin)
-        })()
-      }
-      return () => {
-        window.molstar?.dispose();
-        window.molstar = undefined;
-      };
-
-    }
-  }, [molstarNodeRef]);
 
 
   return (
@@ -147,13 +131,13 @@ export default function StructurePage({params: page_params }:{params:{rcsb_id:st
               <button onClick={() => load_from_server()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > custom model</button>
             </li>
             <li>
-              <button onClick={() => select_multiple()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button>
+              {/* <button onClick={() => select_multiple()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > try chain </button> */}
             </li>
             <li>
               <button onClick={() => stream_volume()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > stream volume</button>
             </li>
             <li>
-              <button onClick={() => download_another_struct()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > add struct</button>
+              <button onClick={() => {}} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > add struct</button>
             </li>
             <li>
               <button onClick={() => apply_style()} type="button" className="rounded bg-white px-2 py-1 text-xs font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" > apply style</button>

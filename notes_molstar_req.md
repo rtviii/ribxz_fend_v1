@@ -3,15 +3,11 @@
 
 - [x] highlight chain
 - [x] select arbitrary residues across the structure
-
 - [x] download chain object from server 
-
 - [ ] create object
 - [ ] create separate chain object
-
 - [ ] superimpose 
 - [ ] superimpose two chains
-
 - [ ] density maps (from custom server)
 
 --------------- Questions to the team

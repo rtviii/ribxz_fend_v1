@@ -81,11 +81,11 @@ export async function stream_volume() {
 
 }
 
-export async function download_another_struct(){
-      const data       = await molstar_plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
-      const trajectory = await molstar_plugin.builders.structure.parseTrajectory(data, "mmcif");
-      await molstar_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-}
+// export async function download_another_struct(){
+//       const data       = await molstar_plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+//       const trajectory = await molstar_plugin.builders.structure.parseTrajectory(data, "mmcif");
+//       await molstar_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+// }
 
 export async function apply_style(){
   var mst = window.molstar!;

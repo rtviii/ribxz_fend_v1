@@ -80,7 +80,7 @@ export default function Component() {
   )
 }
 
-function DownloadIcon(props) {
+function DownloadIcon(props:any) {
   return (
     <svg
       {...props}
@@ -102,7 +102,7 @@ function DownloadIcon(props) {
 }
 
 
-function ExpandIcon(props) {
+function ExpandIcon(props:any) {
   return (
     <svg
       {...props}
@@ -125,7 +125,7 @@ function ExpandIcon(props) {
 }
 
 
-function SettingsIcon(props) {
+function SettingsIcon(props:any) {
   return (
     <svg
       {...props}
@@ -146,7 +146,7 @@ function SettingsIcon(props) {
 }
 
 
-function ShareIcon(props) {
+function ShareIcon(props:any) {
   return (
     <svg
       {...props}
