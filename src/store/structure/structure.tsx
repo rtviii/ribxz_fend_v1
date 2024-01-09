@@ -65,6 +65,7 @@ export const { useGetStructureProfileQuery } = structAPI
 
 
 
+
 // export function fetchStructureProfile(rcsb_id: string) {
 //     return async function fetchStructureProfile(dispatch, getState)=> {
 //         console.log("hi");

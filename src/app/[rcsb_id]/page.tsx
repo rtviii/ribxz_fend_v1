@@ -9,17 +9,345 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/compone
 import { BasicWrapper, MolstarNode, MySpec, } from "@/molstar_lib/molstar_plugin"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { useGetStructureProfileQuery } from "@/state/structure/structure";
-import { RibosomeStructure } from "@/ribosome_types";
-import { select_multiple } from "@/molstar_lib/functions";
+import { useGetStructureProfileQuery } from "@/store/structure/structure";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 
 
 function ComponentsTableCard() {
+    const proteins_data = [
+
+        {
+            auth_asym_id: "J",
+            seq: "ASHDASFHAGASG",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "AA",
+            seq: "ATATUTGUGGUGAUAGAGA",
+            organism: "H. sapiens"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+        {
+            auth_asym_id: "O3",
+            seq: "kKKKKHHGKKSK",
+            organism: "E. coli"
+        },
+
+    ]
+
     return (
-        <Card className="w-full max-w-screen-md mx-auto">
+        <Card className="w-full max-w-screen">
             <CardContent>
-                <div className="flex justify-between items-center py-2">
+                <div className="flex justify-between w-full items-center py-2">
                     <div className="flex space-x-2">
                         <Input className="block w-56 text-sm" placeholder="Filter proteins..." />
                         <Select>
@@ -34,7 +362,8 @@ function ComponentsTableCard() {
                         </Select>
                     </div>
                 </div>
-                <div className="overflow-auto h-[500px]">
+
+                <div className="overflow-auto w-full h-full">
                     <Table>
                         <TableHeader>
                             <TableRow className="space-x-1 space-y-0.5">
@@ -45,16 +374,19 @@ function ComponentsTableCard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow className="space-x-1 space-y-0.5">
-                                <TableCell className="text-xs">J</TableCell>
-                                <TableCell className="text-xs">240</TableCell>
-                                <TableCell className="text-xs">E.coli</TableCell>
-                                <TableCell>
-                                    <div className="flex space-x-2">
-                                        <OptionIcon className="text-gray-500" />
-                                    </div>
-                                </TableCell>
-                            </TableRow>
+                            {proteins_data.map(v => {
+                                return <TableRow key={v.auth_asym_id} className="space-x-1 space-y-0.5">
+                                    <TableCell className="text-xs">{v.auth_asym_id}</TableCell>
+                                    <TableCell className="text-xs">{v.seq.length}</TableCell>
+                                    <TableCell className="text-xs">{v.organism}</TableCell>
+                                    <TableCell>
+                                        <div className="flex space-x-2">
+                                            <OptionIcon className="text-gray-500" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+
+                            })}
                         </TableBody>
                     </Table>
                 </div>
@@ -63,7 +395,7 @@ function ComponentsTableCard() {
     )
 }
 
-function OptionIcon(props:any) {
+function OptionIcon(props: any) {
     return (
         <svg
             {...props}
@@ -86,33 +418,32 @@ function OptionIcon(props:any) {
 
 export default function StructurePage() {
 
-  const molstarNodeRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    (async () => {
-              window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-        const data           = await window.molstar.builders.data.download( { url: "https://files.rcsb.org/download/3PTB.pdb" },  { state: { isGhost: true } } );
-        const trajectory     = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-        await window.molstar.builders.structure.hierarchy.applyPreset( trajectory, "default" );
-    })()
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        (async () => {
+            window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
+            const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+            const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+            await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+        })()
 
-    return () => {
-      window.molstar?.dispose();
-      window.molstar = undefined;
-    };
-  }, []);
+        return () => {
+            window.molstar?.dispose();
+            window.molstar = undefined;
+        };
+    }, []);
 
-  const { data, error, isLoading } = useGetStructureProfileQuery('3j7z')
+    const { data, error, isLoading } = useGetStructureProfileQuery('3j7z')
+
+
+    // const ribxz_api_query = 
 
     return (
 
 
-         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup
-                direction="horizontal"
-                className=" rounded-lg border"
-            >
-
-                <ResizablePanel defaultSize={50}>
+        <div className="flex flex-col h-screen w-screen overflow-hidden">
+            <ResizablePanelGroup direction="horizontal" className=" rounded-lg border" >
+                <ResizablePanel defaultSize={25}>
 
 
                     <Card className="h-full flex flex-col">
@@ -124,15 +455,13 @@ export default function StructurePage() {
                         </CardHeader>
 
                         <CardContent className="flex-grow overflow-auto">
-                            <Tabs defaultValue="account" >
+                            <Tabs defaultValue="info" >
                                 <TabsList className="grid w-full grid-cols-2">
                                     <TabsTrigger value="info">Info</TabsTrigger>
                                     <TabsTrigger value="components">Substructures</TabsTrigger>
                                 </TabsList>
 
                                 <TabsContent value="info">
-
-
                                     <div className="mt-4">
                                         <img
                                             alt="Biomolecule 123"
@@ -179,32 +508,30 @@ export default function StructurePage() {
                                     </div>
 
                                 </TabsContent>
+
                                 <TabsContent value="components">
                                     <ComponentsTableCard />
                                 </TabsContent>
 
                             </Tabs>
                             <div className="flex flex-col gap-4">
-
-
-
                             </div>
                         </CardContent>
 
-                        {/* <CardFooter className="flex justify-between">
-                            <Button variant="outline">Visualize</Button>
-                            <Button>Download</Button>
-                        </CardFooter> */}
+                        <CardFooter className="flex justify-between">
+                            <Button variant="outline">Log query</Button>
+                            <Button></Button>
+                        </CardFooter>
                     </Card>
 
                 </ResizablePanel>
                 <ResizableHandle />
 
-                <ResizablePanel defaultSize={50}>
+                <ResizablePanel defaultSize={75}>
 
                     <div className="flex flex-col gap-4">
 
-              <MolstarNode ref={molstarNodeRef} />
+                        <MolstarNode ref={molstarNodeRef} />
                     </div>
 
                 </ResizablePanel>
@@ -212,29 +539,7 @@ export default function StructurePage() {
             </ResizablePanelGroup>
 
 
-</div>
-        // <div className="flex flex-col h-screen overflow-hidden">
-
-        //     <div className="flex flex-col md:flex-row h-full">
-        //         <div className="md:w-1/3 h-full flex-resize">
-        //         </div>
-
-
-
-
-
-        //          <div className="md:w-2/3 h-full">
-        //             <div className="w-full h-full bg-gray-200">
-
-        //                 <div className="flex flex-col gap-4">
-        //                     molstar
-
-        //                     <div />
-        //                 </div>
-        //             </div>
-        //         </div> 
-        //     </div>
-        // </div>
+        </div>
     )
 }
 
