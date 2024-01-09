@@ -1,7 +1,7 @@
 "use client"
 import { useDispatch, useSelector } from 'react-redux';
-import { setCounter } from '../state/counter/counter'
-import { setStructureData, setStructureError, setStructureLoading, StructState } from '../state/structure/structure'
+import { setCounter } from '../store/counter/counter'
+import { setStructureData, setStructureError, setStructureLoading, StructState } from '../store/structure/structure'
 import { useEffect } from 'react';
 import StoreProvider from './store_provider';
 

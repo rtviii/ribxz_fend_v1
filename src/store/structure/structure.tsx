@@ -1,7 +1,6 @@
 import { RibosomeStructure } from "@/ribosome_types";
 import { createSlice } from "@reduxjs/toolkit";
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
-import {RibosomeStructure} from '@/ribosome_types'
 
 
 interface StructData {
