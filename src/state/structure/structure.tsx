@@ -1,5 +1,7 @@
+import { RibosomeStructure } from "@/ribosome_types";
 import { createSlice } from "@reduxjs/toolkit";
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
+import {RibosomeStructure} from '@/ribosome_types'
 
 
 interface StructData {
@@ -47,15 +49,13 @@ const structSlice = createSlice({
 export const { setStructureData, setStructureLoading, setStructureError } = structSlice.actions;
 export default structSlice.reducer;
 
-//!                                   -->> [ RTK ] <<--                                 !//
-
+//!//!//!//!/!                         -->> [ RTK ] <<--                         //!//!//!//!/!
 
 export const structAPI = createApi({
-
   reducerPath: 'structureApi',
   baseQuery  : fetchBaseQuery({ baseUrl: 'http://localhost:8000/' }),
   endpoints  : builder => ({
-    getStructureProfile: builder.query({
+    getStructureProfile: builder.query<RibosomeStructure, string>({
       query: (rcsb_id: string) => `comp/get_profile?rcsb_id=${rcsb_id}`
     })
   })

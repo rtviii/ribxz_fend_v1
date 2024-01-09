@@ -12,9 +12,10 @@ import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/inter
 import { debounceTime } from 'rxjs';
 import { Script } from 'molstar/lib/mol-script/script';
 import { InitVolumeStreaming } from 'molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers';
+import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
 
-const mstar = window.molstar!;
+// const molstar_plugin = window.molstar!;
 
 export async function load_from_server() {
 
@@ -44,7 +45,7 @@ export function create_fromSelection() {
   // window.molstar?.managers.structure.component.add({},)
 }
 
-export function select_multiple() {
+export function select_multiple(molstar_plugin: PluginUIContext) {
   const args = [['A', 10, 15], ['F', 10, 15]]
 
   const groups: Expression[] = [];
@@ -54,7 +55,7 @@ export function select_multiple() {
       "residue-test": MS.core.rel.inRange([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain[1], chain[2]])
     }));
   }
-  mstar.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
+  molstar_plugin.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
   return MS.struct.combinator.merge(groups);
 
 }
@@ -81,10 +82,9 @@ export async function stream_volume() {
 }
 
 export async function download_another_struct(){
-      const data       = await mstar.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
-
-      const trajectory = await mstar.builders.structure.parseTrajectory(data, "mmcif");
-      await mstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+      const data       = await molstar_plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+      const trajectory = await molstar_plugin.builders.structure.parseTrajectory(data, "mmcif");
+      await molstar_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
 }
 
 export async function apply_style(){
