@@ -6,343 +6,29 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { BasicWrapper, MolstarNode, MySpec, } from "@/molstar_lib/molstar_plugin"
+import {  MolstarNode, MySpec, } from "@/molstar_lib/wip/basic_wrapper"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { useGetStructureProfileQuery } from "@/store/structure/structure";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
+import { Polymer, RibosomeStructure, ribxz_api, useRbxzBendApiStructureRouterStructureProfileQuery  } from "@/store/ribxz_api"
+import { Skeleton } from "@/components/ui/skeleton"
+// import { RibxzMolstar } from "@/molstar_lib/ribxz_molstar"
 
 
-function ComponentsTableCard() {
-    const proteins_data = [
-        {
-            auth_asym_id: "J",
-            seq: "ASHDASFHAGASG",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "AA",
-            seq: "ATATUTGUGGUGAUAGAGA",
-            organism: "H. sapiens"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
-        {
-            auth_asym_id: "O3",
-            seq: "kKKKKHHGKKSK",
-            organism: "E. coli"
-        },
+function PolymerItem({v}:{v:Polymer}){
+                                return <TableRow key={v.auth_asym_id} className="space-x-1 space-y-0.5">
+                                    <TableCell className="text-xs">{v.auth_asym_id}</TableCell>
+                                    <TableCell className="text-xs">{v.entity_poly_seq_one_letter_code_can}</TableCell>
+                                    <TableCell className="text-xs">{v.src_organism_ids}</TableCell>
+                                    <TableCell>
+                                        <div className="flex space-x-2">
+                                            <OptionIcon className="text-gray-500" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow> }
 
-    ]
-
+function ComponentsTableCard({structure_profile}:{structure_profile:RibosomeStructure}) {
 
     return (
         <Card className="w-full max-w-screen">
@@ -374,19 +60,7 @@ function ComponentsTableCard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {proteins_data.map(v => {
-                                return <TableRow key={v.auth_asym_id} className="space-x-1 space-y-0.5">
-                                    <TableCell className="text-xs">{v.auth_asym_id}</TableCell>
-                                    <TableCell className="text-xs">{v.seq.length}</TableCell>
-                                    <TableCell className="text-xs">{v.organism}</TableCell>
-                                    <TableCell>
-                                        <div className="flex space-x-2">
-                                            <OptionIcon className="text-gray-500" />
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-
-                            })}
+                            {structure_profile.proteins.map(v => <PolymerItem v={v} key={v.auth_asym_id} />)}
                         </TableBody>
                     </Table>
                 </div>
@@ -421,10 +95,16 @@ export default function StructurePage() {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         (async () => {
-            window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-            const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
-            const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+                  window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
+            const data           = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+            const trajectory     = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
             await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+
+
+            // const wrapper      = await BasicWrapper.init('molstar-wrapper')
+            // const molstar_data = await  wrapper.plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+            // const trajectory   = await wrapper.plugin.builders.structure.parseTrajectory(molstar_data, "pdb");
+            // await wrapper.plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
         })()
 
         return () => {
@@ -433,29 +113,17 @@ export default function StructurePage() {
         };
     }, []);
 
-    const { data, error, isLoading } = useGetStructureProfileQuery('3j7z')
-
-
-    // const ribxz_api_query = 
-
+    const {data, error, isLoading} = useRbxzBendApiStructureRouterStructureProfileQuery({rcsbId:"3j7z"})
     const [test_active, test_active_set] = useState<boolean>(false)
 
-
     return (
-
-
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={ "rounded-lg border "+ (test_active ? 'bg-black' : 'bg-white') }  >
                 <ResizablePanel defaultSize={25} >
-
-
                     <Card className="h-full flex flex-col">
                         <CardHeader>
-                            <CardTitle>7UNW Pseudomonas aeruginosa PAO1</CardTitle>
-                            <button onClick={()=>{test_active_set(!test_active)}}>toggle activd {test_active}</button>
-                            <p className="text-gray-500 text-sm">
-                                Compact IF2 allows initiator tRNA accommodation into the P site and gates the ribosome to elongation
-                            </p>
+                            <CardTitle>{data?.rcsb_id}</CardTitle>
+                            <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
 
                         <CardContent className="flex-grow overflow-auto">
@@ -467,17 +135,7 @@ export default function StructurePage() {
 
                                 <TabsContent value="info">
                                     <div className="mt-4">
-                                        <img
-                                            alt="Biomolecule 123"
-                                            className="mb-4"
-                                            height="200"
-                                            src="/placeholder.svg"
-                                            style={{
-                                                aspectRatio: "300/200",
-                                                objectFit: "cover",
-                                            }}
-                                            width="300"
-                                        />
+                                        <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/placeholder.svg" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
                                         <div className="flex flex-col gap-4">
                                             <div className="flex justify-between">
                                                 <strong>Species:</strong>
@@ -514,7 +172,8 @@ export default function StructurePage() {
                                 </TabsContent>
 
                                 <TabsContent value="components">
-                                    <ComponentsTableCard />
+                                    {isLoading ? <Skeleton/> : (data !== undefined ? <ComponentsTableCard structure_profile={data}/> : null)}
+
                                 </TabsContent>
 
                             </Tabs>
@@ -545,6 +204,6 @@ export default function StructurePage() {
 
         </div>
     )
-}
+                                    }
 
 

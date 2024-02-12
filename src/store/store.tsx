@@ -7,18 +7,15 @@ import { ribxz_api } from './ribxz_api'
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      counter: counterReducer,
-      struct: structureReducer,
-      [structAPI.reducerPath]: structAPI.reducer,
+      counter                : counterReducer,
+      struct                 : structureReducer,
+      // [structAPI.reducerPath]: structAPI.reducer,
       [ribxz_api.reducerPath]: ribxz_api.reducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(structAPI.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(ribxz_api.middleware),
   })
 }
 
-// Infer the type of makeStore
 export type AppStore = ReturnType<typeof makeStore>
-
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<AppStore['getState']>
 export type AppDispatch = AppStore['dispatch']

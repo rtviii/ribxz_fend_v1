@@ -1,15 +1,21 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/BFPEy26UeCY
- */
 import { CardContent, CardFooter, Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-export default function StructureCard() {
+export default function StructHero() {
   return (
     <Card className="w-full max-w-sm bg-white shadow-lg rounded-lg overflow-hidden">
       <div className="relative group">
-        <img alt="Molecular Structure" className="w-full h-32 object-cover group-hover:h-80 transition-all duration-300 ease-in-out" height="300" src="/placeholder.svg" style={{ aspectRatio: "312/300", objectFit: "cover", }} width="312" />
+        <img
+          alt="Molecular Structure"
+          className="w-full h-32 object-cover group-hover:h-80 transition-all duration-300 ease-in-out"
+          height="300"
+          src="/placeholder.svg"
+          style={{
+            aspectRatio: "312/300",
+            objectFit: "cover",
+          }}
+          width="312"
+        />
         <div className="absolute inset-0 bg-black bg-opacity-25 group-hover:bg-opacity-0 transition-all duration-300 ease-in-out" />
       </div>
       <CardContent className="group-hover:hidden">
@@ -70,7 +76,7 @@ export default function StructureCard() {
   )
 }
 
-function DownloadIcon(props:any) {
+function DownloadIcon(props) {
   return (
     <svg
       {...props}
@@ -92,7 +98,7 @@ function DownloadIcon(props:any) {
 }
 
 
-function ExpandIcon(props:any) {
+function ExpandIcon(props) {
   return (
     <svg
       {...props}
@@ -115,7 +121,7 @@ function ExpandIcon(props:any) {
 }
 
 
-function SettingsIcon(props:any) {
+function SettingsIcon(props) {
   return (
     <svg
       {...props}
@@ -136,7 +142,7 @@ function SettingsIcon(props:any) {
 }
 
 
-function ShareIcon(props:any) {
+function ShareIcon(props) {
   return (
     <svg
       {...props}

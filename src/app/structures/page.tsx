@@ -1,10 +1,10 @@
-
 import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
+import StructureCard  from "@/components/ribxz/structure-card"
 
-export default function Component() {
+export default function Structures() {
   return (
     <div className="container mx-auto my-8 p-4">
       <h1 className="text-4xl font-bold mb-6">Ribosome Structures</h1>
@@ -60,7 +60,20 @@ export default function Component() {
         </div>
         <div className="col-span-9 pl-4">
           <div className="grid grid-cols-3 gap-4 mb-4">
-            <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
+
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+      <StructureCard/>
+            {/* <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
               <CardContent>
                 <img
                   alt="Molecule Placeholder"
@@ -77,6 +90,9 @@ export default function Component() {
                 <p className="text-sm">Description of Molecule 1</p>
               </CardContent>
             </Card>
+
+
+
             <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
               <CardContent>
                 <img
@@ -94,6 +110,9 @@ export default function Component() {
                 <p className="text-sm">Description of Molecule 2</p>
               </CardContent>
             </Card>
+
+
+
             <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
               <CardContent>
                 <img
@@ -110,7 +129,7 @@ export default function Component() {
                 <p className="font-bold">Molecule 3</p>
                 <p className="text-sm">Description of Molecule 3</p>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
           <div className="flex justify-center space-x-2">
             <Button className="bg-[#eaeaea] text-xs">1</Button>

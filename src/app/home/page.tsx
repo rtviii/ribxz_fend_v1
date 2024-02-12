@@ -1,102 +1,104 @@
-
-import Image from 'next/image'
-
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Use tools via the api at: <code className="font-mono font-bold">api.ribosome.xyz</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0" href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Paper <br/>
-            Cite
-          </a>
+    <div className="max-w-5xl mx-auto my-10 p-8 ml-10">
+      <header className="flex justify-between items-center mb-10">
+        <div className="flex items-center space-x-4">
+          <img alt="Logo" className="h-20 w-20" height="100" src="/placeholder.svg" style={{ aspectRatio: "100/100", objectFit: "cover", }} width="100" />
+          <h1 className="text-4xl font-bold">RIBOXYZ</h1>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className = "mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-      <a   href      = "https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-           className = "group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-           target    = "_blank"
-           rel       = "noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Structures{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Consectetur, dolore.
+        <nav>
+          <ul className="flex space-x-4">
+            <li>
+              <a className="block text-sm px-4 py-2 hover:bg-gray-100" href="#">
+                Home
+              </a>
+            </li>
+            <li>
+              <a className="block text-sm px-4 py-2 hover:bg-gray-100" href="#">
+                About
+              </a>
+            </li>
+            <li>
+              <a className="block text-sm px-4 py-2 hover:bg-gray-100" href="#">
+                Contact
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <main>
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">WELCOME TO RIBOXYZ</h2>
+          <p className="mb-4">
+            RiboXYZ is a database application that provides organized access to ribosome structures, with several tools
+            for visualisation and study.
           </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Tools
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sapiente porro totam modi ut iusto officia consectetur cumque obcaecati? Enim sit illo veritatis accusantium quaerat tempore voluptatum unde, cum fugiat perferendis.
+          <p className="mb-4">
+            The database is up-to-date with the worldwide Protein Data Bank (PDB), with a standardized nomenclature that
+            allows for search and comparison of subcomponents across all the available structures.
           </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Landmarks
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-           Lorem ipsum dolor, sit amet consectetur adipisicing elit. Est voluptate aliquam vitae sequi, non deserunt quibusdam autem laboriosam quaerat laudantium!
+          <p>
+            In addition to structured access to this data, the application has several tools to facilitate comparison
+            and further analysis, e.g., visualization, comparison and export facilities.
           </p>
-        </a>
+        </section>
+        <section className="grid grid-cols-3 gap-8 mb-8">
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-2">1136 Ribosome Structures</h3>
+            <p className="mb-4">Sub 4 Å Resolution</p>
+            <DnaIcon className="h-6 w-6" />
+          </div>
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-2">64932 Protein Chains</h3>
+            <p className="mb-4">Eukaryotic, Bacterial and Universal</p>
+            <DnaIcon className="h-6 w-6" />
+          </div>
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold mb-2">5285 RNA Chains</h3>
+            <p className="mb-4">rRNA, tRNA & mRNA</p>
+            <DnaIcon className="h-6 w-6" />
+          </div>
+        </section>
+        <section>
+          <h2 className="text-xl font-semibold mb-4">ACKNOWLEDGEMENTS</h2>
+          <div className="grid grid-cols-5 gap-4 items-center">
+            <img alt="RCSB PDB" className="h-10 w-10" height="40" src="/placeholder.svg" style={{ aspectRatio: "40/40", objectFit: "cover", }} width="40" />
+            <img alt="Biopython" className="h-10 w-10" height="40" src="/placeholder.svg" style={{ aspectRatio: "40/40", objectFit: "cover", }} width="40" /> 
+            <img alt="PFAM" className="h-10 w-10" height="40" src="/placeholder.svg" style={{ aspectRatio: "40/40", objectFit: "cover", }} width="40" /> 
+            <img alt="UBC" className="h-10 w-10" height="40" src="/placeholder.svg" style={{ aspectRatio: "40/40", objectFit: "cover", }} width="40" />
+            <img alt="Georgia Institute of Technology" className="h-10 w-10" height="40" src="/placeholder.svg" style={{ aspectRatio: "40/40", objectFit: "cover", }} width="40" />
+          </div>
+        </section>
+      </main>
+    </div>
+  )
+}
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Ligands
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-          </p>
-        </a>
-      </div>
-    </main>
+function DnaIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 15c6.667-6 13.333 0 20-6" />
+      <path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993" />
+      <path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993" />
+      <path d="m17 6-2.5-2.5" />
+      <path d="m14 8-1-1" />
+      <path d="m7 18 2.5 2.5" />
+      <path d="m3.5 14.5.5.5" />
+      <path d="m20 9 .5.5" />
+      <path d="m6.5 12.5 1 1" />
+      <path d="m16.5 10.5 1 1" />
+      <path d="m10 16 1.5 1.5" />
+    </svg>
   )
 }

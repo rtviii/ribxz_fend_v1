@@ -1,3 +1,4 @@
+"use client"
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
@@ -64,7 +65,7 @@ export const MySpec: PluginUISpec = {
         PluginSpec.Behavior(PluginBehaviors.Camera.CameraAxisHelper),
 
         PluginSpec.Behavior(PluginBehaviors.CustomProps.StructureInfo),
-        PluginSpec.Behavior(PluginBehaviors.CustomProps.AccessibleSurfaceArea),
+        // PluginSpec.Behavior(PluginBehaviors.CustomProps.AccessibleSurfaceArea),
         PluginSpec.Behavior(PluginBehaviors.CustomProps.Interactions),
         PluginSpec.Behavior(PluginBehaviors.CustomProps.SecondaryStructure),
         PluginSpec.Behavior(PluginBehaviors.CustomProps.ValenceModel),
@@ -148,6 +149,7 @@ export const MySpec: PluginUISpec = {
 
 
 }
+
 export class BasicWrapper {
 
     plugin: PluginUIContext 
@@ -157,25 +159,19 @@ export class BasicWrapper {
     }
 
     static async init(target: string | HTMLElement) {
-
         var plugin  = await createPluginUI(typeof target === 'string' ? document.getElementById(target)! : target, MySpec);
         return new BasicWrapper(plugin)
     }
+    
 
-    // async initiate_structure(rcsb_id:string) {
-    //     const data              = await this.plugin.builders.data.download({ url: `https://files.rcsb.org/download/3PTB.pdb` }, { state: { isGhost: true } });
-    //     const trajectory        = await this.plugin.builders.structure.parseTrajectory(data, "pdb");
-    //     await this.plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-    //   }
+
   }
 
 
 // ! Keep this.
 // export class RibosomeXYZMolstarViewer {
-
 //     constructor(public plugin: PluginUIContext) {
 //     }
-
 //     static async create(element: Ref<HTMLDivElement>) {
 //         const defaultSpec = DefaultPluginUISpec();
 //         // const element = typeof elementOrId === 'string'
@@ -184,17 +180,13 @@ export class BasicWrapper {
 //         // if (!element) throw new Error(`Could not get element with id '${elementOrId}'`);
 //         return new RibosomeXYZMolstarViewer();
 //     }
-
 //     static async create(node_ref:RefObject<HTMLDivElement>) {
 //         const ribxz_plugin = await createPluginUI(node_ref.current, MySpec);
 //         const data              = await ribxz_plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
 //         const trajectory        = await ribxz_plugin.builders.structure.parseTrajectory(data, "pdb");
 //         await ribxz_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-
 //         return new RibosomeXYZMolstarViewer(ribxz_plugin);
 //       }
-
-
 //     readonly params = new BehaviorSubject<ParamDefinition.For<Params>>({} as any);
 //     readonly state = new BehaviorSubject<Params>({ show: { name: 'orbital', params: { index: 32 } }, isoValue: 1, gpuSurface: true });
 //     private selectors?: Selectors = void 0;
