@@ -62,6 +62,19 @@ import { mmCIF_Schema } from "../../mol-io/reader/cif/schema/mmcif";
 - A guide to developing a custom PluginUIComponent
 
 
-# Issues topics:
+# Molstar Notes
+
+MolScript Builder for expressions: core, topology and macromolecular properties logic. What is it matched against? mmcif, surely?
 
 
+Expressions
+
+look at molscript -- query-compilation
+
+
+#--------------------------------
+
+Residue id/hovers/selection
+https://github.com/molstar/molstar/issues/888
+https://github.com/molstar/molstar/issues/120
+https://github.com/molstar/molstar/issues/168
