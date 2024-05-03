@@ -16,7 +16,6 @@
 
 Clear difference between assemblies and assymetric units in PDB
 
-
 # Molstar Notes
 
 *MolScript Builder:

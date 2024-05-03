@@ -4,19 +4,19 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 
 
 interface StructData {
-    title: string
+    title  : string
     authors: string[],
-    pdbid: string
+    pdbid  : string
 }
 
 export interface StructState {
-    data: StructData,
-    error: string | null,
+    data   : StructData,
+    error  : string | null,
     loading: boolean
 }
 const initialState = {
-    data: {},
-    error: null,
+    data   : {},
+    error  : null,
     loading: false
 
 };

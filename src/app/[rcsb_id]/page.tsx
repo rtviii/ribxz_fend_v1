@@ -11,7 +11,7 @@ import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { useGetStructureProfileQuery } from "@/store/structure/structure";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
-import { Polymer, RibosomeStructure, ribxz_api, useRbxzBendApiStructureRouterStructureProfileQuery  } from "@/store/ribxz_api"
+import { Polymer, RibosomeStructure, ribxz_api_schema, useRoutersRouterStructStructureProfileQuery   } from "@/store/ribxz_api_schema"
 import { Skeleton } from "@/components/ui/skeleton"
 // import { RibxzMolstar } from "@/molstar_lib/ribxz_molstar"
 
@@ -113,7 +113,7 @@ export default function StructurePage() {
         };
     }, []);
 
-    const {data, error, isLoading} = useRbxzBendApiStructureRouterStructureProfileQuery({rcsbId:"3j7z"})
+    const {data, error, isLoading} = useRoutersRouterStructStructureProfileQuery({rcsbId:"3j7z"})
     const [test_active, test_active_set] = useState<boolean>(false)
 
     return (
