@@ -6,20 +6,34 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { BasicWrapper, MolstarNode, MySpec, } from "@/molstar_lib/molstar_plugin"
+import {  MolstarNode, MySpec, } from "@/molstar_lib/wip/basic_wrapper"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { useGetStructureProfileQuery } from "@/state/structure/structure";
-import { RibosomeStructure } from "@/ribosome_types";
-import { select_multiple } from "@/molstar_lib/functions";
+import { useGetStructureProfileQuery } from "@/store/structure/structure";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
+import { Polymer, RibosomeStructure, ribxz_api_schema, useRoutersRouterStructStructureProfileQuery   } from "@/store/ribxz_api_schema"
+import { Skeleton } from "@/components/ui/skeleton"
+// import { RibxzMolstar } from "@/molstar_lib/ribxz_molstar"
 
 
-function ComponentsTableCard() {
+function PolymerItem({v}:{v:Polymer}){
+                                return <TableRow key={v.auth_asym_id} className="space-x-1 space-y-0.5">
+                                    <TableCell className="text-xs">{v.auth_asym_id}</TableCell>
+                                    <TableCell className="text-xs">{v.entity_poly_seq_one_letter_code_can}</TableCell>
+                                    <TableCell className="text-xs">{v.src_organism_ids}</TableCell>
+                                    <TableCell>
+                                        <div className="flex space-x-2">
+                                            <OptionIcon className="text-gray-500" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow> }
+
+function ComponentsTableCard({structure_profile}:{structure_profile:RibosomeStructure}) {
+
     return (
-        <Card className="w-full max-w-screen-md mx-auto">
+        <Card className="w-full max-w-screen">
             <CardContent>
-                <div className="flex justify-between items-center py-2">
+                <div className="flex justify-between w-full items-center py-2">
                     <div className="flex space-x-2">
                         <Input className="block w-56 text-sm" placeholder="Filter proteins..." />
                         <Select>
@@ -34,7 +48,8 @@ function ComponentsTableCard() {
                         </Select>
                     </div>
                 </div>
-                <div className="overflow-auto h-[500px]">
+
+                <div className="overflow-auto w-full h-full">
                     <Table>
                         <TableHeader>
                             <TableRow className="space-x-1 space-y-0.5">
@@ -45,16 +60,7 @@ function ComponentsTableCard() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow className="space-x-1 space-y-0.5">
-                                <TableCell className="text-xs">J</TableCell>
-                                <TableCell className="text-xs">240</TableCell>
-                                <TableCell className="text-xs">E.coli</TableCell>
-                                <TableCell>
-                                    <div className="flex space-x-2">
-                                        <OptionIcon className="text-gray-500" />
-                                    </div>
-                                </TableCell>
-                            </TableRow>
+                            {structure_profile.proteins.map(v => <PolymerItem v={v} key={v.auth_asym_id} />)}
                         </TableBody>
                     </Table>
                 </div>
@@ -63,7 +69,7 @@ function ComponentsTableCard() {
     )
 }
 
-function OptionIcon(props:any) {
+function OptionIcon(props: any) {
     return (
         <svg
             {...props}
@@ -86,65 +92,53 @@ function OptionIcon(props:any) {
 
 export default function StructurePage() {
 
-  const molstarNodeRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    (async () => {
-              window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-        const data           = await window.molstar.builders.data.download( { url: "https://files.rcsb.org/download/3PTB.pdb" },  { state: { isGhost: true } } );
-        const trajectory     = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-        await window.molstar.builders.structure.hierarchy.applyPreset( trajectory, "default" );
-    })()
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        (async () => {
+                  window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
+            const data           = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+            const trajectory     = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+            await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
 
-    return () => {
-      window.molstar?.dispose();
-      window.molstar = undefined;
-    };
-  }, []);
 
-  const { data, error, isLoading } = useGetStructureProfileQuery('3j7z')
+            // const wrapper      = await BasicWrapper.init('molstar-wrapper')
+            // const molstar_data = await  wrapper.plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+            // const trajectory   = await wrapper.plugin.builders.structure.parseTrajectory(molstar_data, "pdb");
+            // await wrapper.plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+        })()
+
+        return () => {
+            window.molstar?.dispose();
+            window.molstar = undefined;
+        };
+    }, []);
+
+    const {data, error, isLoading} = useRoutersRouterStructStructureProfileQuery({rcsbId:"3j7z"})
+    const [test_active, test_active_set] = useState<boolean>(false)
+    useEffect((data:any) => {
+        console.log(data);
+    },[])
 
     return (
-
-
-         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup
-                direction="horizontal"
-                className=" rounded-lg border"
-            >
-
-                <ResizablePanel defaultSize={50}>
-
-
+        <div className="flex flex-col h-screen w-screen overflow-hidden">
+            <ResizablePanelGroup direction="horizontal" className={ "rounded-lg border "+ (test_active ? 'bg-black' : 'bg-white') }  >
+                <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col">
                         <CardHeader>
-                            <CardTitle>7UNW Pseudomonas aeruginosa PAO1</CardTitle>
-                            <p className="text-gray-500 text-sm">
-                                Compact IF2 allows initiator tRNA accommodation into the P site and gates the ribosome to elongation
-                            </p>
+                            <CardTitle>{data?.rcsb_id}</CardTitle>
+                            <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
 
                         <CardContent className="flex-grow overflow-auto">
-                            <Tabs defaultValue="account" >
+                            <Tabs defaultValue="info" >
                                 <TabsList className="grid w-full grid-cols-2">
                                     <TabsTrigger value="info">Info</TabsTrigger>
                                     <TabsTrigger value="components">Substructures</TabsTrigger>
                                 </TabsList>
 
                                 <TabsContent value="info">
-
-
                                     <div className="mt-4">
-                                        <img
-                                            alt="Biomolecule 123"
-                                            className="mb-4"
-                                            height="200"
-                                            src="/placeholder.svg"
-                                            style={{
-                                                aspectRatio: "300/200",
-                                                objectFit: "cover",
-                                            }}
-                                            width="300"
-                                        />
+                                        <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/placeholder.svg" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
                                         <div className="flex flex-col gap-4">
                                             <div className="flex justify-between">
                                                 <strong>Species:</strong>
@@ -179,32 +173,31 @@ export default function StructurePage() {
                                     </div>
 
                                 </TabsContent>
+
                                 <TabsContent value="components">
-                                    <ComponentsTableCard />
+                                    {isLoading ? <Skeleton/> : (data !== undefined ? <ComponentsTableCard structure_profile={data}/> : null)}
+
                                 </TabsContent>
 
                             </Tabs>
                             <div className="flex flex-col gap-4">
-
-
-
                             </div>
                         </CardContent>
 
-                        {/* <CardFooter className="flex justify-between">
-                            <Button variant="outline">Visualize</Button>
-                            <Button>Download</Button>
-                        </CardFooter> */}
+                        <CardFooter className="flex justify-between">
+                            <Button variant="outline">Log query</Button>
+                            <Button></Button>
+                        </CardFooter>
                     </Card>
 
                 </ResizablePanel>
                 <ResizableHandle />
 
-                <ResizablePanel defaultSize={50}>
+                <ResizablePanel defaultSize={75}>
 
                     <div className="flex flex-col gap-4">
 
-              <MolstarNode ref={molstarNodeRef} />
+                        <MolstarNode ref={molstarNodeRef} />
                     </div>
 
                 </ResizablePanel>
@@ -212,30 +205,8 @@ export default function StructurePage() {
             </ResizablePanelGroup>
 
 
-</div>
-        // <div className="flex flex-col h-screen overflow-hidden">
-
-        //     <div className="flex flex-col md:flex-row h-full">
-        //         <div className="md:w-1/3 h-full flex-resize">
-        //         </div>
-
-
-
-
-
-        //          <div className="md:w-2/3 h-full">
-        //             <div className="w-full h-full bg-gray-200">
-
-        //                 <div className="flex flex-col gap-4">
-        //                     molstar
-
-        //                     <div />
-        //                 </div>
-        //             </div>
-        //         </div> 
-        //     </div>
-        // </div>
+        </div>
     )
-}
+                                    }
 
 
