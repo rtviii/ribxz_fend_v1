@@ -115,6 +115,9 @@ export default function StructurePage() {
 
     const {data, error, isLoading} = useRoutersRouterStructStructureProfileQuery({rcsbId:"3j7z"})
     const [test_active, test_active_set] = useState<boolean>(false)
+    useEffect((data:any) => {
+        console.log(data);
+    },[])
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">

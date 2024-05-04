@@ -14,9 +14,6 @@ import { Script } from 'molstar/lib/mol-script/script';
 import { InitVolumeStreaming } from 'molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
-
-// const molstar_plugin = window.molstar!;
-
 export async function load_from_server() {
 
   window.molstar?.clear()
