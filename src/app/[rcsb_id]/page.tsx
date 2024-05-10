@@ -9,10 +9,9 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/compone
 import {  MolstarNode, MySpec, } from "@/molstar_lib/wip/basic_wrapper"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { useGetStructureProfileQuery } from "@/store/structure/structure";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
-import { Polymer, RibosomeStructure, ribxz_api_schema, useRoutersRouterStructStructureProfileQuery   } from "@/store/ribxz_api_schema"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 // import { RibxzMolstar } from "@/molstar_lib/ribxz_molstar"
 
 

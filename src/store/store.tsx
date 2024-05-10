@@ -1,15 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { ribxz_api_schema } from './ribxz_api_schema'
+import { ribxz_api } from './ribxz_api/ribxz_api'
 import counterReducer from './slices/counterSlice'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      [ribxz_api_schema.reducerPath]: ribxz_api_schema.reducer,
+      [ribxz_api.reducerPath]: ribxz_api.reducer,
       counter: counterReducer
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(ribxz_api_schema.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(ribxz_api.middleware),
   })
 }
 

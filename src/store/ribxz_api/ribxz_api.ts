@@ -10,11 +10,11 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
-    routersRouterStructListStructures: build.mutation<
+    routersRouterStructListStructures: build.query<
       RoutersRouterStructListStructuresApiResponse,
       RoutersRouterStructListStructuresApiArg
     >({
-      query: () => ({ url: `/structure/list_structures`, method: "POST" }),
+      query: () => ({ url: `/structure/list_structures` }),
     }),
     routersRouterClassesPolynucleotideClass: build.query<
       RoutersRouterClassesPolynucleotideClassApiResponse,
@@ -759,7 +759,7 @@ export type RibosomeStructure = {
 };
 export const {
   useRoutersRouterStructStructureProfileQuery,
-  useRoutersRouterStructListStructuresMutation,
+  useRoutersRouterStructListStructuresQuery,
   useRoutersRouterClassesPolynucleotideClassQuery,
   useRoutersRouterClassesPolypeptideClassQuery,
   useRoutersRouterClassesLifecycleFactorClassQuery,

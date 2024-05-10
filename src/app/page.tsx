@@ -1,5 +1,6 @@
 "use client"
 import { useAppDispatch,useAppSelector } from '@/store/store';
+import {useRoutersRouterStructListStructuresQuery} from '@/store/ribxz_api/ribxz_api';
 import { useEffect } from 'react';
 import StoreProvider from './store_provider';
 import Structures from './structures/page';
@@ -10,6 +11,13 @@ import { AppStore } from '@/store/store';
 export default function Home() {
   const dispatch = useAppDispatch();
   const count = useAppSelector((state) => state.counter)
+  const {data, error, isLoading} = useRoutersRouterStructListStructuresQuery()
+  useEffect(()=>{
+
+  console.log(data)
+
+
+  }, [data])
 
 
   return (
