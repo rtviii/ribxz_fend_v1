@@ -1,20 +1,23 @@
 "use client"
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch,useAppSelector } from '@/store/store';
 import { useEffect } from 'react';
 import StoreProvider from './store_provider';
 import Structures from './structures/page';
+import { AppStore } from '@/store/store';
 
 
-interface CounterState {
-  count: number
-}
 
 export default function Home() {
+  const dispatch = useAppDispatch();
+  const count = useAppSelector((state) => state.counter.value);
 
 
   return (
     <StoreProvider >
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
+         <div> count is {count}</div>
+
+
         <Structures/>
         {/* <div>struct id:{structState.data.pdbid}</div>
         <div>struct authors:{structState.data.authors}</div>

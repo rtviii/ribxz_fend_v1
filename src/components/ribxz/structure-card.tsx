@@ -6,13 +6,6 @@ import { DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent, DropdownMen
 import { useState } from "react";
 
 
-
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/wizhLEbEWle
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
-
 export default function StructureCard() {
   return (
     <Card className="w-full max-w-sm bg-white shadow-lg rounded-lg overflow-hidden relative">

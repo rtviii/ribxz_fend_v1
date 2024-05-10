@@ -3,11 +3,14 @@ import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard  from "@/components/ribxz/structure-card"
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Structures() {
+  const router= useRouter();
   return (
     <div className="container mx-auto my-8 p-4">
-      <h1 className="text-4xl font-bold mb-6">Ribosome Structures</h1>
+      <h1 className="text-4xl font-bold mb-6" >Ribosome Structures</h1>
       <div className="grid grid-cols-12 gap-4 mb-4">
         <div className="col-span-3 border-r-2 border-gray-200 pr-4">
           <Input className="mb-4 w-full" placeholder="Search" />
@@ -61,18 +64,19 @@ export default function Structures() {
         <div className="col-span-9 pl-4">
           <div className="grid grid-cols-3 gap-4 mb-4">
 
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
-      <StructureCard/>
+
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
+      <StructureCard />
             {/* <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
               <CardContent>
                 <img
