@@ -93,13 +93,14 @@ function OptionIcon(props: any) {
 export default function StructurePage() {
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
+    var molstar_plugin:PluginUIContext = undefined;
     useEffect(() => {
         (async () => {
                   window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
             const data           = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
             const trajectory     = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
             await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
-
+            molstar_plugin = window.molstar;
 
             // const wrapper      = await BasicWrapper.init('molstar-wrapper')
             // const molstar_data = await  wrapper.plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
@@ -115,10 +116,10 @@ export default function StructurePage() {
 
     const {data, error, isLoading} = useRoutersRouterStructStructureProfileQuery({rcsbId:"3j7z"})
     const [test_active, test_active_set] = useState<boolean>(false)
-    useEffect((data:any) => {
-        console.log(data);
-    },[])
 
+    const load_struct = (rcsb_id:string) => {
+
+    }
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={ "rounded-lg border "+ (test_active ? 'bg-black' : 'bg-white') }  >
@@ -196,7 +197,6 @@ export default function StructurePage() {
                 <ResizablePanel defaultSize={75}>
 
                     <div className="flex flex-col gap-4">
-
                         <MolstarNode ref={molstarNodeRef} />
                     </div>
 

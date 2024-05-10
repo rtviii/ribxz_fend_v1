@@ -156,7 +156,7 @@ export type LoadParams = { url: string, format?: BuiltInTrajectoryFormat, assemb
 // plugincontext -> plugin ui 
 
 
-const createPluginUi = (target:string )
+// const createPluginUi = (target:string )
 
 // TODO: Rebuild with your own rx event loop
 // export class RibxzMolstar {
