@@ -5,151 +5,222 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent, DropdownMenu } from "@/components/ui/dropdown-menu"
 import { useState } from "react";
 
+
+
+/**
+ * v0 by Vercel.
+ * @see https://v0.dev/t/wizhLEbEWle
+ * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
+ */
+
 export default function StructureCard() {
-
-  const [open, setOpen] = useState(false);
-  const handleMouseEnter = () => {
-    setOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    setOpen(false);
-  };
   return (
-    <Card className="w-full max-w-sm bg-white shadow-lg rounded-lg overflow-hidden relative" >
-      <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-100 h-8 w-1 rounded-l-lg" />
-      <CardContent className="group-hover:hidden p-4">
-
-        <div className="flex justify-between">
-          <div className="font-bold text-xl mb-2">7UNV</div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="text-xs" size="sm" variant="secondary">
-                <InfoIcon className="text-gray-500" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right">
-              <DropdownMenuItem>
-                <Button className="text-xs">PDB</Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button className="text-xs">DOI</Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button className="text-xs">EMDB</Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <ShareIcon className="text-gray-500" />
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <SettingsIcon className="text-gray-500" />
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <DownloadIcon className="text-gray-500" />
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <ExpandIcon className="text-gray-500" />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
+    <Card className="w-full max-w-sm bg-white shadow-lg rounded-lg overflow-hidden relative">
+      <div className="relative h-[40%]">
+        <img
+          alt="Card Image"
+          className="w-full h-full object-cover"
+          height={160}
+          src="/ribosome.gif"
+          style={{
+            aspectRatio: "400/160",
+            objectFit: "cover",
+          }}
+          width={400}
+        />
+        <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2.7 Å</div>
+        <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2022</div>
+        {/* <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-100 h-8 w-8 rounded-full flex items-center justify-center">
+          <InfoIcon className="text-gray-500" />
+        </div> */}
+        <div className="absolute top-0 left-0 transform   bg-white rounded-md px-3 py-1 text-sm font-bold">
+          7UNV
         </div>
-
-
-
-
+      </div>
+      <CardContent className="group-hover:hidden p-4">
+          <p className="text-gray-900 leading-none mt-3">
+            Compact IF2 allows initiator tRNA accommodation into the P site and ga...
+          </p>
         <div className="text-gray-700 text-sm">
           <div className="flex justify-between">
-            <span>2.7 Å</span>
-            <span>2022</span>
+            <span>Organism:</span>
+            <div className="flex items-center">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ff0000]" />
+              <span className="ml-2 text-xs" title="Full taxonomic lineage">
+                Pseudomonas aeruginosa
+              </span>
+            </div>
           </div>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-
-              asChild>
-              <p className="text-gray-900 leading-none mt-3 cursor-pointer">
-                Compact IF2 allows initiator tRNA accommodation into the P site and gating of the A site for the next
-                aminoacyl-tRNA to enter.
-              </p>
-            </PopoverTrigger>
-            <PopoverContent className="p-4 w-64">
-              <p>
-                Compact IF2 allows initiator tRNA accommodation into the P site and gating of the A site for the next
-                aminoacyl-tRNA to enter.
-              </p>
-            </PopoverContent>
-          </Popover>
-          <div className="mt-4">
-            <div className="flex justify-between items-center">
-              <span>Organism:</span>
-              <div className="flex items-center">
-                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ff0000]" />
-                <span className="ml-2 text-xs" title="Full taxonomic lineage">
-                  Pseudomonas aeruginosa
-                </span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <span>Method:</span>
-              <span title="Full method description">ELECTRON MICROSCOPY</span>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <span>Proteins:</span>
-              <span title="List of proteins">52</span>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <span>RNA:</span>
-              <span title="List of RNA">5</span>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <span>Ligands:</span>
-              <span title="List of ligands">4</span>
-            </div>
-            <div className="flex justify-between items-center mt-1">
-              <span>Author:</span>
-              <span title="Full list of authors">Basu, R.S. et al.</span>
-            </div>
+          <div className="flex justify-between items-center mt-1">
+            <span>Method:</span>
+            <span title="Full method description">ELECTRON MICROSCOPY</span>
+          </div>
+          <div className="flex justify-between items-center mt-1">
+            <span>Proteins:</span>
+            <span title="List of proteins">52</span>
+          </div>
+          <div className="flex justify-between items-center mt-1">
+            <span>RNA:</span>
+            <span title="List of RNA">5</span>
+          </div>
+          <div className="flex justify-between items-center mt-1">
+            <span>Ligands:</span>
+            <span title="List of ligands">4</span>
+          </div>
+          <div className="flex justify-between items-center mt-1">
+            <span>Author:</span>
+            <span title="Full list of authors">Basu, R.S. et al.</span>
           </div>
         </div>
       </CardContent>
-      {/* <CardFooter className="flex justify-around items-center p-4 bg-gray-100">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="text-xs" size="sm" variant="ghost">
-              Menu
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="right">
-            <DropdownMenuItem>
-              <Button className="text-xs">PDB</Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Button className="text-xs">DOI</Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Button className="text-xs">EMDB</Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <ShareIcon className="text-gray-500" />
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <SettingsIcon className="text-gray-500" />
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <DownloadIcon className="text-gray-500" />
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <ExpandIcon className="text-gray-500" />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardFooter> */}
     </Card>
   )
 }
+
+
+
+
+// export default function StructureCard() {
+
+//   const [open, setOpen] = useState(false);
+//   const handleMouseEnter = () => {
+//     setOpen(true);
+//   };
+
+//   const handleMouseLeave = () => { setOpen(false); };
+//   return (
+//     <Card className="w-full max-w-sm bg-white shadow-lg rounded-lg overflow-hidden relative" >
+//       <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-100 h-8 w-1 rounded-l-lg" />
+//       <CardContent className="group-hover:hidden p-4">
+
+//         <div className="flex justify-between">
+//           <div className="font-bold text-xl mb-2">7UNV</div>
+
+//           <DropdownMenu>
+//             <DropdownMenuTrigger asChild>
+//               <Button className="text-xs" size="sm" variant="secondary">
+//                 <InfoIcon className="text-gray-500" />
+//               </Button>
+//             </DropdownMenuTrigger>
+//             <DropdownMenuContent side="right">
+//               <DropdownMenuItem>
+//                 <Button className="text-xs">PDB</Button>
+//               </DropdownMenuItem>
+//               <DropdownMenuItem>
+//                 <Button className="text-xs">DOI</Button>
+//               </DropdownMenuItem>
+//               <DropdownMenuItem>
+//                 <Button className="text-xs">EMDB</Button>
+//               </DropdownMenuItem>
+//               <DropdownMenuItem>
+//                 <ShareIcon className="text-gray-500" />
+//               </DropdownMenuItem>
+//               <DropdownMenuItem>
+//                 <SettingsIcon className="text-gray-500" />
+//               </DropdownMenuItem>
+//               <DropdownMenuItem>
+//                 <DownloadIcon className="text-gray-500" />
+//               </DropdownMenuItem>
+//               <DropdownMenuItem>
+//                 <ExpandIcon className="text-gray-500" />
+//               </DropdownMenuItem>
+//             </DropdownMenuContent>
+//           </DropdownMenu>
+
+//         </div>
+
+
+//         <div className="text-gray-700 text-sm">
+//           <div className="flex justify-between">
+//             <span>2.7 Å</span>
+//             <span>2022</span>
+//           </div>
+//           <Popover open={open} onOpenChange={setOpen}>
+//             <PopoverTrigger
+//               onMouseEnter={handleMouseEnter}
+//               onMouseLeave={handleMouseLeave}
+
+//               asChild>
+//               <p className="text-gray-900 leading-none mt-3 cursor-pointer">
+//                 Compact IF2 allows initiator tRNA accommodation into the P site and gating of the A site for the next
+//                 aminoacyl-tRNA to enter.
+//               </p>
+//             </PopoverTrigger>
+//             <PopoverContent className="p-4 w-64">
+//               <p>
+//                 Compact IF2 allows initiator tRNA accommodation into the P site and gating of the A site for the next
+//                 aminoacyl-tRNA to enter.
+//               </p>
+//             </PopoverContent>
+//           </Popover>
+//           <div className="mt-4">
+//             <div className="flex justify-between items-center">
+//               <span>Organism:</span>
+//               <div className="flex items-center">
+//                 <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ff0000]" />
+//                 <span className="ml-2 text-xs" title="Full taxonomic lineage">
+//                   Pseudomonas aeruginosa
+//                 </span>
+//               </div>
+//             </div>
+//             <div className="flex justify-between items-center mt-1">
+//               <span>Method:</span>
+//               <span title="Full method description">ELECTRON MICROSCOPY</span>
+//             </div>
+//             <div className="flex justify-between items-center mt-1">
+//               <span>Proteins:</span>
+//               <span title="List of proteins">52</span>
+//             </div>
+//             <div className="flex justify-between items-center mt-1">
+//               <span>RNA:</span>
+//               <span title="List of RNA">5</span>
+//             </div>
+//             <div className="flex justify-between items-center mt-1">
+//               <span>Ligands:</span>
+//               <span title="List of ligands">4</span>
+//             </div>
+//             <div className="flex justify-between items-center mt-1">
+//               <span>Author:</span>
+//               <span title="Full list of authors">Basu, R.S. et al.</span>
+//             </div>
+//           </div>
+//         </div>
+//       </CardContent>
+//       {/* <CardFooter className="flex justify-around items-center p-4 bg-gray-100">
+//         <DropdownMenu>
+//           <DropdownMenuTrigger asChild>
+//             <Button className="text-xs" size="sm" variant="ghost">
+//               Menu
+//             </Button>
+//           </DropdownMenuTrigger>
+//           <DropdownMenuContent side="right">
+//             <DropdownMenuItem>
+//               <Button className="text-xs">PDB</Button>
+//             </DropdownMenuItem>
+//             <DropdownMenuItem>
+//               <Button className="text-xs">DOI</Button>
+//             </DropdownMenuItem>
+//             <DropdownMenuItem>
+//               <Button className="text-xs">EMDB</Button>
+//             </DropdownMenuItem>
+//             <DropdownMenuItem>
+//               <ShareIcon className="text-gray-500" />
+//             </DropdownMenuItem>
+//             <DropdownMenuItem>
+//               <SettingsIcon className="text-gray-500" />
+//             </DropdownMenuItem>
+//             <DropdownMenuItem>
+//               <DownloadIcon className="text-gray-500" />
+//             </DropdownMenuItem>
+//             <DropdownMenuItem>
+//               <ExpandIcon className="text-gray-500" />
+//             </DropdownMenuItem>
+//           </DropdownMenuContent>
+//         </DropdownMenu>
+//       </CardFooter> */}
+//     </Card>
+//   )
+// }
 
 function DownloadIcon(props) {
   return (
