@@ -1,4 +1,4 @@
-import { emptySplitApi as api } from "./template_empty_api";
+import { empty_api as api } from "./template";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
     routersRouterStructStructureProfile: build.query<
@@ -9,6 +9,12 @@ const injectedRtkApi = api.injectEndpoints({
         url: `/structure/profile`,
         params: { rcsb_id: queryArg.rcsbId },
       }),
+    }),
+    routersRouterStructListStructures: build.mutation<
+      RoutersRouterStructListStructuresApiResponse,
+      RoutersRouterStructListStructuresApiArg
+    >({
+      query: () => ({ url: `/structure/list_structures`, method: "POST" }),
     }),
     routersRouterClassesPolynucleotideClass: build.query<
       RoutersRouterClassesPolynucleotideClassApiResponse,
@@ -40,12 +46,15 @@ const injectedRtkApi = api.injectEndpoints({
   }),
   overrideExisting: false,
 });
-export { injectedRtkApi as ribxz_api_schema };
+export { injectedRtkApi as ribxz_api };
 export type RoutersRouterStructStructureProfileApiResponse =
   /** status 200 OK */ RibosomeStructure;
 export type RoutersRouterStructStructureProfileApiArg = {
   rcsbId: string;
 };
+export type RoutersRouterStructListStructuresApiResponse =
+  /** status 200 OK */ RibosomeStructure[];
+export type RoutersRouterStructListStructuresApiArg = void;
 export type RoutersRouterClassesPolynucleotideClassApiResponse =
   /** status 200 OK */ Rna[];
 export type RoutersRouterClassesPolynucleotideClassApiArg = {
@@ -722,7 +731,7 @@ export type NonpolymericLigand = {
   formula_weight?: number | null;
   pdbx_description: string;
   number_of_instances: number;
-  nonpolymer_comp: NonpolymerComp;
+  nonpolymer_comp?: NonpolymerComp | null;
 };
 export type RibosomeStructure = {
   rcsb_id: string;
@@ -741,7 +750,7 @@ export type RibosomeStructure = {
   src_organism_names: string[];
   host_organism_ids: number[];
   host_organism_names: string[];
-  assembly_map: AssemblyInstancesMap[];
+  assembly_map?: AssemblyInstancesMap[] | null;
   mitochondrial: boolean;
   proteins: Protein[];
   rnas: Rna[];
@@ -750,6 +759,7 @@ export type RibosomeStructure = {
 };
 export const {
   useRoutersRouterStructStructureProfileQuery,
+  useRoutersRouterStructListStructuresMutation,
   useRoutersRouterClassesPolynucleotideClassQuery,
   useRoutersRouterClassesPolypeptideClassQuery,
   useRoutersRouterClassesLifecycleFactorClassQuery,

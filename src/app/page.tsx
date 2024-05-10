@@ -9,13 +9,13 @@ import { AppStore } from '@/store/store';
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const count = useAppSelector((state) => state.counter.value);
+  const count = useAppSelector((state) => state.counter)
 
 
   return (
     <StoreProvider >
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-         <div> count is {count}</div>
+         <div> count is {count.value}</div>
 
 
         <Structures/>
