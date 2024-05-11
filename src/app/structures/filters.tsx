@@ -20,7 +20,6 @@ const options = [
   return (
     <div className="border rounded-md">
       <div className="p-4 space-y-4">
-        <h2 className="text-xl font-semibold">Ribosome Structures</h2>
         <Input placeholder="Search" />
         <div className="flex items-center justify-between space-x-2">
           <label className="text-sm font-medium" htmlFor="startYear">

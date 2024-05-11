@@ -36,7 +36,7 @@ export default function StructureCatalogue() {
       <h1 className="text-4xl font-bold mb-6" >Ribosome Structures</h1>
 
       <div className="grid grid-cols-12 gap-4 mb-4">
-        <div className="col-span-3 border-r-2 border-gray-200 pr-4">
+        <div className="col-span-3  border-gray-200 pr-4">
           <FilterSidebar/>
 
 
