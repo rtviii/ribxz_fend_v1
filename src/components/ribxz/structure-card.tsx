@@ -4,9 +4,10 @@ import { CardContent, CardFooter, Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent, DropdownMenu } from "@/components/ui/dropdown-menu"
 import { useState } from "react";
+import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 
 
-export default function StructureCard() {
+export default function StructureCard({ structure_data }:{ structure_data:RibosomeStructure }) {
   return (
     <Card className="w-full max-w-sm bg-white shadow-lg rounded-lg overflow-hidden relative">
       <div className="relative h-[40%]">
@@ -21,18 +22,18 @@ export default function StructureCard() {
           }}
           width={400}
         />
-        <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2.7 Å</div>
-        <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2022</div>
+        <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold">{structure_data.resolution} Å</div>
+        <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">{structure_data.citation_year}</div>
         {/* <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-100 h-8 w-8 rounded-full flex items-center justify-center">
           <InfoIcon className="text-gray-500" />
         </div> */}
         <div className="absolute top-0 left-0 transform   bg-white rounded-md px-3 py-1 text-sm font-bold">
-          7UNV
+          {structure_data.rcsb_id}
         </div>
       </div>
       <CardContent className="group-hover:hidden p-4">
           <p className="text-gray-900 leading-none mt-3">
-            Compact IF2 allows initiator tRNA accommodation into the P site and ga...
+            {structure_data.citation_title}
           </p>
         <div className="text-gray-700 text-sm">
           <div className="flex justify-between">
@@ -46,23 +47,23 @@ export default function StructureCard() {
           </div>
           <div className="flex justify-between items-center mt-1">
             <span>Method:</span>
-            <span title="Full method description">ELECTRON MICROSCOPY</span>
+            <span title="Full method description">{structure_data.expMethod}</span>
           </div>
           <div className="flex justify-between items-center mt-1">
             <span>Proteins:</span>
-            <span title="List of proteins">52</span>
+            <span title="List of proteins">{structure_data.proteins.length}</span>
           </div>
           <div className="flex justify-between items-center mt-1">
             <span>RNA:</span>
-            <span title="List of RNA">5</span>
+            <span title="List of RNA">{structure_data.proteins.length}</span>
           </div>
           <div className="flex justify-between items-center mt-1">
             <span>Ligands:</span>
-            <span title="List of ligands">4</span>
+            <span title="List of ligands">{structure_data.nonpolymeric_ligands.length}</span>
           </div>
           <div className="flex justify-between items-center mt-1">
-            <span>Author:</span>
-            <span title="Full list of authors">Basu, R.S. et al.</span>
+            <span>Authors:</span>
+            <span title="Full list of authors">{structure_data.citation_rcsb_authors?.join(',')}</span>
           </div>
         </div>
       </CardContent>

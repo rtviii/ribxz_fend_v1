@@ -5,11 +5,23 @@ import { CardContent, Card } from "@/components/ui/card"
 import StructureCard  from "@/components/ribxz/structure-card"
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
+import { useEffect } from "react"
 
-export default function Structures() {
-  const router= useRouter();
+
+interface StrucutureCataloguProps{
+  structure_list:RibosomeStructure[],
+  isLoading:boolean
+}
+
+export default function StructureCatalogue({isLoading,structure_list}:StrucutureCataloguProps) {
+  useEffect(()=>{
+    console.log("catalogue got props", structure_list, isLoading);
+  })
+
   return (
     <div className="container mx-auto my-8 p-4">
+
       <h1 className="text-4xl font-bold mb-6" >Ribosome Structures</h1>
       <div className="grid grid-cols-12 gap-4 mb-4">
         <div className="col-span-3 border-r-2 border-gray-200 pr-4">
@@ -64,7 +76,9 @@ export default function Structures() {
         <div className="col-span-9 pl-4">
           <div className="grid grid-cols-3 gap-4 mb-4">
 
+{isLoading === false ?  structure_list.map(struct =>  <StructureCard structure_data={struct}   key={struct.rcsb_id}/> ) : null}
 
+      {/* <StructureCard />
       <StructureCard />
       <StructureCard />
       <StructureCard />
@@ -74,9 +88,7 @@ export default function Structures() {
       <StructureCard />
       <StructureCard />
       <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
+      <StructureCard /> */}
             {/* <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
               <CardContent>
                 <img
