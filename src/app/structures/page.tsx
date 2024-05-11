@@ -12,11 +12,12 @@ import FilterSidebar from "./filters"
 
 
 
+;
 
 
 interface StrucutureCataloguProps{
-  structure_list:RibosomeStructure[],
-  isLoading:boolean
+  structure_list: RibosomeStructure[],
+  isLoading     : boolean
 }
 
 export default function StructureCatalogue() {

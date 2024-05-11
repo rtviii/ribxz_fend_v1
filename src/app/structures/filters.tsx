@@ -7,14 +7,51 @@ import { Input } from "@/components/ui/input"
 import { CollapsibleTrigger, CollapsibleContent, Collapsible } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
 import Select from 'react-select'
+import {TreeSelect} from 'antd'
+import { useState } from "react"
 
 
 export default function FilterSidebar() {
+
+  const [value, setValue] = useState<string>();
+
+    const onChange = (newValue: string) => {
+        console.log(newValue);
+        setValue(newValue);
+      };
 
 const options = [
   { value: 'chocolate', label: 'Chocolate' },
   { value: 'strawberry', label: 'Strawberry' },
   { value: 'vanilla', label: 'Vanilla' }
+]
+const phylo_tree = [
+  {
+    value: '2',
+    title: 'Bacteria',
+    children: [
+      {
+        value: '66',
+        title: 'parent 1-0',
+        children: [
+          {
+            value: '44',
+            title: 'my leaf',
+          },
+          {
+            value: '22',
+            title: 'your leaf',
+          },
+        ],
+      },
+    ],
+  },{
+    value: '4',
+    title: 'Eukarya',
+  },{
+    value: '6',
+    title: 'Prokaroyta',
+  }
 ]
 
   return (
@@ -41,38 +78,41 @@ const options = [
         </div>
         <div>
           <label className="text-sm font-medium" htmlFor="proteinsPresent">
-            Proteins Present
+            Proteins
           </label>
           <Select options={options} isMulti={true}/>
-          {/* <Select>
-            <SelectTrigger id="proteinsPresent">
-              <SelectValue placeholder="Select proteins" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="option1">Option 1</SelectItem>
-              <SelectItem value="option2">Option 2</SelectItem>
-              <SelectItem value="option3">Option 3</SelectItem>
-              <SelectItem value="option4">Option 4</SelectItem>
-            </SelectContent>
-          </Select> */}
         </div>
         <div>
           <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
-            RNA Present
+            RNA 
           </label>
           <Select options={options} isMulti={true}/>
-          {/* <Select multiple>
-            <SelectTrigger id="multiProteinsPresent">
-              <SelectValue placeholder="Select proteins" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="option1">Option 1</SelectItem>
-              <SelectItem value="option2">Option 2</SelectItem>
-              <SelectItem value="option3">Option 3</SelectItem>
-              <SelectItem value="option4">Option 4</SelectItem>
-            </SelectContent>
-          </Select> */}
         </div>
+
+        <div>
+          <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
+            Phylogeny
+          </label>
+          <div className="text-sm font-medium" >
+          <TreeSelect
+             showSearch={true}
+              style={{ width: '100%' }}
+              value={value}
+              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+              placeholder="Phylogeny"
+              allowClear={false}
+              multiple={true}
+              variant="outlined"
+            //   treeDefaultExpandAll
+              onChange={onChange}
+              treeData={phylo_tree}
+          />
+          </div>
+        </div>
+
+
+
+
         <Collapsible className="mt-4">
           <CollapsibleTrigger className="flex items-center justify-between">
             <h3 className="text-sm font-medium">Sort by:</h3>
