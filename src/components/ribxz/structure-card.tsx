@@ -7,9 +7,17 @@ import { useState } from "react";
 import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 
 
-export default function StructureCard({ structure_data }:{ structure_data:RibosomeStructure }) {
+/**
+ * v0 by Vercel.
+ * @see https://v0.dev/t/Dn4P77ji2KX
+ * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
+ */
+import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
+// import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
+
+export default function Component() {
   return (
-    <Card className="w-full max-w-sm bg-white shadow-lg rounded-lg overflow-hidden relative">
+    <Card className="w-full max-w-sm  bg-white shadow-lg rounded-lg overflow-hidden relative">
       <div className="relative h-[40%]">
         <img
           alt="Card Image"
@@ -22,52 +30,150 @@ export default function StructureCard({ structure_data }:{ structure_data:Riboso
           }}
           width={400}
         />
-        <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold">{structure_data.resolution} Å</div>
-        <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">{structure_data.citation_year}</div>
-        {/* <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-100 h-8 w-8 rounded-full flex items-center justify-center">
+
+        <div className="absolute top-4 left-4 transform  bg-white rounded-md px-3 py-1 text-sm font-bold">
+          7UNV
+        </div>
+        <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2.7 Å</div>
+        <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2022</div>
+
+        <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-100 h-8 w-8 rounded-full flex items-center justify-center">
           <InfoIcon className="text-gray-500" />
-        </div> */}
-        <div className="absolute top-0 left-0 transform   bg-white rounded-md px-3 py-1 text-sm font-bold">
-          {structure_data.rcsb_id}
         </div>
       </div>
-      <CardContent className="group-hover:hidden p-4">
-          <p className="text-gray-900 leading-none mt-3">
-            {structure_data.citation_title}
-          </p>
+
+      <CardContent className="group-hover:hidden">
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <div className="group relative">
+              <p className="text-gray-900 leading-none text-sm mb-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors cursor-pointer">
+                Compact IF2 allows initiator tRNA accommodation into the P site and ga...
+              </p>
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <p>
+              Compact IF2 allows initiator tRNA accommodation into the P site and gate the transition from the open to
+              the closed state of the 30S subunit.
+            </p>
+          </PopoverContent>
+        </Popover>
+
+
         <div className="text-gray-700 text-sm">
-          <div className="flex justify-between">
+
+          <div className="flex justify-between group relative">
             <span>Organism:</span>
-            <div className="flex items-center">
+            <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
               <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ff0000]" />
               <span className="ml-2 text-xs" title="Full taxonomic lineage">
                 Pseudomonas aeruginosa
               </span>
             </div>
           </div>
-          <div className="flex justify-between items-center mt-1">
+          <div className="flex justify-between items-center mt-1 group relative">
             <span>Method:</span>
-            <span title="Full method description">{structure_data.expMethod}</span>
+            <span title="Full method description">ELECTRON MICROSCOPY</span>
           </div>
-          <div className="flex justify-between items-center mt-1">
+          <div className="flex justify-between items-center mt-1 group relative">
             <span>Proteins:</span>
-            <span title="List of proteins">{structure_data.proteins.length}</span>
+            <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
+              <span title="List of proteins">52</span>
+            </div>
           </div>
-          <div className="flex justify-between items-center mt-1">
+          <div className="flex justify-between items-center mt-1 group relative">
             <span>RNA:</span>
-            <span title="List of RNA">{structure_data.proteins.length}</span>
+            <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
+              <span title="List of RNA">5</span>
+            </div>
           </div>
-          <div className="flex justify-between items-center mt-1">
+          <div className="flex justify-between items-center mt-1 group relative">
             <span>Ligands:</span>
-            <span title="List of ligands">{structure_data.nonpolymeric_ligands.length}</span>
+            <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
+              <span title="List of ligands">4</span>
+            </div>
           </div>
-          <div className="flex justify-between items-center mt-1">
+          <div className="relative flex justify-between items-center mt-1">
             <span>Authors:</span>
-            <span title="Full list of authors">{structure_data.citation_rcsb_authors?.join(',')}</span>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span
+                  className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors"
+                  title="Full list of authors"
+                >
+                  Basu, R.S. et al.
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2">
+
+                  {/* <Avatar>
+                    <AvatarImage alt="Basu, R.S." src="/placeholder-avatar.jpg" />
+                    <AvatarFallback>BR</AvatarFallback>
+                  </Avatar> */}
+                  <div>
+                    <div className="font-medium">Basu, R.S.</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Lead Author</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* <Avatar>
+                    <AvatarImage alt="Sharma, A.K." src="/placeholder-avatar.jpg" />
+                    <AvatarFallback>AS</AvatarFallback>
+                  </Avatar> */}
+                  <div>
+                    <div className="font-medium">Sharma, A.K.</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* <Avatar>
+                    <AvatarImage alt="Gupta, S.P." src="/placeholder-avatar.jpg" />
+                    <AvatarFallback>SG</AvatarFallback>
+                  </Avatar> */}
+                  <div>
+                    <div className="font-medium">Gupta, S.P.</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* <Avatar>
+                    <AvatarImage alt="Chaudhary, N." src="/placeholder-avatar.jpg" />
+                    <AvatarFallback>NC</AvatarFallback>
+                  </Avatar> */}
+                  <div>
+                    <div className="font-medium">Chaudhary, N.</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
+                  </div>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
           </div>
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+function InfoIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
   )
 }
 
@@ -216,109 +322,109 @@ export default function StructureCard({ structure_data }:{ structure_data:Riboso
 //   )
 // }
 
-function DownloadIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="7 10 12 15 17 10" />
-      <line x1="12" x2="12" y1="15" y2="3" />
-    </svg>
-  )
-}
+// function DownloadIcon(props) {
+//   return (
+//     <svg
+//       {...props}
+//       xmlns="http://www.w3.org/2000/svg"
+//       width="24"
+//       height="24"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="currentColor"
+//       strokeWidth="2"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     >
+//       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+//       <polyline points="7 10 12 15 17 10" />
+//       <line x1="12" x2="12" y1="15" y2="3" />
+//     </svg>
+//   )
+// }
 
 
-function ExpandIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m21 21-6-6m6 6v-4.8m0 4.8h-4.8" />
-      <path d="M3 16.2V21m0 0h4.8M3 21l6-6" />
-      <path d="M21 7.8V3m0 0h-4.8M21 3l-6 6" />
-      <path d="M3 7.8V3m0 0h4.8M3 3l6 6" />
-    </svg>
-  )
-}
+// function ExpandIcon(props) {
+//   return (
+//     <svg
+//       {...props}
+//       xmlns="http://www.w3.org/2000/svg"
+//       width="24"
+//       height="24"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="currentColor"
+//       strokeWidth="2"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     >
+//       <path d="m21 21-6-6m6 6v-4.8m0 4.8h-4.8" />
+//       <path d="M3 16.2V21m0 0h4.8M3 21l6-6" />
+//       <path d="M21 7.8V3m0 0h-4.8M21 3l-6 6" />
+//       <path d="M3 7.8V3m0 0h4.8M3 3l6 6" />
+//     </svg>
+//   )
+// }
 
 
-function SettingsIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  )
-}
+// function SettingsIcon(props) {
+//   return (
+//     <svg
+//       {...props}
+//       xmlns="http://www.w3.org/2000/svg"
+//       width="24"
+//       height="24"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="currentColor"
+//       strokeWidth="2"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     >
+//       <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+//       <circle cx="12" cy="12" r="3" />
+//     </svg>
+//   )
+// }
 
 
-function ShareIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-      <polyline points="16 6 12 2 8 6" />
-      <line x1="12" x2="12" y1="2" y2="15" />
-    </svg>
-  )
-}
-function InfoIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4" />
-      <path d="M12 8h.01" />
-    </svg>
-  )
-}
+// function ShareIcon(props) {
+//   return (
+//     <svg
+//       {...props}
+//       xmlns="http://www.w3.org/2000/svg"
+//       width="24"
+//       height="24"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="currentColor"
+//       strokeWidth="2"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     >
+//       <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+//       <polyline points="16 6 12 2 8 6" />
+//       <line x1="12" x2="12" y1="2" y2="15" />
+//     </svg>
+//   )
+// }
+// function InfoIcon(props) {
+//   return (
+//     <svg
+//       {...props}
+//       xmlns="http://www.w3.org/2000/svg"
+//       width="24"
+//       height="24"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="currentColor"
+//       strokeWidth="2"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     >
+//       <circle cx="12" cy="12" r="10" />
+//       <path d="M12 16v-4" />
+//       <path d="M12 8h.01" />
+//     </svg>
+//   )
+// }

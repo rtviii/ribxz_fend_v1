@@ -5,8 +5,13 @@ import { CardContent, Card } from "@/components/ui/card"
 import StructureCard  from "@/components/ribxz/structure-card"
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
+import { RibosomeStructure, useRoutersRouterStructListStructuresQuery } from "@/store/ribxz_api/ribxz_api"
 import { useEffect } from "react"
+import FilterSidebar from "./filters"
+
+
+
+
 
 
 interface StrucutureCataloguProps{
@@ -14,18 +19,28 @@ interface StrucutureCataloguProps{
   isLoading:boolean
 }
 
-export default function StructureCatalogue({isLoading,structure_list}:StrucutureCataloguProps) {
+export default function StructureCatalogue() {
+
+  const {data,  isLoading} = useRoutersRouterStructListStructuresQuery()
   useEffect(()=>{
-    console.log("catalogue got props", structure_list, isLoading);
+     console.log("Home got data");
+  }, [data])
+
+  useEffect(()=>{
+    console.log("catalogue got props", data, isLoading);
   })
 
   return (
     <div className="container mx-auto my-8 p-4">
 
       <h1 className="text-4xl font-bold mb-6" >Ribosome Structures</h1>
+
       <div className="grid grid-cols-12 gap-4 mb-4">
         <div className="col-span-3 border-r-2 border-gray-200 pr-4">
-          <Input className="mb-4 w-full" placeholder="Search" />
+          <FilterSidebar/>
+
+
+          {/* <Input className="mb-4 w-full" placeholder="Search" />
           <label className="block text-sm font-medium mb-1">Deposition Date</label>
           <div className="flex justify-between">
             <div className="flex justify-between w-full">
@@ -36,9 +51,11 @@ export default function StructureCatalogue({isLoading,structure_list}:Strucuture
               <span className="text-xs">1950</span>
               <span className="text-xs">2024</span>
             </div>
-          </div>
-          <label className="block text-sm font-medium mb-1">Resolution</label>
-          <div className="flex justify-between">
+          </div> */}
+
+          {/* <label className="block text-sm font-medium mb-1">Resolution</label> */}
+
+          {/* <div className="flex justify-between">
             <div className="flex justify-between w-full">
               <Input className="mb-4 w-1/2" max="20" min="1" type="range" />
               <Input className="mb-4 w-1/2" max="20" min="1" type="range" />
@@ -47,8 +64,9 @@ export default function StructureCatalogue({isLoading,structure_list}:Strucuture
               <span className="text-xs">1</span>
               <span className="text-xs">20</span>
             </div>
-          </div>
-          <Select>
+          </div> */}
+
+          {/* <Select>
             <SelectTrigger id="proteins">
               <SelectValue placeholder="Proteins Present" />
             </SelectTrigger>
@@ -56,8 +74,8 @@ export default function StructureCatalogue({isLoading,structure_list}:Strucuture
               <SelectItem value="xray">XRAY</SelectItem>
               <SelectItem value="em">EM</SelectItem>
             </SelectContent>
-          </Select>
-          <div className="mt-4 border-t-2 border-gray-200 pt-4">
+          </Select> */}
+          {/* <div className="mt-4 border-t-2 border-gray-200 pt-4">
             <h2 className="text-lg font-semibold mb-2">Sort by:</h2>
             <Button className="mb-2 text-sm font-medium" variant="outline">
               RESOLUTION
@@ -71,81 +89,14 @@ export default function StructureCatalogue({isLoading,structure_list}:Strucuture
             <Button className="mb-2 text-sm font-medium" variant="outline">
               PDB CODENAME
             </Button>
-          </div>
+          </div> */}
         </div>
+        
         <div className="col-span-9 pl-4">
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-3 gap-2 mb-6">
 
-{isLoading === false ?  structure_list.map(struct =>  <StructureCard structure_data={struct}   key={struct.rcsb_id}/> ) : null}
+{isLoading === false ?  data.map(struct =>  <StructureCard structure_data={struct}   key={struct.rcsb_id}/> ) : null}
 
-      {/* <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard />
-      <StructureCard /> */}
-            {/* <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
-              <CardContent>
-                <img
-                  alt="Molecule Placeholder"
-                  className="w-full h-32 object-cover mb-2"
-                  height="200"
-                  src="/placeholder.svg"
-                  style={{
-                    aspectRatio: "200/200",
-                    objectFit: "cover",
-                  }}
-                  width="200"
-                />
-                <p className="font-bold">Molecule 1</p>
-                <p className="text-sm">Description of Molecule 1</p>
-              </CardContent>
-            </Card>
-
-
-
-            <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
-              <CardContent>
-                <img
-                  alt="Molecule Placeholder"
-                  className="w-full h-32 object-cover mb-2"
-                  height="200"
-                  src="/placeholder.svg"
-                  style={{
-                    aspectRatio: "200/200",
-                    objectFit: "cover",
-                  }}
-                  width="200"
-                />
-                <p className="font-bold">Molecule 2</p>
-                <p className="text-sm">Description of Molecule 2</p>
-              </CardContent>
-            </Card>
-
-
-
-            <Card className="w-full bg-white border border-transparent hover:border-gray-300 group">
-              <CardContent>
-                <img
-                  alt="Molecule Placeholder"
-                  className="w-full h-32 object-cover mb-2"
-                  height="200"
-                  src="/placeholder.svg"
-                  style={{
-                    aspectRatio: "200/200",
-                    objectFit: "cover",
-                  }}
-                  width="200"
-                />
-                <p className="font-bold">Molecule 3</p>
-                <p className="text-sm">Description of Molecule 3</p>
-              </CardContent>
-            </Card> */}
           </div>
           <div className="flex justify-center space-x-2">
             <Button className="bg-[#eaeaea] text-xs">1</Button>
