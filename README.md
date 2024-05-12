@@ -7,10 +7,8 @@ To codegen an rtk-api definition from the `openapi-config` (provided by the djan
 The config file looks something like this:
 
 ```typescript
-
 // EXAMPLE (you have to provide correct parameters and rerun when the api changes)
 import type { ConfigFile } from '@rtk-query/codegen-openapi'
-
 const config: ConfigFile = {
   schemaFile: 'https://r8-kdd.math.ubc.ca/openapi.json',  //<-- this is where you get the actual schema from
   apiFile   : 'template_empty_api.ts', // <- this is the starter file 

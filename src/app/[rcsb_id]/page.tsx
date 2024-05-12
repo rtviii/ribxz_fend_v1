@@ -115,7 +115,6 @@ export default function StructurePage() {
 
     const {data, error, isLoading} = useRoutersRouterStructStructureProfileQuery({rcsbId:"3j7z"})
     const [test_active, test_active_set] = useState<boolean>(false)
-
     const load_struct = (rcsb_id:string) => {
 
     }

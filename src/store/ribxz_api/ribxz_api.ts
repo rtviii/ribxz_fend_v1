@@ -16,6 +16,14 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: () => ({ url: `/structure/list_structures` }),
     }),
+    routersRouterStructListSourceTaxa: build.query<
+      RoutersRouterStructListSourceTaxaApiResponse,
+      RoutersRouterStructListSourceTaxaApiArg>({
+      query: (queryArg) => ({
+        url: `/structure/list_source_taxa`,
+        params: { source_or_host: queryArg.sourceOrHost },
+      }),
+    }),
     routersRouterClassesPolynucleotideClass: build.query<
       RoutersRouterClassesPolynucleotideClassApiResponse,
       RoutersRouterClassesPolynucleotideClassApiArg
@@ -55,6 +63,11 @@ export type RoutersRouterStructStructureProfileApiArg = {
 export type RoutersRouterStructListStructuresApiResponse =
   /** status 200 OK */ RibosomeStructure[];
 export type RoutersRouterStructListStructuresApiArg = void;
+export type RoutersRouterStructListSourceTaxaApiResponse =
+  /** status 200 OK */ object[];
+export type RoutersRouterStructListSourceTaxaApiArg = {
+  sourceOrHost: "source" | "host";
+};
 export type RoutersRouterClassesPolynucleotideClassApiResponse =
   /** status 200 OK */ Rna[];
 export type RoutersRouterClassesPolynucleotideClassApiArg = {
@@ -760,6 +773,7 @@ export type RibosomeStructure = {
 export const {
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructListStructuresQuery,
+  useRoutersRouterStructListSourceTaxaQuery,
   useRoutersRouterClassesPolynucleotideClassQuery,
   useRoutersRouterClassesPolypeptideClassQuery,
   useRoutersRouterClassesLifecycleFactorClassQuery,

@@ -8,51 +8,30 @@ import { CollapsibleTrigger, CollapsibleContent, Collapsible } from "@/component
 import { Button } from "@/components/ui/button"
 import Select from 'react-select'
 import {TreeSelect} from 'antd'
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useRoutersRouterStructListSourceTaxaQuery } from "@/store/ribxz_api/ribxz_api"
 
 
 export default function FilterSidebar() {
 
-  const [value, setValue] = useState<string>();
+  const {data:tax_dict, isLoading:tax_dict_is_loading} =  useRoutersRouterStructListSourceTaxaQuery({sourceOrHost:"source"});
 
-    const onChange = (newValue: string) => {
-        console.log(newValue);
-        setValue(newValue);
-      };
+  useEffect(() => {
+    console.log("Tax dict", tax_dict, tax_dict_is_loading);
+  },[tax_dict, tax_dict_is_loading])
+ 
+  const [value, setValue] = useState<string>();
+  const onChange          = (newValue: string) => {
+      console.log(newValue);
+      setValue(newValue);
+    };
 
 const options = [
   { value: 'chocolate', label: 'Chocolate' },
   { value: 'strawberry', label: 'Strawberry' },
   { value: 'vanilla', label: 'Vanilla' }
 ]
-const phylo_tree = [
-  {
-    value: '2',
-    title: 'Bacteria',
-    children: [
-      {
-        value: '66',
-        title: 'parent 1-0',
-        children: [
-          {
-            value: '44',
-            title: 'my leaf',
-          },
-          {
-            value: '22',
-            title: 'your leaf',
-          },
-        ],
-      },
-    ],
-  },{
-    value: '4',
-    title: 'Eukarya',
-  },{
-    value: '6',
-    title: 'Prokaroyta',
-  }
-]
+
 
   return (
     <div className="border rounded-md">
@@ -98,14 +77,17 @@ const phylo_tree = [
              showSearch={true}
               style={{ width: '100%' }}
               value={value}
-              dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-              placeholder="Phylogeny"
+              dropdownStyle={{ maxHeight: 400, maxWidth:400, overflow: 'auto' }}
+              // treeNodeLabelProp={(node)=>node.value}
+              treeNodeFilterProp='title'
+              // title={(node)=>node.value}
+              placeholder="Search.."
               allowClear={false}
               multiple={true}
               variant="outlined"
-            //   treeDefaultExpandAll
+              treeDefaultExpandAll
               onChange={onChange}
-              treeData={phylo_tree}
+              treeData={tax_dict}
           />
           </div>
         </div>

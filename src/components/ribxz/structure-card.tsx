@@ -3,7 +3,7 @@ import { PopoverTrigger, PopoverContent, Popover } from "@/components/ui/popover
 import { CardContent, CardFooter, Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent, DropdownMenu } from "@/components/ui/dropdown-menu"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 
 
@@ -15,7 +15,8 @@ import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 // import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 
-export default function Component() {
+export default function StructureCard({_}:{_:RibosomeStructure}) {
+
   return (
     <Card className="w-full max-w-sm  bg-white shadow-lg rounded-lg overflow-hidden relative">
       <div className="relative h-[40%]">
@@ -32,14 +33,15 @@ export default function Component() {
         />
 
         <div className="absolute top-4 left-4 transform  bg-white rounded-md px-3 py-1 text-sm font-bold">
-          7UNV
-        </div>
-        <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2.7 Å</div>
-        <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">2022</div>
+          {_.rcsb_id}
 
+        </div>
+        <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold" >{_.resolution} Å</div>
+        <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">{_.citation_year}  </div>
+{/* 
         <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-gray-100 h-8 w-8 rounded-full flex items-center justify-center">
           <InfoIcon className="text-gray-500" />
-        </div>
+        </div> */}
       </div>
 
       <CardContent className="group-hover:hidden">
@@ -48,15 +50,14 @@ export default function Component() {
           <PopoverTrigger asChild>
             <div className="group relative">
               <p className="text-gray-900 leading-none text-sm mb-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors cursor-pointer">
-                Compact IF2 allows initiator tRNA accommodation into the P site and ga...
+                {_.citation_title}
               </p>
             </div>
           </PopoverTrigger>
           <PopoverContent className="w-80">
             <p>
-              Compact IF2 allows initiator tRNA accommodation into the P site and gate the transition from the open to
-              the closed state of the 30S subunit.
-            </p>
+              {_.citation_title}
+              </p>
           </PopoverContent>
         </Popover>
 
@@ -68,30 +69,30 @@ export default function Component() {
             <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
               <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ff0000]" />
               <span className="ml-2 text-xs" title="Full taxonomic lineage">
-                Pseudomonas aeruginosa
+                {_.src_organism_names[0]}
               </span>
             </div>
           </div>
           <div className="flex justify-between items-center mt-1 group relative">
             <span>Method:</span>
-            <span title="Full method description">ELECTRON MICROSCOPY</span>
+            <span title="Full method description">{_.expMethod}</span>
           </div>
           <div className="flex justify-between items-center mt-1 group relative">
             <span>Proteins:</span>
             <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
-              <span title="List of proteins">52</span>
+              <span title="List of proteins">{_.proteins.length}</span>
             </div>
           </div>
           <div className="flex justify-between items-center mt-1 group relative">
             <span>RNA:</span>
             <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
-              <span title="List of RNA">5</span>
+              <span title="List of RNA">{_.rnas.length}</span>
             </div>
           </div>
           <div className="flex justify-between items-center mt-1 group relative">
             <span>Ligands:</span>
             <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
-              <span title="List of ligands">4</span>
+              <span title="List of ligands">{_.nonpolymeric_ligands.length}</span>
             </div>
           </div>
           <div className="relative flex justify-between items-center mt-1">
@@ -102,7 +103,7 @@ export default function Component() {
                   className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors"
                   title="Full list of authors"
                 >
-                  Basu, R.S. et al.
+                  {_.citation_rcsb_authors}
                 </span>
               </HoverCardTrigger>
               <HoverCardContent className="w-80 grid grid-cols-2 gap-2">
