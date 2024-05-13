@@ -6,15 +6,36 @@
 import { Input } from "@/components/ui/input"
 import { CollapsibleTrigger, CollapsibleContent, Collapsible } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
-import Select from 'react-select'
+import Select, { components, GroupProps } from 'react-select';
 import {TreeSelect} from 'antd'
 import { useEffect, useState } from "react"
-import { useRoutersRouterStructListSourceTaxaQuery } from "@/store/ribxz_api/ribxz_api"
+import { useRoutersRouterStructListSourceTaxaQuery ,
+  useRoutersRouterStructPolymerClassesNomenclatureQuery
+} from "@/store/ribxz_api/ribxz_api"
 
+import { groupedOptions,PolymerClassOption } from './protein_class_options';
+
+const groupStyles = {
+  borderRadius: '5px',
+  background: '#f2fcff',
+};
+
+const Group = (props: GroupProps<PolymerClassOption, false>) => (
+  <div style={groupStyles}>
+    <components.Group {...props} />
+  </div>
+);
 
 export default function FilterSidebar() {
 
-  const {data:tax_dict, isLoading:tax_dict_is_loading} =  useRoutersRouterStructListSourceTaxaQuery({sourceOrHost:"source"});
+  const {data:tax_dict, isLoading:tax_dict_is_loading}                         = useRoutersRouterStructListSourceTaxaQuery({sourceOrHost:"source"});
+  const {data:nomenclature_classes, isLoading:nomenclature_classes_is_loading} = useRoutersRouterStructPolymerClassesNomenclatureQuery();
+  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
+  useEffect(() => {
+    if (!nomenclature_classes_is_loading){
+    setPolymerClassOptions(groupedOptions(nomenclature_classes))
+    }
+  }, [nomenclature_classes, nomenclature_classes_is_loading]);
 
   useEffect(() => {
     console.log("Tax dict", tax_dict, tax_dict_is_loading);
@@ -32,7 +53,6 @@ const options = [
   { value: 'vanilla', label: 'Vanilla' }
 ]
 
-
   return (
     <div className="border rounded-md">
       <div className="p-4 space-y-4">
@@ -42,8 +62,8 @@ const options = [
             Deposition date
           </label>
           <div className="flex items-center space-x-2">
-            <Input className="w-20" id="startYear" placeholder="Start Year" type="number" />
-            <Input className="w-20" id="endYear" placeholder="End Year" type="number" />
+            <Input className="w-20" id="startYear" placeholder="Start Year" type="number" min={2000} max={2024} step={1} />
+            <Input className="w-20" id="endYear" placeholder="End Year" type="number" min={2000} max={2024} step={1}/>
           </div>
         </div>
         <div className="flex items-center justify-between space-x-2">
@@ -51,15 +71,25 @@ const options = [
             Resolution
           </label>
           <div className="flex items-center space-x-2">
-            <Input className="w-20" id="minResolution" placeholder="Min" type="number" />
-            <Input className="w-20" id="maxResolution" placeholder="Max" type="number" />
+            <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5}/>
+            <Input className="w-20" id="maxResolution" placeholder="Max" type="number"  step={0.1} min={0} max={7.5}/>
           </div>
         </div>
         <div>
           <label className="text-sm font-medium" htmlFor="proteinsPresent">
             Proteins
           </label>
+
           <Select options={options} isMulti={true}/>
+  <Select<PolymerClassOption>
+    defaultValue={polymerClassOptions[1]}
+    options={polymerClassOptions}
+    components={{ Group }}
+    isMulti={true}
+  />
+
+
+
         </div>
         <div>
           <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
