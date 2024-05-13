@@ -77,10 +77,9 @@ const options = [
         </div>
         <div>
           <label className="text-sm font-medium" htmlFor="proteinsPresent">
-            Proteins
+            Polymer Classes
           </label>
 
-          <Select options={options} isMulti={true}/>
   <Select<PolymerClassOption>
     defaultValue={polymerClassOptions[1]}
     options={polymerClassOptions}
@@ -91,16 +90,16 @@ const options = [
 
 
         </div>
-        <div>
+        {/* <div>
           <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
             RNA 
           </label>
           <Select options={options} isMulti={true}/>
-        </div>
+        </div> */}
 
         <div>
           <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
-            Phylogeny
+            Taxonomy
           </label>
           <div className="text-sm font-medium" >
           <TreeSelect
