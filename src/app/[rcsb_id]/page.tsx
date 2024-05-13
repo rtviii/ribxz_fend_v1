@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import {  MolstarNode, MySpec, } from "@/molstar_lib/wip/basic_wrapper"
+import { MolstarNode, MySpec, } from "@/molstar_lib/wip/basic_wrapper"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
@@ -15,19 +15,20 @@ import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery
 // import { RibxzMolstar } from "@/molstar_lib/ribxz_molstar"
 
 
-function PolymerItem({v}:{v:Polymer}){
-                                return <TableRow key={v.auth_asym_id} className="space-x-1 space-y-0.5">
-                                    <TableCell className="text-xs">{v.auth_asym_id}</TableCell>
-                                    <TableCell className="text-xs">{v.entity_poly_seq_one_letter_code_can}</TableCell>
-                                    <TableCell className="text-xs">{v.src_organism_ids}</TableCell>
-                                    <TableCell>
-                                        <div className="flex space-x-2">
-                                            <OptionIcon className="text-gray-500" />
-                                        </div>
-                                    </TableCell>
-                                </TableRow> }
+function PolymerItem({ v }: { v: Polymer }) {
+    return <TableRow key={v.auth_asym_id} className="space-x-1 space-y-0.5">
+        <TableCell className="text-xs">{v.auth_asym_id}</TableCell>
+        <TableCell className="text-xs">{v.entity_poly_seq_one_letter_code_can}</TableCell>
+        <TableCell className="text-xs">{v.src_organism_ids}</TableCell>
+        <TableCell>
+            <div className="flex space-x-2">
+                <OptionIcon className="text-gray-500" />
+            </div>
+        </TableCell>
+    </TableRow>
+}
 
-function ComponentsTableCard({structure_profile}:{structure_profile:RibosomeStructure}) {
+function ComponentsTableCard({ structure_profile }: { structure_profile: RibosomeStructure }) {
 
     return (
         <Card className="w-full max-w-screen">
@@ -89,15 +90,16 @@ function OptionIcon(props: any) {
 }
 
 
-export default function StructurePage() {
+export default function StructurePage({struct}:{struct:RibosomeStructure}) {
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-    var molstar_plugin:PluginUIContext = undefined;
+    var molstar_plugin: PluginUIContext = undefined;
+
     useEffect(() => {
         (async () => {
-                  window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-            const data           = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
-            const trajectory     = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+            window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
+            const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+            const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
             await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
             molstar_plugin = window.molstar;
 
@@ -113,14 +115,14 @@ export default function StructurePage() {
         };
     }, []);
 
-    const {data, error, isLoading} = useRoutersRouterStructStructureProfileQuery({rcsbId:"3j7z"})
+    const { data, error, isLoading } = useRoutersRouterStructStructureProfileQuery({ rcsbId: "3j7z" })
     const [test_active, test_active_set] = useState<boolean>(false)
-    const load_struct = (rcsb_id:string) => {
+    const load_struct = (rcsb_id: string) => {
 
     }
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal" className={ "rounded-lg border "+ (test_active ? 'bg-black' : 'bg-white') }  >
+            <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col">
                         <CardHeader>
@@ -174,7 +176,7 @@ export default function StructurePage() {
                                 </TabsContent>
 
                                 <TabsContent value="components">
-                                    {isLoading ? <Skeleton/> : (data !== undefined ? <ComponentsTableCard structure_profile={data}/> : null)}
+                                    {isLoading ? <Skeleton /> : (data !== undefined ? <ComponentsTableCard structure_profile={data} /> : null)}
 
                                 </TabsContent>
 
@@ -205,6 +207,6 @@ export default function StructurePage() {
 
         </div>
     )
-                                    }
+}
 
 

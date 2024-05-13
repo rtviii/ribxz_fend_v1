@@ -13,6 +13,7 @@ import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
+import Link from "next/link"
 // import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
@@ -28,6 +29,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   }
 
   return (
+    <Link href={_.rcsb_id}>
     <Card className="w-full max-w-sm  bg-white shadow-lg rounded-lg overflow-hidden relative">
 
       <Popover>
@@ -177,6 +179,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
         </div>
       </CardContent>
     </Card>
+</Link>
   )
 }
 
