@@ -87,15 +87,7 @@ const options = [
     isMulti={true}
   />
 
-
-
         </div>
-        {/* <div>
-          <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
-            RNA 
-          </label>
-          <Select options={options} isMulti={true}/>
-        </div> */}
 
         <div>
           <label className="text-sm font-medium" htmlFor="multiProteinsPresent">

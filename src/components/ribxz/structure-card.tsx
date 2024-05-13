@@ -16,6 +16,16 @@ import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/h
 // import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 
 export default function StructureCard({_}:{_:RibosomeStructure}) {
+  const author_fields = ()=>{
+    if (_.citation_rcsb_authors === null || _.citation_rcsb_authors===undefined) return ''
+    else {
+    return _.citation_rcsb_authors.split(',').map((author)=>{
+      return author.split(' ').map((name)=>{
+        return name[0]
+      }).join('')
+    }).join(', ')
+    }
+  }
 
   return (
     <Card className="w-full max-w-sm  bg-white shadow-lg rounded-lg overflow-hidden relative">
@@ -99,55 +109,75 @@ export default function StructureCard({_}:{_:RibosomeStructure}) {
             <span>Authors:</span>
             <HoverCard>
               <HoverCardTrigger asChild>
-                <span
-                  className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors"
-                  title="Full list of authors"
-                >
-                  {_.citation_rcsb_authors}
+
+                <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors" title="Full list of authors" >
+
+                  <span style={{fontStyle:"italic"}}>{_.citation_rcsb_authors[0]}</span> <span style={{
+
+cursor:"pointer",
+    display: 'inline-block',
+    width: '15px',
+    height: '15px',
+    borderRadius: '50%',
+    backgroundColor: '#cccccc',
+    textAlign: 'center',
+    lineHeight: '15px',
+    fontWeight: 'bold',
+    fontSize: '14px',
+    color:'white'
+  }}>+</span>
+
+            
+
                 </span>
+
               </HoverCardTrigger>
               <HoverCardContent className="w-80 grid grid-cols-2 gap-2">
-                <div className="flex items-center gap-2">
-
-                  {/* <Avatar>
+                { 
+                _.citation_rcsb_authors.map((author)=>{
+                return <div key={author} className="flex items-center gap-2">
+                      <div>
+                        <div className="font-medium">{author}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
+                      </div>
+                    </div>})}
+                
+                {/* <div className="flex items-center gap-2">
+                  <Avatar>
                     <AvatarImage alt="Basu, R.S." src="/placeholder-avatar.jpg" />
                     <AvatarFallback>BR</AvatarFallback>
-                  </Avatar> */}
+                  </Avatar>
                   <div>
                     <div className="font-medium">Basu, R.S.</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Lead Author</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* <Avatar>
+                  <Avatar>
                     <AvatarImage alt="Sharma, A.K." src="/placeholder-avatar.jpg" />
                     <AvatarFallback>AS</AvatarFallback>
-                  </Avatar> */}
+                  </Avatar>
                   <div>
                     <div className="font-medium">Sharma, A.K.</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* <Avatar>
+                  <Avatar>
                     <AvatarImage alt="Gupta, S.P." src="/placeholder-avatar.jpg" />
                     <AvatarFallback>SG</AvatarFallback>
-                  </Avatar> */}
+                  </Avatar>
                   <div>
                     <div className="font-medium">Gupta, S.P.</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* <Avatar>
-                    <AvatarImage alt="Chaudhary, N." src="/placeholder-avatar.jpg" />
-                    <AvatarFallback>NC</AvatarFallback>
-                  </Avatar> */}
                   <div>
                     <div className="font-medium">Chaudhary, N.</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
                   </div>
-                </div>
+                </div> */}
               </HoverCardContent>
             </HoverCard>
           </div>

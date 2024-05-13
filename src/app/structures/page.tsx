@@ -1,3 +1,4 @@
+"use client"
 import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
@@ -12,24 +13,10 @@ import FilterSidebar from "./filters"
 
 
 
-  ;
-
-
-interface StrucutureCatalogueProps {
-  structure_list: RibosomeStructure[],
-  isLoading: boolean
-}
 
 export default function StructureCatalogue() {
 
   const { data, isLoading } = useRoutersRouterStructListStructuresQuery()
-  // useEffect(() => {
-  //   console.log("Home got data");
-  // }, [data])
-
-  // useEffect(() => {
-  //   console.log("catalogue got props", data, isLoading);
-  // })
 
   return (
     <div className="container mx-auto my-8 p-4">
