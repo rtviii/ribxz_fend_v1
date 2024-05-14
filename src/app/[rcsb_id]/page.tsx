@@ -98,7 +98,9 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
             // const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
             // const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
             // await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
-            molstar_plugin = window.molstar; })()
+            const molstar_plugin = window.molstar; 
+        })()
+           
 
         return () => {
             window.molstar?.dispose();

@@ -29,12 +29,6 @@ declare global {
   }
 }
 
-declare global {
-  interface Window {
-    molstar?: PluginUIContext;
-  }
-}
-
 export class CustomStructureTools extends PluginUIComponent {
   render() {
     return <>
