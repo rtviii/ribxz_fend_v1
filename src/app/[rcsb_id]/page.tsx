@@ -12,7 +12,7 @@ import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { Skeleton } from "@/components/ui/skeleton"
 import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
-import {    initiatePluginUIContext, waitThreeThunk} from "@/store/slices/molstar_state"
+import {    initiatePluginUIContext} from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 
 
@@ -123,7 +123,8 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
-                    <Button onClick={()=>{dispatch(waitThreeThunk())}}>send thunk</Button>
+                    {/* <Button onClick={()=>{ console.log("clicked"); dispatch(waitThreeThunk()) }}>send thunk</Button> */}
+                    <Button onClick={()=>{console.log("init plugin"); dispatch(initiatePluginUIContext(molstarNodeRef.current))}}>send thunk</Button>
                     <p>State thunk : { counter_42 === undefined ? "undefined" : counter_42}</p>
                     <Card className="h-full flex flex-col">
                         <CardHeader>

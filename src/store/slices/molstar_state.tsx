@@ -12,18 +12,18 @@ declare global {
   }
 }
 
-const waitForThreeSeconds  = async(): Promise<number> => {
+// const waitForThreeSeconds  = async(): Promise<number> => {
 
-  console.log('waiting for three seconds');
-  return new Promise<number>((resolve) => {
-    setTimeout(() => {
-      console.log('done waiting for three seconds');
-      resolve(42); 
-    }, 3000); 
-  });
-}
+//   console.log('waiting for three seconds');
+//   return new Promise<number>((resolve) => {
+//     setTimeout(() => {
+//       console.log('done waiting for three seconds');
+//       resolve(42); 
+//     }, 3000); 
+//   });
+// }
 
-export const waitThreeThunk  = createAsyncThunk('molstar/waitandlearn', waitForThreeSeconds)
+// export const waitThreeThunk  = createAsyncThunk('molstar/waitandlearn', waitForThreeSeconds)
 
 
 // First, create the thunk
@@ -61,14 +61,15 @@ export const molstarSlice = createSlice({
     // },
   },
     extraReducers: (builder) => {
-        // builder.addCase(molstar_inited, (state, action) => {
-        //   state.ui_plugin = action.payload
-        // })
-        builder.addCase(waitThreeThunk.fulfilled, (state, action) => {
-          console.log('waitThreeThunk.fulfilled')
-          console.log('got payload: ', action.payload)
-          state.count = action.payload
+        builder.addCase(molstar_inited, (state, action) => {
+          Object.assign(state, {ui_plugin: action.payload})
+          // state.ui_plugin = action.payload
         })
+        // builder.addCase(waitThreeThunk.fulfilled, (state, action) => {
+        //   console.log('waitThreeThunk.fulfilled')
+        //   console.log('got payload: ', action.payload)
+        //   state.count = action.payload
+        // })
   },
 })
 
