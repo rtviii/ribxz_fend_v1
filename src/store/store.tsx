@@ -7,14 +7,13 @@ export const makeStore = () => {
   return configureStore({
     reducer: {
       [ribxz_api.reducerPath]: ribxz_api.reducer,
-      counter: counterReducer
+      counter                : counterReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(ribxz_api.middleware),
   })
 }
 
 export type AppStore    = ReturnType<typeof makeStore>
-
 export type RootState   = ReturnType<AppStore['getState']>
 export type AppDispatch = AppStore['dispatch']
 

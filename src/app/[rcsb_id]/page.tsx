@@ -12,7 +12,6 @@ import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { Skeleton } from "@/components/ui/skeleton"
 import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
-// import { RibxzMolstar } from "@/molstar_lib/ribxz_molstar"
 
 
 function PolymerItem({ v }: { v: Polymer }) {
@@ -90,24 +89,16 @@ function OptionIcon(props: any) {
 }
 
 
-export default function StructurePage({struct}:{struct:RibosomeStructure}) {
+export default function StructurePage({ struct }: { struct: RibosomeStructure }) {
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-    var molstar_plugin: PluginUIContext = undefined;
-
     useEffect(() => {
         (async () => {
             window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-            const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
-            const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-            await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
-            molstar_plugin = window.molstar;
-
-            // const wrapper      = await BasicWrapper.init('molstar-wrapper')
-            // const molstar_data = await  wrapper.plugin.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
-            // const trajectory   = await wrapper.plugin.builders.structure.parseTrajectory(molstar_data, "pdb");
-            // await wrapper.plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-        })()
+            // const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+            // const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+            // await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+            molstar_plugin = window.molstar; })()
 
         return () => {
             window.molstar?.dispose();
@@ -136,7 +127,6 @@ export default function StructurePage({struct}:{struct:RibosomeStructure}) {
                                     <TabsTrigger value="info">Info</TabsTrigger>
                                     <TabsTrigger value="components">Substructures</TabsTrigger>
                                 </TabsList>
-
                                 <TabsContent value="info">
                                     <div className="mt-4">
                                         <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/placeholder.svg" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
@@ -165,43 +155,30 @@ export default function StructurePage({struct}:{struct:RibosomeStructure}) {
                                             </div>
                                         </div>
                                     </div>
-
                                     <div className="mt-4 flex justify-between">
-
                                         <Button variant="outline">Visualize</Button>
                                         <Button>Download</Button>
-
                                     </div>
-
                                 </TabsContent>
-
                                 <TabsContent value="components">
                                     {isLoading ? <Skeleton /> : (data !== undefined ? <ComponentsTableCard structure_profile={data} /> : null)}
-
                                 </TabsContent>
-
                             </Tabs>
                             <div className="flex flex-col gap-4">
                             </div>
                         </CardContent>
-
                         <CardFooter className="flex justify-between">
                             <Button variant="outline">Log query</Button>
                             <Button></Button>
                         </CardFooter>
                     </Card>
-
                 </ResizablePanel>
                 <ResizableHandle />
-
                 <ResizablePanel defaultSize={75}>
-
                     <div className="flex flex-col gap-4">
                         <MolstarNode ref={molstarNodeRef} />
                     </div>
-
                 </ResizablePanel>
-
             </ResizablePanelGroup>
 
 

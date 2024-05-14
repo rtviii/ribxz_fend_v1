@@ -5,24 +5,22 @@ import { useEffect } from 'react';
 import StoreProvider from './store_provider';
 import StructureCatalogue from './structures/page';
 import { AppStore } from '@/store/store';
+import { increment, incrementByAmount } from '@/store/slices/counterSlice';
 
 
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const count = useAppSelector((state) => state.counter)
+  const count = useAppSelector((state) => state.counter.value)
 
 
   return (
     <StoreProvider >
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
+        <div>count:{count}</div>
+        <button onClick={()=>dispatch(increment())}>Increment</button>
+        <button onClick={()=>dispatch(incrementByAmount(2))}>incr by amount</button>
         <StructureCatalogue />
-        {/* <div>struct id:{structState.data.pdbid}</div>
-        <div>struct authors:{structState.data.authors}</div>
-        <div>struct title:{structState.data.title}</div>
-
-        <button onClick={() => { console.log("increment"); dispatch(setCounter(counterState + 1)) }}>increment counter</button>
-        counter :{counterState} */}
       </main>
     </StoreProvider>
   )

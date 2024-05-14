@@ -15,7 +15,6 @@ import { InitVolumeStreaming } from 'molstar/lib/mol-plugin/behavior/dynamic/vol
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 
 export async function load_from_server() {
-
   window.molstar?.clear()
   const myUrl = new URL('http://127.0.0.1:8000/comp/get_chain/')
   myUrl.searchParams.append('auth_asym_id', 'A');
