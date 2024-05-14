@@ -47,4 +47,3 @@ export class BasicWrapper {
 
 
 
-export const MolstarNode = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' className="min-h-screen" /> })

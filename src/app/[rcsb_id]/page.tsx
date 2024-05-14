@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { MolstarNode, MySpec, } from "@/molstar_lib/wip/basic_wrapper"
+import { MolstarNode, MySpec, } from "@/store/molstar_lib/default"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { Skeleton } from "@/components/ui/skeleton"
 import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
+import {    initiatePluginUIContext, waitThreeThunk} from "@/store/slices/molstar_state"
+import { useAppDispatch, useAppSelector } from "@/store/store"
 
 
 function PolymerItem({ v }: { v: Polymer }) {
@@ -90,23 +92,27 @@ function OptionIcon(props: any) {
 
 
 export default function StructurePage({ struct }: { struct: RibosomeStructure }) {
+   const molstarNodeRef = useRef<HTMLDivElement>(null);
+   const dispatch       = useAppDispatch();
+   const counter_42     = useAppSelector(state => state.molstar.count)
 
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        (async () => {
-            window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-            // const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
-            // const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-            // await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
-            const molstar_plugin = window.molstar; 
-        })()
+
+
+    // useEffect(() => {
+    //     (async () => {
+    //         window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
+    //         // const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
+    //         // const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
+    //         // await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    //         const molstar_plugin = window.molstar; 
+    //     })()
            
 
-        return () => {
-            window.molstar?.dispose();
-            window.molstar = undefined;
-        };
-    }, []);
+    //     return () => {
+    //         window.molstar?.dispose();
+    //         window.molstar = undefined;
+    //     };
+    // }, []);
 
     const { data, error, isLoading } = useRoutersRouterStructStructureProfileQuery({ rcsbId: "3j7z" })
     const [test_active, test_active_set] = useState<boolean>(false)
@@ -117,6 +123,8 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
+                    <Button onClick={()=>{dispatch(waitThreeThunk())}}>send thunk</Button>
+                    <p>State thunk : { counter_42 === undefined ? "undefined" : counter_42}</p>
                     <Card className="h-full flex flex-col">
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>

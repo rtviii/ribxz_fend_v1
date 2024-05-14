@@ -14,9 +14,6 @@ export default function Home() {
   return (
     <StoreProvider >
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        <div>count:{count}</div>
-        <button onClick={()=>dispatch(actions.increment())}>Increment</button>
-        <button onClick={()=>dispatch(actions.incrementByAmount(2))}>incr by amount</button>
         <StructureCatalogue />
       </main>
     </StoreProvider>
