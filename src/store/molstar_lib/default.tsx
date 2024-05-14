@@ -22,13 +22,6 @@ import { AssignColorVolume } from "molstar/lib/mol-plugin-state/actions/volume";
 import { BoxifyVolumeStreaming, CreateVolumeStreamingBehavior, InitVolumeStreaming } from "molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers";
 import { StateActions } from 'molstar/lib/mol-plugin-state/actions'
 
-
-declare global {
-  interface Window {
-    molstar?: PluginUIContext;
-  }
-}
-
 export class CustomStructureTools extends PluginUIComponent {
   render() {
     return <>
@@ -135,7 +128,6 @@ export const MySpec: PluginUISpec = {
     },
   },
 
-
   components: {
     structureTools: CustomStructureTools,
     remoteState: 'default'
@@ -143,21 +135,3 @@ export const MySpec: PluginUISpec = {
 
 
 }
-
-export class BasicWrapper {
-
-  plugin: PluginUIContext
-
-  constructor(_: PluginUIContext) {
-    this.plugin = _
-  }
-
-  static async init(target: string | HTMLElement) {
-    var plugin = await createPluginUI(typeof target === 'string' ? document.getElementById(target)! : target, MySpec);
-    return new BasicWrapper(plugin)
-  }
-}
-
-
-
-export const MolstarNode = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' className="min-h-screen" /> })

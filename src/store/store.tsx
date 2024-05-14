@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit'
 import { ribxz_api } from './ribxz_api/ribxz_api'
 import counterReducer from './slices/counterSlice'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'
+import { molstarSlice } from './slices/molstar_state'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       [ribxz_api.reducerPath]: ribxz_api.reducer,
-      counter                : counterReducer
+      counter                : counterReducer,
+      molstar                : molstarSlice.reducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(ribxz_api.middleware),
   })
