@@ -65,6 +65,9 @@ export const molstarSlice = createSlice({
         builder.addCase(download_struct.fulfilled, (state, action) => {
           console.log("Downloaded the structure")
         })
+        builder.addCase(download_struct.pending, (state, action) => {
+          console.log("Downloaded the structure")
+        })
         // builder.addCase(waitThreeThunk.fulfilled, (state, action) => {
         //   console.log('waitThreeThunk.fulfilled')
         //   console.log('got payload: ', action.payload)

@@ -6,15 +6,25 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { MolstarNode, MySpec, } from "@/store/molstar_lib/default"
+import { MolstarNode, } from "@/store/molstar_lib/default"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { Skeleton } from "@/components/ui/skeleton"
 import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
-import {    initiatePluginUIContext, download_struct} from "@/store/slices/molstar_state"
+import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
+import { renderReact18 } from 'molstar/lib/mol-plugin-ui/react18';
+import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
+import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
+import { PluginConfig } from "molstar/lib/mol-plugin/config"
 
+StateTransforms
+
+
+// https://github.com/molstar/molstar/issues/1074
+// https://github.com/molstar/molstar/issues/1112
+// https://github.com/molstar/molstar/issues/1121
 
 function PolymerItem({ v }: { v: Polymer }) {
     return <TableRow key={v.auth_asym_id} className="space-x-1 space-y-0.5">
@@ -91,27 +101,50 @@ function OptionIcon(props: any) {
 }
 
 
+// -----------
+        const MySpec: PluginUISpec = {
+            ...DefaultPluginUISpec(),
+            config: [
+                [PluginConfig.VolumeStreaming.Enabled, false]
+            ]
+        }
+
+        async function createPlugin(parent: HTMLElement) {
+            const plugin = await createPluginUI({
+                target: parent,
+                spec  : MySpec,
+                render: renderReact18
+            });
+
+            const data = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+            const trajectory = await plugin.builders.structure.parseTrajectory(data, 'mmcif');
+            await plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default');
+
+            return plugin;
+        }
+// -----------
+
 export default function StructurePage({ struct }: { struct: RibosomeStructure }) {
-   const molstarNodeRef = useRef<HTMLDivElement>(null);
-   const dispatch       = useAppDispatch();
-   const counter_42     = useAppSelector(state => state.molstar.count)
-   const plugin     = useAppSelector(state => state.molstar.ui_plugin)
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const dispatch = useAppDispatch();
+    const counter_42 = useAppSelector(state => state.molstar.count)
+    const plugin = useAppSelector(state => state.molstar.ui_plugin)
 
     const { data, error, isLoading } = useRoutersRouterStructStructureProfileQuery({ rcsbId: "3j7z" })
     const [test_active, test_active_set] = useState<boolean>(false)
 
-    useEffect(()=>{
-        dispatch(initiatePluginUIContext(molstarNodeRef.current))
-    },[molstarNodeRef, dispatch])
-    const load_struct = (rcsb_id: string) => {
+    useEffect(() => {
+        createPlugin(molstarNodeRef.current!)
+    }, [molstarNodeRef, dispatch])
 
+    const load_struct = (rcsb_id: string) => {
     }
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
-                <button onClick={()=>{dispatch(download_struct(plugin!))}}> go struct</button>
+                    <Button onClick={() => { dispatch(download_struct(plugin!)) }}> go struct</Button>
                     <Card className="h-full flex flex-col">
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>

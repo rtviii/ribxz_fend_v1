@@ -15,6 +15,9 @@ import { PluginSpec } from "molstar/lib/mol-plugin/spec";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
 import { BoxifyVolumeStreaming, CreateVolumeStreamingBehavior, InitVolumeStreaming } from "molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers";
 import { StateActions } from 'molstar/lib/mol-plugin-state/actions'
+import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
+import { StructureProperties } from "molstar/lib/mol-model/structure/structure/properties";
+import { Queries } from "molstar/lib/mol-model/structure/query";
 
 export type QueryParam = {
     auth_seq_id                 ?: number,
