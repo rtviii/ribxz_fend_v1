@@ -11,9 +11,13 @@ export const makeStore = () => {
       counter                : counterReducer,
       molstar                : molstarSlice.reducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(ribxz_api.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        serializableCheck: false
+    }
+    ).concat(ribxz_api.middleware),
   })
 }
+
 
 export type AppStore    = ReturnType<typeof makeStore>
 export type RootState   = ReturnType<AppStore['getState']>

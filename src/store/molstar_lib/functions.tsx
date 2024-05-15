@@ -20,9 +20,7 @@ export async function load_from_server() {
   myUrl.searchParams.append('auth_asym_id', 'A');
   myUrl.searchParams.append('rcsb_id', '3j7z');
 
-  const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
-  console.log("Got data:", data);
-
+  const data       = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
   const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
   await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
     structure: 1 ? {
@@ -77,11 +75,11 @@ export async function stream_volume() {
 
 }
 
-// export async function download_another_struct(){
-//       const data       = await molstar_plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
-//       const trajectory = await molstar_plugin.builders.structure.parseTrajectory(data, "mmcif");
-//       await molstar_plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-// }
+export async function download_struct(plugin: PluginUIContext) {
+      const data       = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+      const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
+      await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+}
 
 export async function apply_style(){
   var mst = window.molstar!;
@@ -93,42 +91,6 @@ export async function apply_style(){
 
 }
 
-
-// export async function apply_style(){
-//   const mstar = window.molstar!;
-//   var builder  = mstar?.build()
-//     const structure = builder.toRoot();
-//     console.log(structure);
-    
-
-// }
-// const __select_chain = () => {
-//   var selection: any = (l: any) => StructureProperties.chain.auth_asym_id(l.element) === 'A'
-//   var k = Queries.combinators.merge([Queries.generators.atoms(selection)])
-//   const { core, struct } = MolScriptBuilder;
-
-//   const expressions = []
-
-//   var proteins = StructureSelectionQueries.protein
-//   var polymer = StructureSelectionQueries.polymer
-
-
-//   const propTests: Parameters<typeof struct.generator.atomGroups>[0] = {
-//     'chain-test': core.rel.eq([struct.atomProperty.macromolecular.auth_asym_id, 'A']),
-//     'group-by': struct.atomProperty.core.operatorName(),
-//   }
-
-//   expressions.push(struct.filter.first([struct.generator.atomGroups(propTests)]));
-//   const e = struct.combinator.merge(expressions);
-
-//   // const select_chain = StructureSelectionQuery('chain_A', chainSelection('B'))
-//   const select_multiple_chains = StructureSelectionQuery('multiple', select_multiple())
-//   console.log(select_multiple_chains);
-
-// //   // ! Via compiled selection
-//   const query = compileIdListSelection('A 12-200', 'auth');
-//   window.molstar?.managers.structure.selection.fromCompiledQuery('add',query);
-// }
 
 
 

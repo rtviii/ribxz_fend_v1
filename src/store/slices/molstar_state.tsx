@@ -3,7 +3,6 @@ import type { RootState } from './../store'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { MySpec } from '../molstar_lib/default';
 import { createPluginUI } from 'molstar/lib/mol-plugin-ui';
-import { unescape } from 'querystring';
 
 // TODO: Factor out
 declare global {
@@ -12,23 +11,22 @@ declare global {
   }
 }
 
-// const waitForThreeSeconds  = async(): Promise<number> => {
 
-//   console.log('waiting for three seconds');
-//   return new Promise<number>((resolve) => {
-//     setTimeout(() => {
-//       console.log('done waiting for three seconds');
-//       resolve(42); 
-//     }, 3000); 
-//   });
-// }
-
-// export const waitThreeThunk  = createAsyncThunk('molstar/waitandlearn', waitForThreeSeconds)
+async function _download_struct(plugin: PluginUIContext):Promise<null> {
+      const data       = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+      const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
+      await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+      return null
+}
+export const download_struct =   createAsyncThunk(
+  'molstar/download_struct',
+  _download_struct
+)
 
 
 // First, create the thunk
 export const initiatePluginUIContext = createAsyncThunk(
-  'users/fetchByIdStatus',
+  'molstar/initiatePluginUIContext',
   async (target: string | HTMLElement, ThunkAPI)=> {
     return await createPluginUI(typeof target === 'string' ? document.getElementById(target)! : target, MySpec)
   },
@@ -63,7 +61,9 @@ export const molstarSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(molstar_inited, (state, action) => {
           Object.assign(state, {ui_plugin: action.payload})
-          // state.ui_plugin = action.payload
+        }),
+        builder.addCase(download_struct.fulfilled, (state, action) => {
+          console.log("Downloaded the structure")
         })
         // builder.addCase(waitThreeThunk.fulfilled, (state, action) => {
         //   console.log('waitThreeThunk.fulfilled')
