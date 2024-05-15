@@ -12,7 +12,7 @@ import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { Skeleton } from "@/components/ui/skeleton"
 import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
-import {    initiatePluginUIContext} from "@/store/slices/molstar_state"
+import {    initiatePluginUIContext, download_struct} from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 
 
@@ -95,37 +95,23 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
    const molstarNodeRef = useRef<HTMLDivElement>(null);
    const dispatch       = useAppDispatch();
    const counter_42     = useAppSelector(state => state.molstar.count)
-
-
-
-    // useEffect(() => {
-    //     (async () => {
-    //         window.molstar = await createPluginUI(molstarNodeRef.current as HTMLDivElement, MySpec);
-    //         // const data = await window.molstar.builders.data.download({ url: "https://files.rcsb.org/download/3PTB.pdb" }, { state: { isGhost: true } });
-    //         // const trajectory = await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-    //         // await window.molstar.builders.structure.hierarchy.applyPreset(trajectory, "default");
-    //         const molstar_plugin = window.molstar; 
-    //     })()
-           
-
-    //     return () => {
-    //         window.molstar?.dispose();
-    //         window.molstar = undefined;
-    //     };
-    // }, []);
+   const plugin     = useAppSelector(state => state.molstar.ui_plugin)
 
     const { data, error, isLoading } = useRoutersRouterStructStructureProfileQuery({ rcsbId: "3j7z" })
     const [test_active, test_active_set] = useState<boolean>(false)
+
+    useEffect(()=>{
+        dispatch(initiatePluginUIContext(molstarNodeRef.current))
+    },[molstarNodeRef, dispatch])
     const load_struct = (rcsb_id: string) => {
 
     }
+
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
-                    {/* <Button onClick={()=>{ console.log("clicked"); dispatch(waitThreeThunk()) }}>send thunk</Button> */}
-                    <Button onClick={()=>{console.log("init plugin"); dispatch(initiatePluginUIContext(molstarNodeRef.current))}}>send thunk</Button>
-                    <p>State thunk : { counter_42 === undefined ? "undefined" : counter_42}</p>
+                <button onClick={()=>{dispatch(download_struct(plugin!))}}> go struct</button>
                     <Card className="h-full flex flex-col">
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
