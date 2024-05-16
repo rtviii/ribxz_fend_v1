@@ -18,8 +18,33 @@ import { StateActions } from 'molstar/lib/mol-plugin-state/actions'
 import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
 import { StructureProperties } from "molstar/lib/mol-model/structure/structure/properties";
 import { Queries } from "molstar/lib/mol-model/structure/query";
+import { createPluginUI } from "molstar/lib/mol-plugin-ui";
+import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
+import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 
+
+const MySpec: PluginUISpec = {
+    ...DefaultPluginUISpec(),
+    config: [
+            [PluginConfig.VolumeStreaming.Enabled, false]
+    ]
+}
+
+export async function _download_struct(plugin: PluginUIContext):Promise<null> {
+      const data       = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/3J7Z.cif" }, { state: { isGhost: true } });
+      const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
+      await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+      return null
+}
+export async function createPlugin(parent: HTMLElement):Promise<PluginUIContext> {
+    const plugin = await createPluginUI({ target: parent, spec  : MySpec, render: renderReact18 });
+    window.molstar = plugin;
+    return plugin;
+}
+
+// ---------------
 export type QueryParam = {
+
     auth_seq_id                 ?: number,
     entity_id                   ?: string,
     auth_asym_id                ?: string,
@@ -161,7 +186,7 @@ export class CustomStructureTools extends PluginUIComponent {
   }
 }
 
-export const MySpec: PluginUISpec = {
+export const __MyOldSpec: PluginUISpec = {
   ...DefaultPluginUISpec(),
 
   behaviors: [

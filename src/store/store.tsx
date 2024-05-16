@@ -1,8 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit'
 import { ribxz_api } from './ribxz_api/ribxz_api'
 import counterReducer from './slices/counterSlice'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'
-import { molstarSlice } from './slices/molstar_state'
+import { listenerMiddleware, molstarSlice } from './slices/molstar_state'
+
+
+
+
+
 
 export const makeStore = () => {
   return configureStore({
@@ -13,8 +18,7 @@ export const makeStore = () => {
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
         serializableCheck: false
-    }
-    ).concat(ribxz_api.middleware),
+    }).prepend(listenerMiddleware.middleware).concat(ribxz_api.middleware),
   })
 }
 
