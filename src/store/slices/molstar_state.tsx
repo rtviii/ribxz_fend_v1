@@ -11,9 +11,6 @@ declare global {
 }
 
 
-
-
-
 export const download_struct =   createAsyncThunk(
   'molstar/download_struct',
   _download_struct
