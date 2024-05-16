@@ -18,6 +18,8 @@ import { renderReact18 } from 'molstar/lib/mol-plugin-ui/react18';
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
 import { PluginConfig } from "molstar/lib/mol-plugin/config"
+import { highlightInViewer, removeHighlight } from "@/store/molstar/functions"
+import { plugin } from "postcss"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -119,8 +121,12 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
-                <Button onClick={()=>{dispatch(download_struct(MolstarPlugin!))}}>downlado</Button>
                 <ResizablePanel defaultSize={25} >
+
+                <Button onClick={()=>{dispatch(download_struct(MolstarPlugin!))}}>downlado</Button>
+                <Button onMouseEnter={()=>{highlightInViewer(MolstarPlugin, 'L')}} onMouseLeave={()=>{removeHighlight(MolstarPlugin)}}>Highihgt L</Button>
+                <Button onMouseEnter={()=>{highlightInViewer(MolstarPlugin, 'A')}} onMouseLeave={()=>{removeHighlight(MolstarPlugin)}}>Highihgt A</Button>
+
                     <Card className="h-full flex flex-col">
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>

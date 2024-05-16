@@ -91,30 +91,46 @@ export async function apply_style(){
 
 }
 
+export const  highlightInViewer = (plugin:PluginUIContext,seq_id: string) =>{
+    const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    if (!data) return;
+    console.log("Got cell obj data", data);
+    
+    const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), seq_id]),
+        // 'group-by': Q.struct.atomProperty.macromolecular.residueKey()
+    }), data);
+
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    // loci = StructureElement.Loci.firstResidue(loci);
+    plugin.managers.interactivity.lociHighlights.highlight({ loci });
+    // plugin.managers.camera.focusLoci(loci);
+}
+export const removeHighlight = (plugin:PluginUIContext) =>{
+    plugin.managers.interactivity.lociHighlights.clearHighlights();
+}
 
 
 
 
 function next_residue_on_hover() {
-
-  // root structure
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0]!.cell.obj!.data;
-
-  // subscribe to hover events
   window.molstar!.behaviors.interaction.hover.pipe(debounceTime(100)).subscribe((e: InteractivityManager.HoverEvent) => {
     if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+
       if (StructureElement.Loci.is(e.current.loci)) {
+
         const l = StructureElement.Loci.getFirstLocation(e.current.loci);
+
         if (l) {
           // get the residue number and auth asym id of parent chain
-          const seq_id = StructureProperties.residue.label_seq_id(l);
+          const seq_id   = StructureProperties.residue.label_seq_id(l);
           const chain_id = StructureProperties.chain.auth_asym_id(l)
 
           // create selection for the next residue ("seq_id+1") 
           var sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-
             'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), chain_id]),
-            "residue-test": Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_seq_id(), seq_id + 1]),
+            // "residue-test": Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_seq_id(), seq_id + 1]),
           }), objdata)
 
           // create loci

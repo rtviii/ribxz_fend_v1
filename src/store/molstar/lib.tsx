@@ -149,7 +149,14 @@ export async function _download_struct(plugin: PluginUIContext):Promise<null> {
       await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
       return null
 }
+
 export async function createPlugin(parent: HTMLElement):Promise<PluginUIContext> {
+    const plugin = await createPluginUI({ target: parent, spec  : __MyOldSpec, render: renderReact18 });
+    window.molstar = plugin;
+    return plugin;
+}
+
+export async function on_hover_chain(parent: HTMLElement):Promise<PluginUIContext> {
     const plugin = await createPluginUI({ target: parent, spec  : __MyOldSpec, render: renderReact18 });
     window.molstar = plugin;
     return plugin;
