@@ -94,26 +94,36 @@ export async function apply_style(){
 
 }
 
-export const  highlightInViewer = (plugin:PluginUIContext,seq_id: string) =>{
+export const  selectChain = (plugin:PluginUIContext,auth_asym_id: string) =>{
     const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
     
     const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), seq_id]),
-        // 'group-by': Q.struct.atomProperty.macromolecular.residueKey()
+        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
     }), data);
 
     let loci = StructureSelection.toLociWithSourceUnits(sel);
-    // loci = StructureElement.Loci.firstResidue(loci);
+    plugin.managers.structure.selection.clear();
+    plugin.managers.structure.selection.fromLoci('add', loci);
+    plugin.managers.camera.focusLoci(loci);
+  }
+
+export const  highlightChain = (plugin:PluginUIContext,auth_asym_id: string) =>{
+    const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    if (!data) return;
+    
+    const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+    }), data);
+
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
     plugin.managers.interactivity.lociHighlights.highlight({ loci });
-    // plugin.managers.camera.focusLoci(loci);
 }
+
 export const removeHighlight = (plugin:PluginUIContext) =>{
     plugin.managers.interactivity.lociHighlights.clearHighlights();
 }
 
-
-// const current = StructureSelectionQuery('Current Selection', MS.struct.atomProperty.macromolecular., { category: '', referencesCurrent: true });
 export const select_current_struct = (ctx:PluginUIContext) => {
 
 

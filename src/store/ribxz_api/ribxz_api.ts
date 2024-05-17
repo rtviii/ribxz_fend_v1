@@ -1056,12 +1056,12 @@ export type CytosolicRnaClass =
   | "28SrRNA";
 export type MitochondrialRnaClass = "mt12SrRNA" | "mt16SrRNA";
 export type NomenclatureSet = {
-  ElongationFactorClass: ElongationFactorClass[];
-  InitiationFactorClass: InitiationFactorClass[];
-  CytosolicProteinClass: CytosolicProteinClass[];
+  ElongationFactorClass    : ElongationFactorClass[];
+  InitiationFactorClass    : InitiationFactorClass[];
+  CytosolicProteinClass    : CytosolicProteinClass[];
   MitochondrialProteinClass: MitochondrialProteinClass[];
-  CytosolicRNAClass: CytosolicRnaClass[];
-  MitochondrialRNAClass: MitochondrialRnaClass[];
+  CytosolicRNAClass        : CytosolicRnaClass[];
+  MitochondrialRNAClass    : MitochondrialRnaClass[];
 };
 export const {
   useRoutersRouterStructStructureProfileQuery,

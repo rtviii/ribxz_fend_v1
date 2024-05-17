@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-export const download_struct         = createAsyncThunk( 'molstar/download_struct', _download_struct )
+export const download_struct         = createAsyncThunk( 'molstar/download_struct', _download_struct)
 export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
 
 export interface MolstarReduxCore {
@@ -30,9 +30,9 @@ const initialState: MolstarReduxCore = {
 export const molstarListenerMiddleware = createListenerMiddleware()
 
 molstarListenerMiddleware.startListening({
-  actionCreator: initiatePluginUIContext.fulfilled,
+  actionCreator: initiatePluginUIContext.fulfilled, // Perhaps tag the "initiatePluginUIContext" with rcsb_id
   effect: async (action, listenerApi) => {
-    listenerApi.dispatch(download_struct(window.molstar))
+    listenerApi.dispatch(download_struct({ plugin:window.molstar, rcsb_id:'3J7Z' }))
   },
 })
 

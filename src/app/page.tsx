@@ -6,9 +6,6 @@ import StructureCatalogue from './structures/page';
 
 
 export default function Home() {
-  const dispatch = useAppDispatch();
-
-
   return (
     <StoreProvider >
       <main className="flex min-h-screen flex-col items-center justify-between p-24">

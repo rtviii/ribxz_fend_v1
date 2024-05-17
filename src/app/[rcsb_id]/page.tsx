@@ -19,9 +19,9 @@ import { renderReact18 } from 'molstar/lib/mol-plugin-ui/react18';
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
 import { PluginConfig } from "molstar/lib/mol-plugin/config"
-import { highlightInViewer, removeHighlight, select_current_struct } from "@/store/molstar/functions"
-import { plugin } from "postcss"
+import { highlightChain, removeHighlight, select_current_struct } from "@/store/molstar/functions"
 import { useParams } from 'next/navigation'
+import StructureComponents from "./components_table"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -117,17 +117,15 @@ export default function StructurePage() {
 
     useEffect(()=>{ dispatch(initiatePluginUIContext(molstarNodeRef.current!)) },[molstarNodeRef, dispatch])
 
-    const { data, error, isLoading }     = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
+    const { data, error, isLoading:isLoading_struct_data }     = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
     const [test_active, test_active_set] = useState<boolean>(false)
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
 
-                <Button onClick={()=>{dispatch(download_struct(ctx!))}}>downlado</Button>
-                <Button onMouseEnter={()=>{highlightInViewer(ctx, 'L')}} onMouseLeave={()=>{removeHighlight(ctx)}}>Highihgt L</Button>
-                <Button onMouseEnter={()=>{highlightInViewer(ctx, 'A')}} onMouseLeave={()=>{removeHighlight(ctx)}}>Highihgt A</Button>
-                <Button onClick={()=>{select_current_struct(ctx)}} > select current</Button>
+                {/* <Button onClick={()=>{dispatch(download_struct({plugin:ctx!, rcsb_id}))}}>downlado</Button> */}
+                {/* <Button onClick={()=>{select_current_struct(ctx)}} > select current</Button> */}
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
@@ -183,7 +181,12 @@ export default function StructurePage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="components">
-                                    {isLoading ? <Skeleton /> : (data !== undefined ? <ComponentsTableCard structure_profile={data} /> : null)}
+
+                                    {isLoading_struct_data ? <Skeleton /> : (data !== undefined ? 
+                                    // <ComponentsTableCard structure_profile={data} /> 
+                                    <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas}/>
+                                    : null)}
+
                                 </TabsContent>
                             </Tabs>
                             <div className="flex flex-col gap-4">

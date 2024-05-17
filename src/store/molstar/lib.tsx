@@ -155,8 +155,8 @@ const MySpec: PluginUISpec = {
 }
 
 
-export async function _download_struct(plugin: PluginUIContext):Promise<null> {
-      const data       = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/3J7Z.cif" }, { state: { isGhost: true } });
+export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIContext, rcsb_id:string }):Promise<null> {
+      const data       = await plugin.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id}.cif` }, { state: { isGhost: true } });
       const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
             // const model = await ctx.builders.structure.createModel(traj);
             // const structure = await ctx.builders.structure.createStructure(model);
