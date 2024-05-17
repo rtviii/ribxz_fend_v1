@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
+import { useRouter } from 'next/router'
 import { MolstarNode, } from "@/store/molstar/lib"
 import { createRef, useEffect, useRef, useState } from "react";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
@@ -20,6 +21,7 @@ import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spe
 import { PluginConfig } from "molstar/lib/mol-plugin/config"
 import { highlightInViewer, removeHighlight, select_current_struct } from "@/store/molstar/functions"
 import { plugin } from "postcss"
+import { useParams } from 'next/navigation'
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -104,21 +106,18 @@ function OptionIcon(props: any) {
 // -----------
 // -----------
 
-export default function StructurePage({ struct }: { struct: RibosomeStructure }) {
+export default function StructurePage() {
+
+    const {rcsb_id} = useParams<{ rcsb_id: string;}>()
     const molstarNodeRef = useRef<HTMLDivElement>(null);
+
+        
     const dispatch       = useAppDispatch();
-    const ctx         = useAppSelector(state => state.molstar.ui_plugin)
-    useEffect(()=>{
-        dispatch(initiatePluginUIContext(molstarNodeRef.current!))
-    },[molstarNodeRef, dispatch])
+    const ctx            = useAppSelector(state => state.molstar.ui_plugin)
 
-    const { data, error, isLoading } = useRoutersRouterStructStructureProfileQuery({ rcsbId: "3j7z" })
+    useEffect(()=>{ dispatch(initiatePluginUIContext(molstarNodeRef.current!)) },[molstarNodeRef, dispatch])
 
-    const load_struct = (rcsb_id: string) => {
-
-
-    }
-
+    const { data, error, isLoading }     = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
     const [test_active, test_active_set] = useState<boolean>(false)
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -144,29 +143,37 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
                                 </TabsList>
                                 <TabsContent value="info">
                                     <div className="mt-4">
-                                        <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/placeholder.svg" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
+                                        <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
                                         <div className="flex flex-col gap-4">
                                             <div className="flex justify-between">
-                                                <strong>Species:</strong>
+                                                <strong>Source Organism:</strong>
                                                 <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    Pseudomonas aeruginosa PAO1
+                                                    {data?.src_organism_names}
+                                                </p>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <strong>Host Organism:</strong>
+                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
+                                                    {data?.host_organism_names}
                                                 </p>
                                             </div>
                                             <div className="flex justify-between">
                                                 <strong>Resolution:</strong>
-                                                <p>2.6 Å</p>
+                                                <p>{data?.resolution} Å</p>
                                             </div>
                                             <div className="flex justify-between">
                                                 <strong>Experimental Method:</strong>
-                                                <p>ELECTRON MICROSCOPY</p>
+                                                <p>{data?.expMethod}</p>
                                             </div>
                                             <div className="flex justify-between">
                                                 <strong>Authors:</strong>
-                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">John Doe, Jane Smith</p>
+                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
+                                                    {data?.citation_rcsb_authors}
+                                                </p>
                                             </div>
                                             <div className="flex justify-between">
                                                 <strong>Year:</strong>
-                                                <p>2022</p>
+                                                <p>{data?.citation_year}</p>
                                             </div>
                                         </div>
                                     </div>

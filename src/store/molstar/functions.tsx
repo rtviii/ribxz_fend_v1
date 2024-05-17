@@ -66,7 +66,7 @@ export function chainSelection(auth_asym_id: string) {
 
 export async function stream_volume() {
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0].cell.obj!
-  // console.log(objdata);
+    // console.log(objdata);
   const params = InitVolumeStreaming.createDefaultParams(objdata, window.molstar);
   params.options.behaviorRef = 'assembly'
   params.defaultView = 'box';
@@ -97,8 +97,6 @@ export async function apply_style(){
 export const  highlightInViewer = (plugin:PluginUIContext,seq_id: string) =>{
     const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
-
-    // console.log("Got cell obj data", data);
     
     const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
         'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), seq_id]),
@@ -117,21 +115,15 @@ export const removeHighlight = (plugin:PluginUIContext) =>{
 
 // const current = StructureSelectionQuery('Current Selection', MS.struct.atomProperty.macromolecular., { category: '', referencesCurrent: true });
 export const select_current_struct = (ctx:PluginUIContext) => {
-          const structureData = ctx.managers.structure.hierarchy.current.structures[0]
 
-          var   components         = structureData.components
-          const cell_transform_ref = structureData.cell.transform.ref
 
-          console.log(structureData);
-          console.log(components);
-          console.log(cell_transform_ref);
+         const structureData      = ctx.managers.structure.hierarchy.current.structures[0]
+         var   components         = structureData.components
+         const cell_transform_ref = structureData.cell.transform.ref
+         const state_data         = ctx.state.data.select(cell_transform_ref)[0].obj as PluginStateObject.Molecule.Structure
 
-         const state_data = ctx.state.data.select(cell_transform_ref)[0].obj as PluginStateObject.Molecule.Structure
-         const data = state_data.data;
          ctx.managers.structure.selection
 
-         console.log(state_data);
-         console.log(data);
          
 
 

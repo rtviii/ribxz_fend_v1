@@ -155,10 +155,6 @@ const MySpec: PluginUISpec = {
 }
 
 
-
-
-
-
 export async function _download_struct(plugin: PluginUIContext):Promise<null> {
       const data       = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/3J7Z.cif" }, { state: { isGhost: true } });
       const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
@@ -180,7 +176,6 @@ export async function on_hover_chain(parent: HTMLElement):Promise<PluginUIContex
     return plugin;
 }
 
-// ---------------
 export type QueryParam = {
 
     auth_seq_id                 ?: number,

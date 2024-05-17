@@ -10,14 +10,8 @@ declare global {
   }
 }
 
-
-export const download_struct =   createAsyncThunk(
-  'molstar/download_struct',
-  _download_struct
-)
-// First, create the thunk
-export const initiatePluginUIContext = createAsyncThunk( 'molstar/initiatePluginUIContext', createPlugin)
-
+export const download_struct         = createAsyncThunk( 'molstar/download_struct', _download_struct )
+export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
 
 export interface MolstarReduxCore {
     ui_plugin     : PluginUIContext | undefined,
@@ -33,11 +27,9 @@ const initialState: MolstarReduxCore = {
 
 
 
-export const listenerMiddleware = createListenerMiddleware()
+export const molstarListenerMiddleware = createListenerMiddleware()
 
-// Add one or more listener entries that look for specific actions.
-// They may contain any sync or async logic, similar to thunks.
-listenerMiddleware.startListening({
+molstarListenerMiddleware.startListening({
   actionCreator: initiatePluginUIContext.fulfilled,
   effect: async (action, listenerApi) => {
     listenerApi.dispatch(download_struct(window.molstar))
@@ -68,18 +60,8 @@ export const molstarSlice = createSlice({
         builder.addCase(download_struct.pending, (state, action) => {
           console.log("Downloaded the structure")
         })
-        // builder.addCase(waitThreeThunk.fulfilled, (state, action) => {
-        //   console.log('waitThreeThunk.fulfilled')
-        //   console.log('got payload: ', action.payload)
-        //   state.count = action.payload
-        // })
   },
 })
 
 export const {toggle_tools} = molstarSlice.actions
-export const {} = molstarSlice.actions
-
-// Other code such as selectors can use the imported `RootState` type
-export const selectCount = (state: RootState) => state.counter.value
-
 export default molstarSlice.reducer
