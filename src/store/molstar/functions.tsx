@@ -13,6 +13,9 @@ import { debounceTime } from 'rxjs';
 import { Script } from 'molstar/lib/mol-script/script';
 import { InitVolumeStreaming } from 'molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
+import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
+import { QueryHelper } from './lib';
 
 export async function load_from_server() {
   window.molstar?.clear()
@@ -63,7 +66,7 @@ export function chainSelection(auth_asym_id: string) {
 
 export async function stream_volume() {
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0].cell.obj!
-  console.log(objdata);
+  // console.log(objdata);
   const params = InitVolumeStreaming.createDefaultParams(objdata, window.molstar);
   params.options.behaviorRef = 'assembly'
   params.defaultView = 'box';
@@ -94,7 +97,8 @@ export async function apply_style(){
 export const  highlightInViewer = (plugin:PluginUIContext,seq_id: string) =>{
     const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
-    console.log("Got cell obj data", data);
+
+    // console.log("Got cell obj data", data);
     
     const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
         'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), seq_id]),
@@ -110,6 +114,56 @@ export const removeHighlight = (plugin:PluginUIContext) =>{
     plugin.managers.interactivity.lociHighlights.clearHighlights();
 }
 
+
+// const current = StructureSelectionQuery('Current Selection', MS.struct.atomProperty.macromolecular., { category: '', referencesCurrent: true });
+export const select_current_struct = (ctx:PluginUIContext) => {
+          const structureData = ctx.managers.structure.hierarchy.current.structures[0]
+
+          var   components         = structureData.components
+          const cell_transform_ref = structureData.cell.transform.ref
+
+          console.log(structureData);
+          console.log(components);
+          console.log(cell_transform_ref);
+
+         const state_data = ctx.state.data.select(cell_transform_ref)[0].obj as PluginStateObject.Molecule.Structure
+         const data = state_data.data;
+         ctx.managers.structure.selection
+
+         console.log(state_data);
+         console.log(data);
+         
+
+
+  // window.molstar?.managers.structure.selection.fromSelectionQuery('add',StructureSelectionQuery('struct', query));
+}
+
+const applyStyle =  (ctx:PluginUIContext) => {
+
+            const q = MS.struct.generator.atomGroups({
+                'chain-test': MS.core.rel.eq([
+                    MS.ammp('label_asym_id'),
+                    'B',
+                ]),
+                'residue-test': MS.core.logic.and([
+                    MS.core.rel.gre([
+                        MS.ammp('auth_seq_id'),
+                        330
+                    ]),
+                    MS.core.rel.lte([
+                        MS.ammp('auth_seq_id'),
+                        340
+                    ])
+                ]),
+            })
+
+            const update2 = ctx.build();
+            update2.to(structure)
+                .apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, structure.data, {
+                    type: 'cartoon',
+                    color: 'uniform',
+                }));
+}
 
 
 

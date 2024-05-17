@@ -1,4 +1,5 @@
 "use client"
+import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
 import './mstar.css'
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
@@ -16,12 +17,14 @@ import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
 import { BoxifyVolumeStreaming, CreateVolumeStreamingBehavior, InitVolumeStreaming } from "molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers";
 import { StateActions } from 'molstar/lib/mol-plugin-state/actions'
 import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
+import {StructureSelectionQuery} from "molstar/lib/mol-plugin-state/helpers/structure-selection-query";
 import { StructureProperties } from "molstar/lib/mol-model/structure/structure/properties";
 import { Queries } from "molstar/lib/mol-model/structure/query";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
+import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 
 export class CustomStructureTools extends PluginUIComponent {
   render() {
@@ -121,16 +124,24 @@ export const __MyOldSpec: PluginUISpec = {
 
   ],
   layout: {
-
     initial: {
       controlsDisplay: 'portrait',
-      showControls: true,
+      showControls: false,
     },
+
+
   },
 
   components: {
     structureTools: CustomStructureTools,
-    remoteState: 'default'
+
+    controls:{
+        bottom:'none',
+        left:'none'
+        
+    },
+    remoteState: 'none',
+
   }
 
 
@@ -143,9 +154,16 @@ const MySpec: PluginUISpec = {
     ]
 }
 
+
+
+
+
+
 export async function _download_struct(plugin: PluginUIContext):Promise<null> {
       const data       = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/3J7Z.cif" }, { state: { isGhost: true } });
       const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
+            // const model = await ctx.builders.structure.createModel(traj);
+            // const structure = await ctx.builders.structure.createStructure(model);
       await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
       return null
 }
