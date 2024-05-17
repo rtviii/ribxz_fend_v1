@@ -18,7 +18,7 @@ import { renderReact18 } from 'molstar/lib/mol-plugin-ui/react18';
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
 import { PluginConfig } from "molstar/lib/mol-plugin/config"
-import { highlightInViewer, removeHighlight } from "@/store/molstar/functions"
+import { highlightInViewer, removeHighlight, select_current_struct } from "@/store/molstar/functions"
 import { plugin } from "postcss"
 
 // StateTransforms
@@ -107,7 +107,7 @@ function OptionIcon(props: any) {
 export default function StructurePage({ struct }: { struct: RibosomeStructure }) {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const dispatch       = useAppDispatch();
-    const MolstarPlugin         = useAppSelector(state => state.molstar.ui_plugin)
+    const ctx         = useAppSelector(state => state.molstar.ui_plugin)
     useEffect(()=>{
         dispatch(initiatePluginUIContext(molstarNodeRef.current!))
     },[molstarNodeRef, dispatch])
@@ -115,6 +115,8 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
     const { data, error, isLoading } = useRoutersRouterStructStructureProfileQuery({ rcsbId: "3j7z" })
 
     const load_struct = (rcsb_id: string) => {
+
+
     }
 
     const [test_active, test_active_set] = useState<boolean>(false)
@@ -123,9 +125,10 @@ export default function StructurePage({ struct }: { struct: RibosomeStructure })
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
 
-                <Button onClick={()=>{dispatch(download_struct(MolstarPlugin!))}}>downlado</Button>
-                <Button onMouseEnter={()=>{highlightInViewer(MolstarPlugin, 'L')}} onMouseLeave={()=>{removeHighlight(MolstarPlugin)}}>Highihgt L</Button>
-                <Button onMouseEnter={()=>{highlightInViewer(MolstarPlugin, 'A')}} onMouseLeave={()=>{removeHighlight(MolstarPlugin)}}>Highihgt A</Button>
+                <Button onClick={()=>{dispatch(download_struct(ctx!))}}>downlado</Button>
+                <Button onMouseEnter={()=>{highlightInViewer(ctx, 'L')}} onMouseLeave={()=>{removeHighlight(ctx)}}>Highihgt L</Button>
+                <Button onMouseEnter={()=>{highlightInViewer(ctx, 'A')}} onMouseLeave={()=>{removeHighlight(ctx)}}>Highihgt A</Button>
+                <Button onClick={()=>{select_current_struct(ctx)}} > select current</Button>
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
