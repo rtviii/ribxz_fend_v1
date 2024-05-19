@@ -1,4 +1,3 @@
-
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
@@ -16,6 +15,13 @@ import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
 import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
 import { QueryHelper } from './lib';
+import { StructureFocusControls } from 'molstar/lib/mol-plugin-ui/structure/focus'
+import { Mat4 } from 'molstar/lib/mol-math/linear-algebra/3d/mat4';
+import { StateObjectRef } from 'molstar/lib/mol-state/object';
+import { PluginContext } from 'molstar/lib/mol-plugin/context';
+
+
+
 
 export async function load_from_server() {
   window.molstar?.clear()
@@ -23,7 +29,7 @@ export async function load_from_server() {
   myUrl.searchParams.append('auth_asym_id', 'A');
   myUrl.searchParams.append('rcsb_id', '3j7z');
 
-  const data       = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
+  const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
   const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
   await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
     structure: 1 ? {
@@ -63,10 +69,9 @@ export function chainSelection(auth_asym_id: string) {
   });
 }
 
-
 export async function stream_volume() {
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0].cell.obj!
-    // console.log(objdata);
+  // console.log(objdata);
   const params = InitVolumeStreaming.createDefaultParams(objdata, window.molstar);
   params.options.behaviorRef = 'assembly'
   params.defaultView = 'box';
@@ -79,94 +84,112 @@ export async function stream_volume() {
 }
 
 export async function download_struct(plugin: PluginUIContext) {
-      const data       = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
-      const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
-      await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+  const data = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
+  const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
+  await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
 }
 
-export async function apply_style(){
+export async function apply_style() {
   var mst = window.molstar!;
   var builder = mst.build()
   builder.toRoot()
-  
+
 
 
 
 }
 
-export const  selectChain = (plugin:PluginUIContext,auth_asym_id: string) =>{
-    const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (!data) return;
-    
-    const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-    }), data);
 
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
-    plugin.managers.structure.selection.clear();
-    plugin.managers.structure.selection.fromLoci('add', loci);
-    plugin.managers.camera.focusLoci(loci);
-  }
 
-export const  highlightChain = (plugin:PluginUIContext,auth_asym_id: string) =>{
-    const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (!data) return;
-    
-    const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-    }), data);
 
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
-    plugin.managers.interactivity.lociHighlights.highlight({ loci });
+export const transform = (ctx: PluginContext ) =>{
+
+    // const b = plugin.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
+
+  const structureData = ctx.managers.structure.hierarchy.current.structures[0]
+  const cell = structureData.cell
+   
+  // const cell = structureData.model?.cell
+    const mx = Mat4.rotX90
+    const b = ctx.state.data.build().to(cell).insert(StateTransforms.Model.TransformStructureConformation, { transform:{name:'matrix', params:{
+      data: mx,transpose:false
+    }} });
+    return ctx.runTask(ctx.state.data.updateTree(b));
 }
 
-export const removeHighlight = (plugin:PluginUIContext) =>{
-    plugin.managers.interactivity.lociHighlights.clearHighlights();
+
+export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
+  const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+  if (!data) return;
+
+  const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+    'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+  }), data);
+
+  let loci = StructureSelection.toLociWithSourceUnits(sel);
+  plugin.managers.structure.selection.clear();
+  plugin.managers.structure.selection.fromLoci('add', loci);
+  plugin.managers.camera.focusLoci(loci);
 }
 
-export const select_current_struct = (ctx:PluginUIContext) => {
+export const highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
+  const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+  if (!data) return;
+
+  const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+    'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+  }), data);
+
+  let loci = StructureSelection.toLociWithSourceUnits(sel);
+  plugin.managers.interactivity.lociHighlights.highlight({ loci });
+}
+
+export const removeHighlight = (plugin: PluginUIContext) => {
+  plugin.managers.interactivity.lociHighlights.clearHighlights();
+}
+
+export const select_current_struct = (ctx: PluginUIContext) => {
 
 
-         const structureData      = ctx.managers.structure.hierarchy.current.structures[0]
-         var   components         = structureData.components
-         const cell_transform_ref = structureData.cell.transform.ref
-         const state_data         = ctx.state.data.select(cell_transform_ref)[0].obj as PluginStateObject.Molecule.Structure
+  const structureData = ctx.managers.structure.hierarchy.current.structures[0]
+  var components = structureData.components
+  const cell_transform_ref = structureData.cell.transform.ref
+  const state_data = ctx.state.data.select(cell_transform_ref)[0].obj as PluginStateObject.Molecule.Structure
 
-         ctx.managers.structure.selection
+  ctx.managers.structure.selection
 
-         
+
 
 
   // window.molstar?.managers.structure.selection.fromSelectionQuery('add',StructureSelectionQuery('struct', query));
 }
 
-const applyStyle =  (ctx:PluginUIContext) => {
+const applyStyle = (ctx: PluginUIContext) => {
 
-            const q = MS.struct.generator.atomGroups({
-                'chain-test': MS.core.rel.eq([
-                    MS.ammp('label_asym_id'),
-                    'B',
-                ]),
-                'residue-test': MS.core.logic.and([
-                    MS.core.rel.gre([
-                        MS.ammp('auth_seq_id'),
-                        330
-                    ]),
-                    MS.core.rel.lte([
-                        MS.ammp('auth_seq_id'),
-                        340
-                    ])
-                ]),
-            })
+  const q = MS.struct.generator.atomGroups({
+    'chain-test': MS.core.rel.eq([
+      MS.ammp('label_asym_id'),
+      'B',
+    ]),
+    'residue-test': MS.core.logic.and([
+      MS.core.rel.gre([
+        MS.ammp('auth_seq_id'),
+        330
+      ]),
+      MS.core.rel.lte([
+        MS.ammp('auth_seq_id'),
+        340
+      ])
+    ]),
+  })
 
-            const update2 = ctx.build();
-            update2.to(structure)
-                .apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, structure.data, {
-                    type: 'cartoon',
-                    color: 'uniform',
-                }));
+  const update2 = ctx.build();
+  update2.to(structure)
+    .apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, structure.data, {
+      type: 'cartoon',
+      color: 'uniform',
+    }));
 }
-
 
 
 function next_residue_on_hover() {
@@ -180,7 +203,7 @@ function next_residue_on_hover() {
 
         if (l) {
           // get the residue number and auth asym id of parent chain
-          const seq_id   = StructureProperties.residue.label_seq_id(l);
+          const seq_id = StructureProperties.residue.label_seq_id(l);
           const chain_id = StructureProperties.chain.auth_asym_id(l)
 
           // create selection for the next residue ("seq_id+1") 

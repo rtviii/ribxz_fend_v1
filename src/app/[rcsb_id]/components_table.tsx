@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
@@ -9,16 +10,15 @@ const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
 
     const ctx            = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow 
-    className="hover:bg-sky-700 hover:cursor-pointer"
-    
-    onClick={()=>{selectChain(ctx!, polymer.auth_asym_id)}} onMouseEnter={()=>{highlightChain(ctx!, polymer.auth_asym_id)}} onMouseLeave={()=>{removeHighlight(ctx!)}}
-    
+    className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
+    onClick      = {()=>{selectChain(ctx!, polymer.auth_asym_id)}}
+    onMouseEnter = {()=>{highlightChain(ctx!, polymer.auth_asym_id)}}
+    onMouseLeave = {()=>{removeHighlight(ctx!)}}
     >
         <TableCell>{polymer.auth_asym_id}</TableCell>
-        <TableCell>{polymer.nomenclature}</TableCell>
+        <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
         <TableCell className="whitespace-pre">{polymer.src_organism_names}</TableCell>
         <TableCell className="whitespace-pre">{polymer.entity_poly_seq_one_letter_code_can}</TableCell>
-        {/* <TableCell>83333</TableCell> */}
         <TableCell>
             <DeleteIcon className="h-5 w-5" />
         </TableCell>
@@ -77,15 +77,13 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
             <Table className="m-2">
                 <TableHeader>
                     <TableRow>
-                        <TableHead>chemId</TableHead>
-                        <TableHead>chemName</TableHead>
-                        <TableHead>chemebl link</TableHead>
-                        <TableHead>related structures</TableHead>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Chemical Name</TableHead>
+                        <TableHead>DrugBank Id</TableHead>
+                        <TableHead>Related Structures</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-
-
 
                     {[1, 2, 3].map(x => <LigandTableRow key={x} />)}
 

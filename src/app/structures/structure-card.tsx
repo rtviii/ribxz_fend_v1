@@ -10,7 +10,7 @@ import Link from "next/link"
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   return (
     <Link href={_.rcsb_id}>
-    <Card className="w-full max-w-sm  bg-white shadow-lg rounded-lg overflow-hidden relative">
+    <Card className="w-full max-w-sm  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
       <Popover>
         <PopoverTrigger asChild>
           <div className="relative h-[40%] border-2">
@@ -82,21 +82,20 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
             <HoverCard>
               <HoverCardTrigger asChild>
 
-                <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors" title="Full list of authors" >
+                <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors z-10" title="Full list of authors" >
 
                   <span style={{ fontStyle: "italic" }}>{_.citation_rcsb_authors[0]}</span> <span style={{
-
-                    cursor: "pointer",
-                    display: 'inline-block',
-                    width: '15px',
-                    height: '15px',
-                    borderRadius: '50%',
+                    cursor         : "pointer",
+                    display        : 'inline-block',
+                    width          : '15px',
+                    height         : '15px',
+                    borderRadius   : '50%',
                     backgroundColor: '#cccccc',
-                    textAlign: 'center',
-                    lineHeight: '15px',
-                    fontWeight: 'bold',
-                    fontSize: '14px',
-                    color: 'white'
+                    textAlign      : 'center',
+                    lineHeight     : '15px',
+                    fontWeight     : 'bold',
+                    fontSize       : '14px',
+                    color          : 'white'
                   }}>+</span>
 
 
@@ -104,7 +103,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                 </span>
 
               </HoverCardTrigger>
-              <HoverCardContent className="w-80 grid grid-cols-2 gap-2">
+              <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
                 {
                   _.citation_rcsb_authors.map((author) => {
                     return <div key={author} className="flex items-center gap-2">

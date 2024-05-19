@@ -32,7 +32,7 @@ export const molstarListenerMiddleware = createListenerMiddleware()
 molstarListenerMiddleware.startListening({
   actionCreator: initiatePluginUIContext.fulfilled, // Perhaps tag the "initiatePluginUIContext" with rcsb_id
   effect: async (action, listenerApi) => {
-    listenerApi.dispatch(download_struct({ plugin:window.molstar, rcsb_id:'3J7Z' }))
+    listenerApi.dispatch(download_struct({ plugin:window.molstar!, rcsb_id:'3J7Z' }))
   },
 })
 

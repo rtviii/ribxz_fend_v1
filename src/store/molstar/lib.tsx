@@ -134,7 +134,8 @@ export const __MyOldSpec: PluginUISpec = {
 
   components: {
     structureTools: CustomStructureTools,
-
+    // TODO: hook up current state to custom sequence viewer
+    // sequenceViewer:
     controls:{
         bottom:'none',
         left:'none'

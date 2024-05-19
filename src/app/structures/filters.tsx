@@ -91,7 +91,30 @@ const options = [
 
         <div>
           <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
-            Taxonomy
+            Source Organism
+          </label>
+          <div className="text-sm font-medium" >
+          <TreeSelect
+             showSearch={true}
+              style={{ width: '100%' }}
+              value={value}
+              dropdownStyle={{ maxHeight: 400, maxWidth:400, overflow: 'auto' }}
+              // treeNodeLabelProp={(node)=>node.value}
+              treeNodeFilterProp='title'
+              // title={(node)=>node.value}
+              placeholder="Search.."
+              allowClear={false}
+              multiple={true}
+              variant="outlined"
+              treeDefaultExpandAll
+              onChange={onChange}
+              treeData={tax_dict}
+          />
+          </div>
+        </div>
+        <div>
+          <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
+            Host Organism
           </label>
           <div className="text-sm font-medium" >
           <TreeSelect
