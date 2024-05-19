@@ -49,10 +49,10 @@ export default function ChainPicker() {
             </HoverCardTrigger>
             <HoverCardContent className="w-80 p-4" side="right">
                 <div className="grid gap-2">
-           <div className="flex items-center gap-2">
-                <Input placeholder="Search" />
-                <Button>Filter</Button>
-              </div>
+                    <div className="flex items-center gap-2">
+                        <Input placeholder="Search" />
+                        <Button>Filter</Button>
+                    </div>
 
                     {Object.entries(sc_dict).map(([rcsb_id, chains]) => <StructureSelection rcsb_id={rcsb_id} key={rcsb_id} />)}
                 </div>

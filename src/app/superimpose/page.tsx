@@ -34,36 +34,36 @@ import FilterSidebar from "../structures/filters"
 // -----------
 // -----------
 function PlusIcon() {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
-  )
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
+        </svg>
+    )
 }
 
 export default function StructurePage() {
 
-    const {rcsb_id}      = useParams<{ rcsb_id: string;}>()
+    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const dispatch       = useAppDispatch();
-    const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
+    const dispatch = useAppDispatch();
+    const ctx = useAppSelector(state => state.molstar.ui_plugin)!
 
-    useEffect(()=>{ dispatch(initiatePluginUIContext({ parent_element:molstarNodeRef.current!})) },[molstarNodeRef, dispatch])
+    useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
 
-    const { data, error, isLoading:isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
-    const [test_active, test_active_set]                   = useState<boolean>(false)
+    const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    const [test_active, test_active_set] = useState<boolean>(false)
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -71,26 +71,39 @@ export default function StructurePage() {
                 <ResizablePanel defaultSize={25} >
 
                     <Card className="h-full flex flex-col">
-
                         <CardHeader>
-                <ChainPicker/>
-                {/* <Button onClick={()=>{transform(ctx)}} > select current</Button> */}
+
+                            <p className="text-gray-500 text-sm">Please select chains to superimpose by clicking the "+" button.</p>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
 
                         <CardContent className="flex-grow overflow-auto">
                             <div className="flex flex-col gap-4">
-                                <FilterSidebar/>
+                                <FilterSidebar  disable={{'Search': true}}/>
+
+                            </div>
+
+
+                            <div className="grid gap-2">
+                                <div key={1} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
+                                <div key={2} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
+                                <div key={3} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
+
                             </div>
                         </CardContent>
+
+                        <ChainPicker />
                         <CardFooter className="flex justify-between">
-                            {/* <Button variant="outline">Log query</Button>
-                            <Button></Button> */}
                         </CardFooter>
+
                     </Card>
+                    {/* <Separa */}
                 </ResizablePanel>
                 <ResizableHandle />
+
+
+
                 <ResizablePanel defaultSize={75}>
                     <div className="flex flex-col gap-4">
                         <MolstarNode ref={molstarNodeRef} />
