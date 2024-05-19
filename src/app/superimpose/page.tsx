@@ -22,6 +22,7 @@ import { PluginConfig } from "molstar/lib/mol-plugin/config"
 import { useParams } from 'next/navigation'
 import { transform } from "@/store/molstar/functions"
 import ChainPicker from "@/components/chain_picker"
+import FilterSidebar from "../structures/filters"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -32,6 +33,25 @@ import ChainPicker from "@/components/chain_picker"
 
 // -----------
 // -----------
+function PlusIcon() {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+  )
+}
 
 export default function StructurePage() {
 
@@ -49,72 +69,19 @@ export default function StructurePage() {
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
-                <Button onClick={()=>{transform(ctx)}} > select current</Button>
-                <ChainPicker/>
 
                     <Card className="h-full flex flex-col">
+
                         <CardHeader>
+                <ChainPicker/>
+                {/* <Button onClick={()=>{transform(ctx)}} > select current</Button> */}
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
 
                         <CardContent className="flex-grow overflow-auto">
-                            <Tabs defaultValue="info" >
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="info">Info</TabsTrigger>
-                                    <TabsTrigger value="components">Substructures</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="info">
-                                    <div className="mt-4">
-                                        <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
-                                        <div className="flex flex-col gap-4">
-                                            <div className="flex justify-between">
-                                                <strong>Source Organism:</strong>
-                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    {data?.src_organism_names}
-                                                </p>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <strong>Host Organism:</strong>
-                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    {data?.host_organism_names}
-                                                </p>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <strong>Resolution:</strong>
-                                                <p>{data?.resolution} Å</p>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <strong>Experimental Method:</strong>
-                                                <p>{data?.expMethod}</p>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <strong>Authors:</strong>
-                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    {data?.citation_rcsb_authors}
-                                                </p>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <strong>Year:</strong>
-                                                <p>{data?.citation_year}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 flex justify-between">
-                                        {/* <Button variant="outline">Visualize</Button> */}
-                                        <Button>Download</Button>
-                                    </div>
-                                </TabsContent>
-                                <TabsContent value="components">
-
-                                    {/* {isLoading_struct_data ? <Skeleton /> : (data !== undefined ? 
-                                    // <ComponentsTableCard structure_profile={data} /> 
-                                    <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas}/>
-                                    : null)} */}
-
-                                </TabsContent>
-                            </Tabs>
                             <div className="flex flex-col gap-4">
+                                <FilterSidebar/>
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between">
