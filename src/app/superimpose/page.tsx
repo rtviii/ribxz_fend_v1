@@ -20,7 +20,6 @@ import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
 import { PluginConfig } from "molstar/lib/mol-plugin/config"
 import { useParams } from 'next/navigation'
-import StructureComponents from "./components_table"
 import { transform } from "@/store/molstar/functions"
 import ChainPicker from "@/components/chain_picker"
 
@@ -41,7 +40,7 @@ export default function StructurePage() {
     const dispatch       = useAppDispatch();
     const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
 
-    useEffect(()=>{ dispatch(initiatePluginUIContext(molstarNodeRef.current!)) },[molstarNodeRef, dispatch])
+    useEffect(()=>{ dispatch(initiatePluginUIContext({ parent_element:molstarNodeRef.current!})) },[molstarNodeRef, dispatch])
 
     const { data, error, isLoading:isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
     const [test_active, test_active_set]                   = useState<boolean>(false)
@@ -108,10 +107,10 @@ export default function StructurePage() {
                                 </TabsContent>
                                 <TabsContent value="components">
 
-                                    {isLoading_struct_data ? <Skeleton /> : (data !== undefined ? 
+                                    {/* {isLoading_struct_data ? <Skeleton /> : (data !== undefined ? 
                                     // <ComponentsTableCard structure_profile={data} /> 
                                     <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas}/>
-                                    : null)}
+                                    : null)} */}
 
                                 </TabsContent>
                             </Tabs>

@@ -165,10 +165,16 @@ export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIConte
       return null
 }
 
-export async function createPlugin(parent: HTMLElement):Promise<PluginUIContext> {
-    const plugin = await createPluginUI({ target: parent, spec  : __MyOldSpec, render: renderReact18 });
-    window.molstar = plugin;
-    return plugin;
+// TODO: 
+export async function createPlugin({parent_element, initiate_with_structure}:{ parent_element: HTMLElement, initiate_with_structure?: string }):Promise<PluginUIContext> {
+    const ctx = await createPluginUI({ target: parent_element, spec  : __MyOldSpec, render: renderReact18 });
+    window.molstar = ctx;
+    if ( initiate_with_structure !== undefined){
+      const data       = await ctx.builders.data.download({ url: `https://files.rcsb.org/download/${initiate_with_structure}.cif` }, { state: { isGhost: true } });
+      const trajectory = await ctx.builders.structure.parseTrajectory(data, "mmcif");
+      await ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    }
+    return ctx;
 }
 
 export async function on_hover_chain(parent: HTMLElement):Promise<PluginUIContext> {
