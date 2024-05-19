@@ -38,7 +38,6 @@ export default function StructurePage() {
     const {rcsb_id} = useParams<{ rcsb_id: string;}>()
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
-        
     const dispatch       = useAppDispatch();
     const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
 
@@ -46,6 +45,7 @@ export default function StructurePage() {
 
     const { data, error, isLoading:isLoading_struct_data }     = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
     const [test_active, test_active_set] = useState<boolean>(false)
+
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >

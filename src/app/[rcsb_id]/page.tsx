@@ -22,6 +22,7 @@ import { PluginConfig } from "molstar/lib/mol-plugin/config"
 import { useParams } from 'next/navigation'
 import StructureComponents from "./components_table"
 import { transform } from "@/store/molstar/functions"
+import ChainPicker from "@/components/chain_picker"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -35,25 +36,22 @@ import { transform } from "@/store/molstar/functions"
 
 export default function StructurePage() {
 
-    const {rcsb_id} = useParams<{ rcsb_id: string;}>()
+    const {rcsb_id}      = useParams<{ rcsb_id: string;}>()
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-
-        
     const dispatch       = useAppDispatch();
     const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
 
     useEffect(()=>{ dispatch(initiatePluginUIContext(molstarNodeRef.current!)) },[molstarNodeRef, dispatch])
 
-    const { data, error, isLoading:isLoading_struct_data }     = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
-    const [test_active, test_active_set] = useState<boolean>(false)
+    const { data, error, isLoading:isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
+    const [test_active, test_active_set]                   = useState<boolean>(false)
+
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
-
-                {/* <Button onClick={()=>{dispatch(download_struct({plugin:ctx!, rcsb_id}))}}>downlado</Button> */}
-                {/* <Button onClick={()=>{select_current_struct(ctx)}} > select current</Button> */}
                 <Button onClick={()=>{transform(ctx)}} > select current</Button>
+                <ChainPicker/>
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>

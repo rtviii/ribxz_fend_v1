@@ -27,3 +27,9 @@ rtk-query/no thunks : https://redux.js.org/usage/writing-logic-thunks#fetching-d
 - how to type rtk query responses
 
 # Pagination
+
+# Alignment
+
+# Chain Picker
+
+
