@@ -80,11 +80,9 @@ export default function StructurePage() {
 
                         <CardContent className="flex-grow overflow-auto">
                             <div className="flex flex-col gap-4">
-                                <FilterSidebar  disable={{'Search': true}}/>
+                                <FilterSidebar disable={{ 'Search': true, Sort:true,PolymerClass:true }} />
 
                             </div>
-
-
                             <div className="grid gap-2">
                                 <div key={1} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
                                 <div key={2} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
