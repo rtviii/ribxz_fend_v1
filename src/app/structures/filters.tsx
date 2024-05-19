@@ -84,7 +84,7 @@ export default function FilterSidebar({ disable }: { disable?: { [key in FilterT
 
  <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true}>
         <div className="flex items-center justify-between  mb-2 ">
-          <CollapsibleTrigger asChild className="hover:bg-blue-50  hover:rounded-md cursor-pointer ">
+          <CollapsibleTrigger asChild className="hover:bg-slate-200  hover:rounded-md cursor-pointer ">
           <span className=" min-w-full font-semibold"> Structure Filters</span>
           </CollapsibleTrigger>
         </div>
@@ -101,7 +101,7 @@ export default function FilterSidebar({ disable }: { disable?: { [key in FilterT
          {disable?.DepositionDate ? null :
            <div className="flex items-center justify-between space-x-2">
              <label className="text-sm font-medium" htmlFor="startYear">
-               Deposition date
+               Deposition year
              </label>
              <div className="flex items-center space-x-2">
                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" min={2000} max={2024} step={1} />
