@@ -84,7 +84,7 @@ export default function FilterSidebar({ disable }: { disable?: { [key in FilterT
 
  <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true}>
         <div className="flex items-center justify-between  mb-2 ">
-          <CollapsibleTrigger asChild className="hover:bg-blue-50  hover:rounded-md cursor-pointer p-1">
+          <CollapsibleTrigger asChild className="hover:bg-blue-50  hover:rounded-md cursor-pointer ">
           <span className=" min-w-full font-semibold"> Structure Filters</span>
           </CollapsibleTrigger>
         </div>
@@ -186,7 +186,6 @@ export default function FilterSidebar({ disable }: { disable?: { [key in FilterT
           </div>
         }
         {disable?.Sort ? null :
-
            <Collapsible className="mt-4">
              <CollapsibleTrigger className="flex items-center justify-between">
                <h3 className="text-sm font-medium">Sort by:</h3>
@@ -209,40 +208,6 @@ export default function FilterSidebar({ disable }: { disable?: { [key in FilterT
            </Collapsible>
          }
        </div>
-     {/* </div> */}
-
-
-{/* ------------------------------------------------------------------------------------------------------- */}
-
-          {/* <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="deposition-start">Deposition date</Label>
-              <div className="flex mt-1">
-                <Input className="mr-2" id="deposition-start" placeholder="Start" />
-              </div>
-            </div>
-            <div>
-              <Label className="invisible" htmlFor="deposition-end">
-                Deposition date
-              </Label>
-              <div className="flex mt-1">
-                <Input className="mr-2" id="deposition-end" placeholder="End" />
-              </div>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Label htmlFor="resolution-min">Resolution</Label>
-            <div className="grid grid-cols-2 gap-4 mt-1">
-              <Input className="mr-2" id="resolution-min" placeholder="Min" />
-              <Input id="resolution-max" placeholder="Max" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <Label htmlFor="source-organism">Source Organism</Label>
-          </div>
-          <div className="mt-4">
-            <Label htmlFor="host-organism">Host Organism</Label>
-          </div> */}
         </CollapsibleContent>
       </Collapsible>
 

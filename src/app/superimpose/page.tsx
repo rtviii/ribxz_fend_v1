@@ -1,42 +1,20 @@
 "use client"
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
-import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { useRouter } from 'next/router'
 import { MolstarNode, } from "@/store/molstar/lib"
 import { createRef, useEffect, useRef, useState } from "react";
-import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { createPluginUI } from "molstar/lib/mol-plugin-ui";
-import { Skeleton } from "@/components/ui/skeleton"
 import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
-import { renderReact18 } from 'molstar/lib/mol-plugin-ui/react18';
-import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
-import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
-import { PluginConfig } from "molstar/lib/mol-plugin/config"
 import { useParams } from 'next/navigation'
-import { transform } from "@/store/molstar/functions"
 import ChainPicker from "@/components/chain_picker"
 import FilterSidebar from "../structures/filters"
+import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button";
 
-// StateTransforms
-// https://github.com/molstar/molstar/issues/1074
-// https://github.com/molstar/molstar/issues/1112
-// https://github.com/molstar/molstar/issues/1121
-
-
-
-// -----------
-// -----------
 function PlusIcon() {
     return (
         <svg
-            {...props}
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
@@ -73,26 +51,34 @@ export default function StructurePage() {
                     <Card className="h-full flex flex-col">
                         <CardHeader>
 
-                            <p className="text-gray-500 text-sm">Please select chains to superimpose by clicking the "+" button.</p>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
 
-                        <CardContent className="flex-grow overflow-auto">
+                        <CardContent className="flex-grow overflow-auto space-y-8 items-center">
                             <div className="flex flex-col gap-4">
-                                {/* <FilterSidebar disable={{ 'Search': true, Sort:true,PolymerClass:true }} /> */}
-                                <FilterSidebar />
-
+                                <FilterSidebar disable={{ 'Search': true, Sort: true, PolymerClass: true }} />
                             </div>
-                            <div className="grid gap-2">
+
+
+                            <Separator className="my-4" />
+                            <p className="text-gray-500 p-1">Please select chains to superimpose by clicking the "+" button.</p>
+
+
+
+                            <ChainPicker>
+                                <Button className=" min-w-full bg-black text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
+                                    <PlusIcon className="text-white" />
+                                </Button>
+                            </ChainPicker>
+                            <div className="flex flex-col gap-2">
                                 <div key={1} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
                                 <div key={2} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
                                 <div key={3} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
-
                             </div>
+
                         </CardContent>
 
-                        <ChainPicker />
                         <CardFooter className="flex justify-between">
                         </CardFooter>
 

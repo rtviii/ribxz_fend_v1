@@ -26,13 +26,14 @@ const ChainSelection = ({ chains }: { chains: string[] }) => {
 
 const StructureSelection = ({ rcsb_id }: { rcsb_id: string }) => {
 
-    return <div className="border rounded-lg p-1 max-h-[500px] overflow-y-auto scrollbar-hide">
+    return <div className="border rounded-lg p-1 max-h-[500px] overflow-y-auto scrollbar-hide flex items-center justify-between  mb-2">
 
-        <HoverCard>
+
+        <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild>
-                <span className="cursor-pointer px-1 text-xs">{rcsb_id}</span>
+                <span className="hover:bg-slate-400 min-w-full cursor-pointer px-1 text-sm">{rcsb_id}</span>
             </HoverCardTrigger>
-            <HoverCardContent className="w-48" side="right">
+            <HoverCardContent className="" side="right">
                 <ChainSelection chains={sc_dict[rcsb_id]} />
             </HoverCardContent>
         </HoverCard>
@@ -40,12 +41,12 @@ const StructureSelection = ({ rcsb_id }: { rcsb_id: string }) => {
 }
 
 
-export default function ChainPicker() {
+export default function ChainPicker({children}:{children?:React.ReactNode}) {
     return (
-        <HoverCard>
-
-            <HoverCardTrigger asChild>
-                <Button variant="link">Chain Picker</Button>
+        <HoverCard openDelay={0} closeDelay={0}>
+            <HoverCardTrigger asChild >
+                {/* <Button variant="link">Chain Picker</Button> */}
+                {children}
             </HoverCardTrigger>
             <HoverCardContent className="w-80 p-4" side="right">
                 <div className="grid gap-2">
