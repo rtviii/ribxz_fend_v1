@@ -31,45 +31,59 @@ async function loadStructure(plugin: PluginContext, url: string, format: BuiltIn
     return { data, trajectory, model, structure };
 }
 
-async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structure>, pivot: Expression, rest: Expression) {
+async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structure>, pivot: Expression, 
+    // rest: Expression
+    ) {
     const center = await plugin.builders.structure.tryCreateComponentFromExpression(s, pivot, 'pivot');
     if (center) await plugin.builders.structure.representation.addRepresentation(center, { type: 'ball-and-stick', color: 'residue-name' });
 
-    const surr = await plugin.builders.structure.tryCreateComponentFromExpression(s, rest, 'rest');
-    if (surr) await plugin.builders.structure.representation.addRepresentation(surr, { type: 'ball-and-stick', color: 'uniform', size: 'uniform', sizeParams: { value: 0.33 } });
+    // const surr = await plugin.builders.structure.tryCreateComponentFromExpression(s, rest, 'rest');
+    // if (surr) await plugin.builders.structure.representation.addRepresentation(surr, { type: 'ball-and-stick', color: 'uniform', size: 'uniform', sizeParams: { value: 0.33 } });
 }
 
-export function dynamicSuperpositionTest(plugin: PluginContext, src: string[], comp_id: string) {
+export function dynamicSuperpositionTest(plugin: PluginContext, src: [string,string][], comp_id: string) {
+
     return plugin.dataTransaction(async () => {
-        for (const s of src) {
-            await loadStructure(plugin, `https://www.ebi.ac.uk/pdbe/static/entry/${s}_updated.cif`, 'mmcif');
-        }
+
+        // for (const [ rcsb_id,aaid ] of src) {
+        //     await loadStructure(plugin, `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${aaid}`, 'mmcif');
+        // }
+
+        // const pivot = MS.struct.filter.first([
+        //     MS.struct.generator.atomGroups({
+        //         'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), comp_id]),
+        //         'group-by'    : MS.struct.atomProperty.macromolecular.residueKey()
+        //     })
+        // ]);
 
         const pivot = MS.struct.filter.first([
             MS.struct.generator.atomGroups({
-                'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), comp_id]),
-                'group-by'    : MS.struct.atomProperty.macromolecular.residueKey()
+                'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), comp_id]),
+                'group-by'    : MS.struct.atomProperty.macromolecular.auth_asym_id
             })
         ]);
 
-        const rest = MS.struct.modifier.exceptBy({
-            0: MS.struct.modifier.includeSurroundings({
-                0: pivot,
-                radius: 5
-            }),
-            by: pivot
-        });
+        // const rest = MS.struct.modifier.exceptBy({
+        //     0: MS.struct.modifier.includeSurroundings({ 0: pivot, radius: 5 }), 
+        //     by: pivot
+        // });
 
         const query      = compile<StructureSelection>(pivot);
         const xs         = plugin.managers.structure.hierarchy.current.structures;
+
         const selections = xs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
 
         const transforms = superpose(selections);
 
-        await siteVisual(plugin, xs[0].cell, pivot, rest);
+        // await siteVisual(plugin, xs[0].cell, pivot, rest);
+        await siteVisual(plugin, xs[0].cell, pivot)
+
         for (let i = 1; i < selections.length; i++) {
+
             await transform(plugin, xs[i].cell, transforms[i - 1].bTransform);
-            await siteVisual(plugin, xs[i].cell, pivot, rest);
+
+            // await siteVisual(plugin, xs[i].cell, pivot, rest);
+            await siteVisual(plugin, xs[i].cell, pivot)
         }
     });
 }

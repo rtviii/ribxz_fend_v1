@@ -25,10 +25,11 @@ import { PluginContext } from 'molstar/lib/mol-plugin/context';
 
 export async function load_from_server() {
   window.molstar?.clear()
-  const myUrl = new URL('http://127.0.0.1:8000/comp/get_chain/')
-  myUrl.searchParams.append('auth_asym_id', 'A');
-  myUrl.searchParams.append('rcsb_id', '3j7z');
+  // const myUrl = new URL('http://127.0.0.1:8000/mmcif_structures/chain')
+  // myUrl.searchParams.append('rcsb_id', '5afi');
+  // myUrl.searchParams.append('auth_asym_id', 'E');
 
+  const myUrl = "http://localhost:8000/mmcif_structures/chain?rcsb_id=5afi&auth_asym_id=E"
   const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
   const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
   await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
@@ -98,8 +99,6 @@ export async function apply_style() {
 
 
 }
-
-
 
 
 export const transform = (ctx: PluginContext ) =>{

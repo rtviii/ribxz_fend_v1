@@ -137,8 +137,8 @@ export const __MyOldSpec: PluginUISpec = {
     // TODO: hook up current state to custom sequence viewer
     // sequenceViewer:
     controls:{
-        bottom:'none',
-        left:'none'
+        // bottom:'none',
+        // left:'none'
         
     },
     remoteState: 'none',

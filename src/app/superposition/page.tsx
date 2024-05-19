@@ -20,8 +20,7 @@ import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
 import { PluginConfig } from "molstar/lib/mol-plugin/config"
 import { useParams } from 'next/navigation'
-import StructureComponents from "./components_table"
-import { transform } from "@/store/molstar/functions"
+import { load_from_server, transform } from "@/store/molstar/functions"
 import { dynamicSuperpositionTest } from "@/store/molstar/dynamic_superpos"
 
 // StateTransforms
@@ -51,7 +50,8 @@ export default function StructurePage() {
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
             <Button onClick={()=>{ctx.clear()}}>clear ctx</Button>
-            <Button onClick={()=>{dynamicSuperpositionTest(ctx, ['1tqn', '2hhb', '4hhb'], 'HEM');}}>dyanmic</Button>
+            <Button onClick={()=>{dynamicSuperpositionTest(ctx, [['3J7Z', 'E'], ['5AFI', 'E']], 'E');}}>dyanmic</Button>
+            <Button onClick={()=>{load_from_server()}}>load from server</Button>
                 <ResizablePanel defaultSize={25} ></ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel defaultSize={75}>
