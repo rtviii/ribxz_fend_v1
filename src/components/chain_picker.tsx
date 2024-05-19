@@ -1,50 +1,62 @@
 import { Button } from "@/components/ui/button"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
+import { Input } from "@/components/ui/input"
+
+
+const sc_dict = {
+    "3j7z": ["A1", "BF"],
+    "5afi": ["IK", "J4", "KL", "LM", "MN"],
+    "5afs": ["IK", "J4", "KL", "LM", "MN"],
+    "5af4": ["IK", "J4", "KL", "LM", "MN"],
+    "5afg": ["IK", "J4", "KL", "LM", "MN"],
+    "5asi": ["IK", "J4", "KL", "LM", "MN"],
+    "5a4i": ["IK", "J4", "KL", "LM", "MN"],
+    "54fi": ["IK", "J4", "KL", "LM", "MN"],
+    "5vfi": ["IK", "J4", "KL", "LM", "MN"],
+}
+
+
+const ChainSelection = ({ chains }: { chains: string[] }) => {
+
+    return <div className="grid gap-1">
+        {chains.map(c => <div key={c} className="border rounded-sm p-0.5 px-2 text-xs">{c}</div>)}
+    </div>
+
+}
+
+const StructureSelection = ({ rcsb_id }: { rcsb_id: string }) => {
+
+    return <div className="border rounded-lg p-1 max-h-[500px] overflow-y-auto scrollbar-hide">
+
+        <HoverCard>
+            <HoverCardTrigger asChild>
+                <span className="cursor-pointer px-1 text-xs">{rcsb_id}</span>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-48" side="right">
+                <ChainSelection chains={sc_dict[rcsb_id]} />
+            </HoverCardContent>
+        </HoverCard>
+    </div>
+}
+
 
 export default function ChainPicker() {
-  return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
-        <Button variant="link">Hover me</Button>
-      </HoverCardTrigger>
+    return (
+        <HoverCard>
 
-
-
-      <HoverCardContent className="w-80 p-4">
-        <div className="grid gap-2">
-          <div className="border rounded-lg p-1 max-h-[500px] overflow-y-auto scrollbar-hide">
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-pointer px-1 text-xs">3j7z</span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-48" side="right">
-                <div className="grid gap-1">
-                  <div className="border rounded-sm p-0.5 px-2 text-xs">A1</div>
-                  <div className="border rounded-sm p-0.5 px-2 text-xs">BF</div>
-                </div>
-              </HoverCardContent>
-            </HoverCard>
-          </div>
-
-          <div className="border rounded-lg p-2 max-h-[500px] overflow-y-auto scrollbar-hide">
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <span className="cursor-pointer px-1 text-xs">5afi</span>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-48" side="right">
+            <HoverCardTrigger asChild>
+                <Button variant="link">Chain Picker</Button>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-80 p-4" side="right">
                 <div className="grid gap-2">
-                  <div className="border rounded-lg p-1 text-xs">IK</div>
-                  <div className="border rounded-lg p-1 text-xs">J4</div>
-                  <div className="border rounded-lg p-1 text-xs">KL</div>
-                  <div className="border rounded-lg p-1 text-xs">LM</div>
-                  <div className="border rounded-lg p-1 text-xs">MN</div>
-                </div>
-              </HoverCardContent>
-            </HoverCard>
-          </div>
+           <div className="flex items-center gap-2">
+                <Input placeholder="Search" />
+                <Button>Filter</Button>
+              </div>
 
-        </div>
-      </HoverCardContent>
-    </HoverCard>
-  )
+                    {Object.entries(sc_dict).map(([rcsb_id, chains]) => <StructureSelection rcsb_id={rcsb_id} key={rcsb_id} />)}
+                </div>
+            </HoverCardContent>
+        </HoverCard>
+    )
 }

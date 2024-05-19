@@ -25,8 +25,6 @@ const initialState: MolstarReduxCore = {
     count         :undefined
 }
 
-
-
 export const molstarListenerMiddleware = createListenerMiddleware()
 
 molstarListenerMiddleware.startListening({
