@@ -25,10 +25,7 @@ const ChainSelection = ({ chains }: { chains: string[] }) => {
 }
 
 const StructureSelection = ({ rcsb_id }: { rcsb_id: string }) => {
-
-    return <div className="border rounded-lg p-1 max-h-[500px] overflow-y-auto scrollbar-hide flex items-center justify-between  mb-2 hover:bg-slate-200">
-
-
+    return <div className="border rounded-lg p-1 max-h-[500px] overflow-y-auto scrollbar-hide flex items-center justify-between hover:bg-slate-200">
         <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild>
                 <span className=" min-w-full cursor-pointer px-1 text-sm">{rcsb_id}</span>
@@ -41,7 +38,7 @@ const StructureSelection = ({ rcsb_id }: { rcsb_id: string }) => {
 }
 
 
-export default function ChainPicker({children}:{children?:React.ReactNode}) {
+export default function ChainPicker({ children }: { children?: React.ReactNode }) {
     return (
         <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild >

@@ -31,6 +31,8 @@ function PlusIcon() {
     )
 }
 
+
+
 export default function StructurePage() {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
@@ -62,12 +64,9 @@ export default function StructurePage() {
 
 
                             <Separator className="my-4" />
-                            <p className="text-gray-500 p-1">Please select chains to superimpose by clicking the "+" button.</p>
-
-
-
+                            <p className="text-gray-500 p-1">Please select chains to superimpose from the "+" menu</p>
                             <ChainPicker>
-                                <Button className=" min-w-full bg-black text-white hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
+                                <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     <PlusIcon className="text-white" />
                                 </Button>
                             </ChainPicker>
@@ -77,9 +76,18 @@ export default function StructurePage() {
                                 <div key={3} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
                             </div>
 
+
                         </CardContent>
 
                         <CardFooter className="flex justify-between">
+                            <Button className="min-w-full group gap-2 text-white flex-col flex hover:bg-gray-800 focus:outline-none  font-medium rounded-md text-sm  text-center  items-center justify-center w-10 h-24">
+                                <p className="font-bold">Superimpose</p>
+                                <div className="grid grid-cols-3 gap-8 group-hover:gap-0 transition-all duration-200 ease-in-out  w-30">
+                                    <div className="w-6 h-6 bg-blue-500     rounded-sm transition-transform duration-300 ease-in-out transform group-hover:translate-x-4  group-hover:skew-y-12 group-hover:skew-x-12 group-hover:translate-y-2" />
+                                    <div className="w-6 h-6 bg-red-500      rounded-sm transition-transform duration-300 ease-in-out transform group-hover:translate-x-0  group-hover:skew-y-12 group-hover:skew-x-12 group-hover:translate-y-2 " />
+                                    <div className="w-6 h-6 bg-yellow-500   rounded-sm transition-transform duration-300 ease-in-out transform group-hover:-translate-x-4 group-hover:skew-y-12 group-hover:skew-x-12 group-hover:translate-y-2 " />
+                                </div>
+                            </Button>
                         </CardFooter>
 
                     </Card>

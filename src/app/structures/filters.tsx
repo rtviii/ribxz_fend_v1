@@ -84,7 +84,7 @@ export default function FilterSidebar({ disable }: { disable?: { [key in FilterT
 
  <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true}>
         <div className="flex items-center justify-between  mb-2 ">
-          <CollapsibleTrigger asChild className="hover:bg-slate-200  hover:rounded-md cursor-pointer ">
+          <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer ">
           <span className=" min-w-full font-semibold"> Structure Filters</span>
           </CollapsibleTrigger>
         </div>
