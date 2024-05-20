@@ -14,8 +14,6 @@ import {
 import Link from "next/link"
 
 
-
-
 export function SheetDemo() {
   return (
     <Sheet>
@@ -31,64 +29,67 @@ export function SheetDemo() {
         <SheetHeader>
           <SheetTitle>
 
-            <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+            <Link className="flex items-center space-x-2 text-gray-800 hover:text-gray-600 hover:bg-slate-200 rounded-sm" href="#">
               <HomeIcon className="h-5 w-5" />
               <span>Home</span>
-            </a>
+            </Link>
           </SheetTitle>
 
 
 
           <SheetDescription>
-            {/* Make changes to your profile here. Click save when you're done. */}
+            Structures and component chains, nomenclature for polymer classes.
           </SheetDescription>
         </SheetHeader>
 
-        <div className="grid-flow-col   bg-white  p-4  hover:bg-slate-200  border ">
+        <div className="grid-flow-col   bg-white  ">
 
-          {/* <div className="space-y-2"> */}
           <h2 className="text-xs font-semibold uppercase text-gray-400">Available Data</h2>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
+
+          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="#">
             Structures
           </Link>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
-            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+
+          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="#">
+            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
               <span>Proteins</span>
               <DnaIcon className="h-5 w-5" />
             </div>
           </Link>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
-            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+
+          <Link className="block py-2  px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="#">
+            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>RNA</span>
               <DnaIcon className="h-5 w-5" />
             </div>
           </Link>
 
-          <Link className="block py-2 text-sm text-gray-700" href="#">
-            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="#">
+            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>Nomenclature</span>
               <NotebookIcon className="h-5 w-5" />
             </div>
           </Link>
           {/* </div> */}
 
-          {/* <hr className="border-t border-gray-200" /> */}
+          <hr className="border-t my-4 border-gray-200" />
 
           {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-xs font-semibold uppercase text-gray-400">Tools</h2>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
+
+          <Link className="block py-2 px-2 text-sm text-gray-700" href="#">
             Visualization
           </Link>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
+          <Link className="block py-2 px-2 text-sm text-gray-700" href="#">
             3D Superposition
           </Link>
 
-          <Link className="block py-2 text-sm text-gray-700" href="#">
+          <Link className="block py-2 px-2 text-sm text-gray-700" href="#">
             Ligands/Binding Sites
           </Link>
 
         </div>
-        <div className="flex-col  h-full  p-4  align-bottom justify-end justify-items-end content-end  border ">
+        <div className="flex-col  h-full   align-bottom justify-end justify-items-end content-end  ">
           <h2 className="text-xs font-semibold uppercase text-gray-400">Info</h2>
           <Link className="block py-2 text-sm text-gray-700" href="#">
             About

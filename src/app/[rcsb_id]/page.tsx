@@ -41,7 +41,7 @@ export default function StructurePage() {
     const dispatch       = useAppDispatch();
     const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
 
-    useEffect(()=>{ dispatch(initiatePluginUIContext(molstarNodeRef.current!)) },[molstarNodeRef, dispatch])
+    useEffect(()=>{ dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current!, initiate_with_structure:rcsb_id })) },[molstarNodeRef, dispatch])
 
     const { data, error, isLoading:isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
     const [test_active, test_active_set]                   = useState<boolean>(false)
@@ -51,7 +51,7 @@ export default function StructurePage() {
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
                 <Button onClick={()=>{transform(ctx)}} > select current</Button>
-                <ChainPicker/>
+                {/* <ChainPicker/> */}
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
