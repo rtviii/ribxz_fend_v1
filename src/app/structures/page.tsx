@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import { RibosomeStructure, useRoutersRouterStructListStructuresQuery } from "@/store/ribxz_api/ribxz_api"
 import { useEffect } from "react"
 import FilterSidebar from "./filters"
+import { SheetDemo } from "@/components/sidebar"
 
 
 
@@ -25,8 +26,7 @@ export default function StructureCatalogue() {
       <div className="grid grid-cols-12 gap-4 mb-4">
         <div className="col-span-3  border-gray-200 pr-4">
           <FilterSidebar />
-
-
+          <SheetDemo/>
         </div>
 
         <div className="col-span-9 pl-4">
