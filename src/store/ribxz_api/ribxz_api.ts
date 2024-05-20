@@ -10,11 +10,26 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
+    routersRouterStructStructurePtc: build.query<
+      RoutersRouterStructStructurePtcApiResponse,
+      RoutersRouterStructStructurePtcApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/structure/ptc`,
+        params: { rcsb_id: queryArg.rcsbId },
+      }),
+    }),
     routersRouterStructListStructures: build.query<
       RoutersRouterStructListStructuresApiResponse,
       RoutersRouterStructListStructuresApiArg
     >({
       query: () => ({ url: `/structure/list_structures` }),
+    }),
+    routersRouterStructChainsByStruct: build.query<
+      RoutersRouterStructChainsByStructApiResponse,
+      RoutersRouterStructChainsByStructApiArg
+    >({
+      query: () => ({ url: `/structure/chains_by_struct` }),
     }),
     routersRouterStructPolymerClassesNomenclature: build.query<
       RoutersRouterStructPolymerClassesNomenclatureApiResponse,
@@ -67,9 +82,17 @@ export type RoutersRouterStructStructureProfileApiResponse =
 export type RoutersRouterStructStructureProfileApiArg = {
   rcsbId: string;
 };
+export type RoutersRouterStructStructurePtcApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterStructStructurePtcApiArg = {
+  rcsbId: string;
+};
 export type RoutersRouterStructListStructuresApiResponse =
   /** status 200 OK */ RibosomeStructure[];
 export type RoutersRouterStructListStructuresApiArg = void;
+export type RoutersRouterStructChainsByStructApiResponse =
+  /** status 200 OK */ ChainsByStruct[];
+export type RoutersRouterStructChainsByStructApiArg = void;
 export type RoutersRouterStructPolymerClassesNomenclatureApiResponse =
   /** status 200 OK */ NomenclatureSet;
 export type RoutersRouterStructPolymerClassesNomenclatureApiArg = void;
@@ -780,6 +803,16 @@ export type RibosomeStructure = {
   other_polymers: Polymer[];
   nonpolymeric_ligands: NonpolymericLigand[];
 };
+export type PolymerByStruct = {
+  nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
+  auth_asym_id: string;
+  entity_poly_polymer_type: string;
+  entity_poly_seq_length: number;
+};
+export type ChainsByStruct = {
+  polymers: PolymerByStruct[];
+  rcsb_id: string;
+};
 export type ElongationFactorClass =
   | "eEF1A"
   | "eEF1B"
@@ -1056,16 +1089,18 @@ export type CytosolicRnaClass =
   | "28SrRNA";
 export type MitochondrialRnaClass = "mt12SrRNA" | "mt16SrRNA";
 export type NomenclatureSet = {
-  ElongationFactorClass    : ElongationFactorClass[];
-  InitiationFactorClass    : InitiationFactorClass[];
-  CytosolicProteinClass    : CytosolicProteinClass[];
+  ElongationFactorClass: ElongationFactorClass[];
+  InitiationFactorClass: InitiationFactorClass[];
+  CytosolicProteinClass: CytosolicProteinClass[];
   MitochondrialProteinClass: MitochondrialProteinClass[];
-  CytosolicRNAClass        : CytosolicRnaClass[];
-  MitochondrialRNAClass    : MitochondrialRnaClass[];
+  CytosolicRNAClass: CytosolicRnaClass[];
+  MitochondrialRNAClass: MitochondrialRnaClass[];
 };
 export const {
   useRoutersRouterStructStructureProfileQuery,
+  useRoutersRouterStructStructurePtcQuery,
   useRoutersRouterStructListStructuresQuery,
+  useRoutersRouterStructChainsByStructQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
   useRoutersRouterStructListSourceTaxaQuery,
   useRoutersRouterClassesPolynucleotideClassQuery,

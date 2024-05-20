@@ -3,7 +3,7 @@ import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription }
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { MolstarNode, } from "@/store/molstar/lib"
 import { createRef, useEffect, useRef, useState } from "react";
-import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
+import { ChainsByStruct, Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
@@ -11,6 +11,7 @@ import ChainPicker from "@/components/chain_picker"
 import FilterSidebar from "../structures/filters"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
+import {useRoutersRouterStructChainsByStructQuery} from '@/store/ribxz_api/ribxz_api'
 
 function PlusIcon() {
     return (
@@ -35,10 +36,11 @@ function PlusIcon() {
 
 export default function StructurePage() {
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+    const { rcsb_id }    = useParams<{ rcsb_id: string; }>()
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const dispatch = useAppDispatch();
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)!
+    const dispatch       = useAppDispatch();
+    const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
+    const {data:chains_by_struct, isLoading:isLoading_chains_by_struct}:{chains_by_struct:ChainsByStruct[], isLoading_chains_by_struct:boolean} = useRoutersRouterStructChainsByStructQuery()
 
     useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
 
@@ -65,7 +67,7 @@ export default function StructurePage() {
 
                             <Separator className="my-4" />
                             <p className="text-gray-500 p-1">Please select chains to superimpose from the "+" menu</p>
-                            <ChainPicker>
+                            <ChainPicker  chains_by_struct={isLoading_chains_by_struct ?  [] :chains_by_struct}>
                                 <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     <PlusIcon className="text-white" />
                                 </Button>
@@ -76,9 +78,7 @@ export default function StructurePage() {
                                 <div key={3} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
                             </div>
 
-
                         </CardContent>
-
                         <CardFooter className="flex justify-between">
                             <Button className="min-w-full group gap-2 text-white flex-col flex hover:bg-gray-800 focus:outline-none  font-medium rounded-md text-sm  text-center  items-center justify-center w-10 h-24">
                                 <p className="font-bold">Superimpose</p>

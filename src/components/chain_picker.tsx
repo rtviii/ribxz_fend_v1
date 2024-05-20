@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 import { Input } from "@/components/ui/input"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+import { ChainsByStruct } from "@/store/ribxz_api/ribxz_api"
 
 
 const sc_dict = {
@@ -38,11 +48,10 @@ const StructureSelection = ({ rcsb_id }: { rcsb_id: string }) => {
 }
 
 
-export default function ChainPicker({ children }: { children?: React.ReactNode }) {
+export default function ChainPicker({ children, chains_by_struct }: { children?: React.ReactNode, chains_by_struct?: ChainsByStruct[]}) {
     return (
         <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild >
-                {/* <Button variant="link">Chain Picker</Button> */}
                 {children}
             </HoverCardTrigger>
             <HoverCardContent className="w-80 p-4" side="right">
@@ -50,8 +59,17 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
                     <div className="flex items-center gap-2">
                         <Input placeholder="Search" />
                     </div>
-
                     {Object.entries(sc_dict).map(([rcsb_id, chains]) => <StructureSelection rcsb_id={rcsb_id} key={rcsb_id} />)}
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext href="#" />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </div>
             </HoverCardContent>
         </HoverCard>
