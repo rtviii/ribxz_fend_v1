@@ -2,7 +2,7 @@ import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction 
 import type { RootState } from './../store'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { createPlugin, _download_struct, load_mmcif_chain } from '../molstar/lib';
-import { PolymerByStruct } from '../ribxz_api/ribxz_api';
+import { ChainsByStruct, PolymerByStruct } from '../ribxz_api/ribxz_api';
 
 // TODO: Factor out
 declare global {
@@ -13,30 +13,36 @@ declare global {
 
 export const molstarListenerMiddleware = createListenerMiddleware()
 
-export const download_struct         = createAsyncThunk('molstar/download_struct', _download_struct)
+export const download_struct = createAsyncThunk('molstar/download_struct', _download_struct)
 export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
-export const loadMmcifChain          = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
+export const loadMmcifChain = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
 
 
 
 export interface SuperimposeState {
-  pivot        : PolymerByStruct |null,
-  active_chains: PolymerByStruct[]
+  pivot: {
+    rcsb_id: string,
+    polymer: PolymerByStruct
+  } | null
+  active_chains: {
+    rcsb_id: string,
+    polymer: PolymerByStruct
+  }[]
 }
 
 
 export interface MolstarReduxCore {
-  ui_plugin     : PluginUIContext | undefined,
+  ui_plugin: PluginUIContext | undefined,
   tools_expanded: boolean,
-  count         : undefined | number,
-  superimpose   : SuperimposeState
+  count: undefined | number,
+  superimpose: SuperimposeState
 }
 
 const initialState: MolstarReduxCore = {
-  ui_plugin     : undefined,
+  ui_plugin: undefined,
   tools_expanded: false,
-  count         : undefined,
-  superimpose   : {
+  count: undefined,
+  superimpose: {
     pivot: null,
     active_chains: []
   }
@@ -48,16 +54,22 @@ export const molstarSlice = createSlice({
   reducers: {
     toggle_tools: state => { state.tools_expanded = !state.tools_expanded },
 
-    superimpose_select_pivot_chain(state, action: PayloadAction<{rcsb_id:string, polymer: PolymerByStruct }>) {
-
-
+    superimpose_select_pivot_chain(state, action: PayloadAction<{ rcsb_id: string, polymer: PolymerByStruct }>) {
+      Object.assign(state.superimpose, { pivot: { polymer: action.payload.polymer, rcsb_id: action.payload.rcsb_id } })
     },
-    superimpose_add_chain(state, action: PayloadAction<{rcsb_id:string, polymer: PolymerByStruct }>) {
-      state.superimpose.active_chains.push(action.payload.polymer)
-      load_mmcif_chain({rcsb_id:action.payload.rcsb_id, auth_asym_id: action.payload.polymer.auth_asym_id})
+    superimpose_add_chain(state, action: PayloadAction<{ rcsb_id: string, polymer: PolymerByStruct }>) {
+      state.superimpose.active_chains.push({ rcsb_id: action.payload.rcsb_id, polymer: action.payload.polymer })
+      load_mmcif_chain({ rcsb_id: action.payload.rcsb_id, auth_asym_id: action.payload.polymer.auth_asym_id })
+      if (state.superimpose.pivot === null) {
+        Object.assign(state.superimpose, { pivot: { polymer: action.payload.polymer, rcsb_id: action.payload.rcsb_id } })
+      }
     },
-    superimpose_pop_chain(state, action: PayloadAction<PolymerByStruct>) {
-      state.superimpose.active_chains.push(action.payload)
+    superimpose_pop_chain(state, action: PayloadAction<{ rcsb_id: string, polymer: PolymerByStruct }>) {
+      Object.assign(state.superimpose, {
+        active_chains: state.superimpose.active_chains.filter(
+          (p) => p.polymer.auth_asym_id !== action.payload.polymer.auth_asym_id && p.rcsb_id !== action.payload.rcsb_id)
+      }
+      )
     }
   },
   extraReducers: (builder) => {
@@ -67,5 +79,5 @@ export const molstarSlice = createSlice({
   }
 })
 
-export const { toggle_tools,superimpose_add_chain, superimpose_pop_chain } = molstarSlice.actions
+export const { toggle_tools, superimpose_add_chain, superimpose_pop_chain } = molstarSlice.actions
 export default molstarSlice.reducer

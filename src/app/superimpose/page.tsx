@@ -53,14 +53,22 @@ function XIcon() {
     )
 }
 
-const SumperimposeCandidateChainRow = ({ chain, rcsb_id }: { chain: PolymerByStruct, rcsb_id: string }) => {
+const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerByStruct, rcsb_id: string }) => {
 
+    const current_pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
+    const is_self_current_pivot = () => current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id && current_pivot?.rcsb_id === rcsb_id
+    useEffect(() => {
+        console.log("Current piv", current_pivot);
+
+        console.log(is_self_current_pivot());
+
+    }, [])
     return <div className="flex items-center p-2 bg-white shadow-sm hover:shadow-md transition-shadow">
-        <span className="flex-grow">{rcsb_id}.{chain.auth_asym_id}</span>
-        <div className="w-4 h-4 rounded-full bg-blue-500" />
-        <Label className="mr-2" htmlFor="pivot-E">
-            Pivot
-        </Label>
+        <span className="flex-grow">{rcsb_id}.{polymer.auth_asym_id}</span>
+        <div className="flex">
+            <div className={`w-4 h-4 border rounded-full hover:cursor-pointer hover:border hover:  ${is_self_current_pivot() ? 'bg-green-400' : 'bg-gray-400'}`} onClick={() => { }} />
+            <Label className="m-4" htmlFor="pivot-E"> Pivot </Label>
+        </div>
         <XIcon className="h-4 w-4" />
     </div>
 }
@@ -68,10 +76,10 @@ const SumperimposeCandidateChainRow = ({ chain, rcsb_id }: { chain: PolymerByStr
 
 export default function StructurePage() {
 
-    const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
-    const molstarNodeRef            = useRef<HTMLDivElement>(null);
-    const dispatch                  = useAppDispatch();
-    const ctx                       = useAppSelector(state => state.molstar.ui_plugin)!
+    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const dispatch = useAppDispatch();
+    const ctx = useAppSelector(state => state.molstar.ui_plugin)!
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
 
     const { data: chains_by_struct, isLoading: isLoading_chains_by_struct }: { chains_by_struct: ChainsByStruct[], isLoading_chains_by_struct: boolean } = useRoutersRouterStructChainsByStructQuery()
@@ -110,7 +118,7 @@ export default function StructurePage() {
                             </ChainPicker>
 
                             <div className="flex flex-col gap-2">
-                                {active_superimpose_chains.map((chain, i) => <SumperimposeCandidateChainRow key={i} chain={chain} rcsb_id={rcsb_id}/>)}
+                                {active_superimpose_chains.map(p => <SumperimposeCandidateChainRow key={p.rcsb_id + p.polymer.auth_asym_id} polymer={p.polymer} rcsb_id={p.rcsb_id} />)}
                             </div>
 
                         </CardContent>
