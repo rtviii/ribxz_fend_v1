@@ -23,31 +23,7 @@ import { PluginContext } from 'molstar/lib/mol-plugin/context';
 
 
 
-export async function load_from_server() {
-  window.molstar?.clear()
-  // const myUrl = new URL('http://127.0.0.1:8000/mmcif_structures/chain')
-  // myUrl.searchParams.append('rcsb_id', '5afi');
-  // myUrl.searchParams.append('auth_asym_id', 'E');
 
-  const myUrl = "http://localhost:8000/mmcif_structures/chain?rcsb_id=5afi&auth_asym_id=E"
-  const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
-  const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
-  await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
-    structure: 1 ? {
-      name: 'assembly',
-      params: { id: 1 }
-    } : {
-      name: 'model',
-      params: {}
-    },
-    showUnitcell: false,
-    representationPreset: 'auto'
-  });
-}
-
-export function create_fromSelection() {
-  // window.molstar?.managers.structure.component.add({},)
-}
 
 export function select_multiple(molstar_plugin: PluginUIContext) {
   const args = [['A', 10, 15], ['F', 10, 15]]
@@ -101,19 +77,23 @@ export async function apply_style() {
 }
 
 
-export const transform = (ctx: PluginContext ) =>{
+export const transform = (ctx: PluginContext) => {
 
-    // const b = plugin.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
+  // const b = plugin.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
 
   const structureData = ctx.managers.structure.hierarchy.current.structures[0]
   const cell = structureData.cell
-   
+
   // const cell = structureData.model?.cell
-    const mx = Mat4.rotX90
-    const b = ctx.state.data.build().to(cell).insert(StateTransforms.Model.TransformStructureConformation, { transform:{name:'matrix', params:{
-      data: mx,transpose:false
-    }} });
-    return ctx.runTask(ctx.state.data.updateTree(b));
+  const mx = Mat4.rotX90
+  const b = ctx.state.data.build().to(cell).insert(StateTransforms.Model.TransformStructureConformation, {
+    transform: {
+      name: 'matrix', params: {
+        data: mx, transpose: false
+      }
+    }
+  });
+  return ctx.runTask(ctx.state.data.updateTree(b));
 }
 
 

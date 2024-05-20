@@ -25,6 +25,7 @@ import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
+import { Asset } from 'molstar/lib/mol-util/assets';
 
 export class CustomStructureTools extends PluginUIComponent {
   render() {
@@ -165,7 +166,24 @@ export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIConte
       return null
 }
 
-// TODO: 
+export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string}) {
+  window.molstar?.clear()
+  const myUrl = `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+  const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
+  const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
+  await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
+    structure: 1 ? {
+      name: 'assembly',
+      params: { id: 1 }
+    } : {
+      name: 'model',
+      params: {}
+    },
+    showUnitcell: false,
+    representationPreset: 'auto'
+  });
+}
+
 export async function createPlugin({parent_element, initiate_with_structure}:{ parent_element: HTMLElement, initiate_with_structure?: string }):Promise<PluginUIContext> {
     const ctx = await createPluginUI({ target: parent_element, spec  : __MyOldSpec, render: renderReact18 });
     window.molstar = ctx;

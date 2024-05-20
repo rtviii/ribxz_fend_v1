@@ -3,7 +3,7 @@ import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription }
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { MolstarNode, } from "@/store/molstar/lib"
 import { createRef, useEffect, useRef, useState } from "react";
-import { ChainsByStruct, Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
+import { ChainsByStruct, Polymer, PolymerByStruct, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
@@ -11,7 +11,7 @@ import ChainPicker from "@/components/chain_picker"
 import FilterSidebar from "../structures/filters"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
-import {useRoutersRouterStructChainsByStructQuery} from '@/store/ribxz_api/ribxz_api'
+import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
 
 function PlusIcon() {
     return (
@@ -36,13 +36,18 @@ function PlusIcon() {
 
 export default function StructurePage() {
 
-    const { rcsb_id }    = useParams<{ rcsb_id: string; }>()
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const dispatch       = useAppDispatch();
-    const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
-    const {data:chains_by_struct, isLoading:isLoading_chains_by_struct}:{chains_by_struct:ChainsByStruct[], isLoading_chains_by_struct:boolean} = useRoutersRouterStructChainsByStructQuery()
+    const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
+    const molstarNodeRef            = useRef<HTMLDivElement>(null);
+    const dispatch                  = useAppDispatch();
+    const ctx                       = useAppSelector(state => state.molstar.ui_plugin)!
+    const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
 
+    const { data:chains_by_struct, isLoading:isLoading_chains_by_struct }:{chains_by_struct:ChainsByStruct[], isLoading_chains_by_struct:boolean} = useRoutersRouterStructChainsByStructQuery()
+
+    
+    
     useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
+    useEffect(() => {console.log(chains_by_struct)}, [chains_by_struct]);
 
     const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     const [test_active, test_active_set] = useState<boolean>(false)
@@ -72,10 +77,9 @@ export default function StructurePage() {
                                     <PlusIcon className="text-white" />
                                 </Button>
                             </ChainPicker>
+
                             <div className="flex flex-col gap-2">
-                                <div key={1} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
-                                <div key={2} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
-                                <div key={3} className="border rounded-sm p-1 px-4 text font-bold">Chain 1</div>
+                            {active_superimpose_chains.map((chain:PolymerByStruct)=><span className="border " key={chain.auth_asym_id}>{chain.auth_asym_id}</span>)}
                             </div>
 
                         </CardContent>

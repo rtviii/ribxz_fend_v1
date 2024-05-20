@@ -14,7 +14,7 @@ import { Mat4 } from "molstar/lib/mol-math/linear-algebra/3d/mat4";
 
 
 // *----------------------------------------------------------------------------*
-// * return dynamicSuperpositionTest(this.plugin, ['1tqn', '2hhb', '4hhb'], 'HEM');
+// * Taken from molstar/basicWrapper.tsx
 // *----------------------------------------------------------------------------*
 
 function transform(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structure>, matrix: Mat4) {
@@ -32,7 +32,6 @@ async function loadStructure(plugin: PluginContext, url: string, format: BuiltIn
 }
 
 async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structure>, pivot: Expression, 
-    // rest: Expression
     ) {
     const center = await plugin.builders.structure.tryCreateComponentFromExpression(s, pivot, 'pivot');
     if (center) await plugin.builders.structure.representation.addRepresentation(center, { type: 'ball-and-stick', color: 'residue-name' });
@@ -40,6 +39,16 @@ async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.
     // const surr = await plugin.builders.structure.tryCreateComponentFromExpression(s, rest, 'rest');
     // if (surr) await plugin.builders.structure.representation.addRepresentation(surr, { type: 'ball-and-stick', color: 'uniform', size: 'uniform', sizeParams: { value: 0.33 } });
 }
+
+
+
+// TODO : < Adopt this selection for ligand highlighting >
+// const rest = MS.struct.modifier.exceptBy({
+//     0: MS.struct.modifier.includeSurroundings({ 0: pivot, radius: 5 }), 
+//     by: pivot
+// });
+
+
 
 export function dynamicSuperpositionTest(plugin: PluginContext, src: [string,string][], comp_id: string) {
 
@@ -70,11 +79,8 @@ export function dynamicSuperpositionTest(plugin: PluginContext, src: [string,str
 
         const query      = compile<StructureSelection>(pivot);
         const xs         = plugin.managers.structure.hierarchy.current.structures;
-
         const selections = xs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
-
         const transforms = superpose(selections);
-
         // await siteVisual(plugin, xs[0].cell, pivot, rest);
         await siteVisual(plugin, xs[0].cell, pivot)
 
