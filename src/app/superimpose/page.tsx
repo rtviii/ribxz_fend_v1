@@ -65,10 +65,16 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
     }, [])
     return <div className="flex items-center p-2 bg-white shadow-sm hover:shadow-md transition-shadow">
         <span className="flex-grow">{rcsb_id}.{polymer.auth_asym_id}</span>
-        <div className="flex">
+        <div className="flex items-center px-4 py-1 border rounded hover:cursor-pointer hover:bg-slate-200 mx-4">
+            <div className={`w-4 h-4  ${is_self_current_pivot() ? 'bg-green-400' : 'bg-gray-400'} rounded-full`} />
+            <span className="ml-2 text-sm">Pivot</span>
+        </div>
+
+
+        {/* <div className="flex">
             <div className={`w-4 h-4 border rounded-full hover:cursor-pointer hover:border hover:  ${is_self_current_pivot() ? 'bg-green-400' : 'bg-gray-400'}`} onClick={() => { }} />
             <Label className="m-4" htmlFor="pivot-E"> Pivot </Label>
-        </div>
+        </div> */}
         <XIcon className="h-4 w-4" />
     </div>
 }
@@ -105,12 +111,13 @@ export default function StructurePage() {
                         </CardHeader>
 
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
+
                             <div className="flex flex-col gap-4">
                                 <FilterSidebar disable={{ 'Search': true, Sort: true, PolymerClass: true }} />
                             </div>
-                            <Separator className="my-4" />
-                            <p className="text-gray-500 p-1">Please select chains to superimpose from the "+" menu</p>
 
+                            <Separator className="my-4" />
+                            <p className="text-gray-500 p-1">Please select chains to superimpose from the "+" menu.</p>
                             <ChainPicker chains_by_struct={isLoading_chains_by_struct ? [] : chains_by_struct}>
                                 <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     <PlusIcon className="text-white" />
@@ -134,7 +141,6 @@ export default function StructurePage() {
                         </CardFooter>
 
                     </Card>
-                    {/* <Separa */}
                 </ResizablePanel>
                 <ResizableHandle />
 
