@@ -68,9 +68,6 @@ export default function FilterSidebar({ disable }: { disable?: { [key in FilterT
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
 
-  useEffect(() => {
-    console.log("Tax dict", tax_dict, tax_dict_is_loading);
-  }, [tax_dict, tax_dict_is_loading])
 
   const [value, setValue] = useState<string>();
   const onChange = (newValue: string) => {

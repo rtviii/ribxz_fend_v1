@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
+import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Input } from "@/components/ui/input"
 import {
     Pagination,
@@ -10,20 +11,21 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import { ChainsByStruct, PolymerByStruct } from "@/store/ribxz_api/ribxz_api"
-import { superimpose_add_chain } from "@/store/slices/molstar_state"
-import { useAppDispatch } from "@/store/store"
+import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
-import { useEffect } from "react"
 
 
 
-const ChainSelection = ({ polymers,rcsb_id }: { polymers: PolymerByStruct[], rcsb_id:string }) => {
+const ChainSelection = ({ polymers, rcsb_id }: { polymers: PolymerByStruct[], rcsb_id: string }) => {
 
-    const dispatch       = useAppDispatch();
+
+    const dispatch = useAppDispatch();
+    const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
+
     return <div className="chain-picker grid gap-1 max-h-64 overflow-y-auto">
 
         <div className="text-xs items-center gap-2">
-            <Input placeholder="Search" />
+            <Input placeholder="Search" value={search_val} onChange={(e) => { dispatch(superimpose_set_chain_search(e.target.value)) }} />
         </div>
         <Separator />
         {polymers
@@ -32,10 +34,14 @@ const ChainSelection = ({ polymers,rcsb_id }: { polymers: PolymerByStruct[], rcs
                 else if (a.nomenclature[0] < b.nomenclature[0]) return -1
                 else return 1
             })
+            .filter(p => {
+                if (p.nomenclature.length < 1) return p.auth_asym_id.toLowerCase().includes(search_val.toLowerCase())
+                else return p.nomenclature[0].toLowerCase().includes(search_val.toLowerCase()) || p.auth_asym_id.toLowerCase().includes(search_val.toLowerCase())
+            })
             .map(p =>
-                <div key={p.auth_asym_id} 
-                onClick={()=>{dispatch(superimpose_add_chain({polymer:p, rcsb_id }))}}
-                className="border rounded-sm p-0.5 px-2 text-sm flex justify-between hover:cursor-pointer hover:bg-slate-200">
+                <div key={p.auth_asym_id}
+                    onClick={() => { dispatch(superimpose_add_chain({ polymer: p, rcsb_id })) }}
+                    className="border rounded-sm p-0.5 px-2 text-sm flex justify-between hover:cursor-pointer hover:bg-slate-200">
                     <span>{p.auth_asym_id}</span>
                     <span>{p.nomenclature[0]}</span>
                 </div>)}
@@ -50,7 +56,7 @@ const StructureSelection = ({ rcsb_id, polymers }: { rcsb_id: string, polymers: 
                 <span className="min-w-full cursor-pointer px-1 text-sm">{rcsb_id}</span>
             </HoverCardTrigger>
             <HoverCardContent side="right">
-                <ChainSelection polymers={polymers} rcsb_id={rcsb_id}/>
+                <ChainSelection polymers={polymers} rcsb_id={rcsb_id} />
             </HoverCardContent>
         </HoverCard>
     </div>
@@ -58,6 +64,9 @@ const StructureSelection = ({ rcsb_id, polymers }: { rcsb_id: string, polymers: 
 
 
 export default function ChainPicker({ children, chains_by_struct }: { children?: React.ReactNode, chains_by_struct: ChainsByStruct[] }) {
+
+    const dispatch = useAppDispatch();
+    const search_val = useAppSelector(state => state.molstar.superimpose.struct_search)!
     return (
         <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild >
@@ -66,7 +75,7 @@ export default function ChainPicker({ children, chains_by_struct }: { children?:
             <HoverCardContent className="w-80 p-4" side="right">
                 <div className="chain-picker grid gap-2">
                     <div className="flex items-center gap-2">
-                        <Input placeholder="Search" />
+                        <Input placeholder="Search" value={search_val} onChange={(e) => dispatch(superimpose_set_struct_search(e.target.value))} />
                     </div>
                     {chains_by_struct.map(cbs => <StructureSelection rcsb_id={cbs.rcsb_id} key={cbs.rcsb_id} polymers={cbs.polymers} />)}
                     <Pagination>

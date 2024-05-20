@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
 import { Label } from "@/components/ui/label";
+import { dynamicSuperimpose } from "@/store/ribxz_api/dynamic_superposition";
 
 function PlusIcon() {
     return (
@@ -25,8 +26,7 @@ function PlusIcon() {
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
-            strokeLinejoin="round"
-        >
+            strokeLinejoin="round" >
             <path d="M5 12h14" />
             <path d="M12 5v14" />
         </svg>
@@ -34,9 +34,10 @@ function PlusIcon() {
 }
 
 
-function XIcon() {
+function XIcon({ props }) {
     return (
         <svg
+            {...props}
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
@@ -58,23 +59,15 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
     const dispatch = useAppDispatch();
     const current_pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
     const is_self_current_pivot = () => current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id && current_pivot?.rcsb_id === rcsb_id
-    useEffect(() => {
-        console.log("Current piv", current_pivot);
-
-        console.log(is_self_current_pivot());
-
-    }, [])
     return <div className="flex items-center p-2 bg-white shadow-sm hover:shadow-md transition-shadow">
         <span className="flex-grow">{rcsb_id}.{polymer.auth_asym_id}</span>
-        <div className="flex items-center px-4 py-1 border rounded hover:cursor-pointer hover:bg-slate-200 mx-4" onClick={()=>{
-            dispatch(superimpose_select_pivot_chain({ polymer, rcsb_id }))
-        }}>
+        <div className="flex items-center px-4 py-1 border rounded hover:cursor-pointer hover:bg-slate-200 mx-4" onClick={() => { dispatch(superimpose_select_pivot_chain({ polymer, rcsb_id })) }}>
             <div className={`w-4 h-4  ${is_self_current_pivot() ? 'bg-green-400' : 'bg-gray-400'} rounded-full`} />
             <span className="ml-2 text-sm">Pivot</span>
         </div>
-        <XIcon className="h-4 w-4"  onClick={()=>{
-            dispatch(superimpose_pop_chain({ polymer, rcsb_id }))
-        }}/>
+        <div className="hover:cursor-pointer border rounded hover:bg-slate-200" onClick={() => { dispatch(superimpose_pop_chain({ polymer, rcsb_id })) }}>
+            <XIcon className="h-4 w-4" />
+        </div>
     </div>
 }
 
@@ -86,11 +79,11 @@ export default function StructurePage() {
     const dispatch = useAppDispatch();
     const ctx = useAppSelector(state => state.molstar.ui_plugin)!
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
+    const pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
 
     const { data: chains_by_struct, isLoading: isLoading_chains_by_struct }: { chains_by_struct: ChainsByStruct[], isLoading_chains_by_struct: boolean } = useRoutersRouterStructChainsByStructQuery()
 
     useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
-    useEffect(() => { console.log(chains_by_struct) }, [chains_by_struct]);
 
     const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     const [test_active, test_active_set] = useState<boolean>(false)
@@ -127,7 +120,9 @@ export default function StructurePage() {
 
                         </CardContent>
                         <CardFooter className="flex justify-between">
-                            <Button className="min-w-full group gap-2 text-white flex-col flex hover:bg-gray-800 focus:outline-none  font-medium rounded-md text-sm  text-center  items-center justify-center w-10 h-24">
+                            <Button
+                                onClick={() => { dynamicSuperimpose(ctx, pivot.polymer.auth_asym_id) }}
+                                className="min-w-full group gap-2 text-white flex-col flex hover:bg-gray-800 focus:outline-none  font-medium rounded-md text-sm  text-center  items-center justify-center w-10 h-24">
                                 <p className="font-bold">Superimpose</p>
                                 <div className="grid grid-cols-3 gap-8 group-hover:gap-0 transition-all duration-200 ease-in-out  w-30">
                                     <div className="w-6 h-6 bg-blue-500     rounded-sm transition-transform duration-300 ease-in-out transform group-hover:translate-x-4  group-hover:skew-y-12 group-hover:skew-x-12 group-hover:translate-y-2" />

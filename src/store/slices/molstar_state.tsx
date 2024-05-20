@@ -27,7 +27,9 @@ export interface SuperimposeState {
   active_chains: {
     rcsb_id: string,
     polymer: PolymerByStruct
-  }[]
+  }[],
+  chain_search: string,
+  struct_search: string
 }
 
 
@@ -43,7 +45,9 @@ const initialState: MolstarReduxCore = {
   tools_expanded: false,
   count: undefined,
   superimpose: {
-    pivot: null,
+    chain_search : 'uL4',
+    struct_search: '',
+    pivot        : null,
     active_chains: []
   }
 }
@@ -53,6 +57,13 @@ export const molstarSlice = createSlice({
   initialState,
   reducers: {
     toggle_tools: state => { state.tools_expanded = !state.tools_expanded },
+
+    superimpose_set_chain_search(state, action: PayloadAction<string>) {
+      Object.assign(state.superimpose, { chain_search: action.payload })
+    },
+    superimpose_set_struct_search(state, action: PayloadAction<string>) {
+      Object.assign(state.superimpose, { struct_search: action.payload })
+    },
 
     superimpose_select_pivot_chain(state, action: PayloadAction<{ rcsb_id: string, polymer: PolymerByStruct }>) {
       Object.assign(state.superimpose, { pivot: { polymer: action.payload.polymer, rcsb_id: action.payload.rcsb_id } })
@@ -79,5 +90,12 @@ export const molstarSlice = createSlice({
   }
 })
 
-export const { toggle_tools, superimpose_add_chain, superimpose_pop_chain , superimpose_select_pivot_chain} = molstarSlice.actions
+export const { 
+  toggle_tools,
+  superimpose_add_chain,
+  superimpose_pop_chain,
+  superimpose_select_pivot_chain,
+  superimpose_set_chain_search,
+  superimpose_set_struct_search
+} = molstarSlice.actions
 export default molstarSlice.reducer
