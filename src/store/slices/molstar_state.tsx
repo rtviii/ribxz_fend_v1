@@ -79,5 +79,5 @@ export const molstarSlice = createSlice({
   }
 })
 
-export const { toggle_tools, superimpose_add_chain, superimpose_pop_chain } = molstarSlice.actions
+export const { toggle_tools, superimpose_add_chain, superimpose_pop_chain , superimpose_select_pivot_chain} = molstarSlice.actions
 export default molstarSlice.reducer
