@@ -1,37 +1,16 @@
 "use client"
 import { PopoverTrigger, PopoverContent, Popover } from "@/components/ui/popover"
 import { CardContent, CardFooter, Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent, DropdownMenu } from "@/components/ui/dropdown-menu"
-import { useEffect, useState } from "react";
 import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 
-
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/Dn4P77ji2KX
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 import Link from "next/link"
 // import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
-  const author_fields = () => {
-    if (_.citation_rcsb_authors === null || _.citation_rcsb_authors === undefined) return ''
-    else {
-      return _.citation_rcsb_authors.split(',').map((author) => {
-        return author.split(' ').map((name) => {
-          return name[0]
-        }).join('')
-      }).join(', ')
-    }
-  }
-
   return (
     <Link href={_.rcsb_id}>
-    <Card className="w-full max-w-sm  bg-white shadow-lg rounded-lg overflow-hidden relative">
-
+    <Card className="w-full max-w-sm  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
       <Popover>
         <PopoverTrigger asChild>
           <div className="relative h-[40%] border-2">
@@ -69,7 +48,6 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
             <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
               {/* TODO: VARY COLOR OF TOOLTIP BASED ON SPECIES .
               this can be done by looking up the given tax id in the redux store once the species are actually there(just backend hooks atm)
-              
               */}
               <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ffccaa]" />
               <span className="ml-2 text-xs" title="Full taxonomic lineage">
@@ -104,21 +82,20 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
             <HoverCard>
               <HoverCardTrigger asChild>
 
-                <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors" title="Full list of authors" >
+                <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors z-10" title="Full list of authors" >
 
                   <span style={{ fontStyle: "italic" }}>{_.citation_rcsb_authors[0]}</span> <span style={{
-
-                    cursor: "pointer",
-                    display: 'inline-block',
-                    width: '15px',
-                    height: '15px',
-                    borderRadius: '50%',
+                    cursor         : "pointer",
+                    display        : 'inline-block',
+                    width          : '15px',
+                    height         : '15px',
+                    borderRadius   : '50%',
                     backgroundColor: '#cccccc',
-                    textAlign: 'center',
-                    lineHeight: '15px',
-                    fontWeight: 'bold',
-                    fontSize: '14px',
-                    color: 'white'
+                    textAlign      : 'center',
+                    lineHeight     : '15px',
+                    fontWeight     : 'bold',
+                    fontSize       : '14px',
+                    color          : 'white'
                   }}>+</span>
 
 
@@ -126,7 +103,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                 </span>
 
               </HoverCardTrigger>
-              <HoverCardContent className="w-80 grid grid-cols-2 gap-2">
+              <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
                 {
                   _.citation_rcsb_authors.map((author) => {
                     return <div key={author} className="flex items-center gap-2">

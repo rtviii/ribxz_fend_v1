@@ -33,27 +33,27 @@ export const groupedOptions = (data: {
 
         {
             label: 'Cytosolic RNA',
-            options: data['CytosolicRNAClass'].map((value) => ({ value, label: value, color: 'red' })),
+            options: data['CytosolicRNAClass'].map((value) => ({ value,id:value, label: value, color: 'red' })),
         },
         {
             label: 'Cytosolic Proteins',
-            options: data['CytosolicProteinClass'].map((value) => ({ value, label: value, color: 'red' })),
+            options: data['CytosolicProteinClass'].map((value) => ({ value, id:value, label: value, color: 'red' })),
         },
         {
             label: 'Mitochondrial RNA',
-            options: data['MitochondrialRNAClass'].map((value) => ({ value, label: value, color: 'red' })),
+            options: data['MitochondrialRNAClass'].map((value) => ({ value, id:value, label: value, color: 'red' })),
         },
         {
             label: 'Mitochondrial Proteins',
-            options: data['MitochondrialProteinClass'].map((value) => ({ value, label: value, color: 'red' })),
+            options: data['MitochondrialProteinClass'].map((value) => ({ value,id:value, label: value, color: 'red' })),
         },
         {
             label: 'Elongation Factors',
-            options: data['ElongationFactorClass'].map((value) => ({ value, label: value, color: 'red' })),
+            options: data['ElongationFactorClass'].map((value) => ({ value, id:value,label: value, color: 'red' })),
         },
         {
             label: 'Initiation Factors',
-            options: data['InitiationFactorClass'].map((value) => ({ value, label: value, color: 'red' })),
+            options: data['InitiationFactorClass'].map((value) => ({ value,id:value, label: value, color: 'red' })),
         },
     ]
 };
