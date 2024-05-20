@@ -1,5 +1,4 @@
 "use client"
-import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
 import './mstar.css'
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
@@ -156,32 +155,18 @@ const MySpec: PluginUISpec = {
     ]
 }
 
-
 export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIContext, rcsb_id:string }):Promise<null> {
       const data       = await plugin.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id}.cif` }, { state: { isGhost: true } });
       const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
-            // const model = await ctx.builders.structure.createModel(traj);
-            // const structure = await ctx.builders.structure.createStructure(model);
       await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
       return null
 }
 
 export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string}) {
-  window.molstar?.clear()
   const myUrl = `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
   const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
   const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
-  await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default', {
-    structure: 1 ? {
-      name: 'assembly',
-      params: { id: 1 }
-    } : {
-      name: 'model',
-      params: {}
-    },
-    showUnitcell: false,
-    representationPreset: 'auto'
-  });
+  await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default' );
 }
 
 export async function createPlugin({parent_element, initiate_with_structure}:{ parent_element: HTMLElement, initiate_with_structure?: string }):Promise<PluginUIContext> {
@@ -330,7 +315,5 @@ export namespace QueryHelper {
     }
 }
 export type LoadParams = { url: string, format?: BuiltInTrajectoryFormat, assemblyId?: string, isHetView?: boolean, isBinary?: boolean }
-
-
 
 export const MolstarNode = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' className="min-h-screen" /> })

@@ -76,7 +76,6 @@ export async function apply_style() {
 
 }
 
-
 export const transform = (ctx: PluginContext) => {
 
   // const b = plugin.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
@@ -95,7 +94,6 @@ export const transform = (ctx: PluginContext) => {
   });
   return ctx.runTask(ctx.state.data.updateTree(b));
 }
-
 
 export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;

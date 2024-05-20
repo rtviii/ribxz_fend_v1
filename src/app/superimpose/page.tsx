@@ -12,6 +12,7 @@ import FilterSidebar from "../structures/filters"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
+import { Label } from "@/components/ui/label";
 
 function PlusIcon() {
     return (
@@ -33,6 +34,37 @@ function PlusIcon() {
 }
 
 
+function XIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+        </svg>
+    )
+}
+
+const SumperimposeCandidateChainRow = ({ chain, rcsb_id }: { chain: PolymerByStruct, rcsb_id: string }) => {
+
+    return <div className="flex items-center p-2 bg-white shadow-sm hover:shadow-md transition-shadow">
+        <span className="flex-grow">{rcsb_id}.{chain.auth_asym_id}</span>
+        <div className="w-4 h-4 rounded-full bg-blue-500" />
+        <Label className="mr-2" htmlFor="pivot-E">
+            Pivot
+        </Label>
+        <XIcon className="h-4 w-4" />
+    </div>
+}
+
 
 export default function StructurePage() {
 
@@ -42,12 +74,12 @@ export default function StructurePage() {
     const ctx                       = useAppSelector(state => state.molstar.ui_plugin)!
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
 
-    const { data:chains_by_struct, isLoading:isLoading_chains_by_struct }:{chains_by_struct:ChainsByStruct[], isLoading_chains_by_struct:boolean} = useRoutersRouterStructChainsByStructQuery()
+    const { data: chains_by_struct, isLoading: isLoading_chains_by_struct }: { chains_by_struct: ChainsByStruct[], isLoading_chains_by_struct: boolean } = useRoutersRouterStructChainsByStructQuery()
 
-    
-    
+
+
     useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
-    useEffect(() => {console.log(chains_by_struct)}, [chains_by_struct]);
+    useEffect(() => { console.log(chains_by_struct) }, [chains_by_struct]);
 
     const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     const [test_active, test_active_set] = useState<boolean>(false)
@@ -68,18 +100,17 @@ export default function StructurePage() {
                             <div className="flex flex-col gap-4">
                                 <FilterSidebar disable={{ 'Search': true, Sort: true, PolymerClass: true }} />
                             </div>
-
-
                             <Separator className="my-4" />
                             <p className="text-gray-500 p-1">Please select chains to superimpose from the "+" menu</p>
-                            <ChainPicker  chains_by_struct={isLoading_chains_by_struct ?  [] :chains_by_struct}>
+
+                            <ChainPicker chains_by_struct={isLoading_chains_by_struct ? [] : chains_by_struct}>
                                 <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     <PlusIcon className="text-white" />
                                 </Button>
                             </ChainPicker>
 
                             <div className="flex flex-col gap-2">
-                            {active_superimpose_chains.map((chain:PolymerByStruct)=><span className="border " key={chain.auth_asym_id}>{chain.auth_asym_id}</span>)}
+                                {active_superimpose_chains.map((chain, i) => <SumperimposeCandidateChainRow key={i} chain={chain} rcsb_id={rcsb_id}/>)}
                             </div>
 
                         </CardContent>

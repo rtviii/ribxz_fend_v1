@@ -13,13 +13,14 @@ declare global {
 
 export const molstarListenerMiddleware = createListenerMiddleware()
 
-export const download_struct = createAsyncThunk('molstar/download_struct', _download_struct)
+export const download_struct         = createAsyncThunk('molstar/download_struct', _download_struct)
 export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
-export const loadMmcifChain = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
+export const loadMmcifChain          = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
 
 
 
 export interface SuperimposeState {
+  pivot        : PolymerByStruct |null,
   active_chains: PolymerByStruct[]
 }
 
@@ -36,6 +37,7 @@ const initialState: MolstarReduxCore = {
   tools_expanded: false,
   count         : undefined,
   superimpose   : {
+    pivot: null,
     active_chains: []
   }
 }
@@ -45,8 +47,14 @@ export const molstarSlice = createSlice({
   initialState,
   reducers: {
     toggle_tools: state => { state.tools_expanded = !state.tools_expanded },
-    superimpose_add_chain(state, action: PayloadAction<PolymerByStruct>) {
-      state.superimpose.active_chains.push(action.payload)
+
+    superimpose_select_pivot_chain(state, action: PayloadAction<{rcsb_id:string, polymer: PolymerByStruct }>) {
+
+
+    },
+    superimpose_add_chain(state, action: PayloadAction<{rcsb_id:string, polymer: PolymerByStruct }>) {
+      state.superimpose.active_chains.push(action.payload.polymer)
+      load_mmcif_chain({rcsb_id:action.payload.rcsb_id, auth_asym_id: action.payload.polymer.auth_asym_id})
     },
     superimpose_pop_chain(state, action: PayloadAction<PolymerByStruct>) {
       state.superimpose.active_chains.push(action.payload)
@@ -56,7 +64,7 @@ export const molstarSlice = createSlice({
     builder.addCase(initiatePluginUIContext.fulfilled, (state, action) => {
       Object.assign(state, { ui_plugin: action.payload })
     })
-  },
+  }
 })
 
 export const { toggle_tools,superimpose_add_chain, superimpose_pop_chain } = molstarSlice.actions

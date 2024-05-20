@@ -23,16 +23,16 @@ function transform(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structu
 }
 
 async function loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, assemblyId?: string) {
-    const data       = await plugin.builders.data.download({ url: Asset.Url(url) });
+    const data = await plugin.builders.data.download({ url: Asset.Url(url) });
     const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
-    const model      = await plugin.builders.structure.createModel(trajectory);
-    const structure  = await plugin.builders.structure.createStructure(model, assemblyId ? { name: 'assembly', params: { id: assemblyId } } : void 0);
+    const model = await plugin.builders.structure.createModel(trajectory);
+    const structure = await plugin.builders.structure.createStructure(model, assemblyId ? { name: 'assembly', params: { id: assemblyId } } : void 0);
 
     return { data, trajectory, model, structure };
 }
 
-async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structure>, pivot: Expression, 
-    ) {
+async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structure>, pivot: Expression,
+) {
     const center = await plugin.builders.structure.tryCreateComponentFromExpression(s, pivot, 'pivot');
     if (center) await plugin.builders.structure.representation.addRepresentation(center, { type: 'ball-and-stick', color: 'residue-name' });
 
@@ -49,10 +49,8 @@ async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.
 // });
 
 
-
-export function dynamicSuperpositionTest(plugin: PluginContext, src: [string,string][], comp_id: string) {
-
-    return plugin.dataTransaction(async () => {
+export function dynamicSuperpositionTest(ctx: PluginContext, src: [string, string][], comp_id: string) {
+    return ctx.dataTransaction(async () => {
 
         // for (const [ rcsb_id,aaid ] of src) {
         //     await loadStructure(plugin, `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${aaid}`, 'mmcif');
@@ -68,7 +66,7 @@ export function dynamicSuperpositionTest(plugin: PluginContext, src: [string,str
         const pivot = MS.struct.filter.first([
             MS.struct.generator.atomGroups({
                 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), comp_id]),
-                'group-by'    : MS.struct.atomProperty.macromolecular.auth_asym_id
+                'group-by': MS.struct.atomProperty.macromolecular.auth_asym_id
             })
         ]);
 
@@ -78,18 +76,16 @@ export function dynamicSuperpositionTest(plugin: PluginContext, src: [string,str
         // });
 
         const query      = compile<StructureSelection>(pivot);
-        const xs         = plugin.managers.structure.hierarchy.current.structures;
+        const xs         = ctx.managers.structure.hierarchy.current.structures;
         const selections = xs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
         const transforms = superpose(selections);
         // await siteVisual(plugin, xs[0].cell, pivot, rest);
-        await siteVisual(plugin, xs[0].cell, pivot)
+        await siteVisual(ctx, xs[0].cell, pivot)
 
         for (let i = 1; i < selections.length; i++) {
-
-            await transform(plugin, xs[i].cell, transforms[i - 1].bTransform);
-
+            await transform(ctx, xs[i].cell, transforms[i - 1].bTransform);
             // await siteVisual(plugin, xs[i].cell, pivot, rest);
-            await siteVisual(plugin, xs[i].cell, pivot)
+            await siteVisual(ctx, xs[i].cell, pivot)
         }
     });
 }

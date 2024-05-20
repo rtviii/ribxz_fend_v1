@@ -17,7 +17,7 @@ import { useEffect } from "react"
 
 
 
-const ChainSelection = ({ polymers }: { polymers: PolymerByStruct[] }) => {
+const ChainSelection = ({ polymers,rcsb_id }: { polymers: PolymerByStruct[], rcsb_id:string }) => {
 
     const dispatch       = useAppDispatch();
     return <div className="chain-picker grid gap-1 max-h-64 overflow-y-auto">
@@ -34,7 +34,7 @@ const ChainSelection = ({ polymers }: { polymers: PolymerByStruct[] }) => {
             })
             .map(p =>
                 <div key={p.auth_asym_id} 
-                onClick={()=>{dispatch(superimpose_add_chain(p))}}
+                onClick={()=>{dispatch(superimpose_add_chain({polymer:p, rcsb_id }))}}
                 className="border rounded-sm p-0.5 px-2 text-sm flex justify-between hover:cursor-pointer hover:bg-slate-200">
                     <span>{p.auth_asym_id}</span>
                     <span>{p.nomenclature[0]}</span>
@@ -50,7 +50,7 @@ const StructureSelection = ({ rcsb_id, polymers }: { rcsb_id: string, polymers: 
                 <span className="min-w-full cursor-pointer px-1 text-sm">{rcsb_id}</span>
             </HoverCardTrigger>
             <HoverCardContent side="right">
-                <ChainSelection polymers={polymers} />
+                <ChainSelection polymers={polymers} rcsb_id={rcsb_id}/>
             </HoverCardContent>
         </HoverCard>
     </div>
