@@ -58,13 +58,13 @@ function CircleIcon(props) {
 
 
 export enum FilterType {
-  PolymerClass = "PolymerClass",
+  PolymerClass   = "PolymerClass",
   SourceOrganism = "SourceOrganism",
-  HostOrganism = "HostOrganism",
+  HostOrganism   = "HostOrganism",
   DepositionDate = "DepositionDate",
-  Resolution = "Resolution",
-  Search = "Search",
-  Sort = "Sort"
+  Resolution     = "Resolution",
+  Search         = "Search",
+  Sort           = "Sort"
 }
 
 
@@ -82,11 +82,6 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
 
 
-  const [value, setValue] = useState<string>();
-  const onChange = (newValue: string) => {
-    console.log(newValue);
-    setValue(newValue);
-  };
 
   const dispatch = useAppDispatch();
   const filters = useAppSelector(state => state.ui.filters)!
@@ -139,9 +134,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <Select<PolymerClassOption>
                 defaultValue={[]}
-                onChange={(value) => {
-                  dispatch(set_filter({filter_type:"polymer_classes", value:value.map((v:PolymerClassOption)=>v.value)}))
-                }}
+                onChange={(value) => { dispatch(set_filter({filter_type:"polymer_classes", value:value.map((v:PolymerClassOption)=>v.value)})) }}
                 instanceId={"polymer_class"}
                 options={polymerClassOptions}
                 components={{ Group }}
@@ -159,15 +152,15 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 <TreeSelect
                   showSearch={true}
                   style={{ width: '100%' }}
-                  value={value}
-                  dropdownStyle={{ maxHeight: 400, maxWidth: 400, overflow: 'auto' }}
+                  value={filters.source_taxa}
+                  dropdownStyle={{ maxHeight: 600, maxWidth: 600, overflow: 'auto' }}
                   treeNodeFilterProp='title'
                   placeholder="Search.."
                   allowClear={false}
                   multiple={true}
                   variant="outlined"
-                  treeDefaultExpandAll
-                  onChange={onChange}
+                  // treeDefaultExpandAll
+                  onChange={(v)=>{dispatch(set_filter({filter_type:"source_taxa", value:v}))}}
                   treeData={tax_dict}
                 />
               </div>
@@ -184,7 +177,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 <TreeSelect
                   showSearch={true}
                   style={{ width: '100%' }}
-                  value={value}
+                  value={filters.host_taxa}
                   dropdownStyle={{ maxHeight: 400, maxWidth: 400, overflow: 'auto' }}
                   // treeNodeLabelProp={(node)=>node.value}
                   treeNodeFilterProp='title'
@@ -193,8 +186,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                   allowClear={false}
                   multiple={true}
                   variant="outlined"
-                  treeDefaultExpandAll
-                  onChange={onChange}
+                  // treeDefaultExpandAll
+                  onChange={(v)=>{dispatch(set_filter({filter_type:"host_taxa", value:v}))}}
                   treeData={tax_dict}
                 />
               </div>
