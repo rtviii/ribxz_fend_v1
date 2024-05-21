@@ -18,10 +18,12 @@ import { SheetDemo } from "@/components/sidebar"
 export default function StructureCatalogue() {
 
   const { data, isLoading } = useRoutersRouterStructListStructuresQuery()
+  useEffect(() => {
+    console.log(data);
+  }, [data])
   return (
-    <div className="container mx-auto my-8 p-4">
-
-      <h1 className="text-4xl font-bold mb-6" >Ribosome Structures</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-6" >Ribosome Structures</h1>
 
       <div className="grid grid-cols-12 gap-4 mb-4">
         <div className="col-span-3  border-gray-200 pr-4">
@@ -30,10 +32,8 @@ export default function StructureCatalogue() {
         </div>
 
         <div className="col-span-9 pl-4">
-          <div className="grid grid-cols-3 gap-2 mb-6">
-
+          <div className="flex flex-row gap-2 mb-6 min-w-full  flex-wrap">
             {isLoading === false ? data.map(struct => <StructureCard _={struct} key={struct.rcsb_id} />) : null}
-
           </div>
           <div className="flex justify-center space-x-2">
             <Button className="bg-[#eaeaea] text-xs">1</Button>

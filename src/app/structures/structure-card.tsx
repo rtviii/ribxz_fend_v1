@@ -10,10 +10,11 @@ import Link from "next/link"
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   return (
     <Link href={_.rcsb_id}>
-    <Card className="w-full max-w-sm  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
+    <Card className="w-80  max-h-full h-full  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
+
       <Popover>
         <PopoverTrigger asChild>
-          <div className="relative h-[40%] border-2">
+          <div className="relative h-[40%] transition-all duration-150 hover:h-[100%] border-2">
             <img
               alt="Card Image"
               className="w-full h-full object-cover"
