@@ -11,10 +11,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+// import { Icon } from "@radix-ui/react-select"
 import Link from "next/link"
 
 
-export function SheetDemo() {
+export function SidebarMenu() {
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -46,60 +47,55 @@ export function SheetDemo() {
 
           <h2 className="text-xs font-semibold uppercase text-gray-400">Available Data</h2>
 
-          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="#">
+          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/structures">
             Structures
           </Link>
 
-          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="#">
+          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/proteins">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
               <span>Proteins</span>
               <DnaIcon className="h-5 w-5" />
             </div>
           </Link>
 
-          <Link className="block py-2  px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="#">
+          <Link className="block py-2  px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/rna">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>RNA</span>
               <DnaIcon className="h-5 w-5" />
             </div>
           </Link>
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="#">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/ligands">
+            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
+              <span> Ligands/Binding Sites </span>
+              {/* <LigandIcon className="h-5 w-5" /> */}
+            </div>
+          </Link>
+
+
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/nomenclature">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>Nomenclature</span>
               <NotebookIcon className="h-5 w-5" />
             </div>
           </Link>
           {/* </div> */}
-
           <hr className="border-t my-4 border-gray-200" />
 
           {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-xs font-semibold uppercase text-gray-400">Tools</h2>
 
-          <Link className="block py-2 px-2 text-sm text-gray-700" href="#">
-            Visualization
-          </Link>
-          <Link className="block py-2 px-2 text-sm text-gray-700" href="#">
-            3D Superposition
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superimpose">
+            <span>3D Superposition</span>
           </Link>
 
-          <Link className="block py-2 px-2 text-sm text-gray-700" href="#">
-            Ligands/Binding Sites
-          </Link>
 
         </div>
         <div className="flex-col  h-full   align-bottom justify-end justify-items-end content-end  ">
           <h2 className="text-xs font-semibold uppercase text-gray-400">Info</h2>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
-            About
-          </Link>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
-            How To
-          </Link>
-          <Link className="block py-2 text-sm text-gray-700" href="#">
-            Contact
-          </Link>
+          <Link className="block py-2 text-sm text-gray-700" href="#"> About </Link>
+          <Link className="block py-2 text-sm text-gray-700" href="#"> How To </Link>
+          <Link className="block py-2 text-sm text-gray-700" href="#"> Contact </Link>
         </div>
 
         <SheetFooter>
@@ -112,67 +108,69 @@ export function SheetDemo() {
   )
 }
 
-export default function Sidebar() {
-  return (
-    <>
-      <div className="fixed bottom-0 left-0 p-4">
-        <Button className="rounded-full p-3 bg-gray-200 shadow-lg hover:bg-gray-300 focus:outline-none focus:ring">
-          <GaugeIcon className="h-6 w-6 text-gray-800" />
-        </Button>
-      </div>
-      <aside className="fixed top-0 left-0 h-full w-64 bg-white shadow-md overflow-y-auto">
-        <nav className="flex flex-col p-4 space-y-6">
-          <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-            <HomeIcon className="h-5 w-5" />
-            <span>Home</span>
-          </a>
-          <div>
-            <h2 className="text-xs uppercase text-gray-500">Available Data</h2>
-            <div className="mt-2 space-y-2">
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <DnaIcon className="h-5 w-5" />
-                <span>Structures</span>
-              </a>
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <DnaIcon className="h-5 w-5" />
-                <span>Proteins</span>
-              </a>
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <DnaIcon className="h-5 w-5" />
-                <span>RNA</span>
-              </a>
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <NotebookIcon className="h-5 w-5" />
-                <span>Nomenclature</span>
-              </a>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-xs uppercase text-gray-500">Tools</h2>
-            <div className="mt-2 space-y-2">
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <ViewIcon className="h-5 w-5" />
-                <span>Visualization</span>
-              </a>
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <Rotate3dIcon className="h-5 w-5" />
-                <span>3D Superimposition</span>
-              </a>
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <LigatureIcon className="h-5 w-5" />
-                <span>Ligands/Binding Sites</span>
-              </a>
-              <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-                <InfoIcon className="h-5 w-5" />
-                <span>How To</span>
-              </a>
-            </div>
-          </div>
-        </nav>
-      </aside>
-    </>
-  )
-}
+// export default function Sidebar() {
+//   return (
+//     <>
+//       <div className="fixed bottom-0 left-0 p-4">
+//         <Button className="rounded-full p-3 bg-gray-200 shadow-lg hover:bg-gray-300 focus:outline-none focus:ring">
+//           <GaugeIcon className="h-6 w-6 text-gray-800" />
+//         </Button>
+//       </div>
+//       <aside className="fixed top-0 left-0 h-full w-64 bg-white shadow-md overflow-y-auto">
+//         <nav className="flex flex-col p-4 space-y-6">
+//           <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//             <HomeIcon className="h-5 w-5" />
+//             <span>Home</span>
+//           </a>
+//           <div>
+//             <h2 className="text-xs uppercase text-gray-500">Available Data</h2>
+//             <div className="mt-2 space-y-2">
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <DnaIcon className="h-5 w-5" />
+//                 <span>Structures</span>
+//               </a>
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <DnaIcon className="h-5 w-5" />
+//                 <span>Proteins</span>
+//               </a>
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <DnaIcon className="h-5 w-5" />
+//                 <span>RNA</span>
+//               </a>
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <NotebookIcon className="h-5 w-5" />
+//                 <span>Nomenclature</span>
+//               </a>
+//             </div>
+//           </div>
+//           <div>
+//             <h2 className="text-xs uppercase text-gray-500">Tools</h2>
+//             <div className="mt-2 space-y-2">
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <ViewIcon className="h-5 w-5" />
+//                 <span>Visualization</span>
+//               </a>
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <Rotate3dIcon className="h-5 w-5" />
+//                 <span>3D Superimposition</span>
+//               </a>
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <span>Ligands/Binding Sites</span>
+//                 <LigatureIcon className="h-5 w-5" />
+//               </a>
+//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
+//                 <InfoIcon className="h-5 w-5" />
+//                 <span>How To</span>
+//               </a>
+//             </div>
+//           </div>
+//         </nav>
+//       </aside>
+//     </>
+//   )
+// }
+
+
 
 function DnaIcon(props) {
   return (

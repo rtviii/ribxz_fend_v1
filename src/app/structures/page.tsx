@@ -4,16 +4,56 @@ import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard from "./structure-card"
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { RibosomeStructure, useRoutersRouterStructListStructuresQuery } from "@/store/ribxz_api/ribxz_api"
 import { useEffect } from "react"
 import FilterSidebar from "./filters"
-import { SheetDemo } from "@/components/sidebar"
+import { SidebarMenu } from "@/components/sidebar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+ 
+export function StructuresPagination() {
+  return (
+    <Pagination>
+      <PaginationContent>
 
+        <PaginationItem>
+          <PaginationPrevious  onClick={()=>{}} />
+        </PaginationItem>
 
+        <PaginationItem>
+          <PaginationLink onClick={()=>{}}>1</PaginationLink>
+        </PaginationItem>
 
+        <PaginationItem>
+          <PaginationLink onClick={()=>{}} isActive>
+            2
+          </PaginationLink>
+        </PaginationItem>
+
+        <PaginationItem>
+          <PaginationLink onClick={()=>{}}>3</PaginationLink>
+        </PaginationItem>
+
+        <PaginationItem>
+          <PaginationEllipsis />
+        </PaginationItem>
+
+        <PaginationItem>
+          <PaginationNext onClick={()=>{}} />
+        </PaginationItem>
+
+      </PaginationContent>
+    </Pagination>
+  )
+}
 
 export default function StructureCatalogue() {
   const { data, isLoading }: { data: RibosomeStructure[], isLoading: boolean } = useRoutersRouterStructListStructuresQuery()
@@ -27,20 +67,14 @@ export default function StructureCatalogue() {
 
           <div className="col-span-3  flex flex-col min-h-full pr-4">
             <FilterSidebar />
-            <SheetDemo />
+            <SidebarMenu />
 
-            <div className="grow"> PAGINATION</div>
+    <div className="p-1 my-4 rounded-sm border w-full">
 
-            <div className="flex justify-center space-x-2">
-              <Button className="bg-[#eaeaea] text-xs">1</Button>
-              <Button className="bg-[#eaeaea] text-xs">2</Button>
-              <Button className="bg-[#eaeaea] text-xs">3</Button>
-              <Button className="bg-[#eaeaea] text-xs">4</Button>
-              <Button className="bg-[#eaeaea] text-xs">5</Button>
-              <span>...</span>
-              <Button className="bg-[#eaeaea] text-xs">56</Button>
-              <Button className="bg-[#eaeaea] text-xs">{`>`}</Button>
-            </div>
+
+            <StructuresPagination/>
+    </div>
+
           </div>
 
           <div className="col-span-9 scrollbar-hidden">

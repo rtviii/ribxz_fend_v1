@@ -15,7 +15,6 @@ import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_st
 import { Separator } from "@radix-ui/react-select"
 
 
-
 const ChainSelection = ({ polymers, rcsb_id }: { polymers: PolymerByStruct[], rcsb_id: string }) => {
 
 
@@ -75,9 +74,20 @@ export default function ChainPicker({ children, chains_by_struct }: { children?:
             <HoverCardContent className="w-80 p-4" side="right">
                 <div className="chain-picker grid gap-2">
                     <div className="flex items-center gap-2">
-                        <Input placeholder="Search" value={search_val} onChange={(e) => dispatch(superimpose_set_struct_search(e.target.value))} />
+                        <Input placeholder="Search" 
+                        value={search_val} 
+                        onChange={(e) => { 
+                            console.log("Search changed", search_val);
+                            console.log("Search changed", e.target.value);
+                            dispatch(superimpose_set_struct_search(e.target.value)) }} />
                     </div>
-                    {( chains_by_struct === undefined ? [] : chains_by_struct ).map(cbs => <StructureSelection rcsb_id={cbs.rcsb_id} key={cbs.rcsb_id} polymers={cbs.polymers} />)}
+                    {/* TODO: PICKER_PAGINATION */}
+
+                    {
+                    ( chains_by_struct === undefined ? [] : chains_by_struct)
+                    .filter(s =>  s.rcsb_id.toLowerCase().includes(search_val) )
+                    .slice(0,10)
+                    .map(cbs => <StructureSelection rcsb_id={cbs.rcsb_id} key={cbs.rcsb_id} polymers={cbs.polymers} />)}
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>

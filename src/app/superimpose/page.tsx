@@ -33,7 +33,6 @@ function PlusIcon() {
     )
 }
 
-
 function XIcon({ props }) {
     return (
         <svg
@@ -72,7 +71,7 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 }
 
 
-export default function StructurePage() {
+export default function Superimpose() {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
     const molstarNodeRef = useRef<HTMLDivElement>(null);

@@ -45,7 +45,7 @@ const initialState: MolstarReduxCore = {
   tools_expanded: false,
   count: undefined,
   superimpose: {
-    chain_search : 'uL4',
+    chain_search : '',
     struct_search: '',
     pivot        : null,
     active_chains: []

@@ -45,6 +45,8 @@ export default function StructurePage() {
 
     const { data, error, isLoading:isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
     const [test_active, test_active_set]                   = useState<boolean>(false)
+    console.log("Got data", data);
+    
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
