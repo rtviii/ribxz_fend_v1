@@ -75,6 +75,12 @@
   }
 }
 
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
 .chain-picker::-webkit-scrollbar {
     display: none;
 }
