@@ -9,7 +9,8 @@ import Link from "next/link"
 const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
 
     const ctx            = useAppSelector(state => state.molstar.ui_plugin)
-    return <TableRow 
+
+    return <TableRow
     className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
     onClick      = {()=>{selectChain(ctx!, polymer.auth_asym_id)}}
     onMouseEnter = {()=>{highlightChain(ctx!, polymer.auth_asym_id)}}

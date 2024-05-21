@@ -77,7 +77,7 @@ export default function ChainPicker({ children, chains_by_struct }: { children?:
                     <div className="flex items-center gap-2">
                         <Input placeholder="Search" value={search_val} onChange={(e) => dispatch(superimpose_set_struct_search(e.target.value))} />
                     </div>
-                    {chains_by_struct.map(cbs => <StructureSelection rcsb_id={cbs.rcsb_id} key={cbs.rcsb_id} polymers={cbs.polymers} />)}
+                    {( chains_by_struct === undefined ? [] : chains_by_struct ).map(cbs => <StructureSelection rcsb_id={cbs.rcsb_id} key={cbs.rcsb_id} polymers={cbs.polymers} />)}
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
