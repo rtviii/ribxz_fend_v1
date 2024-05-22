@@ -19,20 +19,9 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
-    routersRouterStructCount: build.mutation<
-      RoutersRouterStructCountApiResponse,
-      RoutersRouterStructCountApiArg
-    >({
-      query: (queryArg) => ({
-        url: `/structures/count`,
-        method: "POST",
-        body: queryArg.bodyParams,
-        params: { search: queryArg.search },
-      }),
-    }),
-    routersRouterStructListStructures: build.mutation<
-      RoutersRouterStructListStructuresApiResponse,
-      RoutersRouterStructListStructuresApiArg
+    routersRouterStructFilterList: build.mutation<
+      RoutersRouterStructFilterListApiResponse,
+      RoutersRouterStructFilterListApiArg
     >({
       query: (queryArg) => ({
         url: `/structures/list`,
@@ -103,25 +92,9 @@ export type RoutersRouterStructStructurePtcApiResponse =
 export type RoutersRouterStructStructurePtcApiArg = {
   rcsbId: string;
 };
-export type RoutersRouterStructCountApiResponse = /** status 200 OK */ number;
-export type RoutersRouterStructCountApiArg = {
-  search?: string | null;
-  bodyParams: {
-    year?: [number | null, number | null] | null;
-    resolution?: [number | null, number | null] | null;
-    polymer_classes?:
-      | (
-          | CytosolicRnaClassMitochondrialRnaClasstRnaUnionEnum
-          | ElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum
-        )[]
-      | null;
-    source_taxa?: number[] | null;
-    host_taxa?: number[] | null;
-  };
-};
-export type RoutersRouterStructListStructuresApiResponse =
-  /** status 200 OK */ RibosomeStructure[];
-export type RoutersRouterStructListStructuresApiArg = {
+export type RoutersRouterStructFilterListApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterStructFilterListApiArg = {
   search?: string | null;
   bodyParams: {
     year?: [number | null, number | null] | null;
@@ -1420,8 +1393,7 @@ export type NomenclatureSet = {
 export const {
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructStructurePtcQuery,
-  useRoutersRouterStructCountMutation,
-  useRoutersRouterStructListStructuresMutation,
+  useRoutersRouterStructFilterListMutation,
   useRoutersRouterStructChainsByStructQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
   useRoutersRouterStructListSourceTaxaQuery,

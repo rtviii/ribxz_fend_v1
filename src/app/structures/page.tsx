@@ -4,14 +4,44 @@ import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard from "./structure-card"
-import { RibosomeStructure, useRoutersRouterStructListStructuresMutation } from "@/store/ribxz_api/ribxz_api"
 import { useEffect } from "react"
 import { StructuresPagination, FilterSidebar } from "./filters"
 import { SidebarMenu } from "@/components/sidebar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { useAppSelector } from "@/store/store"
+import { useRoutersRouterStructFilterListMutation } from "@/store/ribxz_api/ribxz_api"
+
+ 
+const useAutoRefetch = () => {
+
+  const filters                                     = useAppSelector((state: RootState) => state.ui.filters)
+  const [updateStructs, { data, isLoading, error }] = useRoutersRouterStructFilterListMutation();
+
+  useEffect(() => {
+    updateStructs({
+      bodyParams: filters.bodyParams,
+      search: filters.search,
+    });
+  }, [filters, updateStructs]);
+
+  return { data, isLoading, error };
+};
+
+
+
+
+
+
 
 export default function StructureCatalogue() {
-  // const { data, isLoading }: { data: RibosomeStructure[], isLoading: boolean } = useRoutersRouterStructListStructuresQuery()
+
+
+
+
+
+
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
       <h1 className="text-2xl font-bold mb-6 " >Ribosome Structures</h1>

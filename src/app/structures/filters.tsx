@@ -9,7 +9,7 @@ import { SelectValue, SelectTrigger, SelectContent } from "@/components/ui/selec
 import {
   useRoutersRouterStructListSourceTaxaQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
-  useRoutersRouterStructCountMutation
+  useRoutersRouterStructFilterListMutation
 } from "@/store/ribxz_api/ribxz_api"
 
 import {
@@ -59,22 +59,22 @@ function CircleIcon(props) {
 
 
 export enum FilterType {
-  PolymerClass   = "PolymerClass",
+  PolymerClass = "PolymerClass",
   SourceOrganism = "SourceOrganism",
-  HostOrganism   = "HostOrganism",
+  HostOrganism = "HostOrganism",
   DepositionDate = "DepositionDate",
-  Resolution     = "Resolution",
-  Search         = "Search",
-  Sort           = "Sort"
+  Resolution = "Resolution",
+  Search = "Search",
+  Sort = "Sort"
 }
 
 
 
 export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
+  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
 
   useEffect(() => {
     if (!nomenclature_classes_is_loading) {
@@ -86,9 +86,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
 
   const dispatch = useAppDispatch();
   const filters = useAppSelector(state => state.ui.filters)!
-
   return (
-
     <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true}>
       <div className="flex items-center justify-between  mb-2 ">
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer ">
@@ -97,10 +95,12 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
       </div>
       <CollapsibleContent>
         <div className="space-y-2">
-          {disable?.Search ? null : <Input placeholder="Search"  onChange={(e)=>{dispatch(set_filter({
-            filter_type: "search",
-            value      : e.target.value
-          }))}}/>}
+          {disable?.Search ? null : <Input placeholder="Search" onChange={(e) => {
+            dispatch(set_filter({
+              filter_type: "search",
+              value: e.target.value
+            }))
+          }} />}
 
           {disable?.DepositionDate ? null :
             <div className="flex items-center justify-between space-x-2">
@@ -108,8 +108,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Deposition year
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" min={2000} max={2024} step={1} onChange={(e)=>{dispatch(set_filter({filter_type:'year', value:[Number( e.target.value ), filters.year[1]]}))}} />
-                <Input className="w-20" id="endYear" placeholder="End Year" type="number" min={2000} max={2024} step={1}     onChange={(e)=>{dispatch(set_filter({filter_type:'year', value:[filters.year[0], Number( e.target.value )]}))}} />
+                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+                <Input className="w-20" id="endYear" placeholder="End Year" type="number" min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -120,8 +120,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Resolution
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} onChange={(e)=>{dispatch(set_filter({filter_type:'resolution', value:[Number( e.target.value ), filters.resolution[1]]}))}} />
-                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} onChange={(e)=>{dispatch(set_filter({filter_type:'resolution', value:[filters.resolution[0], Number( e.target.value )]}))}} />
+                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -131,12 +131,12 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Polymer Classes
               </label>
               <Select<PolymerClassOption>
-                defaultValue = {[]}
-                onChange     = {(value) => { dispatch(set_filter({filter_type:"polymer_classes", value:value.map((v:PolymerClassOption)=>v.value)})) }}
-                instanceId   = {"polymer_class"}
-                options      = {polymerClassOptions}
-                components   = {{ Group }}
-                isMulti      = {true}
+                defaultValue={[]}
+                onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: value.map((v: PolymerClassOption) => v.value) })) }}
+                instanceId={"polymer_class"}
+                options={polymerClassOptions}
+                components={{ Group }}
+                isMulti={true}
               />
             </div>
 
@@ -148,17 +148,17 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <div className="text-sm font-medium" >
                 <TreeSelect
-                  showSearch         = {true}
-                  style              = {{ width: '100%' }}
-                  value              = {filters.source_taxa}
-                  dropdownStyle      = {{ maxHeight: 600, maxWidth: 600, overflow: 'auto' }}
-                  treeNodeFilterProp = 'title'
-                  placeholder        = "Search.."
-                  allowClear         = {false}
-                  multiple           = {true}
-                  variant            = "outlined"
-                  onChange           = {(v)=>{dispatch(set_filter({filter_type:"source_taxa", value:v}))}}
-                  treeData           = {tax_dict}
+                  showSearch={true}
+                  style={{ width: '100%' }}
+                  value={filters.source_taxa}
+                  dropdownStyle={{ maxHeight: 600, maxWidth: 600, overflow: 'auto' }}
+                  treeNodeFilterProp='title'
+                  placeholder="Search.."
+                  allowClear={false}
+                  multiple={true}
+                  variant="outlined"
+                  onChange={(v) => { dispatch(set_filter({ filter_type: "source_taxa", value: v })) }}
+                  treeData={tax_dict}
                 />
               </div>
             </div>
@@ -172,19 +172,19 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <div className="text-sm font-medium" >
                 <TreeSelect
-                  showSearch    = {true}
-                  style         = {{ width: '100%' }}
-                  value         = {filters.host_taxa}
-                  dropdownStyle = {{ maxHeight: 400, maxWidth: 400, overflow: 'auto' }}
+                  showSearch={true}
+                  style={{ width: '100%' }}
+                  value={filters.host_taxa}
+                  dropdownStyle={{ maxHeight: 400, maxWidth: 400, overflow: 'auto' }}
                   // treeNodeLabelProp={(node)=>node.value}
                   treeNodeFilterProp='title'
                   // title={(node)=>node.value}
-                  placeholder = "Search.."
-                  allowClear  = {false}
-                  multiple    = {true}
-                  variant     = "outlined"
+                  placeholder="Search.."
+                  allowClear={false}
+                  multiple={true}
+                  variant="outlined"
                   // treeDefaultExpandAll
-                  onChange={(v)=>{dispatch(set_filter({filter_type:"host_taxa", value:v}))}}
+                  onChange={(v) => { dispatch(set_filter({ filter_type: "host_taxa", value: v })) }}
                   treeData={tax_dict}
                 />
               </div>
@@ -215,10 +215,6 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
         </div>
       </CollapsibleContent>
     </Collapsible>
-
-
-
-
   )
 }
 
@@ -243,15 +239,16 @@ function ChevronDownIcon(props) {
 
 
 export function StructuresPagination() {
-  const dispatch    = useAppDispatch();
-  const ui_state    = useAppSelector(state => state.ui.pagination)!
-  const [updatePost, result] = useRoutersRouterStructCountMutation()
+
+  const dispatch             = useAppDispatch();
+  const ui_state             = useAppSelector(state => state.ui.pagination)!
+  const [updateFilteredStructs, result] = useRoutersRouterStructFilterListMutation({
+    fixedCacheKey:"filtered_structures"
+  })
 
   return (
     <Pagination >
       <PaginationContent>
-
-
         <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
           dispatch(pagination_prev_page())
         }}>
@@ -267,35 +264,22 @@ export function StructuresPagination() {
             2
           </PaginationLink>
         </PaginationItem>
-
         <PaginationItem>
           <PaginationLink onClick={() => {
+            console.log("update post", );
+            console.log(result.data);
 
-
-           console.log("update post", updatePost({ 
-            search: "complex",
-             bodyParams:{ 
-            // year: [2000, 2024],
-            polymer_classes: ['uL4', "uL22", 'bL19'],
-            // resolution: [2.0, 3.0],
-            source_taxa:[2],
-            // host_taxa: [83333]
-
-
-           } }) );
-           console.log(result.data);
-
-           }}>3</PaginationLink>
+          }}>3</PaginationLink>
         </PaginationItem>
 
         <PaginationItem>
-          [{result.data ? result.data : "loading"}]
+          [{result.data ? result.data.count : "*"}]
         </PaginationItem>
 
         <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
           dispatch(pagination_next_page())
 
-           
+
         }}>
           <PaginationNext />
         </PaginationItem>

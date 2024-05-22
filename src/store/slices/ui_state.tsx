@@ -12,39 +12,51 @@ interface Filters {
 
 interface Pagination {
     current_page: number
-    page_size   : number
-    total_pages : number | null
+    page_size: number
+    total_pages: number | null
 
 }
 
 export interface UIState {
-    filters   : Filters,
+    filters: Filters,
     pagination: Pagination
 }
 
 const initialState: UIState = {
     filters: {
-        search         : '',
-        year           : [null, null],
-        resolution     : [null, null],
+        search: '',
+        year: [null, null],
+        resolution: [null, null],
         polymer_classes: [],
-        source_taxa    : [],
-        host_taxa      : [],
+        source_taxa: [],
+        host_taxa: [],
     },
     pagination: {
         current_page: 1,
-        page_size   : 10,
-        total_pages : null
+        page_size: 10,
+        total_pages: null
     }
 }
 
+// OK there is the filter list endpoint
+// We want to :
+// -   prefetch the total number of structures on loadup
+// -   dispatch update the moment any set_filter changes (that means set new count, set page to 1)
+// -   dispatch pagination update the moment a page changes 
 
 
-// export const sync_filters_pagination         = createAsyncThunk('ui/sync_filters_pagination', _download_struct)
-// export const download_struct         = createAsyncThunk('ui/sync_pagination_and_filters', _download_struct)
+// Create the middleware instance and methods
+const UIUpdateListenerMiddelware = createListenerMiddleware()
+
+
+
+
+
+
+
 export const uiSlice = createSlice({
-    name: 'ui',
     initialState,
+    name: 'ui',
     reducers: {
         set_filter(state, action: PayloadAction<{
             filter_type: keyof Filters,
@@ -60,22 +72,43 @@ export const uiSlice = createSlice({
         },
 
         pagination_next_page(state) {
-            if (state.pagination.current_page < state.pagination.total_pages) {
+            if (state.pagination.current_page < state.pagination.total_pages!) {
                 state.pagination.current_page += 1
             }
         },
     },
     extraReducers: (builder) => {
-    builder.addMatcher(
-      ribxz_api.endpoints.routersRouterStructListStructures.matchFulfilled,
-      (state, { payload }) => {
-        console.log("match list struct")
-        console.log(state)
-        console.log(payload)
-      }
-    )
+        builder.addMatcher(
+            ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled,
+            (state, { payload }) => {
+                console.log("match list struct")
+                console.log(state)
+                console.log(payload)
+            });
+
+        // builder.addMatcher(
+        //     set_filter.match, //updated
+        //     (state, action) => {
+        //         console.log("match set filter")
+        //         console.log("new state", state.filters.host_taxa, state.filters.resolution);
+        //         console.log(action.payload);
+                
+        //     }
+        // );
+    },
+})
+
+
+
+
+
+
+// Add one or more listener entries that look for specific actions.
+// They may contain any sync or async logic, similar to thunks.
+UIUpdateListenerMiddelware.startListening({
+  actionCreator: set_filter,
+  effect: async (action, listenerApi) => {
   },
-    //   extraReducers: (builder) => { builder.addCase(initiatePluginUIContext.fulfilled, (state, action) => { Object.assign(state, { ui_plugin: action.payload }) }) }
 })
 
 export const {

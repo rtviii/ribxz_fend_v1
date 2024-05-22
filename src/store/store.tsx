@@ -13,9 +13,9 @@ export const makeStore = () => {
       molstar                : molstarSlice.reducer,
       ui                     : uiSlice.reducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-        serializableCheck: false
-    }).prepend(molstarListenerMiddleware.middleware).concat(ribxz_api.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
+    .prepend(molstarListenerMiddleware.middleware)
+    .concat(ribxz_api.middleware),
   })
 }
 
