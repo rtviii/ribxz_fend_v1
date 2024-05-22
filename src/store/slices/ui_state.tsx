@@ -1,46 +1,47 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api } from '@/store/ribxz_api/ribxz_api'
 
 interface Filters {
-    search: string
-    year: [number | null, number | null]
-    resolution: [number | null, number | null]
+    search         : string
+    year           : [number | null, number | null]
+    resolution     : [number | null, number | null]
     polymer_classes: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
-    source_taxa: number[]
-    host_taxa: number[]
+    source_taxa    : number[]
+    host_taxa      : number[]
 }
-
 
 interface Pagination {
     current_page: number
-    page_size: number
-    total_pages: number
+    page_size   : number
+    total_pages : number | null
 
 }
 
 export interface UIState {
-    filters: Filters,
+    filters   : Filters,
     pagination: Pagination
 }
 
 const initialState: UIState = {
     filters: {
-        search: '',
-        year: [null, null],
-        resolution: [null, null],
+        search         : '',
+        year           : [null, null],
+        resolution     : [null, null],
         polymer_classes: [],
-        source_taxa: [],
-        host_taxa: [],
+        source_taxa    : [],
+        host_taxa      : [],
     },
     pagination: {
         current_page: 1,
-        page_size: 10,
-        total_pages: 100
+        page_size   : 10,
+        total_pages : null
     }
-
-
 }
 
+
+
+// export const sync_filters_pagination         = createAsyncThunk('ui/sync_filters_pagination', _download_struct)
+// export const download_struct         = createAsyncThunk('ui/sync_pagination_and_filters', _download_struct)
 export const uiSlice = createSlice({
     name: 'ui',
     initialState,
@@ -64,6 +65,16 @@ export const uiSlice = createSlice({
             }
         },
     },
+    extraReducers: (builder) => {
+    builder.addMatcher(
+      ribxz_api.endpoints.routersRouterStructListStructures.matchFulfilled,
+      (state, { payload }) => {
+        console.log("match list struct")
+        console.log(state)
+        console.log(payload)
+      }
+    )
+  },
     //   extraReducers: (builder) => { builder.addCase(initiatePluginUIContext.fulfilled, (state, action) => { Object.assign(state, { ui_plugin: action.payload }) }) }
 })
 

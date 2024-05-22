@@ -4,14 +4,14 @@ import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard from "./structure-card"
-import { RibosomeStructure, useRoutersRouterStructListStructuresQuery } from "@/store/ribxz_api/ribxz_api"
+import { RibosomeStructure, useRoutersRouterStructListStructuresMutation } from "@/store/ribxz_api/ribxz_api"
 import { useEffect } from "react"
 import { StructuresPagination, FilterSidebar } from "./filters"
 import { SidebarMenu } from "@/components/sidebar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function StructureCatalogue() {
-  const { data, isLoading }: { data: RibosomeStructure[], isLoading: boolean } = useRoutersRouterStructListStructuresQuery()
+  // const { data, isLoading }: { data: RibosomeStructure[], isLoading: boolean } = useRoutersRouterStructListStructuresQuery()
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
       <h1 className="text-2xl font-bold mb-6 " >Ribosome Structures</h1>
@@ -27,7 +27,7 @@ export default function StructureCatalogue() {
           <div className="col-span-9 scrollbar-hidden">
             <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
               <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
-                {isLoading === false ? data.slice(0, 18).map(struct => <StructureCard _={struct} key={struct.rcsb_id} />) : null}
+                {/* {isLoading === false ? data.slice(0, 18).map(struct => <StructureCard _={struct} key={struct.rcsb_id} />) : null} */}
               </div>
             </ScrollArea>
           </div>

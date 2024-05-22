@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { SelectValue, SelectTrigger, SelectContent } from "@/components/ui/select"
 import {
   useRoutersRouterStructListSourceTaxaQuery,
-  useRoutersRouterStructPolymerClassesNomenclatureQuery
+  useRoutersRouterStructPolymerClassesNomenclatureQuery,
+  useRoutersRouterStructCountMutation
 } from "@/store/ribxz_api/ribxz_api"
 
 import {
@@ -73,8 +74,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
 
   const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-
   const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
+
   useEffect(() => {
     if (!nomenclature_classes_is_loading) {
       setPolymerClassOptions(groupedOptions(nomenclature_classes))
@@ -85,9 +86,6 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
 
   const dispatch = useAppDispatch();
   const filters = useAppSelector(state => state.ui.filters)!
-  useEffect(() => {
-    console.log(filters);
-  },[filters])
 
   return (
 
@@ -133,12 +131,12 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Polymer Classes
               </label>
               <Select<PolymerClassOption>
-                defaultValue={[]}
-                onChange={(value) => { dispatch(set_filter({filter_type:"polymer_classes", value:value.map((v:PolymerClassOption)=>v.value)})) }}
-                instanceId={"polymer_class"}
-                options={polymerClassOptions}
-                components={{ Group }}
-                isMulti={true}
+                defaultValue = {[]}
+                onChange     = {(value) => { dispatch(set_filter({filter_type:"polymer_classes", value:value.map((v:PolymerClassOption)=>v.value)})) }}
+                instanceId   = {"polymer_class"}
+                options      = {polymerClassOptions}
+                components   = {{ Group }}
+                isMulti      = {true}
               />
             </div>
 
@@ -150,18 +148,17 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <div className="text-sm font-medium" >
                 <TreeSelect
-                  showSearch={true}
-                  style={{ width: '100%' }}
-                  value={filters.source_taxa}
-                  dropdownStyle={{ maxHeight: 600, maxWidth: 600, overflow: 'auto' }}
-                  treeNodeFilterProp='title'
-                  placeholder="Search.."
-                  allowClear={false}
-                  multiple={true}
-                  variant="outlined"
-                  // treeDefaultExpandAll
-                  onChange={(v)=>{dispatch(set_filter({filter_type:"source_taxa", value:v}))}}
-                  treeData={tax_dict}
+                  showSearch         = {true}
+                  style              = {{ width: '100%' }}
+                  value              = {filters.source_taxa}
+                  dropdownStyle      = {{ maxHeight: 600, maxWidth: 600, overflow: 'auto' }}
+                  treeNodeFilterProp = 'title'
+                  placeholder        = "Search.."
+                  allowClear         = {false}
+                  multiple           = {true}
+                  variant            = "outlined"
+                  onChange           = {(v)=>{dispatch(set_filter({filter_type:"source_taxa", value:v}))}}
+                  treeData           = {tax_dict}
                 />
               </div>
             </div>
@@ -175,17 +172,17 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <div className="text-sm font-medium" >
                 <TreeSelect
-                  showSearch={true}
-                  style={{ width: '100%' }}
-                  value={filters.host_taxa}
-                  dropdownStyle={{ maxHeight: 400, maxWidth: 400, overflow: 'auto' }}
+                  showSearch    = {true}
+                  style         = {{ width: '100%' }}
+                  value         = {filters.host_taxa}
+                  dropdownStyle = {{ maxHeight: 400, maxWidth: 400, overflow: 'auto' }}
                   // treeNodeLabelProp={(node)=>node.value}
                   treeNodeFilterProp='title'
                   // title={(node)=>node.value}
-                  placeholder="Search.."
-                  allowClear={false}
-                  multiple={true}
-                  variant="outlined"
+                  placeholder = "Search.."
+                  allowClear  = {false}
+                  multiple    = {true}
+                  variant     = "outlined"
                   // treeDefaultExpandAll
                   onChange={(v)=>{dispatch(set_filter({filter_type:"host_taxa", value:v}))}}
                   treeData={tax_dict}
@@ -246,18 +243,16 @@ function ChevronDownIcon(props) {
 
 
 export function StructuresPagination() {
-  const dispatch = useAppDispatch();
-  const ui_state = useAppSelector(state => state.ui.pagination)!
-  useEffect(() => {
-    console.log("Pagination", ui_state);
-  }, [ui_state])
+  const dispatch    = useAppDispatch();
+  const ui_state    = useAppSelector(state => state.ui.pagination)!
+  const [updatePost, result] = useRoutersRouterStructCountMutation()
 
   return (
     <Pagination >
       <PaginationContent>
 
+
         <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
-          console.log("clicked");
           dispatch(pagination_prev_page())
         }}>
           <PaginationPrevious />
@@ -282,8 +277,11 @@ export function StructuresPagination() {
         </PaginationItem>
 
         <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
-          console.log("cliekced next");
           dispatch(pagination_next_page())
+
+           console.log("update post", updatePost({ search: "complex", bodyParams:{ } }) );
+           console.log(result.data);
+           
         }}>
           <PaginationNext />
         </PaginationItem>
