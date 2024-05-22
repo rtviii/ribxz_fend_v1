@@ -269,18 +269,32 @@ export function StructuresPagination() {
         </PaginationItem>
 
         <PaginationItem>
-          <PaginationLink onClick={() => { }}>3</PaginationLink>
+          <PaginationLink onClick={() => {
+
+
+           console.log("update post", updatePost({ 
+            search: "complex",
+             bodyParams:{ 
+            // year: [2000, 2024],
+            polymer_classes: ['uL4', "uL22", 'bL19'],
+            // resolution: [2.0, 3.0],
+            source_taxa:[2],
+            // host_taxa: [83333]
+
+
+           } }) );
+           console.log(result.data);
+
+           }}>3</PaginationLink>
         </PaginationItem>
 
         <PaginationItem>
-          [{ui_state.total_pages}]
+          [{result.data ? result.data : "loading"}]
         </PaginationItem>
 
         <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
           dispatch(pagination_next_page())
 
-           console.log("update post", updatePost({ search: "complex", bodyParams:{ } }) );
-           console.log(result.data);
            
         }}>
           <PaginationNext />
