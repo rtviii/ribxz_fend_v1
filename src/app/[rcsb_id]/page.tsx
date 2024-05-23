@@ -2,34 +2,21 @@
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
-import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { useRouter } from 'next/router'
 import { MolstarNode, } from "@/store/molstar/lib"
-import { createRef, useEffect, useRef, useState } from "react";
-import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { Skeleton } from "@/components/ui/skeleton"
-import { Polymer, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
+import {  RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
-import { renderReact18 } from 'molstar/lib/mol-plugin-ui/react18';
-import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms"
-import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec"
-import { PluginConfig } from "molstar/lib/mol-plugin/config"
 import { useParams } from 'next/navigation'
 import StructureComponents from "./components_table"
 import { transform } from "@/store/molstar/functions"
-import ChainPicker from "@/components/chain_picker"
+import { useEffect, useRef, useState } from "react"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
 // https://github.com/molstar/molstar/issues/1112
 // https://github.com/molstar/molstar/issues/1121
-
-
 
 // -----------
 // -----------
@@ -105,10 +92,7 @@ export default function StructurePage({data}:{data:RibosomeStructure}) {
                                 </TabsContent>
                                 <TabsContent value="components">
 
-                                    {isLoading_struct_data ? <Skeleton /> : (data !== undefined ? 
-                                    // <ComponentsTableCard structure_profile={data} /> 
-                                    <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas}/>
-                                    : null)}
+                                     <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas}/>
 
                                 </TabsContent>
                             </Tabs>

@@ -35,15 +35,15 @@ function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
 
 export const LoadingSpinner = () => {
   <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      xmlns          = "http://www.w3.org/2000/svg"
+      width          = "24"
+      height         = "24"
+      viewBox        = "0 0 24 24"
+      fill           = "none"
+      stroke         = "currentColor"
+      strokeWidth    = "2"
+      strokeLinecap  = "round"
+      strokeLinejoin = "round"
     >
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
@@ -60,18 +60,18 @@ export default function StructureCatalogue() {
 
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
+    console.log("New filters:");
+    console.log({...debounced_filters});
+    
     triggerRefetch({
-      year          : filters.year.map(x => x === null ? null : x.toString()).join(','),
-      resolution    : filters.resolution.map(x => x === null ? null : x.toString()).join(','),
+      year          : filters.year.map(x => x === null || x === 0? null : x.toString()).join(','),
+      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
       hostTaxa      : filters.host_taxa.length == 0 ? ''                                     : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
       sourceTaxa    : filters.source_taxa.length == 0 ? ''                                   : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
       polymerClasses: filters.polymer_classes.length == 0 ? ''                               : filters.polymer_classes.join(','),
       search        : filters.search === null ? ''                                           : filters.search
     })
   }, [debounced_filters]);
-
-
-
 
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -90,7 +90,7 @@ export default function StructureCatalogue() {
 
             <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
               <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
-                {data === undefined ?  null : data['structures'].slice(0, 10).map(( struct:RibosomeStructure ) => <StructureCard   _={struct} key={struct.rcsb_id} />) }
+                {data === undefined ?  null : data['structures'].map(( struct:RibosomeStructure ) => <StructureCard   _={struct} key={struct.rcsb_id} />) }
               </div>
             </ScrollArea>
           </div>

@@ -82,11 +82,6 @@ export const uiSlice = createSlice({
             }
         },
     },
-    extraReducers: (builder) => {
-        builder.addMatcher(set_filter.match, (state, action) => {
-          console.log("Fetched new : ", action.payload);
-        })
-    },
 
 })
 
