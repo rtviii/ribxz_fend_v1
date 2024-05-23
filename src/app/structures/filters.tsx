@@ -87,29 +87,28 @@ function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
 
 export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
+  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
 
 
-    const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-    const filter_state                      = useAppSelector((state) => state.ui.filters)
-    const debounced_filters                 = useDebounce(filter_state, 250)
-    useEffect(() => {
-      //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
-       triggerRefetch({
-        year          : filter_state.year.map(x => x === null || x === 0? null : x.toString()).join(','),
-        resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-        hostTaxa      : filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-        sourceTaxa    : filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-        polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-        search        : filter_state.search === null ? '' : filter_state.search
-      }).unwrap()
-    }, [debounced_filters]);
+  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const filter_state                      = useAppSelector((state) => state.ui.filters)
+  const debounced_filters                 = useDebounce(filter_state, 250)
+  useEffect(() => {
+    //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
+    triggerRefetch({
+      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+      search: filter_state.search === null ? '' : filter_state.search
+    }).unwrap()
+  }, [debounced_filters]);
 
-    // useEffect(() => {},[])
-    
 
+  const struct_state = useAppSelector((state) => state.ui.data)
 
   useEffect(() => {
     if (!nomenclature_classes_is_loading) {
@@ -124,13 +123,20 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
   return (
     <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true}>
       <div className="flex items-center justify-between  mb-2 ">
-        <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer ">
-          <span className=" min-w-full font-semibold"> Structure Filters</span>
+        <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex ">
+          <div className=" min-w-full font-semibold flex flex-row justify-between"> 
+          <span>Structure Filters  </span>
+          <span className="font-semibold"> [{struct_state.total_count} structures]</span>
+          </div>
+          {/* <span className=" min-w-full font-semibold"> {struct_state.total_count}</span> */}
         </CollapsibleTrigger>
       </div>
       <CollapsibleContent>
         <div className="space-y-2">
-          {disable?.Search ? null : <Input placeholder="Search" onChange={(e) => {
+          {disable?.Search ? null :
+           <Input placeholder="Search" 
+           value={filters.search}
+           onChange={(e) => {
             dispatch(set_filter({
               filter_type: "search",
               value: e.target.value
@@ -143,8 +149,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Deposition year
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-                <Input className="w-20" id="endYear" placeholder="End Year" type="number" min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" value={filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+                <Input className="w-20" id="endYear" placeholder="End Year" type="number"     value={filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -155,8 +161,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Resolution
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
-                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
+                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -275,8 +281,8 @@ function ChevronDownIcon(props) {
 
 export function StructuresPagination() {
 
-  const dispatch             = useAppDispatch();
-  const ui_state             = useAppSelector(state => state.ui.pagination)!
+  const dispatch = useAppDispatch();
+  const ui_state = useAppSelector(state => state.ui.pagination)!
 
   return (
     <Pagination >
@@ -298,7 +304,7 @@ export function StructuresPagination() {
         </PaginationItem>
         <PaginationItem>
           <PaginationLink onClick={() => {
-            console.log("update post", );
+            console.log("update post",);
 
           }}>3</PaginationLink>
         </PaginationItem>

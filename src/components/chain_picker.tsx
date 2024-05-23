@@ -13,6 +13,7 @@ import {
 import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
+import { set_filter } from "@/store/slices/ui_state"
 
 
 const ChainSelection = ({structure}: {structure:RibosomeStructure}) => {
@@ -69,6 +70,7 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
     const dispatch           = useAppDispatch();
     const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
     const current_structures = useAppSelector(state => state.ui.data.current_structures)
+    const filters = useAppSelector(state => state.ui.filters)
 
     return (
         <HoverCard openDelay={0} closeDelay={0}>
@@ -77,6 +79,16 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
             </HoverCardTrigger>
             <HoverCardContent className="w-80 p-4" side="right">
                 <div className="chain-picker grid gap-2">
+                    <div className="flex items-center gap-2">
+                        <Input placeholder="Search" 
+                        value={filters.search} 
+                        onChange={(e) => { 
+                            dispatch(set_filter({filter_type:"search",value:e.target.value})) }} />
+                    </div>
+                    {/* TODO: PICKER_PAGINATION */}
+
+
+
                     {
                     current_structures
                     .map(S => <StructureSelection structure={S} key={S.rcsb_id}/>)
