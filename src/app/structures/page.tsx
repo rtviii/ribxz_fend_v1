@@ -33,18 +33,28 @@ export const LoadingSpinner = () => {
     </svg>
 }
 
+export function HoverMenu() {
+  return (
+    <div className="fixed bottom-0 left-0 z-50 overflow-hidden bg-black">
+      <div className="group">
+        <div className="absolute bottom-0 left-0 h-12 w-12 bg-gray-900 text-white transition-all duration-300 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 -translate-x-full -translate-y-full opacity-0">
+          <Button className="h-full w-full rounded-none">
+            here
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function StructureCatalogue() {
-
   const current_structures                = useAppSelector((state) => state.ui.data.current_structures)
-
-  useEffect(() => {
-    console.log("Structures updated", current_structures);
-    
-  },[current_structures])
-
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
+      <HoverMenu/>
+
+
+
       <h1 className="text-2xl font-bold mb-6 " >Ribosome Structures</h1>
       <div className="grow"  >
 

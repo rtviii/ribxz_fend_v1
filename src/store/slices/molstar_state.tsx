@@ -70,6 +70,7 @@ export const molstarSlice = createSlice({
     },
     superimpose_add_chain(state, action: PayloadAction<{ rcsb_id: string, polymer: PolymerByStruct }>) {
       state.superimpose.active_chains.push({ rcsb_id: action.payload.rcsb_id, polymer: action.payload.polymer })
+
       load_mmcif_chain({ rcsb_id: action.payload.rcsb_id, auth_asym_id: action.payload.polymer.auth_asym_id })
       if (state.superimpose.pivot === null) {
         Object.assign(state.superimpose, { pivot: { polymer: action.payload.polymer, rcsb_id: action.payload.rcsb_id } })

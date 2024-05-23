@@ -10,16 +10,18 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
-import { ChainsByStruct, PolymerByStruct } from "@/store/ribxz_api/ribxz_api"
+import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
 
 
-const ChainSelection = ({ polymers, rcsb_id }: { polymers: PolymerByStruct[], rcsb_id: string }) => {
+const ChainSelection = ({structure}: {structure:RibosomeStructure}) => {
 
 
-    const dispatch = useAppDispatch();
+
+    const dispatch   = useAppDispatch();
     const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
+    const  polymers  = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
 
     return <div className="chain-picker grid gap-1 max-h-64 overflow-y-auto">
 
@@ -39,7 +41,7 @@ const ChainSelection = ({ polymers, rcsb_id }: { polymers: PolymerByStruct[], rc
             })
             .map(p =>
                 <div key={p.auth_asym_id}
-                    onClick={() => { dispatch(superimpose_add_chain({ polymer: p, rcsb_id })) }}
+                    onClick={() => { dispatch(superimpose_add_chain({ polymer: p, rcsb_id:structure.rcsb_id })) }}
                     className="border rounded-sm p-0.5 px-2 text-sm flex justify-between hover:cursor-pointer hover:bg-slate-200">
                     <span>{p.auth_asym_id}</span>
                     <span>{p.nomenclature[0]}</span>
@@ -48,24 +50,26 @@ const ChainSelection = ({ polymers, rcsb_id }: { polymers: PolymerByStruct[], rc
 
 }
 
-const StructureSelection = ({ rcsb_id, polymers }: { rcsb_id: string, polymers: PolymerByStruct[] }) => {
+const StructureSelection = ({structure}: {structure:RibosomeStructure}) => {
     return <div className="border rounded-lg p-1 max-h-64 overflow-y-auto scrollbar-hide flex items-center justify-between hover:bg-slate-200">
         <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild>
-                <span className="min-w-full cursor-pointer px-1 text-sm">{rcsb_id}</span>
+                <span className="min-w-full cursor-pointer px-1 text-sm">{structure.rcsb_id}</span>
             </HoverCardTrigger>
             <HoverCardContent side="right">
-                <ChainSelection polymers={polymers} rcsb_id={rcsb_id} />
+                <ChainSelection  structure={structure} />
             </HoverCardContent>
         </HoverCard>
     </div>
 }
 
 
-export default function ChainPicker({ children, chains_by_struct }: { children?: React.ReactNode, chains_by_struct: ChainsByStruct[] }) {
+export default function ChainPicker({ children }: { children?: React.ReactNode }) {
 
-    const dispatch = useAppDispatch();
-    const search_val = useAppSelector(state => state.molstar.superimpose.struct_search)!
+    const dispatch           = useAppDispatch();
+    const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
+    const current_structures = useAppSelector(state => state.ui.data.current_structures)
+
     return (
         <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild >
@@ -73,21 +77,10 @@ export default function ChainPicker({ children, chains_by_struct }: { children?:
             </HoverCardTrigger>
             <HoverCardContent className="w-80 p-4" side="right">
                 <div className="chain-picker grid gap-2">
-                    <div className="flex items-center gap-2">
-                        <Input placeholder="Search" 
-                        value={search_val} 
-                        onChange={(e) => { 
-                            console.log("Search changed", search_val);
-                            console.log("Search changed", e.target.value);
-                            dispatch(superimpose_set_struct_search(e.target.value)) }} />
-                    </div>
-                    {/* TODO: PICKER_PAGINATION */}
-
                     {
-                    ( chains_by_struct === undefined ? [] : chains_by_struct)
-                    .filter(s =>  s.rcsb_id.toLowerCase().includes(search_val) )
-                    .slice(0,10)
-                    .map(cbs => <StructureSelection rcsb_id={cbs.rcsb_id} key={cbs.rcsb_id} polymers={cbs.polymers} />)}
+                    current_structures
+                    .map(S => <StructureSelection structure={S} key={S.rcsb_id}/>)
+                    }
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>

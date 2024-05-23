@@ -821,10 +821,10 @@ export type RibosomeStructure = {
   nonpolymeric_ligands: NonpolymericLigand[];
 };
 export type PolymerByStruct = {
-  nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
-  auth_asym_id: string;
+  nomenclature            : CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
+  auth_asym_id            : string;
   entity_poly_polymer_type: string;
-  entity_poly_seq_length: number;
+  entity_poly_seq_length  : number;
 };
 export type ChainsByStruct = {
   polymers: PolymerByStruct[];

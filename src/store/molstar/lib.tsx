@@ -163,7 +163,7 @@ export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIConte
 }
 
 export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string}) {
-  const myUrl = `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+  const myUrl = `http://localhost:8000/mmcif/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
   const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
   const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
   await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default' );
