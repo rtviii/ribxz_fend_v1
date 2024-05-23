@@ -54,6 +54,7 @@ const initialState: UIState = {
 // Create the middleware instance and methods
 const UIUpdateListenerMiddelware = createListenerMiddleware()
 
+// const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 
 
 export const uiSlice = createSlice({
@@ -82,6 +83,17 @@ export const uiSlice = createSlice({
             }
         },
     },
+    extraReducers: (builder) => {
+        builder.addMatcher(set_filter.match, (state, action) => {
+            console.log("UI Update listener middleware", action)
+        });
+        builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
+            console.log("refetch registered");
+            console.log(state);
+            console.log(action);
+            Object.assign(state.data, { structures: action.payload.structures })
+        })
+    }
 
 })
 

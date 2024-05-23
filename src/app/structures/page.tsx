@@ -51,19 +51,19 @@ export const LoadingSpinner = () => {
 
 
 export default function StructureCatalogue() {
-  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 
-  // const { data, isLoading, error } = useAutoRefetch();
+  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const dispatch = useAppDispatch()
   const filters = useAppSelector((state) => state.ui.filters)
+  const current_structures = useAppSelector((state) => state.ui.data.structures)
   const debounced_filters = useDebounce(filters, 250)
 
+  console.log();
+  
   useEffect(() => {
+
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
-    console.log("New filters:");
-    console.log({...debounced_filters});
-    
-    triggerRefetch({
+    const structs = triggerRefetch({
       year          : filters.year.map(x => x === null || x === 0? null : x.toString()).join(','),
       resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
       hostTaxa      : filters.host_taxa.length == 0 ? ''                                     : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
@@ -71,7 +71,13 @@ export default function StructureCatalogue() {
       polymerClasses: filters.polymer_classes.length == 0 ? ''                               : filters.polymer_classes.join(','),
       search        : filters.search === null ? ''                                           : filters.search
     })
+    
   }, [debounced_filters]);
+
+
+  useEffect(() => {
+    console.log('current_structures', current_structures);
+  }, [current_structures])
 
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
