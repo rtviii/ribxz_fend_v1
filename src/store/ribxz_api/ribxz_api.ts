@@ -19,13 +19,12 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
-    routersRouterStructFilterList: build.mutation<
+    routersRouterStructFilterList: build.query<
       RoutersRouterStructFilterListApiResponse,
       RoutersRouterStructFilterListApiArg
     >({
       query: (queryArg) => ({
         url: `/structures/list`,
-        method: "POST",
         body: queryArg.bodyParams,
         params: { search: queryArg.search },
       }),
@@ -1393,7 +1392,7 @@ export type NomenclatureSet = {
 export const {
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructStructurePtcQuery,
-  useRoutersRouterStructFilterListMutation,
+  useRoutersRouterStructFilterListQuery,
   useRoutersRouterStructChainsByStructQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
   useRoutersRouterStructListSourceTaxaQuery,

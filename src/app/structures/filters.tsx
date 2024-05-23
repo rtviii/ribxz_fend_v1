@@ -9,7 +9,6 @@ import { SelectValue, SelectTrigger, SelectContent } from "@/components/ui/selec
 import {
   useRoutersRouterStructListSourceTaxaQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
-  useRoutersRouterStructFilterListMutation
 } from "@/store/ribxz_api/ribxz_api"
 
 import {
@@ -72,9 +71,9 @@ export enum FilterType {
 
 export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
+  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
 
   useEffect(() => {
     if (!nomenclature_classes_is_loading) {
@@ -242,9 +241,6 @@ export function StructuresPagination() {
 
   const dispatch             = useAppDispatch();
   const ui_state             = useAppSelector(state => state.ui.pagination)!
-  const [updateFilteredStructs, result] = useRoutersRouterStructFilterListMutation({
-    fixedCacheKey:"filtered_structures"
-  })
 
   return (
     <Pagination >
@@ -267,13 +263,11 @@ export function StructuresPagination() {
         <PaginationItem>
           <PaginationLink onClick={() => {
             console.log("update post", );
-            console.log(result.data);
 
           }}>3</PaginationLink>
         </PaginationItem>
 
         <PaginationItem>
-          [{result.data ? result.data.count : "*"}]
         </PaginationItem>
 
         <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
