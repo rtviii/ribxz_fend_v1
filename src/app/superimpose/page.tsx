@@ -8,7 +8,7 @@ import { initiatePluginUIContext, download_struct, superimpose_pop_chain, superi
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 import ChainPicker from "@/components/chain_picker"
-import FilterSidebar from "../structures/filters"
+import { FilterSidebar } from "../structures/filters"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
@@ -73,12 +73,12 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 
 export default function Superimpose() {
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const dispatch = useAppDispatch();
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)!
+    const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
+    const molstarNodeRef            = useRef<HTMLDivElement>(null);
+    const dispatch                  = useAppDispatch();
+    const ctx                       = useAppSelector(state => state.molstar.ui_plugin)!
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
-    const pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
+    const pivot                     = useAppSelector(state => state.molstar.superimpose.pivot)!
 
     const { data: chains_by_struct, isLoading: isLoading_chains_by_struct }: { chains_by_struct: ChainsByStruct[], isLoading_chains_by_struct: boolean } = useRoutersRouterStructChainsByStructQuery()
 

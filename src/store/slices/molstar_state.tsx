@@ -13,9 +13,9 @@ declare global {
 
 export const molstarListenerMiddleware = createListenerMiddleware()
 
-export const download_struct = createAsyncThunk('molstar/download_struct', _download_struct)
+export const download_struct         = createAsyncThunk('molstar/download_struct', _download_struct)
 export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
-export const loadMmcifChain = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
+export const loadMmcifChain          = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
 
 
 
@@ -45,9 +45,9 @@ const initialState: MolstarReduxCore = {
   tools_expanded: false,
   count: undefined,
   superimpose: {
-    chain_search : '',
+    chain_search: '',
     struct_search: '',
-    pivot        : null,
+    pivot: null,
     active_chains: []
   }
 }
@@ -90,7 +90,7 @@ export const molstarSlice = createSlice({
   }
 })
 
-export const { 
+export const {
   toggle_tools,
   superimpose_add_chain,
   superimpose_pop_chain,

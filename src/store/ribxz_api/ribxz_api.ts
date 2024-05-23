@@ -6,7 +6,7 @@ const injectedRtkApi = api.injectEndpoints({
       RoutersRouterStructStructureProfileApiArg
     >({
       query: (queryArg) => ({
-        url: `/structure/profile`,
+        url: `/structures/profile`,
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
@@ -15,34 +15,44 @@ const injectedRtkApi = api.injectEndpoints({
       RoutersRouterStructStructurePtcApiArg
     >({
       query: (queryArg) => ({
-        url: `/structure/ptc`,
+        url: `/structures/ptc`,
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
-    routersRouterStructListStructures: build.query<
-      RoutersRouterStructListStructuresApiResponse,
-      RoutersRouterStructListStructuresApiArg
+    routersRouterStructFilterList: build.query<
+      RoutersRouterStructFilterListApiResponse,
+      RoutersRouterStructFilterListApiArg
     >({
-      query: () => ({ url: `/structure/list_structures` }),
+      query: (queryArg) => ({
+        url: `/structures/list`,
+        params: {
+          search: queryArg.search,
+          year: queryArg.year,
+          resolution: queryArg.resolution,
+          polymer_classes: queryArg.polymerClasses,
+          source_taxa: queryArg.sourceTaxa,
+          host_taxa: queryArg.hostTaxa,
+        },
+      }),
     }),
     routersRouterStructChainsByStruct: build.query<
       RoutersRouterStructChainsByStructApiResponse,
       RoutersRouterStructChainsByStructApiArg
     >({
-      query: () => ({ url: `/structure/chains_by_struct` }),
+      query: () => ({ url: `/structures/chains_by_struct` }),
     }),
     routersRouterStructPolymerClassesNomenclature: build.query<
       RoutersRouterStructPolymerClassesNomenclatureApiResponse,
       RoutersRouterStructPolymerClassesNomenclatureApiArg
     >({
-      query: () => ({ url: `/structure/list_nomenclature` }),
+      query: () => ({ url: `/structures/list_nomenclature` }),
     }),
     routersRouterStructListSourceTaxa: build.query<
       RoutersRouterStructListSourceTaxaApiResponse,
       RoutersRouterStructListSourceTaxaApiArg
     >({
       query: (queryArg) => ({
-        url: `/structure/list_source_taxa`,
+        url: `/structures/list_source_taxa`,
         params: { source_or_host: queryArg.sourceOrHost },
       }),
     }),
@@ -51,7 +61,7 @@ const injectedRtkApi = api.injectEndpoints({
       RoutersRouterClassesPolynucleotideClassApiArg
     >({
       query: (queryArg) => ({
-        url: `/polymer_class/polynucleotide`,
+        url: `/polymers/polynucleotide`,
         params: { rna_class: queryArg.rnaClass },
       }),
     }),
@@ -60,7 +70,7 @@ const injectedRtkApi = api.injectEndpoints({
       RoutersRouterClassesPolypeptideClassApiArg
     >({
       query: (queryArg) => ({
-        url: `/polymer_class/polypeptide`,
+        url: `/polymers/polypeptide`,
         params: { protein_class: queryArg.proteinClass },
       }),
     }),
@@ -69,7 +79,7 @@ const injectedRtkApi = api.injectEndpoints({
       RoutersRouterClassesLifecycleFactorClassApiArg
     >({
       query: (queryArg) => ({
-        url: `/polymer_class/lifecyle_factor`,
+        url: `/polymers/lifecyle_factor`,
         params: { factor_class: queryArg.factorClass },
       }),
     }),
@@ -87,9 +97,16 @@ export type RoutersRouterStructStructurePtcApiResponse =
 export type RoutersRouterStructStructurePtcApiArg = {
   rcsbId: string;
 };
-export type RoutersRouterStructListStructuresApiResponse =
-  /** status 200 OK */ RibosomeStructure[];
-export type RoutersRouterStructListStructuresApiArg = void;
+export type RoutersRouterStructFilterListApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterStructFilterListApiArg = {
+  search?: string;
+  year?: string;
+  resolution?: string;
+  polymerClasses?: string;
+  sourceTaxa?: string;
+  hostTaxa?: string;
+};
 export type RoutersRouterStructChainsByStructApiResponse =
   /** status 200 OK */ ChainsByStruct[];
 export type RoutersRouterStructChainsByStructApiArg = void;
@@ -1099,7 +1116,7 @@ export type NomenclatureSet = {
 export const {
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructStructurePtcQuery,
-  useRoutersRouterStructListStructuresQuery,
+  useRoutersRouterStructFilterListQuery,
   useRoutersRouterStructChainsByStructQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
   useRoutersRouterStructListSourceTaxaQuery,

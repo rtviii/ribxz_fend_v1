@@ -34,7 +34,7 @@ import ChainPicker from "@/components/chain_picker"
 // -----------
 // -----------
 
-export default function StructurePage() {
+export default function StructurePage({data}:{data:RibosomeStructure}) {
 
     const {rcsb_id}      = useParams<{ rcsb_id: string;}>()
     const molstarNodeRef = useRef<HTMLDivElement>(null);
@@ -42,12 +42,7 @@ export default function StructurePage() {
     const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
 
     useEffect(()=>{ dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current!, initiate_with_structure:rcsb_id })) },[molstarNodeRef, dispatch])
-
-    const { data, error, isLoading:isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
     const [test_active, test_active_set]                   = useState<boolean>(false)
-    console.log("Got data", data);
-    
-
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
