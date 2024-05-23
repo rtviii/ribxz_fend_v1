@@ -28,7 +28,8 @@ export interface UIState {
 
 const initialState: UIState = {
     data:{
-        current_structures: []
+        current_structures: [],
+        total_count: null
     },
     filters: {
         search         : null,
@@ -85,14 +86,9 @@ export const uiSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addMatcher(set_filter.match, (state, action) => {
-            console.log("UI Update listener middleware", action)
-        });
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
-            console.log("refetch registered");
-            console.log(state);
-            console.log(action);
-            Object.assign(state.data, { structures: action.payload.structures, total_count: action.payload.count})
+            state.data.current_structures = action.payload.structures
+            state.data.total_count = action.payload.count
         })
     }
 

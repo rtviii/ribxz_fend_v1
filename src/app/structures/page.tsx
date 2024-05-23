@@ -12,7 +12,6 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
-import { Filters } from "@/store/slices/ui_state"
 
 
 
@@ -39,6 +38,10 @@ export default function StructureCatalogue() {
 
   const current_structures                = useAppSelector((state) => state.ui.data.current_structures)
 
+  useEffect(() => {
+    console.log("Structures updated", current_structures);
+    
+  },[current_structures])
 
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">

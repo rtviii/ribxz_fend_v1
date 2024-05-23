@@ -97,18 +97,18 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
     const debounced_filters                 = useDebounce(filter_state, 250)
     useEffect(() => {
       //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
-      const structs = triggerRefetch({
+       triggerRefetch({
         year          : filter_state.year.map(x => x === null || x === 0? null : x.toString()).join(','),
         resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
         hostTaxa      : filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
         sourceTaxa    : filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
         polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
         search        : filter_state.search === null ? '' : filter_state.search
-      })
+      }).unwrap()
     }, [debounced_filters]);
 
-
-
+    // useEffect(() => {},[])
+    
 
 
   useEffect(() => {
