@@ -47,25 +47,25 @@ export function SidebarMenu() {
 
           <h2 className="text-xs font-semibold uppercase text-gray-400">Available Data</h2>
 
-          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/structures">
+          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="structures">
             Structures
           </Link>
 
-          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/proteins">
+          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="proteins">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
               <span>Proteins</span>
               <DnaIcon className="h-5 w-5" />
             </div>
           </Link>
 
-          <Link className="block py-2  px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/rna">
+          <Link className="block py-2  px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="rna">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>RNA</span>
               <DnaIcon className="h-5 w-5" />
             </div>
           </Link>
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/ligands">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="ligands">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span> Ligands/Binding Sites </span>
               {/* <LigandIcon className="h-5 w-5" /> */}
@@ -73,7 +73,7 @@ export function SidebarMenu() {
           </Link>
 
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/nomenclature">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="nomenclature">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>Nomenclature</span>
               <NotebookIcon className="h-5 w-5" />
@@ -85,7 +85,7 @@ export function SidebarMenu() {
           {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-xs font-semibold uppercase text-gray-400">Tools</h2>
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superimpose">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="superpose">
             <span>3D Superposition</span>
           </Link>
 

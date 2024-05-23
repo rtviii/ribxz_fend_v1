@@ -12,6 +12,8 @@ import { useParams } from 'next/navigation'
 import StructureComponents from "./components_table"
 import { transform } from "@/store/molstar/functions"
 import { useEffect, useRef, useState } from "react"
+import { SidebarMenu } from "@/components/sidebar"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -23,19 +25,20 @@ import { useEffect, useRef, useState } from "react"
 
 export default function StructurePage() {
 
-    const { rcsb_id }              = useParams<{ rcsb_id: string; }>()
-    const molstarNodeRef           = useRef<HTMLDivElement>(null);
-    const dispatch                 = useAppDispatch();
-    const ctx                      = useAppSelector(state => state.molstar.ui_plugin)!
-    const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
+    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const dispatch = useAppDispatch();
+    const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
 
     useEffect(() => {
-        dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id }))
+        dispatch(initiatePluginUIContext({
+            parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id
+        }))
     }, [molstarNodeRef, dispatch])
 
     useEffect(() => {
         console.log(data);
-    },[data])
+    }, [data])
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -60,15 +63,20 @@ export default function StructurePage() {
                                             <div className="flex justify-between">
                                                 <strong>Source Organism:</strong>
                                                 <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    {data?.src_organism_names}
+                                                    {data?.src_organism_names[0]}
                                                 </p>
                                             </div>
-                                            <div className="flex justify-between">
-                                                <strong>Host Organism:</strong>
-                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    {data?.host_organism_names}
-                                                </p>
-                                            </div>
+                                            {
+                                                data?.host_organism_names.length < 1 ?
+                                                    null :
+                                                    <div className="flex justify-between">
+                                                        <strong>Host Organism:</strong>
+                                                        <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
+                                                            {data?.host_organism_names[0]}
+
+                                                        </p>
+                                                    </div>
+                                            }
                                             <div className="flex justify-between">
                                                 <strong>Resolution:</strong>
                                                 <p>{data?.resolution} Å</p>
@@ -77,11 +85,44 @@ export default function StructurePage() {
                                                 <strong>Experimental Method:</strong>
                                                 <p>{data?.expMethod}</p>
                                             </div>
-                                            <div className="flex justify-between">
+                                            <div className="relative flex justify-between items-center mt-1">
                                                 <strong>Authors:</strong>
-                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    {data?.citation_rcsb_authors}
-                                                </p>
+                                                <HoverCard>
+                                                    <HoverCardTrigger asChild>
+
+                                                        <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors z-10" title="Full list of authors" >
+
+                                                            <span style={{ fontStyle: "italic" }}>{data?.citation_rcsb_authors[0]}</span> <span style={{
+                                                                cursor: "pointer",
+                                                                display: 'inline-block',
+                                                                width: '15px',
+                                                                height: '15px',
+                                                                borderRadius: '50%',
+                                                                backgroundColor: '#cccccc',
+                                                                textAlign: 'center',
+                                                                lineHeight: '15px',
+                                                                fontWeight: 'bold',
+                                                                fontSize: '14px',
+                                                                color: 'white'
+                                                            }}>+</span>
+
+
+
+                                                        </span>
+
+                                                    </HoverCardTrigger>
+                                                    <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
+                                                        {
+                                                            data?.citation_rcsb_authors.map((author) => {
+                                                                return <div key={author} className="flex items-center gap-2">
+                                                                    <div>
+                                                                        <div className="font-medium">{author}</div>
+                                                                        <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
+                                                                    </div>
+                                                                </div>
+                                                            })}
+                                                    </HoverCardContent>
+                                                </HoverCard>
                                             </div>
                                             <div className="flex justify-between">
                                                 <strong>Year:</strong>
@@ -90,12 +131,10 @@ export default function StructurePage() {
                                         </div>
                                     </div>
                                     <div className="mt-4 flex justify-between">
-                                        {/* <Button variant="outline">Visualize</Button> */}
-                                        <Button>Download</Button>
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="components">
-                                    { data !== undefined ?  <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas} /> : null }
+                                    {!isLoading ? <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas} /> : null}
                                 </TabsContent>
                             </Tabs>
                             <div className="flex flex-col gap-4">
@@ -105,6 +144,7 @@ export default function StructurePage() {
                             {/* <Button variant="outline">Log query</Button>
                             <Button></Button> */}
                         </CardFooter>
+
                     </Card>
                 </ResizablePanel>
                 <ResizableHandle />
@@ -116,6 +156,7 @@ export default function StructurePage() {
             </ResizablePanelGroup>
 
 
+            <SidebarMenu />
         </div>
     )
 }

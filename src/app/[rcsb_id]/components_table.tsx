@@ -12,10 +12,10 @@ const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
 
     return <TableRow
     className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
-    onClick      = {()=>{selectChain(ctx!, polymer.auth_asym_id)}}
-    onMouseEnter = {()=>{highlightChain(ctx!, polymer.auth_asym_id)}}
-    onMouseLeave = {()=>{removeHighlight(ctx!)}}
-    >
+    onClick      = {()=>{ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id)}}
+    onMouseEnter = {()=>{ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx!, polymer.auth_asym_id)}}
+    onMouseLeave = {()=>{ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!)}} >
+
         <TableCell>{polymer.auth_asym_id}</TableCell>
         <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
         <TableCell className="whitespace-pre">{polymer.src_organism_names}</TableCell>

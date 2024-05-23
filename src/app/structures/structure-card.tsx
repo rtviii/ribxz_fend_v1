@@ -103,43 +103,6 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                       </div>
                     </div>
                   })}
-
-                {/* <div className="flex items-center gap-2">
-                  <Avatar>
-                    <AvatarImage alt="Basu, R.S." src="/placeholder-avatar.jpg" />
-                    <AvatarFallback>BR</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">Basu, R.S.</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Lead Author</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Avatar>
-                    <AvatarImage alt="Sharma, A.K." src="/placeholder-avatar.jpg" />
-                    <AvatarFallback>AS</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">Sharma, A.K.</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Avatar>
-                    <AvatarImage alt="Gupta, S.P." src="/placeholder-avatar.jpg" />
-                    <AvatarFallback>SG</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">Gupta, S.P.</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div>
-                    <div className="font-medium">Chaudhary, N.</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
-                  </div>
-                </div> */}
               </HoverCardContent>
             </HoverCard>
           </div>
