@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { SelectValue, SelectTrigger, SelectContent } from "@/components/ui/select"
 import {
+  ribxz_api,
   useRoutersRouterStructListSourceTaxaQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
 } from "@/store/ribxz_api/ribxz_api"
@@ -68,12 +69,47 @@ export enum FilterType {
 }
 
 
+function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
   const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
   const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
+
+
+    const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+    const filter_state                      = useAppSelector((state) => state.ui.filters)
+    const debounced_filters                 = useDebounce(filter_state, 250)
+    useEffect(() => {
+      //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
+      const structs = triggerRefetch({
+        year          : filter_state.year.map(x => x === null || x === 0? null : x.toString()).join(','),
+        resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+        hostTaxa      : filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+        sourceTaxa    : filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+        polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+        search        : filter_state.search === null ? '' : filter_state.search
+      })
+    }, [debounced_filters]);
+
+
+
+
 
   useEffect(() => {
     if (!nomenclature_classes_is_loading) {

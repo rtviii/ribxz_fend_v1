@@ -16,21 +16,6 @@ import { Filters } from "@/store/slices/ui_state"
 
 
 
-function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 
 export const LoadingSpinner = () => {
@@ -52,32 +37,8 @@ export const LoadingSpinner = () => {
 
 export default function StructureCatalogue() {
 
-  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const dispatch = useAppDispatch()
-  const filters = useAppSelector((state) => state.ui.filters)
-  const current_structures = useAppSelector((state) => state.ui.data.structures)
-  const debounced_filters = useDebounce(filters, 250)
+  const current_structures                = useAppSelector((state) => state.ui.data.current_structures)
 
-  console.log();
-  
-  useEffect(() => {
-
-    //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
-    const structs = triggerRefetch({
-      year          : filters.year.map(x => x === null || x === 0? null : x.toString()).join(','),
-      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa      : filters.host_taxa.length == 0 ? ''                                     : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa    : filters.source_taxa.length == 0 ? ''                                   : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filters.polymer_classes.length == 0 ? ''                               : filters.polymer_classes.join(','),
-      search        : filters.search === null ? ''                                           : filters.search
-    })
-    
-  }, [debounced_filters]);
-
-
-  useEffect(() => {
-    console.log('current_structures', current_structures);
-  }, [current_structures])
 
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -96,7 +57,7 @@ export default function StructureCatalogue() {
 
             <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
               <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
-                {data === undefined ?  null : data['structures'].map(( struct:RibosomeStructure ) => <StructureCard   _={struct} key={struct.rcsb_id} />) }
+                {current_structures.map(( struct:RibosomeStructure ) => <StructureCard   _={struct} key={struct.rcsb_id} />) }
               </div>
             </ScrollArea>
           </div>

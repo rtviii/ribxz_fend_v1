@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { MolstarNode, } from "@/store/molstar/lib"
 import { Skeleton } from "@/components/ui/skeleton"
-import {  RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
+import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
@@ -21,22 +21,26 @@ import { useEffect, useRef, useState } from "react"
 // -----------
 // -----------
 
-export default function StructurePage({data}:{data:RibosomeStructure}) {
+export default function StructurePage() {
 
-    const {rcsb_id}      = useParams<{ rcsb_id: string;}>()
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const dispatch       = useAppDispatch();
-    const ctx            = useAppSelector(state => state.molstar.ui_plugin)!
+    const { rcsb_id }              = useParams<{ rcsb_id: string; }>()
+    const molstarNodeRef           = useRef<HTMLDivElement>(null);
+    const dispatch                 = useAppDispatch();
+    const ctx                      = useAppSelector(state => state.molstar.ui_plugin)!
+    const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId:rcsb_id})
 
-    useEffect(()=>{ dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current!, initiate_with_structure:rcsb_id })) },[molstarNodeRef, dispatch])
-    const [test_active, test_active_set]                   = useState<boolean>(false)
+    useEffect(() => {
+        dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id }))
+    }, [molstarNodeRef, dispatch])
+
+    useEffect(() => {
+        console.log(data);
+    },[data])
+
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
+            <ResizablePanelGroup direction="horizontal" className="rounded-lg border ">
                 <ResizablePanel defaultSize={25} >
-                <Button onClick={()=>{transform(ctx)}} > select current</Button>
-                {/* <ChainPicker/> */}
-
                     <Card className="h-full flex flex-col">
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
@@ -91,9 +95,7 @@ export default function StructurePage({data}:{data:RibosomeStructure}) {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="components">
-
-                                     <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas}/>
-
+                                    { data !== undefined ?  <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas} /> : null }
                                 </TabsContent>
                             </Tabs>
                             <div className="flex flex-col gap-4">

@@ -19,7 +19,8 @@ export interface Pagination {
 
 export interface UIState {
     data:{
-        structures:RibosomeStructure[]
+        current_structures: RibosomeStructure[],
+        total_count       : number | null
     }
     filters   : Filters,
     pagination: Pagination
@@ -27,7 +28,7 @@ export interface UIState {
 
 const initialState: UIState = {
     data:{
-        structures: []
+        current_structures: []
     },
     filters: {
         search         : null,
@@ -62,7 +63,7 @@ export const uiSlice = createSlice({
     initialState,
     reducers: {
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
-            state.data.structures = action.payload
+            state.data.current_structures = action.payload
         },
         //* ------------------------- Filters and pagination 
         set_filter(state, action: PayloadAction<{
@@ -91,7 +92,7 @@ export const uiSlice = createSlice({
             console.log("refetch registered");
             console.log(state);
             console.log(action);
-            Object.assign(state.data, { structures: action.payload.structures })
+            Object.assign(state.data, { structures: action.payload.structures, total_count: action.payload.count})
         })
     }
 
