@@ -1,7 +1,7 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
-interface Filters {
+export interface Filters {
     search         : string | null
     year           : [number | null, number | null]
     resolution     : [number | null, number | null]
@@ -10,7 +10,7 @@ interface Filters {
     host_taxa      : number[]
 }
 
-interface Pagination {
+export interface Pagination {
     current_page: number
     page_size   : number
     total_pages : number | null

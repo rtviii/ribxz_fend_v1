@@ -26,12 +26,12 @@ const injectedRtkApi = api.injectEndpoints({
       query: (queryArg) => ({
         url: `/structures/list`,
         params: {
-          search         : queryArg.search,
-          year           : queryArg.year,
-          resolution     : queryArg.resolution,
+          search: queryArg.search,
+          year: queryArg.year,
+          resolution: queryArg.resolution,
           polymer_classes: queryArg.polymerClasses,
-          source_taxa    : queryArg.sourceTaxa,
-          host_taxa      : queryArg.hostTaxa,
+          source_taxa: queryArg.sourceTaxa,
+          host_taxa: queryArg.hostTaxa,
         },
       }),
     }),
