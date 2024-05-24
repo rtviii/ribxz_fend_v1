@@ -32,7 +32,7 @@ const initialState: UIState = {
         total_count: null
     },
     filters: {
-        search         : null,
+        search         : '',
         year           : [null, null],
         resolution     : [null, null],
         polymer_classes: [],

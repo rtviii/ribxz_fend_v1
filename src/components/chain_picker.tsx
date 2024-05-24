@@ -81,7 +81,7 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
                 <div className="chain-picker grid gap-2">
                     <div className="flex items-center gap-2">
                         <Input placeholder="Search" 
-                        value={filters.search} 
+                        value={filters.search } 
                         onChange={(e) => { 
                             dispatch(set_filter({filter_type:"search",value:e.target.value})) }} />
                     </div>
