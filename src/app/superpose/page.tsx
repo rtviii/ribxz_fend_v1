@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
 import { Label } from "@/components/ui/label";
-import { dynamicSuperimpose } from "@/store/ribxz_api/dynamic_superposition";
+import { dynamicSuperimpose } from "@/store/molstar/dynamic_superposition";
 import { SidebarMenu } from "@/components/sidebar";
 
 function PlusIcon() {

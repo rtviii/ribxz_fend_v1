@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
+import { highlightChain, hl_ligand_surroundings, removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import Link from "next/link"
@@ -8,8 +8,7 @@ import Link from "next/link"
 
 const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
 
-    const ctx            = useAppSelector(state => state.molstar.ui_plugin)
-
+    const ctx = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow
     className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
     onClick      = {()=>{ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id)}}
@@ -26,8 +25,11 @@ const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
     </TableRow>
 }
 
+
 const LigandTableRow = ({}: {}) => {
-    return <TableRow>
+
+    const ctx = useAppSelector(state=>state.molstar.ui_plugin)
+    return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" onClick={()=>{hl_ligand_surroundings(ctx!,'4')}}>
         <TableCell>AX</TableCell>
         <TableCell>Erythromycin</TableCell>
         <TableCell>

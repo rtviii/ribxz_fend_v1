@@ -93,15 +93,15 @@ function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
 
 export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
-
+  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
 
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state = useAppSelector((state) => state.ui.filters)
-  const debounced_filters = useDebounce(filter_state, 250)
+  const filter_state                      = useAppSelector((state) => state.ui.filters)
+  const debounced_filters                 = useDebounce(filter_state, 250)
   useEffect(() => {
+
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
     triggerRefetch({
       year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
@@ -111,8 +111,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
       polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
       search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
-  }, [debounced_filters]);
 
+  }, [debounced_filters]);
 
   const struct_state = useAppSelector((state) => state.ui.data)
 
@@ -176,25 +176,23 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
             <div className="space-y-2">
               <label className="text-sm font-medium my-4" htmlFor="proteinsPresent">
                 Polymer Classes
-
-<TooltipProvider>
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild >
-                <abbr
-                  className="ml-1 text-lg font-semibold text-red-500 hover:text-red-700 hover:cursor-pointer"
-                  style={{
-                    textDecoration: "none",
-                  }}
-                >
-                  *
-                </abbr>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>This is an experimental feature so you might get a small number of false positives.</p>
-          <p>Find out more how the chains are classified.</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+                <TooltipProvider>
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild >
+                      <abbr
+                        className="ml-1 text-lg font-semibold text-red-500 hover:text-red-700 hover:cursor-pointer"
+                        style={{
+                          textDecoration: "none",
+                        }}>
+                        *
+                      </abbr>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Experimental feature. A small number of false positives is expected.</p>
+                      <p>Find out more about how we classify polymers</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </label>
               <Select<PolymerClassOption>
                 defaultValue={[]}

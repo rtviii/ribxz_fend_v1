@@ -1,5 +1,4 @@
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
-import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
 import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
 import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure/structure'
@@ -12,17 +11,92 @@ import { debounceTime } from 'rxjs';
 import { Script } from 'molstar/lib/mol-script/script';
 import { InitVolumeStreaming } from 'molstar/lib/mol-plugin/behavior/dynamic/volume-streaming/transformers';
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
 import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
 import { QueryHelper } from './lib';
 import { StructureFocusControls } from 'molstar/lib/mol-plugin-ui/structure/focus'
-import { Mat4 } from 'molstar/lib/mol-math/linear-algebra/3d/mat4';
 import { StateObjectRef } from 'molstar/lib/mol-state/object';
-import { PluginContext } from 'molstar/lib/mol-plugin/context';
+import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
+import { PluginContext } from "molstar/lib/mol-plugin/context";
+import { compile } from "molstar/lib/mol-script/runtime/query/compiler";
+import { superpose } from 'molstar/lib/mol-model/structure/structure/util/superposition'
+import { QueryContext } from "molstar/lib/mol-model/structure/query/context";
+import { Expression } from "molstar/lib/mol-script/language/expression";
+import { PluginStateObject as PSO } from "molstar/lib/mol-plugin-state/objects";
+import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
+import { Mat4 } from "molstar/lib/mol-math/linear-algebra/3d/mat4";
+import { Loci } from 'molstar/lib/mol-model/loci';
+import { StateSelection } from 'molstar/lib/mol-state';
+
+export enum StateElements {
+  Model = 'model',
+  ModelProps = 'model-props',
+  Assembly = 'assembly',
+
+  VolumeStreaming = 'volume-streaming',
+
+  Sequence = 'sequence',
+  SequenceVisual = 'sequence-visual',
+  Het = 'het',
+  HetVisual = 'het-visual',
+  Het3DSNFG = 'het-3dsnfg',
+  Water = 'water',
+  WaterVisual = 'water-visual',
+
+  HetGroupFocus = 'het-group-focus',
+  HetGroupFocusGroup = 'het-group-focus-group'
+}
 
 
 
 
+// export function structure_sel(ctx: PluginContext, assemblyId: string) {
+//   const state = ctx.state.data;
+//   const model = state.build().to(StateElements.Model);
+//   const props = {
+//     type: assemblyId ? {
+//       name: 'assembly' as const,
+//       params: { id: assemblyId }
+//     } : {
+//       name: 'model' as const,
+//       params: {}
+//     }
+//   };
+
+//   const s = model
+//     .apply(StateTransforms.Model.StructureFromModel, props, { ref: StateElements.Assembly });
+
+//   s.apply(StateTransforms.Model.StructureComplexElement, { type: 'atomic-sequence' }, { ref: StateElements.Sequence });
+//   s.apply(StateTransforms.Model.StructureComplexElement, { type: 'atomic-het' }, { ref: StateElements.Het });
+//   s.apply(StateTransforms.Model.StructureComplexElement, { type: 'water' }, { ref: StateElements.Water });
+
+//   console.log("sturcture");
+//   console.log(s);
+
+//   return s;
+// }
+
+export function hl_ligand_surroundings(ctx: PluginContext, identifier: string) {
+  return ctx.dataTransaction(async () => {
+
+    const core = MS.struct.filter.first([
+      MS.struct.generator.atomGroups({
+        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), identifier]),
+        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
+      })
+    ]);
+    const surr_sel = MS.struct.modifier.includeSurroundings({ 0: core, radius: 5, 'as-whole-residues': true });
+    const data = ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+
+    const sel = Script.getStructureSelection( surr_sel, data!);
+
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    ctx.managers.structure.selection.clear();
+    ctx.managers.structure.selection.fromLoci('add', loci);
+    ctx.managers.camera.focusLoci(loci);
+
+
+  });
+}
 
 
 export function select_multiple(molstar_plugin: PluginUIContext) {
@@ -99,9 +173,10 @@ export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
   if (!data) return;
 
-  const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-    'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-  }), data);
+  const sel = Script.getStructureSelection(
+    Q => Q.struct.generator.atomGroups({
+      'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+    }), data);
 
   let loci = StructureSelection.toLociWithSourceUnits(sel);
   plugin.managers.structure.selection.clear();

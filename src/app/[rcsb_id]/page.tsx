@@ -10,7 +10,7 @@ import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 import StructureComponents from "./components_table"
-import { transform } from "@/store/molstar/functions"
+import { hl_ligand_surroundings, structure_sel, transform } from "@/store/molstar/functions"
 import { useEffect, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/sidebar"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
@@ -30,6 +30,7 @@ export default function StructurePage() {
     const dispatch = useAppDispatch();
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
 
+    const ctx  = useAppSelector(state => state.molstar.ui_plugin)
     useEffect(() => {
         dispatch(initiatePluginUIContext({
             parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id
@@ -42,6 +43,8 @@ export default function StructurePage() {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
+            <Button onClick={() => { structure_sel(ctx!,'1')   }}>structure func</Button>
+            <Button onClick={() => { hl_ligand_surroundings(ctx!,'ERY')    }}>lignad func</Button>
             <ResizablePanelGroup direction="horizontal" className="rounded-lg border ">
                 <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col">
