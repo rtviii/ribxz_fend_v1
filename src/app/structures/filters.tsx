@@ -11,6 +11,12 @@ import {
   useRoutersRouterStructListSourceTaxaQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
 } from "@/store/ribxz_api/ribxz_api"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 import {
   Pagination,
@@ -93,8 +99,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
 
 
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state                      = useAppSelector((state) => state.ui.filters)
-  const debounced_filters                 = useDebounce(filter_state, 250)
+  const filter_state = useAppSelector((state) => state.ui.filters)
+  const debounced_filters = useDebounce(filter_state, 250)
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
     triggerRefetch({
@@ -124,9 +130,9 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
     <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true}>
       <div className="flex items-center justify-between  mb-2 ">
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex ">
-          <div className=" min-w-full font-semibold flex flex-row justify-between"> 
-          <span>Structure Filters  </span>
-          <span className="font-semibold"> [{struct_state.total_count} structures]</span>
+          <div className=" min-w-full font-semibold flex flex-row justify-between">
+            <span>Structure Filters  </span>
+            <span className="font-semibold"> [{struct_state.total_count} structures]</span>
           </div>
           {/* <span className=" min-w-full font-semibold"> {struct_state.total_count}</span> */}
         </CollapsibleTrigger>
@@ -134,14 +140,14 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
       <CollapsibleContent>
         <div className="space-y-2">
           {disable?.Search ? null :
-           <Input placeholder="Search" 
-           value={filters.search}
-           onChange={(e) => {
-            dispatch(set_filter({
-              filter_type: "search",
-              value: e.target.value
-            }))
-          }} />}
+            <Input placeholder="Search"
+              value={filters.search}
+              onChange={(e) => {
+                dispatch(set_filter({
+                  filter_type: "search",
+                  value: e.target.value
+                }))
+              }} />}
 
           {disable?.DepositionDate ? null :
             <div className="flex items-center justify-between space-x-2">
@@ -150,7 +156,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <div className="flex items-center space-x-2">
                 <Input className="w-20" id="startYear" placeholder="Start Year" type="number" value={filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-                <Input className="w-20" id="endYear" placeholder="End Year" type="number"     value={filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+                <Input className="w-20" id="endYear" placeholder="End Year" type="number" value={filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -167,9 +173,28 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
             </div>
           }
           {disable?.PolymerClass ? null :
-            <div>
-              <label className="text-sm font-medium" htmlFor="proteinsPresent">
+            <div className="space-y-2">
+              <label className="text-sm font-medium my-4" htmlFor="proteinsPresent">
                 Polymer Classes
+
+<TooltipProvider>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild >
+                <abbr
+                  className="ml-1 text-lg font-semibold text-red-500 hover:text-red-700 hover:cursor-pointer"
+                  style={{
+                    textDecoration: "none",
+                  }}
+                >
+                  *
+                </abbr>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>This is an experimental feature so you might get a small number of false positives.</p>
+          <p>Find out more how the chains are classified.</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
               </label>
               <Select<PolymerClassOption>
                 defaultValue={[]}
@@ -180,10 +205,10 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 isMulti={true}
               />
             </div>
-
           }
+
           {disable?.SourceOrganism ? null :
-            <div>
+            <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor="SourceOrganism">
                 Source Organism
               </label>
@@ -205,9 +230,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
             </div>
           }
 
-
           {disable?.HostOrganism ? null :
-            <div>
+            <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
                 Host Organism
               </label>
