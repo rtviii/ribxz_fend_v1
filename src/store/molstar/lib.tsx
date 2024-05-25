@@ -39,7 +39,7 @@ export class CustomStructureTools extends PluginUIComponent {
     </>;
   }
 }
-export const __MyOldSpec: PluginUISpec = {
+export const MySpec: PluginUISpec = {
   ...DefaultPluginUISpec(),
 
   behaviors: [
@@ -126,7 +126,7 @@ export const __MyOldSpec: PluginUISpec = {
   layout: {
     initial: {
       controlsDisplay: 'portrait',
-      showControls: false,
+      showControls: true,
     },
 
 
@@ -137,7 +137,7 @@ export const __MyOldSpec: PluginUISpec = {
     // TODO: hook up current state to custom sequence viewer
     // sequenceViewer:
     controls:{
-        // bottom:'none',
+        bottom:'none',
         // left:'none'
         
     },
@@ -148,12 +148,12 @@ export const __MyOldSpec: PluginUISpec = {
 
 }
 
-const MySpec: PluginUISpec = {
-    ...DefaultPluginUISpec(),
-    config: [
-            [PluginConfig.VolumeStreaming.Enabled, false]
-    ]
-}
+// const MySpec: PluginUISpec = {
+//     ...DefaultPluginUISpec(),
+//     config: [
+//             [PluginConfig.VolumeStreaming.Enabled, false]
+//     ]
+// }
 
 export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIContext, rcsb_id:string }):Promise<null> {
       const data       = await plugin.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id}.cif` }, { state: { isGhost: true } });
@@ -170,7 +170,7 @@ export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: str
 }
 
 export async function createPlugin({parent_element, initiate_with_structure}:{ parent_element: HTMLElement, initiate_with_structure?: string }):Promise<PluginUIContext> {
-    const ctx = await createPluginUI({ target: parent_element, spec  : __MyOldSpec, render: renderReact18 });
+    const ctx = await createPluginUI({ target: parent_element, spec  : MySpec, render: renderReact18 });
     window.molstar = ctx;
     if ( initiate_with_structure !== undefined){
       const data       = await ctx.builders.data.download({ url: `https://files.rcsb.org/download/${initiate_with_structure}.cif` }, { state: { isGhost: true } });
@@ -181,7 +181,7 @@ export async function createPlugin({parent_element, initiate_with_structure}:{ p
 }
 
 export async function on_hover_chain(parent: HTMLElement):Promise<PluginUIContext> {
-    const plugin = await createPluginUI({ target: parent, spec  : __MyOldSpec, render: renderReact18 });
+    const plugin = await createPluginUI({ target: parent, spec  : MySpec, render: renderReact18 });
     window.molstar = plugin;
     return plugin;
 }

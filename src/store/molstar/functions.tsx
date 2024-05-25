@@ -82,59 +82,37 @@ export enum StateElements {
 export function hl_ligand_surroundings(ctx: PluginContext, identifier: string) {
   return ctx.dataTransaction(async () => {
 
-    const core = MS.struct.filter.first([
-      MS.struct.generator.atomGroups({
-        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), identifier]),
-        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
-      })
-    ]);
 
 
     let structures = ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
-  //   const k = await ctx.build()
-  //       .to(struct.structureRef.cell)
-  //       // .apply(StructureComponent, { type: { name: 'bundle', params: bundle }, label: repr }, { tags: Tags.AddedComponent })
-  //       .apply(StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, {type:'ball-and-stick', color: 'uniform'}))
-  //       // .apply(
-  //       //     StateTransforms.Representation.OverpaintStructureRepresentation3DFromBundle,
-  //       //     { layers: overpaintLayers },
-  //       //     { tags: Tags.Overpaint },
-  //       // )
-  //       .commit();
-  // return
-
     const update = ctx.build();
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'ERY' }, { ref: StateElements.HetGroupFocusGroup });
-    const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: 'Core', expression: core }, { ref: StateElements.HetGroupFocus });
 
-    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, {
-      type: 'ball-and-stick'
-    }));
-    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, {
-      type: 'label',
-      typeParams: { level: 'element' }
-    }), { tags: ['proteopedia-labels'] });
+    const core = MS.struct.filter.first([
+      MS.struct.generator.atomGroups({
+        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), 'ERY']),
+        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
+      })
+    ]);
 
-      await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
+    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'Erythromycin (ERY)' }, { ref: StateElements.HetGroupFocusGroup });
+    const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, {  label: 'Erythromycin (ERY)', expression: core }, {  ref: StateElements.HetGroupFocus });
 
-    // const update2 = ctx.build();
-    // update2.to(structure)
-    //   .apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, structure.data, {
-    //     type: 'cartoon',
-    //     color: 'uniform',
-    //   }));
+    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
+    // coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'element' } }) );
+
+    await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
 
 
     const surr_sel = MS.struct.modifier.includeSurroundings({ 0: core, radius: 5, 'as-whole-residues': true });
     const data = ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
 
-    const sel = Script.getStructureSelection(surr_sel, data!);
+    // const sel = Script.getStructureSelection(surr_sel, data!);
 
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
-    ctx.managers.structure.selection.clear();
-    ctx.managers.structure.selection.fromLoci('add', loci);
-    ctx.managers.camera.focusLoci(loci);
+    // let loci = StructureSelection.toLociWithSourceUnits(sel);
+    // ctx.managers.structure.selection.clear();
+    // ctx.managers.structure.selection.fromLoci('add', loci);
+    // ctx.managers.camera.focusLoci(loci);
 
 
   });
