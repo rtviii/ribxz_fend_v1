@@ -19,7 +19,8 @@ export interface Pagination {
 
 export interface UIState {
     data:{
-        structures:RibosomeStructure[]
+        current_structures: RibosomeStructure[],
+        total_count       : number | null
     }
     filters   : Filters,
     pagination: Pagination
@@ -27,10 +28,11 @@ export interface UIState {
 
 const initialState: UIState = {
     data:{
-        structures: []
+        current_structures: [],
+        total_count: null
     },
     filters: {
-        search         : null,
+        search         : '',
         year           : [null, null],
         resolution     : [null, null],
         polymer_classes: [],
@@ -54,6 +56,7 @@ const initialState: UIState = {
 // Create the middleware instance and methods
 const UIUpdateListenerMiddelware = createListenerMiddleware()
 
+// const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 
 
 export const uiSlice = createSlice({
@@ -61,7 +64,7 @@ export const uiSlice = createSlice({
     initialState,
     reducers: {
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
-            state.data.structures = action.payload
+            state.data.current_structures = action.payload
         },
         //* ------------------------- Filters and pagination 
         set_filter(state, action: PayloadAction<{
@@ -82,6 +85,12 @@ export const uiSlice = createSlice({
             }
         },
     },
+    extraReducers: (builder) => {
+        builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
+            state.data.current_structures = action.payload.structures
+            state.data.total_count = action.payload.count
+        })
+    }
 
 })
 

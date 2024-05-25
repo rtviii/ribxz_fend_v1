@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
 import { Label } from "@/components/ui/label";
 import { dynamicSuperimpose } from "@/store/ribxz_api/dynamic_superposition";
+import { SidebarMenu } from "@/components/sidebar";
 
 function PlusIcon() {
     return (
@@ -89,6 +90,7 @@ export default function Superimpose() {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
+            <SidebarMenu/>
             <ResizablePanelGroup direction="horizontal" className={"rounded-lg border " + (test_active ? 'bg-black' : 'bg-white')}  >
                 <ResizablePanel defaultSize={25} >
 
@@ -102,12 +104,13 @@ export default function Superimpose() {
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
 
                             <div className="flex flex-col gap-4">
-                                <FilterSidebar disable={{ 'Search': true, Sort: true, PolymerClass: true }} />
+                                <FilterSidebar  />
                             </div>
 
                             <Separator className="my-4" />
                             <p className="text-gray-500 p-1">Please select chains to superimpose from the "+" menu.</p>
-                            <ChainPicker chains_by_struct={isLoading_chains_by_struct ? [] : chains_by_struct}>
+
+                            <ChainPicker>
                                 <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     <PlusIcon className="text-white" />
                                 </Button>

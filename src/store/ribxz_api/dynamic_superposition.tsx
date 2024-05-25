@@ -62,9 +62,8 @@ export function dynamicSuperimpose(ctx: PluginContext,pivot_auth_asym_id: string
         //     })
         // ]);
 
-        console.log("Got pivot ", pivot_auth_asym_id);
+        // console.log("Got pivot ", pivot_auth_asym_id);
         
-        // TODO: find a way to identify 
         const pivot = MS.struct.filter.first([
             MS.struct.generator.atomGroups({
                 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), pivot_auth_asym_id]),
@@ -72,7 +71,7 @@ export function dynamicSuperimpose(ctx: PluginContext,pivot_auth_asym_id: string
             })
         ]);
 
-        console.log("Got pivot" ,pivot);
+        // console.log("Got pivot" ,pivot);
         
         // const rest = MS.struct.modifier.exceptBy({
         //     0: MS.struct.modifier.includeSurroundings({ 0: pivot, radius: 5 }), 
@@ -84,7 +83,7 @@ export function dynamicSuperimpose(ctx: PluginContext,pivot_auth_asym_id: string
         const selections    = structureRefs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
         const transforms    = superpose(selections);
 
-        console.log("Got transforms", transforms);
+        // console.log("Got transforms", transforms);
         
         // await siteVisual(plugin, xs[0].cell, pivot, rest);
         await siteVisual(ctx, structureRefs[0].cell, pivot)

@@ -12,25 +12,9 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
-import { Filters } from "@/store/slices/ui_state"
 
 
 
-function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 
 export const LoadingSpinner = () => {
@@ -49,32 +33,28 @@ export const LoadingSpinner = () => {
     </svg>
 }
 
+export function HoverMenu() {
+  return (
+    <div className="fixed bottom-0 left-0 z-50 overflow-hidden bg-black">
+      <div className="group">
+        <div className="absolute bottom-0 left-0 h-12 w-12 bg-gray-900 text-white transition-all duration-300 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100 -translate-x-full -translate-y-full opacity-0">
+          <Button className="h-full w-full rounded-none">
+            here
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function StructureCatalogue() {
-  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-
-  // const { data, isLoading, error } = useAutoRefetch();
-  const dispatch = useAppDispatch()
-  const filters = useAppSelector((state) => state.ui.filters)
-  const debounced_filters = useDebounce(filters, 250)
-
-  useEffect(() => {
-    //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
-    console.log("New filters:");
-    console.log({...debounced_filters});
-    
-    triggerRefetch({
-      year          : filters.year.map(x => x === null || x === 0? null : x.toString()).join(','),
-      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa      : filters.host_taxa.length == 0 ? ''                                     : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa    : filters.source_taxa.length == 0 ? ''                                   : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filters.polymer_classes.length == 0 ? ''                               : filters.polymer_classes.join(','),
-      search        : filters.search === null ? ''                                           : filters.search
-    })
-  }, [debounced_filters]);
-
+  const current_structures                = useAppSelector((state) => state.ui.data.current_structures)
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
+      <HoverMenu/>
+
+
+
       <h1 className="text-2xl font-bold mb-6 " >Ribosome Structures</h1>
       <div className="grow"  >
 
@@ -90,7 +70,7 @@ export default function StructureCatalogue() {
 
             <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
               <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
-                {data === undefined ?  null : data['structures'].map(( struct:RibosomeStructure ) => <StructureCard   _={struct} key={struct.rcsb_id} />) }
+                {current_structures.map(( struct:RibosomeStructure ) => <StructureCard   _={struct} key={struct.rcsb_id} />) }
               </div>
             </ScrollArea>
           </div>
