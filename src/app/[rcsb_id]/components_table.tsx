@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { create_ligand, highlightChain,  removeHighlight, selectChain } from "@/store/molstar/functions"
+import { create_ligand, create_ligand_surroundings, highlightChain,  removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import Link from "next/link"
@@ -21,7 +21,7 @@ const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
         <TableCell className="whitespace-pre">{polymer.entity_poly_seq_one_letter_code_can}</TableCell>
         <TableCell>
             <DeleteIcon className="h-5 w-5" />
-        </TableCell>
+        </TableCell>n
     </TableRow>
 }
 
@@ -29,15 +29,19 @@ const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
 const LigandTableRow = ({lig}: {lig:NonpolymericLigand}) => {
 
     const ctx = useAppSelector(state=>state.molstar.ui_plugin)
-    return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" onClick={()=>{create_ligand(ctx!, lig.chemicalId)}}>
+    return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" >
         <TableCell>{lig.chemicalId}</TableCell>
         <TableCell>{lig.chemicalName}</TableCell>
-        <TableCell>
-            {/* <Link href="#">Link</Link> */}
+        <TableCell onClick={()=>{create_ligand_surroundings(ctx!, lig.chemicalId )}} className="rounded-sm hover:bg-slate-400">
+            <div>Surroundings</div>
+        </TableCell>
+        <TableCell className="hover:bg-slate-400 rounded-sm" onClick={()=>{
+            create_ligand(ctx!, lig.chemicalId)}}>
+            <p>Create</p>
         </TableCell>
         <TableCell>
             <div className="flex items-center gap-2">
-                {lig.nonpolymer_comp?.drugbank?.drugbank_container_identifiers.drugbank_id}
+                <p>{lig.nonpolymer_comp?.drugbank?.drugbank_container_identifiers.drugbank_id}</p>
             </div>
         </TableCell>
     </TableRow>

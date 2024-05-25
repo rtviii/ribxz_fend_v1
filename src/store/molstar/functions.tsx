@@ -80,9 +80,48 @@ export enum StateElements {
 //   return s;
 // }
 
-export function create_ligand(ctx: PluginContext, identifier: string) {
+export function create_ligand_surroundings(ctx: PluginContext, chemicalId: string) {
   return ctx.dataTransaction(async () => {
+    const RADIUS = 5
 
+    let structures = ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
+    const update = ctx.build();
+
+
+
+
+    const core = MS.struct.filter.first([
+      MS.struct.generator.atomGroups({
+        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
+        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
+      })
+    ]);
+
+    const surr_sel = MS.struct.modifier.includeSurroundings({ 0: core, radius: RADIUS, 'as-whole-residues': true });
+
+
+    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'group' }, { ref: StateElements.HetGroupFocusGroup });
+    const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Neighborhood (${RADIUS} Å)`, expression: surr_sel }, { ref: StateElements.HetGroupFocus });
+
+    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
+    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
+
+    await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
+
+    const compiled = compile<StructureSelection>(surr_sel);
+    const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
+    let loci = StructureSelection.toLociWithSourceUnits(selection);
+    ctx.managers.structure.selection.clear();
+    ctx.managers.structure.selection.fromLoci('add', loci);
+    ctx.managers.camera.focusLoci(loci);
+  })
+}
+export function create_ligand(ctx: PluginContext, chemicalId: string) {
+  return ctx.dataTransaction(async () => {
+    console.log("create ligand");
+    console.log("got chemid ", chemicalId);
+    
 
 
     let structures = ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
@@ -91,29 +130,26 @@ export function create_ligand(ctx: PluginContext, identifier: string) {
 
     const core = MS.struct.filter.first([
       MS.struct.generator.atomGroups({
-        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), 'ERY']),
+        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
         'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
       })
     ]);
 
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'Erythromycin (ERY)' }, { ref: StateElements.HetGroupFocusGroup });
-    const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, {  label: 'Erythromycin (ERY)', expression: core }, {  ref: StateElements.HetGroupFocus });
+    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'ligand_group' }, { ref: StateElements.HetGroupFocusGroup });
+    const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: chemicalId, expression: core }, { ref: StateElements.HetGroupFocus });
 
     coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
-    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }) );
+    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
 
     await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
 
 
-    // const surr_sel = MS.struct.modifier.includeSurroundings({ 0: core, radius: 5, 'as-whole-residues': true });
-    // const data = ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-
-    // const sel = Script.getStructureSelection(surr_sel, data!);
-
-    // let loci = StructureSelection.toLociWithSourceUnits(sel);
-    // ctx.managers.structure.selection.clear();
-    // ctx.managers.structure.selection.fromLoci('add', loci);
-    // ctx.managers.camera.focusLoci(loci);
+    const compiled = compile<StructureSelection>(core);
+    const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
+    let loci = StructureSelection.toLociWithSourceUnits(selection);
+    ctx.managers.structure.selection.clear();
+    ctx.managers.structure.selection.fromLoci('add', loci);
+    ctx.managers.camera.focusLoci(loci);
 
 
   });
@@ -204,6 +240,9 @@ export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
   plugin.managers.structure.selection.fromLoci('add', loci);
   plugin.managers.camera.focusLoci(loci);
 }
+
+
+
 const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
   if (!data) return;
@@ -215,12 +254,10 @@ const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
   let loci = StructureSelection.toLociWithSourceUnits(sel);
   plugin.managers.interactivity.lociHighlights.highlight({ loci });
 }
-
-_.memoize.Cache = WeakMap; // use a weak map as _.memoize cache to prevent memory leaks
-
-export const highlightChain = _.memoize(_highlightChain => 
-  _.debounce((ctx,auth_asym_id) => {
-    _highlightChain(ctx,auth_asym_id)
+_.memoize.Cache = WeakMap;
+export const highlightChain = _.memoize(_highlightChain =>
+  _.debounce((ctx, auth_asym_id) => {
+    _highlightChain(ctx, auth_asym_id)
   }, 50, { "leading": true, "trailing": true })
 )(_highlightChain);
 
