@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { highlightChain, hl_ligand_surroundings, removeHighlight, selectChain } from "@/store/molstar/functions"
+import { create_ligand, highlightChain,  removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import Link from "next/link"
@@ -12,7 +12,7 @@ const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
     return <TableRow
     className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
     onClick      = {()=>{ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id)}}
-    onMouseEnter = {()=>{ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx!, polymer.auth_asym_id)}}
+    onMouseEnter = {()=>{ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.auth_asym_id)}}
     onMouseLeave = {()=>{ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!)}} >
 
         <TableCell>{polymer.auth_asym_id}</TableCell>
@@ -26,17 +26,18 @@ const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
 }
 
 
-const LigandTableRow = ({}: {}) => {
+const LigandTableRow = ({lig}: {lig:NonpolymericLigand}) => {
 
     const ctx = useAppSelector(state=>state.molstar.ui_plugin)
-    return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" onClick={()=>{hl_ligand_surroundings(ctx!,'4')}}>
-        <TableCell>AX</TableCell>
-        <TableCell>Erythromycin</TableCell>
+    return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" onClick={()=>{create_ligand(ctx!, lig.chemicalId)}}>
+        <TableCell>{lig.chemicalId}</TableCell>
+        <TableCell>{lig.chemicalName}</TableCell>
         <TableCell>
-            <Link href="#">Link</Link>
+            {/* <Link href="#">Link</Link> */}
         </TableCell>
         <TableCell>
             <div className="flex items-center gap-2">
+                {lig.nonpolymer_comp?.drugbank?.drugbank_container_identifiers.drugbank_id}
             </div>
         </TableCell>
     </TableRow>
@@ -88,7 +89,7 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
                 </TableHeader>
                 <TableBody>
 
-                    {[1, 2, 3].map(x => <LigandTableRow key={x} />)}
+                    {ligands.map(( x ,i) => <LigandTableRow key={i} lig={x} />)}
 
 
                 </TableBody>

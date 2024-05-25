@@ -24,6 +24,7 @@ import { Expression } from "molstar/lib/mol-script/language/expression";
 import { PluginStateObject as PSO } from "molstar/lib/mol-plugin-state/objects";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
 import { Mat4 } from "molstar/lib/mol-math/linear-algebra/3d/mat4";
+import _ from 'lodash'
 import { Loci } from 'molstar/lib/mol-model/loci';
 import { StateSelection } from 'molstar/lib/mol-state';
 import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
@@ -79,7 +80,7 @@ export enum StateElements {
 //   return s;
 // }
 
-export function hl_ligand_surroundings(ctx: PluginContext, identifier: string) {
+export function create_ligand(ctx: PluginContext, identifier: string) {
   return ctx.dataTransaction(async () => {
 
 
@@ -99,13 +100,13 @@ export function hl_ligand_surroundings(ctx: PluginContext, identifier: string) {
     const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, {  label: 'Erythromycin (ERY)', expression: core }, {  ref: StateElements.HetGroupFocus });
 
     coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
-    // coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'element' } }) );
+    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }) );
 
     await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
 
 
-    const surr_sel = MS.struct.modifier.includeSurroundings({ 0: core, radius: 5, 'as-whole-residues': true });
-    const data = ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    // const surr_sel = MS.struct.modifier.includeSurroundings({ 0: core, radius: 5, 'as-whole-residues': true });
+    // const data = ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
 
     // const sel = Script.getStructureSelection(surr_sel, data!);
 
@@ -203,8 +204,7 @@ export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
   plugin.managers.structure.selection.fromLoci('add', loci);
   plugin.managers.camera.focusLoci(loci);
 }
-
-export const highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
+const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
   if (!data) return;
 
@@ -215,6 +215,18 @@ export const highlightChain = (plugin: PluginUIContext, auth_asym_id: string) =>
   let loci = StructureSelection.toLociWithSourceUnits(sel);
   plugin.managers.interactivity.lociHighlights.highlight({ loci });
 }
+
+_.memoize.Cache = WeakMap; // use a weak map as _.memoize cache to prevent memory leaks
+
+export const highlightChain = _.memoize(_highlightChain => 
+  _.debounce((ctx,auth_asym_id) => {
+    _highlightChain(ctx,auth_asym_id)
+  }, 50, { "leading": true, "trailing": true })
+)(_highlightChain);
+
+
+
+
 
 export const removeHighlight = (plugin: PluginUIContext) => {
   plugin.managers.interactivity.lociHighlights.clearHighlights();
