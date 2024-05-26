@@ -41,7 +41,7 @@ const initialState: UIState = {
     },
     pagination: {
         current_page: 1,
-        page_size: 10,
+        page_size: 20,
         total_pages: null
     }
 }
@@ -67,10 +67,7 @@ export const uiSlice = createSlice({
             state.data.current_structures = action.payload
         },
         //* ------------------------- Filters and pagination 
-        set_filter(state, action: PayloadAction<{
-            filter_type: keyof Filters,
-            value: typeof state.filters[keyof Filters]
-        }>) {
+        set_filter(state, action: PayloadAction<{ filter_type: keyof Filters, value: typeof state.filters[keyof Filters] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
 
@@ -78,17 +75,26 @@ export const uiSlice = createSlice({
             if (1 < state.pagination.current_page) {
                 state.pagination.current_page -= 1
             }
+
+        },
+        pagination_set_page(state, action:PayloadAction<number>) {
+            if (action.payload < state.pagination.total_pages! && 1 <= action.payload) {
+                state.pagination.current_page = action.payload
+            }
+
         },
         pagination_next_page(state) {
             if (state.pagination.current_page < state.pagination.total_pages!) {
                 state.pagination.current_page += 1
             }
         },
+
     },
     extraReducers: (builder) => {
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
             state.data.current_structures = action.payload.structures
-            state.data.total_count = action.payload.count
+            state.data.total_count        = action.payload.count
+            state.pagination.total_pages  = Math.ceil(action.payload.count / state.pagination.page_size)
         })
     }
 
@@ -102,6 +108,7 @@ export const uiSlice = createSlice({
 export const {
     set_new_structs,
     set_filter,
+    pagination_set_page,
     pagination_next_page,
     pagination_prev_page
 } = uiSlice.actions
