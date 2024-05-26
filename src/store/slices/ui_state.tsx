@@ -66,11 +66,12 @@ export const uiSlice = createSlice({
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
-        //* ------------------------- Filters and pagination 
+        //* ------------------------- Filters 
         set_filter(state, action: PayloadAction<{ filter_type: keyof Filters, value: typeof state.filters[keyof Filters] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
 
+        //* ------------------------- Pagination
         pagination_prev_page(state) {
             if (1 < state.pagination.current_page) {
                 state.pagination.current_page -= 1

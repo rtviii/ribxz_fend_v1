@@ -105,7 +105,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
     triggerRefetch({
-      page: page_state.current_page,
+      page: 1,
       year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
       resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
       hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
@@ -113,6 +113,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
       polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
       search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
+    dispatch(pagination_set_page(1))
 
   }, [debounced_filters]);
 
@@ -310,28 +311,31 @@ export function StructuresPagination() {
 
   const dispatch = useAppDispatch();
   const page_state = useAppSelector(state => state.ui.pagination)!
-  useEffect(() => {
-    console.log(page_state);
-
-    console.log("Creating pages : ",
-      Array.from({ length: Math.ceil(page_state.total_pages / page_state.page_size) }, (_, i) => i + 1)
-
-    );
-
-
-  }, [page_state])
-
 
   const YscrolltoX = (event: any) => {
-    console.log("Got wheel event");
-    console.log(event);
-    console.log();
-
-    // event.preventDefault();
+    event.preventDefault();
     event.target.scrollBy({
       left: event.deltaY < 0 ? -30 : 30,
     });
   }
+
+
+  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const filter_state = useAppSelector((state) => state.ui.filters)
+  useEffect(() => {
+
+    triggerRefetch({
+      page: page_state.current_page,
+      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+      search: filter_state.search === null ? '' : filter_state.search
+    }).unwrap()
+
+
+  }, [page_state.current_page])
 
   const innerRef = useRef(null);
 
@@ -339,7 +343,6 @@ export function StructuresPagination() {
     const div = innerRef.current;
     // subscribe event
     div.addEventListener("wheel", YscrolltoX);
-    console.log("Added listenrer to ", div);
 
     return () => {
       // unsubscribe event
@@ -347,9 +350,6 @@ export function StructuresPagination() {
     };
 
   }, [innerRef])
-
-
-
 
   return (
     <Pagination >
@@ -366,16 +366,15 @@ export function StructuresPagination() {
         <div className=" flex flex-row max-w-xs  no-scrollbar  overflow-x-scroll scroll-mx-4" ref={innerRef}>
           {
             Array.from({ length: page_state.total_pages! }, (_, i) => i + 1)
-            .slice(page_state.current_page - 4, page_state.current_page + 4)
-            .filter((v) => v > 0 && v <= page_state.total_pages!)
-            .map(
-              (v) =>
-                <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md">
-                  <PaginationLink isActive={v == page_state.current_page} onClick={() => {
-                    dispatch(pagination_set_page(v))
-                  }}>{v}</PaginationLink>
-                </PaginationItem>
-            )
+              .slice(page_state.current_page - 6 < 0 ? 0 : page_state.current_page - 6, page_state.current_page + 6 <= page_state.total_pages! ? page_state.current_page + 6 : page_state.total_pages!)
+              .map(
+                (v) =>
+                  <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md">
+                    <PaginationLink isActive={v == page_state.current_page} onClick={() => {
+                      dispatch(pagination_set_page(v))
+                    }}>{v}</PaginationLink>
+                  </PaginationItem>
+              )
           }
         </div>
 
