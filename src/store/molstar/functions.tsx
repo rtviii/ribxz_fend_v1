@@ -143,7 +143,6 @@ export function create_ligand(ctx: PluginContext, chemicalId: string) {
 
     await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
 
-
     const compiled = compile<StructureSelection>(core);
     const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
     let loci = StructureSelection.toLociWithSourceUnits(selection);
@@ -244,15 +243,22 @@ export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
 
 
 const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
+  console.log("Hl chain go" , auth_asym_id);
+  
   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-  if (!data) return;
+  if (!data){console.log("no data");
+  return;} else{
+    console.log("data found");
+  }
 
   const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-    'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+    // 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+    'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_asym_id(), auth_asym_id]),
   }), data);
-
   let loci = StructureSelection.toLociWithSourceUnits(sel);
+  console.log("loci", loci);
   plugin.managers.interactivity.lociHighlights.highlight({ loci });
+
 }
 _.memoize.Cache = WeakMap;
 export const highlightChain = _.memoize(_highlightChain =>

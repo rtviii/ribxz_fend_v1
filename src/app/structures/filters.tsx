@@ -141,7 +141,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
         <div className="space-y-2">
           {disable?.Search ? null :
             <Input placeholder="Search"
-              value={filters.search}
+              value={filters.search == null ? '' : filters.search}
               onChange={(e) => {
                 dispatch(set_filter({
                   filter_type: "search",
@@ -154,9 +154,9 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               <label className="text-sm font-medium" htmlFor="startYear">
                 Deposition year
               </label>
-              <div className="flex items-center space-x-2">
-                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" value={filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-                <Input className="w-20" id="endYear" placeholder="End Year" type="number" value={filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+              <div   className = "flex items-center space-x-2">
+              <Input className = "w-20" id = "startYear" placeholder = "Start Year" type = "number" value = {filters.year[0] === null ? '' : filters.year[0]} min = {2000} max = {2024} step = {1} onChange = {(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+              <Input className = "w-20" id = "endYear" placeholder   = "End Year" type   = "number" value = {filters.year[1] === null ? '' : filters.year[1]} min = {2000} max = {2024} step = {1} onChange = {(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -167,8 +167,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Resolution
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
-                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
+                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' :filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' :filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -196,7 +196,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <Select<PolymerClassOption>
                 defaultValue={[]}
-                onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: value.map((v: PolymerClassOption) => v.value) })) }}
+                onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: ( value === null ? [] : value ).map((v: PolymerClassOption) => v.value) })) }}
                 instanceId={"polymer_class"}
                 options={polymerClassOptions}
                 components={{ Group }}

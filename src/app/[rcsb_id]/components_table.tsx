@@ -1,49 +1,39 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { create_ligand, create_ligand_surroundings, highlightChain,  removeHighlight, selectChain } from "@/store/molstar/functions"
+import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import Link from "next/link"
 
 
-const PolymerTableRow = ({polymer}: {polymer:Polymer}) => {
+const PolymerTableRow = ({ polymer }: { polymer: Polymer }) => {
 
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow
-    className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
-    onClick      = {()=>{ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id)}}
-    onMouseEnter = {()=>{ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.auth_asym_id)}}
-    onMouseLeave = {()=>{ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!)}} >
+        className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
+        onClick      = {() => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) }}
+        onMouseEnter = {() => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) }}
+        onMouseLeave = {() => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) }} >
 
         <TableCell>{polymer.auth_asym_id}</TableCell>
+        <TableCell>{polymer.asym_ids}</TableCell>
         <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
         <TableCell className="whitespace-pre">{polymer.src_organism_names}</TableCell>
         <TableCell className="whitespace-pre">{polymer.entity_poly_seq_one_letter_code_can}</TableCell>
-        <TableCell>
-            <DeleteIcon className="h-5 w-5" />
-        </TableCell>n
+        <TableCell><DeleteIcon className="h-5 w-5" /></TableCell>
     </TableRow>
 }
 
 
-const LigandTableRow = ({lig}: {lig:NonpolymericLigand}) => {
+const LigandTableRow = ({ lig }: { lig: NonpolymericLigand }) => {
 
-    const ctx = useAppSelector(state=>state.molstar.ui_plugin)
+    const ctx = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" >
         <TableCell>{lig.chemicalId}</TableCell>
         <TableCell>{lig.chemicalName}</TableCell>
-        <TableCell onClick={()=>{create_ligand_surroundings(ctx!, lig.chemicalId )}} className="rounded-sm hover:bg-slate-400">
-            <div>Surroundings</div>
-        </TableCell>
-        <TableCell className="hover:bg-slate-400 rounded-sm" onClick={()=>{
-            create_ligand(ctx!, lig.chemicalId)}}>
-            <p>Create</p>
-        </TableCell>
-        <TableCell>
-            <div className="flex items-center gap-2">
-                <p>{lig.nonpolymer_comp?.drugbank?.drugbank_container_identifiers.drugbank_id}</p>
-            </div>
-        </TableCell>
+        <TableCell onClick={() => { create_ligand_surroundings(ctx!, lig.chemicalId) }} className="rounded-sm hover:bg-slate-400">{lig.chemicalName}</TableCell>
+        <TableCell className="hover:bg-slate-400 rounded-sm" onClick={() => { create_ligand(ctx!, lig.chemicalId) }}>{lig.chemicalName}</TableCell>
+        <TableCell>{lig.nonpolymer_comp?.drugbank?.drugbank_container_identifiers.drugbank_id}</TableCell>
     </TableRow>
 }
 
@@ -57,7 +47,7 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
                         <TableHead>Polymer Class</TableHead>
                         <TableHead>Source Organism</TableHead>
                         <TableHead>Sequence</TableHead>
-                        <TableHead className="w-12"/>
+                        <TableHead className="w-12" />
                     </TableRow>
                 </TableHeader>
 
@@ -78,7 +68,7 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
                 </TableHeader>
 
                 <TableBody >
-                    {rnas.map(r => <PolymerTableRow key={r.auth_asym_id} polymer={r} />)}
+                    {/* {rnas.map(r => <PolymerTableRow key={r.auth_asym_id} polymer={r} />)} */}
                 </TableBody>
             </Table>
 
@@ -91,12 +81,9 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
                         <TableHead>Related Structures</TableHead>
                     </TableRow>
                 </TableHeader>
-                <TableBody>
-
-                    {ligands.map(( x ,i) => <LigandTableRow key={i} lig={x} />)}
-
-
-                </TableBody>
+                {/* <TableBody>
+                    {ligands.map((x, i) => <LigandTableRow key={i} lig={x} />)}
+                </TableBody> */}
             </Table>
         </div>
     )

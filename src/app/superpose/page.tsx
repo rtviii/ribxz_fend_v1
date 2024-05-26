@@ -58,7 +58,7 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 
     const dispatch = useAppDispatch();
     const current_pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
-    const is_self_current_pivot = () => current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id && current_pivot?.rcsb_id === rcsb_id
+    const is_self_current_pivot = () => { if ( current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id && current_pivot?.rcsb_id === rcsb_id ){return true} else {return false}}
     return <div className="flex items-center p-2 bg-white shadow-sm hover:shadow-md transition-shadow">
         <span className="flex-grow">{rcsb_id}.{polymer.auth_asym_id}</span>
         <div className="flex items-center px-4 py-1 border rounded hover:cursor-pointer hover:bg-slate-200 mx-4" onClick={() => { dispatch(superimpose_select_pivot_chain({ polymer, rcsb_id })) }}>
@@ -81,7 +81,6 @@ export default function Superimpose() {
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
     const pivot                     = useAppSelector(state => state.molstar.superimpose.pivot)!
 
-    const { data: chains_by_struct, isLoading: isLoading_chains_by_struct }: { chains_by_struct: ChainsByStruct[], isLoading_chains_by_struct: boolean } = useRoutersRouterStructChainsByStructQuery()
 
     useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
 
