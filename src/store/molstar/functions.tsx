@@ -89,8 +89,6 @@ export function create_ligand_surroundings(ctx: PluginContext, chemicalId: strin
     const update = ctx.build();
 
 
-
-
     const core = MS.struct.filter.first([
       MS.struct.generator.atomGroups({
         'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
@@ -121,7 +119,7 @@ export function create_ligand(ctx: PluginContext, chemicalId: string) {
   return ctx.dataTransaction(async () => {
     console.log("create ligand");
     console.log("got chemid ", chemicalId);
-    
+
 
 
     let structures = ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
@@ -226,6 +224,8 @@ export const transform = (ctx: PluginContext) => {
 }
 
 export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
+  console.log("Got context", plugin);
+  
   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
   if (!data) return;
 
@@ -243,11 +243,13 @@ export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
 
 
 const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
-  console.log("Hl chain go" , auth_asym_id);
-  
+  console.log("Hl chain go", auth_asym_id);
+
   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-  if (!data){console.log("no data");
-  return;} else{
+  if (!data) {
+    console.log("no data");
+    return;
+  } else {
     console.log("data found");
   }
 

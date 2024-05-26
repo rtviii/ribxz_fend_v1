@@ -18,12 +18,11 @@ import { StateActions } from 'molstar/lib/mol-plugin-state/actions'
 import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
 import {StructureSelectionQuery} from "molstar/lib/mol-plugin-state/helpers/structure-selection-query";
 import { StructureProperties } from "molstar/lib/mol-model/structure/structure/properties";
-import { Queries } from "molstar/lib/mol-model/structure/query";
+import { Queries, StructureSelection } from "molstar/lib/mol-model/structure/query";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
-import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import { Asset } from 'molstar/lib/mol-util/assets';
 
 export class CustomStructureTools extends PluginUIComponent {
@@ -126,8 +125,7 @@ export const MySpec: PluginUISpec = {
   layout: {
     initial: {
       controlsDisplay: 'portrait',
-      showControls: true,
-    },
+      showControls: true, },
 
 
   },
@@ -170,7 +168,10 @@ export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: str
 }
 
 export async function createPlugin({parent_element, initiate_with_structure}:{ parent_element: HTMLElement, initiate_with_structure?: string }):Promise<PluginUIContext> {
-    const ctx = await createPluginUI({ target: parent_element, spec  : MySpec, render: renderReact18 });
+    const ctx = await createPluginUI({ 
+        target: parent_element, 
+        spec  : MySpec, 
+        render: renderReact18 });
     window.molstar = ctx;
     if ( initiate_with_structure !== undefined){
       const data       = await ctx.builders.data.download({ url: `https://files.rcsb.org/download/${initiate_with_structure}.cif` }, { state: { isGhost: true } });
