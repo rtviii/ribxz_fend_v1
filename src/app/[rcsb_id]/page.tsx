@@ -20,14 +20,12 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 // https://github.com/molstar/molstar/issues/1112
 // https://github.com/molstar/molstar/issues/1121
 
-// -----------
-// -----------
 
 export default function StructurePage() {
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const dispatch = useAppDispatch();
+    const { rcsb_id }                = useParams<{ rcsb_id: string; }>()
+    const molstarNodeRef             = useRef<HTMLDivElement>(null);
+    const dispatch                   = useAppDispatch();
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
 
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
@@ -43,11 +41,10 @@ export default function StructurePage() {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            {/* <Button onClick={() => { structure_sel(ctx!,'1')   }}>structure func</Button> */}
-            <Button onClick={() => { create_ligand(ctx!, 'ERY') }}>lignad func</Button>
             <ResizablePanelGroup direction="horizontal" className="rounded-lg border ">
                 <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col">
+
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
@@ -159,8 +156,6 @@ export default function StructurePage() {
                     </div>
                 </ResizablePanel>
             </ResizablePanelGroup>
-
-
             <SidebarMenu />
         </div>
     )

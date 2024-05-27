@@ -59,9 +59,9 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
 
 
                 <TableBody >
-                    {proteins.map(p => <PolymerTableRow key={p.auth_asym_id} polymer={p} />)}
+                    {/* {proteins.map(p => <PolymerTableRow key={p.auth_asym_id} polymer={p} />)} */}
                 </TableBody>
-                <TableHeader>
+                {/* <TableHeader>
                     <TableRow>
                         <TableHead className="font-bold text-base">RNA</TableHead>
                     </TableRow>
@@ -69,10 +69,10 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
 
                 <TableBody >
                     {rnas.map(r => <PolymerTableRow key={r.auth_asym_id} polymer={r} />)}
-                </TableBody>
+                </TableBody> */}
             </Table>
 
-            <Table className="m-2">
+            {/* <Table className="m-2">
                 <TableHeader>
                     <TableRow>
                         <TableHead>ID</TableHead>
@@ -84,7 +84,7 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
                 <TableBody>
                     {ligands.map((x, i) => <LigandTableRow key={i} lig={x} />)}
                 </TableBody>
-            </Table>
+            </Table> */}
         </div>
     )
 }

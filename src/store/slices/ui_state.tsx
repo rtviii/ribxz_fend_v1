@@ -79,8 +79,6 @@ export const uiSlice = createSlice({
 
         },
         pagination_set_page(state, action:PayloadAction<number>) {
-            console.log("triggered page set", action.payload, state.pagination.total_pages);
-            
             if (action.payload <= state.pagination.total_pages! && 1 <= action.payload) {
                 state.pagination.current_page = action.payload
             }
