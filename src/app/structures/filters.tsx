@@ -6,6 +6,7 @@ import { TreeSelect } from 'antd'
 import { useEffect, useRef, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { SelectValue, SelectTrigger, SelectContent } from "@/components/ui/select"
+import {PaginationState}from '@/store/slices/ui_state'
 import {
   ribxz_api,
   useRoutersRouterStructListSourceTaxaQuery,
@@ -31,7 +32,7 @@ import {
 
 import { groupedOptions, PolymerClassOption } from './protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { Filters, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
+import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
 
 const groupStyles = {
   borderRadius: '5px',
@@ -75,7 +76,7 @@ export enum FilterType {
 }
 
 
-function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
+function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
@@ -100,7 +101,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const filter_state = useAppSelector((state) => state.ui.filters)
   const page_state = useAppSelector((state) => state.ui.pagination)
-  const debounced_filters = useDebounce(filter_state, 250)
+  const debounced_filters = useDebounceFilters(filter_state, 250)
 
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
@@ -307,10 +308,27 @@ function ChevronDownIcon(props) {
 }
 
 
+
+function useDebouncePagination(value: PaginationState, delay: number): PaginationState {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 export function StructuresPagination() {
 
   const dispatch = useAppDispatch();
   const page_state = useAppSelector(state => state.ui.pagination)!
+  const debounced_page_state = useDebouncePagination(page_state, 250)
 
   const YscrolltoX = (event: any) => {
     event.preventDefault();
@@ -321,21 +339,23 @@ export function StructuresPagination() {
 
 
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state = useAppSelector((state) => state.ui.filters)
+  const filter_state                      = useAppSelector((state) => state.ui.filters)
+
+
   useEffect(() => {
 
     triggerRefetch({
-      page: page_state.current_page,
-      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-      search: filter_state.search === null ? '' : filter_state.search
+      page          : page_state.current_page,
+      year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
+      search        : filter_state.search === null ? ''                                                      : filter_state.search
     }).unwrap()
 
 
-  }, [page_state.current_page])
+  }, [debounced_page_state.current_page])
 
   const innerRef = useRef(null);
 
@@ -369,10 +389,14 @@ export function StructuresPagination() {
               .slice(page_state.current_page - 6 < 0 ? 0 : page_state.current_page - 6, page_state.current_page + 6 <= page_state.total_pages! ? page_state.current_page + 6 : page_state.total_pages!)
               .map(
                 (v) =>
-                  <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md">
-                    <PaginationLink isActive={v == page_state.current_page} onClick={() => {
-                      dispatch(pagination_set_page(v))
-                    }}>{v}</PaginationLink>
+                  <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md" onClick={() => {
+                    console.log("Dispathce ", v);
+                    
+                    
+                    dispatch(pagination_set_page(v)) }}>
+                    <PaginationLink isActive={v == page_state.current_page} >
+                      {v}
+                      </PaginationLink>
                   </PaginationItem>
               )
           }

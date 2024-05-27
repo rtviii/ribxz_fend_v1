@@ -67,6 +67,8 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
               <span title="List of ligands">{_.nonpolymeric_ligands.length}</span>
             </div>
           </div>
+          {
+            _.citation_rcsb_authors ? 
           <div className="relative flex justify-between items-center mt-1">
             <span>Authors:</span>
             <HoverCard>
@@ -106,6 +108,9 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
               </HoverCardContent>
             </HoverCard>
           </div>
+          : null
+
+          }
         </div>
       </CardContent>
     </Card>

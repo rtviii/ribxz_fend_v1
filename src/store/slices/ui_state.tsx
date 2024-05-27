@@ -1,7 +1,7 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
-export interface Filters {
+export interface FiltersState {
     search         : string | null
     year           : [number | null, number | null]
     resolution     : [number | null, number | null]
@@ -10,7 +10,7 @@ export interface Filters {
     host_taxa      : number[]
 }
 
-export interface Pagination {
+export interface PaginationState {
     current_page: number
     page_size   : number
     total_pages : number | null
@@ -22,8 +22,8 @@ export interface UIState {
         current_structures: RibosomeStructure[],
         total_count       : number | null
     }
-    filters   : Filters,
-    pagination: Pagination
+    filters   : FiltersState,
+    pagination: PaginationState
 }
 
 const initialState: UIState = {
@@ -67,7 +67,7 @@ export const uiSlice = createSlice({
             state.data.current_structures = action.payload
         },
         //* ------------------------- Filters 
-        set_filter(state, action: PayloadAction<{ filter_type: keyof Filters, value: typeof state.filters[keyof Filters] }>) {
+        set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
 
@@ -79,7 +79,9 @@ export const uiSlice = createSlice({
 
         },
         pagination_set_page(state, action:PayloadAction<number>) {
-            if (action.payload < state.pagination.total_pages! && 1 <= action.payload) {
+            console.log("triggered page set", action.payload, state.pagination.total_pages);
+            
+            if (action.payload <= state.pagination.total_pages! && 1 <= action.payload) {
                 state.pagination.current_page = action.payload
             }
 
