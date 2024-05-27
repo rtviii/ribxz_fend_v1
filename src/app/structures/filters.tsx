@@ -3,9 +3,10 @@ import { CollapsibleTrigger, CollapsibleContent, Collapsible } from "@/component
 import { Button } from "@/components/ui/button"
 import Select, { components, GroupProps } from 'react-select';
 import { TreeSelect } from 'antd'
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Label } from "@/components/ui/label"
 import { SelectValue, SelectTrigger, SelectContent } from "@/components/ui/select"
+import {PaginationState}from '@/store/slices/ui_state'
 import {
   ribxz_api,
   useRoutersRouterStructListSourceTaxaQuery,
@@ -31,7 +32,7 @@ import {
 
 import { groupedOptions, PolymerClassOption } from './protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { pagination_next_page, pagination_prev_page, set_filter } from "@/store/slices/ui_state";
+import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
 
 const groupStyles = {
   borderRadius: '5px',
@@ -75,7 +76,7 @@ export enum FilterType {
 }
 
 
-function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
+function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
@@ -93,17 +94,19 @@ function useDebounce(value: Partial<Filters>, delay: number): Partial<Filters> {
 
 export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
+  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
 
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state                      = useAppSelector((state) => state.ui.filters)
-  const debounced_filters                 = useDebounce(filter_state, 250)
-  useEffect(() => {
+  const filter_state = useAppSelector((state) => state.ui.filters)
+  const page_state = useAppSelector((state) => state.ui.pagination)
+  const debounced_filters = useDebounceFilters(filter_state, 250)
 
+  useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
     triggerRefetch({
+      page: 1,
       year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
       resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
       hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
@@ -111,6 +114,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
       polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
       search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
+    dispatch(pagination_set_page(1))
 
   }, [debounced_filters]);
 
@@ -122,6 +126,9 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
 
+  useEffect(() => {
+
+  })
 
 
   const dispatch = useAppDispatch();
@@ -154,9 +161,9 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               <label className="text-sm font-medium" htmlFor="startYear">
                 Deposition year
               </label>
-              <div   className = "flex items-center space-x-2">
-              <Input className = "w-20" id = "startYear" placeholder = "Start Year" type = "number" value = {filters.year[0] === null ? '' : filters.year[0]} min = {2000} max = {2024} step = {1} onChange = {(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-              <Input className = "w-20" id = "endYear" placeholder   = "End Year" type   = "number" value = {filters.year[1] === null ? '' : filters.year[1]} min = {2000} max = {2024} step = {1} onChange = {(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+              <div className="flex items-center space-x-2">
+                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+                <Input className="w-20" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -167,8 +174,8 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
                 Resolution
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' :filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
-                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' :filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
+                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
               </div>
             </div>
           }
@@ -196,7 +203,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
               </label>
               <Select<PolymerClassOption>
                 defaultValue={[]}
-                onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: ( value === null ? [] : value ).map((v: PolymerClassOption) => v.value) })) }}
+                onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
                 instanceId={"polymer_class"}
                 options={polymerClassOptions}
                 components={{ Group }}
@@ -301,47 +308,107 @@ function ChevronDownIcon(props) {
 }
 
 
+
+function useDebouncePagination(value: PaginationState, delay: number): PaginationState {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 export function StructuresPagination() {
 
   const dispatch = useAppDispatch();
-  const ui_state = useAppSelector(state => state.ui.pagination)!
+  const page_state = useAppSelector(state => state.ui.pagination)!
+  const debounced_page_state = useDebouncePagination(page_state, 250)
+
+  const YscrolltoX = (event: any) => {
+    event.preventDefault();
+    event.target.scrollBy({
+      left: event.deltaY < 0 ? -30 : 30,
+    });
+  }
+
+
+  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const filter_state                      = useAppSelector((state) => state.ui.filters)
+
+
+  useEffect(() => {
+
+    triggerRefetch({
+      page          : page_state.current_page,
+      year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
+      search        : filter_state.search === null ? ''                                                      : filter_state.search
+    }).unwrap()
+
+
+  }, [debounced_page_state.current_page])
+
+  const innerRef = useRef(null);
+
+  useEffect(() => {
+    const div = innerRef.current;
+    // subscribe event
+    div.addEventListener("wheel", YscrolltoX);
+
+    return () => {
+      // unsubscribe event
+      div.removeEventListener("wheel", YscrolltoX);
+    };
+
+  }, [innerRef])
 
   return (
     <Pagination >
-      <PaginationContent>
-        <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
-          dispatch(pagination_prev_page())
-        }}>
-          <PaginationPrevious />
-        </PaginationItem>
+      <PaginationContent className="flex flex-row overflow-auto" >
 
-        <PaginationItem>
-          <PaginationLink onClick={() => { }}>1</PaginationLink>
-        </PaginationItem>
+        <div>
+          <PaginationItem className="hover:cursor-pointer hover:bg-slate-200 rounded-md" onClick={() => {
+            dispatch(pagination_prev_page())
+          }}>
+            <PaginationPrevious />
+          </PaginationItem>
+        </div>
 
-        <PaginationItem>
-          <PaginationLink onClick={() => { }} isActive>
-            2
-          </PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink onClick={() => {
-            console.log("update post",);
+        <div className=" flex flex-row max-w-xs  no-scrollbar  overflow-x-scroll scroll-mx-4" ref={innerRef}>
+          {
+            Array.from({ length: page_state.total_pages! }, (_, i) => i + 1)
+              .slice(page_state.current_page - 6 < 0 ? 0 : page_state.current_page - 6, page_state.current_page + 6 <= page_state.total_pages! ? page_state.current_page + 6 : page_state.total_pages!)
+              .map(
+                (v) =>
+                  <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md" onClick={() => {
+                    console.log("Dispathce ", v);
+                    
+                    
+                    dispatch(pagination_set_page(v)) }}>
+                    <PaginationLink isActive={v == page_state.current_page} >
+                      {v}
+                      </PaginationLink>
+                  </PaginationItem>
+              )
+          }
+        </div>
 
-          }}>3</PaginationLink>
-        </PaginationItem>
-
-        <PaginationItem>
-        </PaginationItem>
-
-        <PaginationItem className="hover:cursor-pointer hover:bg-slate-200" onClick={() => {
-          dispatch(pagination_next_page())
-
-
-        }}>
-          <PaginationNext />
-        </PaginationItem>
-
+        <div>
+          <PaginationItem className="hover:cursor-pointer hover:bg-slate-200 rounded-md" onClick={() => {
+            dispatch(pagination_next_page())
+          }}>
+            <PaginationNext />
+          </PaginationItem>
+        </div>
       </PaginationContent>
     </Pagination>
   )

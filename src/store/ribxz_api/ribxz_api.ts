@@ -26,6 +26,7 @@ const injectedRtkApi = api.injectEndpoints({
       query: (queryArg) => ({
         url: `/structures/list`,
         params: {
+          page: queryArg.page,
           search: queryArg.search,
           year: queryArg.year,
           resolution: queryArg.resolution,
@@ -100,6 +101,7 @@ export type RoutersRouterStructStructurePtcApiArg = {
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
 export type RoutersRouterStructFilterListApiArg = {
+  page?: number;
   search?: string;
   year?: string;
   resolution?: string;
@@ -821,10 +823,10 @@ export type RibosomeStructure = {
   nonpolymeric_ligands: NonpolymericLigand[];
 };
 export type PolymerByStruct = {
-  nomenclature            : CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
-  auth_asym_id            : string;
+  nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
+  auth_asym_id: string;
   entity_poly_polymer_type: string;
-  entity_poly_seq_length  : number;
+  entity_poly_seq_length: number;
 };
 export type ChainsByStruct = {
   polymers: PolymerByStruct[];

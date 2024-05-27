@@ -1,7 +1,7 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
-export interface Filters {
+export interface FiltersState {
     search         : string | null
     year           : [number | null, number | null]
     resolution     : [number | null, number | null]
@@ -10,7 +10,7 @@ export interface Filters {
     host_taxa      : number[]
 }
 
-export interface Pagination {
+export interface PaginationState {
     current_page: number
     page_size   : number
     total_pages : number | null
@@ -22,8 +22,8 @@ export interface UIState {
         current_structures: RibosomeStructure[],
         total_count       : number | null
     }
-    filters   : Filters,
-    pagination: Pagination
+    filters   : FiltersState,
+    pagination: PaginationState
 }
 
 const initialState: UIState = {
@@ -41,7 +41,7 @@ const initialState: UIState = {
     },
     pagination: {
         current_page: 1,
-        page_size: 10,
+        page_size: 20,
         total_pages: null
     }
 }
@@ -66,29 +66,36 @@ export const uiSlice = createSlice({
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
-        //* ------------------------- Filters and pagination 
-        set_filter(state, action: PayloadAction<{
-            filter_type: keyof Filters,
-            value: typeof state.filters[keyof Filters]
-        }>) {
+        //* ------------------------- Filters 
+        set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
 
+        //* ------------------------- Pagination
         pagination_prev_page(state) {
             if (1 < state.pagination.current_page) {
                 state.pagination.current_page -= 1
             }
+
+        },
+        pagination_set_page(state, action:PayloadAction<number>) {
+            if (action.payload <= state.pagination.total_pages! && 1 <= action.payload) {
+                state.pagination.current_page = action.payload
+            }
+
         },
         pagination_next_page(state) {
             if (state.pagination.current_page < state.pagination.total_pages!) {
                 state.pagination.current_page += 1
             }
         },
+
     },
     extraReducers: (builder) => {
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
             state.data.current_structures = action.payload.structures
-            state.data.total_count = action.payload.count
+            state.data.total_count        = action.payload.count
+            state.pagination.total_pages  = Math.ceil(action.payload.count / state.pagination.page_size)
         })
     }
 
@@ -102,6 +109,7 @@ export const uiSlice = createSlice({
 export const {
     set_new_structs,
     set_filter,
+    pagination_set_page,
     pagination_next_page,
     pagination_prev_page
 } = uiSlice.actions
