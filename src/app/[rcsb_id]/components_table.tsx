@@ -6,7 +6,7 @@ import { useAppSelector } from "@/store/store"
 import Link from "next/link"
 
 
-const PolymerTableRow = ({ polymer }: { polymer: Polymer }) => {
+export const PolymerTableRow = ({ polymer }: { polymer: Polymer }) => {
 
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow

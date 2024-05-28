@@ -13,32 +13,65 @@ import { HoverMenu } from "../structures/page"
 import { FilterSidebar, StructuresPagination } from "../structures/filters"
 import { SidebarMenu } from "@/components/sidebar"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Label } from "@/components/ui/label"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
+
+function PolymerInput() {
 
 
-export default function StructureComponents({ proteins, ligands, rnas }: { proteins: Protein[], ligands: NonpolymericLigand[], rnas: Polymer[] }) {
-    return (
-    <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
-      <HoverMenu />
-      <h1 className="text-2xl font-bold mb-6 " >Proteins</h1>
-      <div className="grow"  >
-        <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
-          <div className="col-span-3  flex flex-col min-h-full pr-4">
-            <FilterSidebar />
-            <SidebarMenu />
-            <div className="p-1 my-4 rounded-md border w-full">
-              <StructuresPagination />
-            </div>
-          </div>
-          <div className="col-span-9 scrollbar-hidden">
-            <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
-              <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
-                {/* {current_structures.map((struct: RibosomeStructure) => <StructureCard _={struct} key={struct.rcsb_id} />)} */}
-              </div>
-            </ScrollArea>
-          </div>
+    return <div className="grid w-full items-center gap-1.5  mb-2 border p-2 rounded-md">
+
+        <div>
+
+
         </div>
-      </div>
+
+        <Label htmlFor="input" className="font-bold text-lg mb-2"> Polymer Class</Label>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild className="flex items-center">
+                <Input className="focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900 rounded-sm justify-self-center" id="input" placeholder="Enter a choice" type="text" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full">
+                <DropdownMenuLabel>Available Choices</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Option 1</DropdownMenuItem>
+                <DropdownMenuItem>Option 2</DropdownMenuItem>
+                <DropdownMenuItem>Option 3</DropdownMenuItem>
+                <DropdownMenuItem>Option 4</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     </div>
+
+}
+
+export default function PolymersPage() {
+    return (
+        <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
+            <HoverMenu />
+            <h1 className="text-2xl font-bold mb-6 ">Polymers</h1>
+            <div className="grow"  >
+                <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
+                    <div className="col-span-3  flex flex-col min-h-full pr-4">
+                        <PolymerInput />
+
+                        <FilterSidebar />
+                        <SidebarMenu />
+                        <div className="p-1 my-4 rounded-md border w-full">
+                            <StructuresPagination />
+                        </div>
+                    </div>
+                    <div className="col-span-9 scrollbar-hidden">
+                        <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
+                            <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
+
+
+                            </div>
+                        </ScrollArea>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     )
 }
