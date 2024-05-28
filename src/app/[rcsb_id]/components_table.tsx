@@ -10,10 +10,10 @@ export const PolymerTableRow = ({ polymer }: { polymer: Polymer }) => {
 
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow
-        className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
-        onClick      = {() => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) }}
-        onMouseEnter = {() => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) }}
-        onMouseLeave = {() => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) }} >
+        className="hover:bg-gray-400 hover:text-white hover:cursor-pointer"
+        onClick={() => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) }}
+        onMouseEnter={() => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) }}
+        onMouseLeave={() => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) }} >
 
         <TableCell>{polymer.auth_asym_id}</TableCell>
         <TableCell>{polymer.asym_ids}</TableCell>
@@ -37,10 +37,11 @@ const LigandTableRow = ({ lig }: { lig: NonpolymericLigand }) => {
     </TableRow>
 }
 
-export default function StructureComponents({ proteins, ligands, rnas }: { proteins: Protein[], ligands: NonpolymericLigand[], rnas: Polymer[] }) {
+export default function PolymersTable({ proteins, rnas }: { proteins: Protein[], rnas: Polymer[] }) {
     return (
         <div className="border rounded-md">
             <Table className="m-2">
+
                 <TableHeader>
                     <TableRow>
                         <TableHead>Chain ID</TableHead>
@@ -51,39 +52,39 @@ export default function StructureComponents({ proteins, ligands, rnas }: { prote
                     </TableRow>
                 </TableHeader>
 
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="font-bold text-base">Proteins</TableHead>
-                    </TableRow>
-                </TableHeader>
+                {/* Proteins is active */}
+                {proteins.length != 0 ?
+                    <>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="font-bold text-base">Proteins</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody >
+                            {proteins.map(p => <PolymerTableRow key={p.auth_asym_id} polymer={p} />)}
+                        </TableBody>
+                    </>
+                    : null}
 
 
-                <TableBody >
-                    {proteins.map(p => <PolymerTableRow key={p.auth_asym_id} polymer={p} />)}
-                </TableBody>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="font-bold text-base">RNA</TableHead>
-                    </TableRow>
-                </TableHeader>
+                {/* RNA is active */}
+                {rnas.length != 0 ?
 
-                <TableBody >
-                    {rnas.map(r => <PolymerTableRow key={r.auth_asym_id} polymer={r} />)}
-                </TableBody>
-            </Table>
+                    <>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="font-bold text-base">RNA</TableHead>
+                            </TableRow>
+                        </TableHeader>
 
-            <Table className="m-2">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Chemical Name</TableHead>
-                        <TableHead>DrugBank Id</TableHead>
-                        <TableHead>Related Structures</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {ligands.map((x, i) => <LigandTableRow key={i} lig={x} />)}
-                </TableBody>
+                        <TableBody >
+                            {rnas.map(r => <PolymerTableRow key={r.auth_asym_id} polymer={r} />)}
+                        </TableBody>
+                    </>
+                    : null
+                }
+                {/* Other Polymers is active */}
+                {/* TODO */}
             </Table>
         </div>
     )
