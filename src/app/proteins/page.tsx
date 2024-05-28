@@ -1,111 +1,44 @@
+"use client"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import Link from "next/link"
+import { HoverMenu } from "../structures/page"
+import { FilterSidebar, StructuresPagination } from "../structures/filters"
+import { SidebarMenu } from "@/components/sidebar"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
-
-const PolymerTableRow = ({ polymer }: { polymer: Polymer }) => {
-
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)
-    return <TableRow
-        className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
-        onClick      = {() => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) }}
-        onMouseEnter = {() => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) }}
-        onMouseLeave = {() => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) }} >
-
-        <TableCell>{polymer.auth_asym_id}</TableCell>
-        <TableCell>{polymer.asym_ids}</TableCell>
-        <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
-        <TableCell className="whitespace-pre">{polymer.src_organism_names}</TableCell>
-        <TableCell className="whitespace-pre">{polymer.entity_poly_seq_one_letter_code_can}</TableCell>
-        <TableCell><DeleteIcon className="h-5 w-5" /></TableCell>
-    </TableRow>
-}
-
-
-const LigandTableRow = ({ lig }: { lig: NonpolymericLigand }) => {
-
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)
-    return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" >
-        <TableCell>{lig.chemicalId}</TableCell>
-        <TableCell>{lig.chemicalName}</TableCell>
-        <TableCell onClick={() => { create_ligand_surroundings(ctx!, lig.chemicalId) }} className="rounded-sm hover:bg-slate-400">{lig.chemicalName}</TableCell>
-        <TableCell className="hover:bg-slate-400 rounded-sm" onClick={() => { create_ligand(ctx!, lig.chemicalId) }}>{lig.chemicalName}</TableCell>
-        <TableCell>{lig.nonpolymer_comp?.drugbank?.drugbank_container_identifiers.drugbank_id}</TableCell>
-    </TableRow>
-}
 
 export default function StructureComponents({ proteins, ligands, rnas }: { proteins: Protein[], ligands: NonpolymericLigand[], rnas: Polymer[] }) {
     return (
-        <div className="border rounded-md">
-            <Table className="m-2">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Chain ID</TableHead>
-                        <TableHead>Polymer Class</TableHead>
-                        <TableHead>Source Organism</TableHead>
-                        <TableHead>Sequence</TableHead>
-                        <TableHead className="w-12" />
-                    </TableRow>
-                </TableHeader>
-
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="font-bold text-base">Proteins</TableHead>
-                    </TableRow>
-                </TableHeader>
-
-
-                <TableBody >
-                    {/* {proteins.map(p => <PolymerTableRow key={p.auth_asym_id} polymer={p} />)} */}
-                </TableBody>
-                {/* <TableHeader>
-                    <TableRow>
-                        <TableHead className="font-bold text-base">RNA</TableHead>
-                    </TableRow>
-                </TableHeader>
-
-                <TableBody >
-                    {rnas.map(r => <PolymerTableRow key={r.auth_asym_id} polymer={r} />)}
-                </TableBody> */}
-            </Table>
-
-            {/* <Table className="m-2">
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Chemical Name</TableHead>
-                        <TableHead>DrugBank Id</TableHead>
-                        <TableHead>Related Structures</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {ligands.map((x, i) => <LigandTableRow key={i} lig={x} />)}
-                </TableBody>
-            </Table> */}
+    <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
+      <HoverMenu />
+      <h1 className="text-2xl font-bold mb-6 " >Proteins</h1>
+      <div className="grow"  >
+        <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
+          <div className="col-span-3  flex flex-col min-h-full pr-4">
+            <FilterSidebar />
+            <SidebarMenu />
+            <div className="p-1 my-4 rounded-md border w-full">
+              <StructuresPagination />
+            </div>
+          </div>
+          <div className="col-span-9 scrollbar-hidden">
+            <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
+              <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
+                {/* {current_structures.map((struct: RibosomeStructure) => <StructureCard _={struct} key={struct.rcsb_id} />)} */}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
-    )
-}
+      </div>
+    </div>
 
-function DeleteIcon(props) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z" />
-            <line x1="18" x2="12" y1="9" y2="15" />
-            <line x1="12" x2="18" y1="9" y2="15" />
-        </svg>
     )
 }
