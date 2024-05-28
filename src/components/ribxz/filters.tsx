@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/pagination"
 
 
-import { groupedOptions, PolymerClassOption } from './protein_class_options';
+import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
 

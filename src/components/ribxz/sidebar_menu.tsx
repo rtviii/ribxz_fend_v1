@@ -18,9 +18,6 @@ import Link from "next/link"
 export function SidebarMenu() {
   return (
     <Sheet>
-
-
-
       <SheetTrigger asChild>
         <div className="fixed bottom-16 left-16">
           <Button className="rounded-lg text-lg p-6 bg-gray-900 text-gray-50 shadow-none transition-all hover:shadow-lg dark:bg-gray-50 dark:text-gray-900"  >
@@ -110,70 +107,6 @@ export function SidebarMenu() {
     </Sheet>
   )
 }
-
-// export default function Sidebar() {
-//   return (
-//     <>
-//       <div className="fixed bottom-0 left-0 p-4">
-//         <Button className="rounded-full p-3 bg-gray-200 shadow-lg hover:bg-gray-300 focus:outline-none focus:ring">
-//           <GaugeIcon className="h-6 w-6 text-gray-800" />
-//         </Button>
-//       </div>
-//       <aside className="fixed top-0 left-0 h-full w-64 bg-white shadow-md overflow-y-auto">
-//         <nav className="flex flex-col p-4 space-y-6">
-//           <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//             <HomeIcon className="h-5 w-5" />
-//             <span>Home</span>
-//           </a>
-//           <div>
-//             <h2 className="text-xs uppercase text-gray-500">Available Data</h2>
-//             <div className="mt-2 space-y-2">
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <DnaIcon className="h-5 w-5" />
-//                 <span>Structures</span>
-//               </a>
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <DnaIcon className="h-5 w-5" />
-//                 <span>Proteins</span>
-//               </a>
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <DnaIcon className="h-5 w-5" />
-//                 <span>RNA</span>
-//               </a>
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <NotebookIcon className="h-5 w-5" />
-//                 <span>Nomenclature</span>
-//               </a>
-//             </div>
-//           </div>
-//           <div>
-//             <h2 className="text-xs uppercase text-gray-500">Tools</h2>
-//             <div className="mt-2 space-y-2">
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <ViewIcon className="h-5 w-5" />
-//                 <span>Visualization</span>
-//               </a>
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <Rotate3dIcon className="h-5 w-5" />
-//                 <span>3D Superimposition</span>
-//               </a>
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <span>Ligands/Binding Sites</span>
-//                 <LigatureIcon className="h-5 w-5" />
-//               </a>
-//               <a className="flex items-center space-x-2 text-gray-800 hover:text-gray-600" href="#">
-//                 <InfoIcon className="h-5 w-5" />
-//                 <span>How To</span>
-//               </a>
-//             </div>
-//           </div>
-//         </nav>
-//       </aside>
-//     </>
-//   )
-// }
-
-
 
 function DnaIcon(props) {
   return (

@@ -1,18 +1,15 @@
 "use client"
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { MolstarNode, } from "@/store/molstar/lib"
-import { Skeleton } from "@/components/ui/skeleton"
 import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import SubstrcturesTable from "./components_table"
-import { create_ligand, transform } from "@/store/molstar/functions"
+import SubstrcturesTable from "../../components/ribxz/polymer_table"
 import { useEffect, useRef, useState } from "react"
-import { SidebarMenu } from "@/components/sidebar"
+import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 // StateTransforms
@@ -44,7 +41,6 @@ export default function StructurePage() {
             <ResizablePanelGroup direction="horizontal" className="rounded-lg border ">
                 <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col">
-
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>

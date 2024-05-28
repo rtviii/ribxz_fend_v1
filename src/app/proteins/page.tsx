@@ -10,13 +10,13 @@ import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_ap
 import { useAppSelector } from "@/store/store"
 import Link from "next/link"
 import { HoverMenu } from "../structures/page"
-import { FilterSidebar, StructuresPagination } from "../structures/filters"
-import { SidebarMenu } from "@/components/sidebar"
+import { FilterSidebar, StructuresPagination } from "@/components/ribxz/filters"
+import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { PolymerTableRow } from "../[rcsb_id]/components_table"
+import { PolymerTableRow } from "../../components/ribxz/polymer_table"
 import { useState } from "react"
 
 function PolymerInput() {

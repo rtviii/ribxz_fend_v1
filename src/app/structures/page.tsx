@@ -3,10 +3,10 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
-import StructureCard from "./structure-card"
+import StructureCard from "../../components/ribxz/structure_card"
 import { useEffect, useState } from "react"
-import { StructuresPagination, FilterSidebar } from "./filters"
-import { SidebarMenu } from "@/components/sidebar"
+import { StructuresPagination, FilterSidebar } from "@/components/ribxz/filters"
+import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
