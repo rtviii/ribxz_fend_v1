@@ -45,24 +45,6 @@ const Group = (props: GroupProps<PolymerClassOption, false>) => (
   </div>
 );
 
-function CircleIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-    </svg>
-  )
-}
 
 
 export enum FilterType {
@@ -94,25 +76,38 @@ function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partia
 
 export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
-  const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
+  // for proteins and rna, 
+  // * disable:
+  // * -- PolymerClass
+  // * -- PolymerClass
 
-  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state = useAppSelector((state) => state.ui.filters)
-  const page_state = useAppSelector((state) => state.ui.pagination)
-  const debounced_filters = useDebounceFilters(filter_state, 250)
+
+  // New props to generalize to proteins and rna:
+   // * -- Title (structure/proteins/rna)
+   // * -- Count source (rna/protein/struct)
+   // * -- Count source (rna/protein/struct)
+
+
+  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
+  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
+  const [triggerRefetch, { data, error }]                                          = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const filter_state                                                               = useAppSelector((state) => state.ui.filters)
+  const page_state                                                                 = useAppSelector((state) => state.ui.pagination)
+  const debounced_filters                                                          = useDebounceFilters(filter_state, 250)
+
+
 
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
     triggerRefetch({
-      page: 1,
-      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-      search: filter_state.search === null ? '' : filter_state.search
+      page          : 1,
+      year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
+      search        : filter_state.search === null ? ''                                                      : filter_state.search
     }).unwrap()
     dispatch(pagination_set_page(1))
 
@@ -146,6 +141,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
       </div>
       <CollapsibleContent>
         <div className="space-y-2">
+
           {disable?.Search ? null :
             <Input placeholder="Search"
               value={filters.search == null ? '' : filters.search}

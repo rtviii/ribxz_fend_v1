@@ -9,7 +9,7 @@ import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import StructureComponents from "./components_table"
+import SubstrcturesTable from "./components_table"
 import { create_ligand, transform } from "@/store/molstar/functions"
 import { useEffect, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/sidebar"
@@ -53,8 +53,8 @@ export default function StructurePage() {
                         <CardContent className="flex-grow overflow-auto">
                             <Tabs defaultValue="info" >
                                 <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="info">Info</TabsTrigger>
-                                    <TabsTrigger value="components">Substructures</TabsTrigger>
+                                    <TabsTrigger value="info">Structure Info</TabsTrigger>
+                                    <TabsTrigger value="components">Polymers</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="info">
                                     <div className="mt-4">
@@ -136,7 +136,7 @@ export default function StructurePage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="components">
-                                    {!isLoading ? <StructureComponents ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas} /> : null}
+                                    {!isLoading ? <SubstrcturesTable ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas} /> : null}
                                 </TabsContent>
                             </Tabs>
                             <div className="flex flex-col gap-4">
