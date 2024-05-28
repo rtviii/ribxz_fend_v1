@@ -79,6 +79,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
   // for proteins and rna, 
   // * disable:
   // * -- PolymerClass
+  // * -- PolymerClass
 
 
   // New props to generalize to proteins and rna:
