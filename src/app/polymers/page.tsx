@@ -78,7 +78,6 @@ export default function PolymersPage() {
                     <div className="col-span-9 scrollbar-hidden">
                         <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
                             <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
-
                                 <Tabs defaultValue="by_polymer_class" value={tab} onValueChange={onTabChange}>
                                     <TabsList className="grid w-full grid-cols-2">
 
@@ -94,7 +93,9 @@ export default function PolymersPage() {
                                         rnas={current_polymers.filter(p=>p.entity_poly_polymer_type === 'RNA')}/>
                                     </TabsContent>
                                     <TabsContent value="by_structure">
-                                        components by structrre
+                                        <PolymersTable 
+                                        proteins={current_polymers.filter(p => p.entity_poly_polymer_type ==='Protein')} 
+                                        rnas={current_polymers.filter(p=>p.entity_poly_polymer_type === 'RNA')}/>
                                     </TabsContent>
                                 </Tabs>
 
