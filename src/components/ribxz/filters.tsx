@@ -145,20 +145,21 @@ export function Filters(props:FiltersProps) {
   const dispatch = useAppDispatch();
   const filters = useAppSelector(state => state.ui.filters)!
   return (
-    <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true}>
+    <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true} disabled={true}>
       <div className="flex items-center justify-between  mb-2 ">
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex ">
-          <div className=" min-w-full font-semibold flex flex-row justify-between">
+          <div className={ ` min-w-full font-semibold flex flex-row justify-between ${ props.disabled_whole ? "disabled-text" : ""}` }>
             <span>Structure Filters</span>
             <span className="font-semibold"> [{struct_state.total_structures_count} structures]</span>
           </div>
-          {/* <span className=" min-w-full font-semibold"> {struct_state.total_count}</span> */}
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent>
-        <div className="space-y-2">
 
+      <CollapsibleContent >
+
+        <div className="space-y-2">
             <Input placeholder="Search"
+            disabled={props.disabled_whole}
               value={filters.search == null ? '' : filters.search}
               onChange={(e) => {
                 dispatch(set_filter({
@@ -168,26 +169,26 @@ export function Filters(props:FiltersProps) {
               }} />
 
             <div className="flex items-center justify-between space-x-2">
-              <label className="text-sm font-medium" htmlFor="startYear">
+              <label className={`text-sm font-medium ${ props.disabled_whole ? "disabled-text" : ""}`} htmlFor="startYear" >
                 Deposition year
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-                <Input className="w-20" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+                <Input  disabled={props.disabled_whole}  className="w-20" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+                <Input  disabled={props.disabled_whole} className="w-20" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
               </div>
             </div>
 
             <div className="flex items-center justify-between space-x-2">
-              <label className="text-sm font-medium" htmlFor="minResolution">
+              <label className={ `text-sm font-medium ${ props.disabled_whole ? "disabled-text" : ""}` } htmlFor="minResolution">
                 Resolution
               </label>
               <div className="flex items-center space-x-2">
-                <Input className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
-                <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
+                <Input disabled={props.disabled_whole} className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+                <Input disabled={props.disabled_whole} className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium my-4" htmlFor="proteinsPresent">
+              <label className={`text-sm font-medium my-4  ${ props.disabled_whole ? "disabled-text" : ""}`} htmlFor="proteinsPresent">
                 Polymer Classes
                 <TooltipProvider>
                   <Tooltip delayDuration={0}>
@@ -214,11 +215,12 @@ export function Filters(props:FiltersProps) {
                 options={polymerClassOptions}
                 components={{ Group }}
                 isMulti={true}
+                isDisabled={props.disabled_whole}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="SourceOrganism">
+              <label className={`text-sm font-medium ${ props.disabled_whole ? "disabled-text" : ""}`} htmlFor="SourceOrganism">
                 Source Organism
               </label>
               <div className="text-sm font-medium" >
@@ -234,12 +236,13 @@ export function Filters(props:FiltersProps) {
                   variant="outlined"
                   onChange={(v) => { dispatch(set_filter({ filter_type: "source_taxa", value: v })) }}
                   treeData={tax_dict}
+                  disabled={props.disabled_whole}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
+              <label className={`text-sm font-medium ${ props.disabled_whole ? "disabled-text" : ""}`} htmlFor="multiProteinsPresent">
                 Host Organism
               </label>
               <div className="text-sm font-medium" >
@@ -258,12 +261,13 @@ export function Filters(props:FiltersProps) {
                   // treeDefaultExpandAll
                   onChange={(v) => { dispatch(set_filter({ filter_type: "host_taxa", value: v })) }}
                   treeData={tax_dict}
+                  disabled={props.disabled_whole}
                 />
               </div>
             </div>
             <Collapsible className="mt-4">
-              <CollapsibleTrigger className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Sort by:</h3>
+              <CollapsibleTrigger className="flex items-center justify-between " disabled={props.disabled_whole}>
+                <h3 className={`text-sm font-medium ${ props.disabled_whole ? "disabled-text" : ""} `}>Sort by:</h3>
                 <ChevronDownIcon className="h-4 w-4" />
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-1">

@@ -52,7 +52,7 @@ export default function PolymersPage() {
                 <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
                     <div className="col-span-3  flex flex-col min-h-full pr-4">
                         <PolymerInput />
-                        <Filters />
+                        <Filters disabled_whole={}/>
                         <SidebarMenu />
                         <div className="p-1 my-4 rounded-md border w-full">
                             <StructuresPagination />

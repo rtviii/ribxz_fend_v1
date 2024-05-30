@@ -102,3 +102,8 @@
   scrollbar-width: none;
   /* Firefox */
 }
+
+
+.disabled-text{
+  color: gray
+}
