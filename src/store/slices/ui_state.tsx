@@ -20,9 +20,10 @@ export interface PaginationState {
 
 export interface UIState {
     data:{
-        current_structures: RibosomeStructure[],
-        current_polymers  : Protein | Rna | Polymer [],
-        total_count       : number | null
+        current_structures    : RibosomeStructure[],
+        current_polymers      : Protein | Rna | Polymer [],
+        total_structures_count: number | null,
+        total_polymers_count  : number | null
     }
     filters   : FiltersState,
     pagination: PaginationState
@@ -32,7 +33,8 @@ const initialState: UIState = {
     data:{
         current_structures: [],
         current_polymers  : [],
-        total_count       : null
+        total_structures_count       : null,
+        total_polymers_count       : null
     },
     filters: {
         search         : '',
@@ -96,13 +98,13 @@ export const uiSlice = createSlice({
     extraReducers: (builder) => {
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
             state.data.current_structures = action.payload.structures
-            state.data.total_count        = action.payload.count
+            state.data.total_structures_count        = action.payload.count
             state.pagination.total_pages  = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
         });
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
-            state.data.current_structures = action.payload.polymers
-            state.data.total_count        = action.payload.count
-            state.pagination.total_pages  = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+            state.data.current_polymers     = action.payload.polymers
+            state.data.total_polymers_count = action.payload.count
+            state.pagination.total_pages    = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         })
     }
 

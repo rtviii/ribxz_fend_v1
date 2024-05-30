@@ -93,7 +93,11 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
   const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
   const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
-  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+
+  const [triggerStructuresRefetch, { struct_data, struct_error }]   = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+
+  const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
+
   const filter_state = useAppSelector((state) => state.ui.filters)
   const debounced_filters = useDebounceFilters(filter_state, 250)
 
@@ -101,7 +105,7 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
 
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
-    triggerRefetch({
+    triggerStructuresRefetch({
       page: 1,
       year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
       resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
@@ -110,6 +114,17 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
       polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
       search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
+
+    triggerPolymersRefetch({
+      page: 1,
+      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+      search: filter_state.search === null ? '' : filter_state.search
+    }).unwrap()
+
     dispatch(pagination_set_page(1))
 
   }, [debounced_filters]);
@@ -135,7 +150,7 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex ">
           <div className=" min-w-full font-semibold flex flex-row justify-between">
             <span>Structure Filters</span>
-            <span className="font-semibold"> [{struct_state.total_count} structures]</span>
+            <span className="font-semibold"> [{struct_state.total_structures_count} structures]</span>
           </div>
           {/* <span className=" min-w-full font-semibold"> {struct_state.total_count}</span> */}
         </CollapsibleTrigger>

@@ -39,8 +39,10 @@ export default function PolymersPage() {
   const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
 
     useEffect(() => {
+        console.log("Got polymers");
+        console.log(current_polymers);
+    }, [current_polymers])
 
-    })
     return (
         // This needs two tabs "by structure" and "by polymer Class"
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -66,6 +68,7 @@ export default function PolymersPage() {
                                         {/* TODO: Add tooltip what each means */}
                                         <TabsTrigger className="w-full" value="by_polymer_class">By Polymer Class</TabsTrigger>
                                         <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
+
                                     </TabsList>
 
                                     <TabsContent value="by_polymer_class">
