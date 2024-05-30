@@ -1,6 +1,8 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, Polymer, Protein, RibosomeStructure, ribxz_api, Rna, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
+const PAGE_SIZE_STRUCTURES = 20;
+const PAGE_SIZE_POLYMERS   = 50;
 export interface FiltersState {
     search         : string | null
     year           : [number | null, number | null]
@@ -12,7 +14,6 @@ export interface FiltersState {
 
 export interface PaginationState {
     current_page: number
-    page_size   : number
     total_pages : number | null
 
 }
@@ -20,6 +21,7 @@ export interface PaginationState {
 export interface UIState {
     data:{
         current_structures: RibosomeStructure[],
+        current_polymers  : Protein | Rna | Polymer [],
         total_count       : number | null
     }
     filters   : FiltersState,
@@ -29,7 +31,8 @@ export interface UIState {
 const initialState: UIState = {
     data:{
         current_structures: [],
-        total_count: null
+        current_polymers  : [],
+        total_count       : null
     },
     filters: {
         search         : '',
@@ -41,8 +44,7 @@ const initialState: UIState = {
     },
     pagination: {
         current_page: 1,
-        page_size: 20,
-        total_pages: null
+        total_pages : null
     }
 }
 
@@ -95,7 +97,12 @@ export const uiSlice = createSlice({
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
             state.data.current_structures = action.payload.structures
             state.data.total_count        = action.payload.count
-            state.pagination.total_pages  = Math.ceil(action.payload.count / state.pagination.page_size)
+            state.pagination.total_pages  = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
+        });
+        builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
+            state.data.current_structures = action.payload.polymers
+            state.data.total_count        = action.payload.count
+            state.pagination.total_pages  = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         })
     }
 

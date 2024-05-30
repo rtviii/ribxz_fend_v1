@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button"
 import Select, { components, GroupProps } from 'react-select';
 import { TreeSelect } from 'antd'
 import { useEffect, useRef, useState } from "react"
-import { Label } from "@/components/ui/label"
-import { SelectValue, SelectTrigger, SelectContent } from "@/components/ui/select"
-import {PaginationState}from '@/store/slices/ui_state'
+import { PaginationState } from '@/store/slices/ui_state'
 import {
   ribxz_api,
   useRoutersRouterStructListSourceTaxaQuery,
@@ -29,7 +27,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 
-
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
@@ -48,13 +45,13 @@ const Group = (props: GroupProps<PolymerClassOption, false>) => (
 
 
 export enum FilterType {
-  PolymerClass = "PolymerClass",
+  PolymerClass   = "PolymerClass",
   SourceOrganism = "SourceOrganism",
-  HostOrganism = "HostOrganism",
+  HostOrganism   = "HostOrganism",
   DepositionDate = "DepositionDate",
-  Resolution = "Resolution",
-  Search = "Search",
-  Sort = "Sort"
+  Resolution     = "Resolution",
+  Search         = "Search",
+  Sort           = "Sort"
 }
 
 
@@ -74,40 +71,44 @@ function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partia
   return debouncedValue;
 }
 
-export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
+
+
+interface FiltersProps {
+  disabled_whole?: boolean,
+  disabled_filters?: FilterType[]
+}
+
+export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
 
   // for proteins and rna, 
   // * disable:
   // * -- PolymerClass
   // * -- PolymerClass
 
-
   // New props to generalize to proteins and rna:
-   // * -- Title (structure/proteins/rna)
-   // * -- Count source (rna/protein/struct)
-   // * -- Count source (rna/protein/struct)
+  // * -- Title (structure/proteins/rna)
+  // * -- Count source (rna/protein/struct)
+  // * -- Count source (rna/protein/struct)
 
-
-  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
-  const [triggerRefetch, { data, error }]                                          = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state                                                               = useAppSelector((state) => state.ui.filters)
-  const page_state                                                                 = useAppSelector((state) => state.ui.pagination)
-  const debounced_filters                                                          = useDebounceFilters(filter_state, 250)
+  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
+  const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const filter_state = useAppSelector((state) => state.ui.filters)
+  const debounced_filters = useDebounceFilters(filter_state, 250)
 
 
 
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
     triggerRefetch({
-      page          : 1,
-      year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
-      search        : filter_state.search === null ? ''                                                      : filter_state.search
+      page: 1,
+      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+      search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
     dispatch(pagination_set_page(1))
 
@@ -133,7 +134,7 @@ export function FilterSidebar({ disable }: { disable?: { [key in FilterType]?: b
       <div className="flex items-center justify-between  mb-2 ">
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex ">
           <div className=" min-w-full font-semibold flex flex-row justify-between">
-            <span>Structure Filters  </span>
+            <span>Structure Filters</span>
             <span className="font-semibold"> [{struct_state.total_count} structures]</span>
           </div>
           {/* <span className=" min-w-full font-semibold"> {struct_state.total_count}</span> */}
@@ -335,19 +336,19 @@ export function StructuresPagination() {
 
 
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state                      = useAppSelector((state) => state.ui.filters)
+  const filter_state = useAppSelector((state) => state.ui.filters)
 
 
   useEffect(() => {
 
     triggerRefetch({
-      page          : page_state.current_page,
-      year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
-      search        : filter_state.search === null ? ''                                                      : filter_state.search
+      page: page_state.current_page,
+      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+      search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
 
 
@@ -387,12 +388,13 @@ export function StructuresPagination() {
                 (v) =>
                   <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md" onClick={() => {
                     console.log("Dispathce ", v);
-                    
-                    
-                    dispatch(pagination_set_page(v)) }}>
+
+
+                    dispatch(pagination_set_page(v))
+                  }}>
                     <PaginationLink isActive={v == page_state.current_page} >
                       {v}
-                      </PaginationLink>
+                    </PaginationLink>
                   </PaginationItem>
               )
           }

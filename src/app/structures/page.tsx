@@ -5,17 +5,13 @@ import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard from "../../components/ribxz/structure_card"
 import { useEffect, useState } from "react"
-import { StructuresPagination, FilterSidebar } from "@/components/ribxz/filters"
+import { StructuresPagination, Filters } from "@/components/ribxz/filters"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
-
-
-
-
 
 export const LoadingSpinner = () => {
   <svg
@@ -56,7 +52,7 @@ export default function StructureCatalogue() {
       <div className="grow"  >
         <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
           <div className="col-span-3  flex flex-col min-h-full pr-4">
-            <FilterSidebar />
+            <Filters />
             <SidebarMenu />
             <div className="p-1 my-4 rounded-md border w-full">
               <StructuresPagination />
