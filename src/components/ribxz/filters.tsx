@@ -36,7 +36,7 @@ const groupStyles = {
   background: '#f2fcff',
 };
 
-const Group = (props: GroupProps<PolymerClassOption, false>) => (
+export const Group = (props: GroupProps<PolymerClassOption, false>) => (
   <div style={groupStyles}>
     <components.Group {...props} />
   </div>
@@ -98,13 +98,16 @@ export function Filters(props:FiltersProps) {
 
   const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
-  const filter_state = useAppSelector((state) => state.ui.filters)
+  const struct_state      = useAppSelector((state) => state.ui.data)
+  const filter_state      = useAppSelector((state) => state.ui.filters)
+  const filters           = useAppSelector(state => state.ui.filters)!
   const debounced_filters = useDebounceFilters(filter_state, 250)
-
+  const dispatch          = useAppDispatch();
 
 
   useEffect(() => {
-    //? This garbage is needed to send a all filter params as one url string. If typed, rtk autogen infers the types as body args, which forces the query to be a POST, which is, mildly, a pain in the
+    //? This garbage is needed to send a all filter params as one url string.
+    //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
     triggerStructuresRefetch({
       page: 1,
       year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
@@ -129,7 +132,6 @@ export function Filters(props:FiltersProps) {
 
   }, [debounced_filters]);
 
-  const struct_state = useAppSelector((state) => state.ui.data)
 
   useEffect(() => {
     if (!nomenclature_classes_is_loading) {
@@ -142,8 +144,6 @@ export function Filters(props:FiltersProps) {
   })
 
 
-  const dispatch = useAppDispatch();
-  const filters = useAppSelector(state => state.ui.filters)!
   return (
     <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true} disabled={true}>
       <div className="flex items-center justify-between  mb-2 ">

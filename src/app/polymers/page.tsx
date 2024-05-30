@@ -1,50 +1,48 @@
 "use client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HoverMenu } from "../structures/page"
-import { Filters, StructuresPagination } from "@/components/ribxz/filters"
+import { Filters, Group, StructuresPagination } from "@/components/ribxz/filters"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
-import { useAppSelector } from "@/store/store"
+import { useAppDispatch, useAppSelector } from "@/store/store"
 import React from 'react';
 import { Select } from 'antd';
+import { PolymerClassOption, groupedOptions } from "@/components/ribxz/filters_protein_class_options"
+import { set_current_polymer_class } from "@/store/slices/ui_state"
+import { useRoutersRouterStructPolymerClassesNomenclatureQuery } from "@/store/ribxz_api/ribxz_api"
 
 
 
 
 function PolymerInput() {
 
+  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
+  const dispatch          = useAppDispatch();
+  const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
+  useEffect(() => {
+    if (!nomenclature_classes_is_loading) {
+      setPolymerClassOptions(groupedOptions(nomenclature_classes))
+    }
+  }, [nomenclature_classes, nomenclature_classes_is_loading]);
+
+
     const handleChange = (value: string) => {
         console.log(`selected ${value}`);
     };
     return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
         <Label htmlFor="input" className="font-bold text-md mb-2   "> Polymer Class</Label>
-        <Select
-            defaultValue="lucy"
+      <Select<PolymerClassOption>
+            defaultValue=""
             className="w-full"
-            // style={{ width:  }}
             onChange={handleChange}
-            options={[
-                {
-                    label: <span>manager</span>,
-                    title: 'manager',
-                    options: [
-                        { label: <span>Jack</span>, value: 'Jack' },
-                        { label: <span>Lucy</span>, value: 'Lucy' },
-                    ],
-                },
-                {
-                    label: <span>engineer</span>,
-                    title: 'engineer',
-                    options: [
-                        { label: <span>Chloe</span>, value: 'Chloe' },
-                        { label: <span>Lucas</span>, value: 'Lucas' },
-                    ],
-                },
-            ]}
+            components={{ Group }}
+            instanceId={"current_polymer_class"}
+            options={polymerClassOptions}
+            onChange={(value) => { dispatch(set_current_polymer_class(value.value)) }}
         />
 
         </div>
