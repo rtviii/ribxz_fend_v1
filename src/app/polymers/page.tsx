@@ -9,34 +9,52 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { useAppSelector } from "@/store/store"
+import React from 'react';
+import { Select } from 'antd';
+
+
+
 
 function PolymerInput() {
-    return <div className="grid w-full items-center gap-1.5  mb-2 border p-2 rounded-md">
-        <div>
-        </div>
-        <Label htmlFor="input" className="font-bold text-lg mb-2"> Polymer Class</Label>
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild className="flex items-center">
-                <Input className="focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900 rounded-sm justify-self-center" id="input" placeholder="Enter a choice" type="text" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-full">
-                <DropdownMenuLabel>Available Choices</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Option 1</DropdownMenuItem>
-                <DropdownMenuItem>Option 2</DropdownMenuItem>
-                <DropdownMenuItem>Option 3</DropdownMenuItem>
-                <DropdownMenuItem>Option 4</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    </div>
 
+    const handleChange = (value: string) => {
+        console.log(`selected ${value}`);
+    };
+    return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
+        <Label htmlFor="input" className="font-bold text-md mb-2   "> Polymer Class</Label>
+        <Select
+            defaultValue="lucy"
+            className="w-full"
+            // style={{ width:  }}
+            onChange={handleChange}
+            options={[
+                {
+                    label: <span>manager</span>,
+                    title: 'manager',
+                    options: [
+                        { label: <span>Jack</span>, value: 'Jack' },
+                        { label: <span>Lucy</span>, value: 'Lucy' },
+                    ],
+                },
+                {
+                    label: <span>engineer</span>,
+                    title: 'engineer',
+                    options: [
+                        { label: <span>Chloe</span>, value: 'Chloe' },
+                        { label: <span>Lucas</span>, value: 'Lucas' },
+                    ],
+                },
+            ]}
+        />
+
+        </div>
 }
 
 export default function PolymersPage() {
-  const [tab, setTab]    = useState("by_polymer_class");
-  const onTabChange      = (value: string) => { setTab(value); }
+    const [tab, setTab] = useState("by_polymer_class");
+    const onTabChange = (value: string) => { setTab(value); }
 
-  const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
+    const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
 
     useEffect(() => {
         console.log("Got polymers");
@@ -52,7 +70,7 @@ export default function PolymersPage() {
                 <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
                     <div className="col-span-3  flex flex-col min-h-full pr-4">
                         <PolymerInput />
-                        <Filters disabled_whole={}/>
+                        <Filters disabled_whole={tab == "by_polymer_class"} />
                         <SidebarMenu />
                         <div className="p-1 my-4 rounded-md border w-full">
                             <StructuresPagination />
