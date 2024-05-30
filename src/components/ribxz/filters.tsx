@@ -75,10 +75,10 @@ function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partia
 
 interface FiltersProps {
   disabled_whole?: boolean,
-  disabled_filters?: FilterType[]
+  // disabled_filters?: FilterType[]
 }
 
-export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean } }) {
+export function Filters(props:FiltersProps) {
 
   // for proteins and rna, 
   // * disable:
@@ -158,7 +158,6 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
       <CollapsibleContent>
         <div className="space-y-2">
 
-          {disable?.Search ? null :
             <Input placeholder="Search"
               value={filters.search == null ? '' : filters.search}
               onChange={(e) => {
@@ -166,9 +165,8 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
                   filter_type: "search",
                   value: e.target.value
                 }))
-              }} />}
+              }} />
 
-          {disable?.DepositionDate ? null :
             <div className="flex items-center justify-between space-x-2">
               <label className="text-sm font-medium" htmlFor="startYear">
                 Deposition year
@@ -178,9 +176,7 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
                 <Input className="w-20" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
               </div>
             </div>
-          }
 
-          {disable?.Resolution ? null :
             <div className="flex items-center justify-between space-x-2">
               <label className="text-sm font-medium" htmlFor="minResolution">
                 Resolution
@@ -190,8 +186,6 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
                 <Input className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
               </div>
             </div>
-          }
-          {disable?.PolymerClass ? null :
             <div className="space-y-2">
               <label className="text-sm font-medium my-4" htmlFor="proteinsPresent">
                 Polymer Classes
@@ -222,9 +216,7 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
                 isMulti={true}
               />
             </div>
-          }
 
-          {disable?.SourceOrganism ? null :
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor="SourceOrganism">
                 Source Organism
@@ -245,9 +237,7 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
                 />
               </div>
             </div>
-          }
 
-          {disable?.HostOrganism ? null :
             <div className="space-y-2">
               <label className="text-sm font-medium" htmlFor="multiProteinsPresent">
                 Host Organism
@@ -271,8 +261,6 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
                 />
               </div>
             </div>
-          }
-          {disable?.Sort ? null :
             <Collapsible className="mt-4">
               <CollapsibleTrigger className="flex items-center justify-between">
                 <h3 className="text-sm font-medium">Sort by:</h3>
@@ -293,7 +281,6 @@ export function Filters({ disable }: { disable?: { [key in FilterType]?: boolean
                 </Button>
               </CollapsibleContent>
             </Collapsible>
-          }
         </div>
       </CollapsibleContent>
     </Collapsible>
