@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
-import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
+import { NonpolymericLigand, Polymer, Protein, Rna } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import Link from "next/link"
 
@@ -37,7 +37,7 @@ const LigandTableRow = ({ lig }: { lig: NonpolymericLigand }) => {
     </TableRow>
 }
 
-export default function PolymersTable({ proteins, rnas }: { proteins: Protein[], rnas: Polymer[] }) {
+export default function PolymersTable({ proteins, rnas }: { proteins: Protein[], rnas: Rna[] }) {
     return (
         <div className="border rounded-md">
             <Table className="m-2">

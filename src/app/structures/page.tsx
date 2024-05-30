@@ -48,7 +48,7 @@ export default function StructureCatalogue() {
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
       <HoverMenu />
-      <h1 className="text-2xl font-bold mb-6 " >Ribosome Structures</h1>
+      <h1 className="text-2xl font-bold mb-6">Ribosome Structures</h1>
       <div className="grow"  >
         <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
           <div className="col-span-3  flex flex-col min-h-full pr-4">

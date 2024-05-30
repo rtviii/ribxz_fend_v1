@@ -329,8 +329,8 @@ function useDebouncePagination(value: PaginationState, delay: number): Paginatio
 }
 export function StructuresPagination() {
 
-  const dispatch = useAppDispatch();
-  const page_state = useAppSelector(state => state.ui.pagination)!
+  const dispatch             = useAppDispatch();
+  const page_state           = useAppSelector(state => state.ui.pagination)!
   const debounced_page_state = useDebouncePagination(page_state, 250)
 
   const YscrolltoX = (event: any) => {
@@ -340,10 +340,8 @@ export function StructuresPagination() {
     });
   }
 
-
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const filter_state = useAppSelector((state) => state.ui.filters)
-
 
   useEffect(() => {
 
@@ -405,7 +403,6 @@ export function StructuresPagination() {
               )
           }
         </div>
-
         <div>
           <PaginationItem className="hover:cursor-pointer hover:bg-slate-200 rounded-md" onClick={() => {
             dispatch(pagination_next_page())
