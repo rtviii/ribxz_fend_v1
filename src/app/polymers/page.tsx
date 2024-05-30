@@ -90,8 +90,7 @@ export default function PolymersPage() {
 
                                     <TabsContent value="by_polymer_class">
                                         <PolymersTable 
-                                        proteins={current_polymers.filter(p => p.entity_poly_polymer_type =='Protein')} 
-                                        
+                                        proteins={current_polymers.filter(p => p.entity_poly_polymer_type ==='Protein')} 
                                         rnas={current_polymers.filter(p=>p.entity_poly_polymer_type === 'RNA')}/>
                                     </TabsContent>
                                     <TabsContent value="by_structure">

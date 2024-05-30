@@ -7,7 +7,7 @@ import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import SubstrcturesTable from "../../components/ribxz/polymer_table"
+import PolymersTable from "../../components/ribxz/polymer_table"
 import { useEffect, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
@@ -132,7 +132,7 @@ export default function StructurePage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="components">
-                                    {!isLoading ? <SubstrcturesTable ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas} /> : null}
+                                    {!isLoading ? <PolymersTable  proteins={data.proteins} rnas={data.rnas} connect_to_molstar_ctx={true} /> : null}
                                 </TabsContent>
                             </Tabs>
                             <div className="flex flex-col gap-4">
