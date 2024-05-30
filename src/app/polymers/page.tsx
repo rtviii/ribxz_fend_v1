@@ -54,12 +54,6 @@ export default function PolymersPage() {
 
     const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
 
-
-    useEffect(() => {
-        console.log("Got polymers");
-        console.log(current_polymers);
-    }, [current_polymers])
-
     return (
         // This needs two tabs "by structure" and "by polymer Class"
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -98,8 +92,6 @@ export default function PolymersPage() {
                                         rnas={current_polymers.filter(p=>p.entity_poly_polymer_type === 'RNA')}/>
                                     </TabsContent>
                                 </Tabs>
-
-                                {/* <PolymerTableRow/> */}
                             </div>
                         </ScrollArea>
                     </div>
