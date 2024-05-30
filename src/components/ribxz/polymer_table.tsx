@@ -1,49 +1,52 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
-import { NonpolymericLigand, Polymer, Protein } from "@/store/ribxz_api/ribxz_api"
+import { NonpolymericLigand, Polymer, Protein, Rna } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
-import Link from "next/link"
 
 
-export const PolymerTableRow = ({ polymer }: { polymer: Polymer }) => {
+interface PolymerTableRowProps {
+    polymer: Polymer | Rna | Protein,
+    connect_to_molstar_ctx?: boolean
+}
 
+export const PolymerTableRow = (props: PolymerTableRowProps) => {
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
-    return <TableRow
-        className="hover:bg-gray-400 hover:text-white hover:cursor-pointer"
-        onClick={() => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) }}
-        onMouseEnter={() => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) }}
-        onMouseLeave={() => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) }} >
+    const polymer = props.polymer
 
+    return <TableRow
+        className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
+        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
+        onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
+        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined}
+    >
+
+        <TableCell>{polymer.parent_rcsb_id}</TableCell>
         <TableCell>{polymer.auth_asym_id}</TableCell>
         <TableCell>{polymer.asym_ids}</TableCell>
         <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
         <TableCell className="whitespace-pre">{polymer.src_organism_names}</TableCell>
-        <TableCell className="whitespace-pre">{polymer.entity_poly_seq_one_letter_code_can}</TableCell>
+        {/* <TableCell className="whitespace-pre">{polymer.entity_poly_seq_one_letter_code_can}</TableCell> */}
         <TableCell><DeleteIcon className="h-5 w-5" /></TableCell>
     </TableRow>
 }
 
-
-const LigandTableRow = ({ lig }: { lig: NonpolymericLigand }) => {
-
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)
-    return <TableRow className="hover:cursor-pointer hover:bg-indigo-200" >
-        <TableCell>{lig.chemicalId}</TableCell>
-        <TableCell>{lig.chemicalName}</TableCell>
-        <TableCell onClick={() => { create_ligand_surroundings(ctx!, lig.chemicalId) }} className="rounded-sm hover:bg-slate-400">{lig.chemicalName}</TableCell>
-        <TableCell className="hover:bg-slate-400 rounded-sm" onClick={() => { create_ligand(ctx!, lig.chemicalId) }}>{lig.chemicalName}</TableCell>
-        <TableCell>{lig.nonpolymer_comp?.drugbank?.drugbank_container_identifiers.drugbank_id}</TableCell>
-    </TableRow>
+interface PolymersTableProps {
+    proteins: Protein[],
+    rnas: Rna[],
+    connect_to_molstar_ctx?: boolean
 }
 
-export default function PolymersTable({ proteins, rnas }: { proteins: Protein[], rnas: Polymer[] }) {
+export default function PolymersTable(props: PolymersTableProps) {
+    const proteins = props.proteins
+    const rnas = props.rnas
     return (
-        <div className="border rounded-md">
-            <Table className="m-2">
+        <div className="border rounded-md  w-full bg-rose-50">
+            <Table className="m-2 ">
 
                 <TableHeader>
                     <TableRow>
+                        <TableHead>Parent Structure</TableHead>
                         <TableHead>Chain ID</TableHead>
                         <TableHead>Polymer Class</TableHead>
                         <TableHead>Source Organism</TableHead>
@@ -61,7 +64,7 @@ export default function PolymersTable({ proteins, rnas }: { proteins: Protein[],
                             </TableRow>
                         </TableHeader>
                         <TableBody >
-                            {proteins.map(p => <PolymerTableRow key={p.auth_asym_id} polymer={p} />)}
+                            {proteins.map(p => <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>
                     </>
                     : null}
@@ -78,7 +81,7 @@ export default function PolymersTable({ proteins, rnas }: { proteins: Protein[],
                         </TableHeader>
 
                         <TableBody >
-                            {rnas.map(r => <PolymerTableRow key={r.auth_asym_id} polymer={r} />)}
+                            {rnas.map(r => <PolymerTableRow key={r.parent_rcsb_id + r.auth_asym_id} polymer={r} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>
                     </>
                     : null

@@ -17,9 +17,6 @@ import { set_filter } from "@/store/slices/ui_state"
 
 
 const ChainSelection = ({structure}: {structure:RibosomeStructure}) => {
-
-
-
     const dispatch   = useAppDispatch();
     const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
     const  polymers  = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
@@ -63,7 +60,6 @@ const StructureSelection = ({structure}: {structure:RibosomeStructure}) => {
         </HoverCard>
     </div>
 }
-
 
 export default function ChainPicker({ children }: { children?: React.ReactNode }) {
 

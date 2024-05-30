@@ -1,18 +1,15 @@
 "use client"
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { MolstarNode, } from "@/store/molstar/lib"
-import { Skeleton } from "@/components/ui/skeleton"
 import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import SubstrcturesTable from "./components_table"
-import { create_ligand, transform } from "@/store/molstar/functions"
+import PolymersTable from "../../components/ribxz/polymer_table"
 import { useEffect, useRef, useState } from "react"
-import { SidebarMenu } from "@/components/sidebar"
+import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 // StateTransforms
@@ -44,7 +41,6 @@ export default function StructurePage() {
             <ResizablePanelGroup direction="horizontal" className="rounded-lg border ">
                 <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col">
-
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
@@ -136,7 +132,7 @@ export default function StructurePage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="components">
-                                    {!isLoading ? <SubstrcturesTable ligands={data.nonpolymeric_ligands} proteins={data.proteins} rnas={data.rnas} /> : null}
+                                    {!isLoading ? <PolymersTable  proteins={data.proteins} rnas={data.rnas} connect_to_molstar_ctx={true} /> : null}
                                 </TabsContent>
                             </Tabs>
                             <div className="flex flex-col gap-4">

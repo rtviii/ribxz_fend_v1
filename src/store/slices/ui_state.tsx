@@ -1,36 +1,48 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, Polymer, Protein, RibosomeStructure, ribxz_api, Rna, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
+const PAGE_SIZE_STRUCTURES = 20;
+const PAGE_SIZE_POLYMERS = 50;
 export interface FiltersState {
-    search         : string | null
-    year           : [number | null, number | null]
-    resolution     : [number | null, number | null]
+    search: string | null
+    year: [number | null, number | null]
+    resolution: [number | null, number | null]
     polymer_classes: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
-    source_taxa    : number[]
-    host_taxa      : number[]
+    source_taxa: number[]
+    host_taxa: number[]
 }
 
 export interface PaginationState {
     current_page: number
-    page_size   : number
-    total_pages : number | null
+    total_pages: number | null
 
 }
 
 export interface UIState {
-    data:{
-        current_structures: RibosomeStructure[],
-        total_count       : number | null
+    data: {
+        current_structures    : RibosomeStructure[],
+        current_polymers      : Array<Polymer|Rna|Protein>,
+        total_structures_count: number | null,
+        total_polymers_count  : number | null
+    },
+    polymers: {
+        current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
     }
-    filters   : FiltersState,
+    filters: FiltersState,
     pagination: PaginationState
 }
 
 const initialState: UIState = {
-    data:{
-        current_structures: [],
-        total_count: null
+    data: {
+        current_structures    : [],
+        current_polymers      : [],
+        total_structures_count: null,
+        total_polymers_count  : null
     },
+    polymers: {
+        current_polymer_class: null
+    },
+
     filters: {
         search         : '',
         year           : [null, null],
@@ -41,7 +53,6 @@ const initialState: UIState = {
     },
     pagination: {
         current_page: 1,
-        page_size: 20,
         total_pages: null
     }
 }
@@ -66,6 +77,11 @@ export const uiSlice = createSlice({
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
+        //* ------------------------- Polymers
+        set_current_polymer_class(state, action: PayloadAction<CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum>) {
+            Object.assign(state.polymers, { current_polymer_class: action.payload })
+            
+        },
         //* ------------------------- Filters 
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
@@ -78,7 +94,7 @@ export const uiSlice = createSlice({
             }
 
         },
-        pagination_set_page(state, action:PayloadAction<number>) {
+        pagination_set_page(state, action: PayloadAction<number>) {
             if (action.payload <= state.pagination.total_pages! && 1 <= action.payload) {
                 state.pagination.current_page = action.payload
             }
@@ -94,8 +110,13 @@ export const uiSlice = createSlice({
     extraReducers: (builder) => {
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
             state.data.current_structures = action.payload.structures
-            state.data.total_count        = action.payload.count
-            state.pagination.total_pages  = Math.ceil(action.payload.count / state.pagination.page_size)
+            state.data.total_structures_count = action.payload.count
+            state.pagination.total_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
+        });
+        builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
+            state.data.current_polymers = action.payload.polymers
+            state.data.total_polymers_count = action.payload.count
+            state.pagination.total_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         })
     }
 
@@ -107,6 +128,7 @@ export const uiSlice = createSlice({
 
 
 export const {
+    set_current_polymer_class,
     set_new_structs,
     set_filter,
     pagination_set_page,
