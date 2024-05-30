@@ -5,8 +5,6 @@ import { Filters, Group, StructuresPagination } from "@/components/ribxz/filters
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import React from 'react';
@@ -17,8 +15,12 @@ import { useRoutersRouterStructPolymerClassesNomenclatureQuery } from "@/store/r
 
 
 
+interface PolymerInputProps {
+    isDisabled?: boolean
+}
 
-function PolymerInput() {
+
+function PolymerInput(props:PolymerInputProps) {
 
   const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
   const dispatch          = useAppDispatch();
@@ -34,15 +36,17 @@ function PolymerInput() {
         console.log(`selected ${value}`);
     };
     return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
-        <Label htmlFor="input" className="font-bold text-md mb-2   "> Polymer Class</Label>
-      <Select<PolymerClassOption>
-            defaultValue=""
-            className="w-full"
-            onChange={handleChange}
+        <Label htmlFor="input" className={`font-bold text-md mb-2   ${ props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
+      <Select<PolymerClassOption >
+           
+            defaultValue={null}
+            className="w-full max-h-64"
             components={{ Group }}
-            instanceId={"current_polymer_class"}
+            // instanceId={"polymer_class"}
             options={polymerClassOptions}
-            onChange={(value) => { dispatch(set_current_polymer_class(value.value)) }}
+            onChange={(value) => { 
+            dispatch(set_current_polymer_class(  value )) }}
+            disabled={props.isDisabled}
         />
 
         </div>
@@ -67,7 +71,7 @@ export default function PolymersPage() {
             <div className="grow"  >
                 <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
                     <div className="col-span-3  flex flex-col min-h-full pr-4">
-                        <PolymerInput />
+                        <PolymerInput isDisabled={tab=="by_structure"}/>
                         <Filters disabled_whole={tab == "by_polymer_class"} />
                         <SidebarMenu />
                         <div className="p-1 my-4 rounded-md border w-full">

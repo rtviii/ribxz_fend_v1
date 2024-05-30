@@ -80,6 +80,8 @@ export const uiSlice = createSlice({
         //* ------------------------- Polymers
         set_current_polymer_class(state, action: PayloadAction<CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
+            console.log("Set newpoly class", action.payload);
+            
         },
         //* ------------------------- Filters 
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
