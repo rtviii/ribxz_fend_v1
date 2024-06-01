@@ -47,8 +47,6 @@ export default function PolymersTable(props: PolymersTableProps) {
                         <TableHead>Chain ID</TableHead>
                         <TableHead>Polymer Class</TableHead>
                         <TableHead>Source Organism</TableHead>
-                        {/* <TableHead>Sequence</TableHead> */}
-                        {/* <TableHead className="w-12" /> */}
                     </TableRow>
                 </TableHeader>
                 {
@@ -76,14 +74,11 @@ export default function PolymersTable(props: PolymersTableProps) {
 
 
                 {rnas.length != 0 ?
-
                     <>
-                        {/* <TableHead className="font-bold text-base ">RNA</TableHead> */}
-
                         <TableBody >
                             <TableRow>
 
-                                <TableHead className="font-bold text-base">Proteins</TableHead>
+                                <TableHead className="font-bold text-base">RNA</TableHead>
                             </TableRow>
                             {rnas.map(r => <PolymerTableRow key={r.parent_rcsb_id + r.auth_asym_id} polymer={r} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>

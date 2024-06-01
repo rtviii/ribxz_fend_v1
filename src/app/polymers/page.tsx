@@ -1,7 +1,7 @@
 "use client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HoverMenu } from "../structures/page"
-import { Filters, Group } from "@/components/ribxz/filters"
+import { Filters, Group, useDebounceFilters } from "@/components/ribxz/filters"
 import { PaginationElement } from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -64,6 +64,8 @@ export default function PolymersPage() {
     const [triggerPolymersRefetch_byStructure, { polymers_data_byStructure, polymers_error_byStructure }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
     const filter_state = useAppSelector((state) => state.ui.filters)
+    const debounced_filters = useDebounceFilters(filter_state, 250)
+  
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
     const current_polymer_page = useAppSelector((state) => state.ui.pagination.current_polymers_page)
     const pagination_poly = useAppSelector((state) => state.ui.pagination)
@@ -77,18 +79,19 @@ export default function PolymersPage() {
                 dispatch(set_current_polymers([]))
             }
         }
+
         else if (tab == "by_structure") {
             triggerPolymersRefetch_byStructure({
-                page: current_polymer_page,
-                year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-                sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-                polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-                search: filter_state.search === null ? '' : filter_state.search
+                page          : current_polymer_page,
+                year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+                sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+                polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
+                search        : filter_state.search === null ? ''                                                      : filter_state.search
             }).unwrap()
         }
-    }, [tab, current_polymer_page])
+    }, [tab, current_polymer_page, debounced_filters])
 
     useEffect(() => {
         if (current_polymer_class != null) {
@@ -131,7 +134,6 @@ export default function PolymersPage() {
                                 <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
                             </TabsList>
                             <TabsContent value="by_polymer_class" >
-
                                 <PolymersTable
                                     proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
                                     rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />

@@ -52,7 +52,7 @@ export enum FilterType {
   Sort = "Sort"
 }
 
-function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
+export function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
@@ -98,6 +98,7 @@ export function Filters(props: FiltersProps) {
   const dispatch = useAppDispatch();
 
 
+  // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
