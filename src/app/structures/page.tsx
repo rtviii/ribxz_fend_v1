@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard from "../../components/ribxz/structure_card"
 import { useEffect, useState } from "react"
-import { PaginationElement, Filters } from "@/components/ribxz/filters"
+import {  Filters } from "@/components/ribxz/filters"
+import {PaginationElement} from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';

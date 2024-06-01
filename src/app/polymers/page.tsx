@@ -1,7 +1,8 @@
 "use client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HoverMenu } from "../structures/page"
-import { Filters, Group, PaginationElement } from "@/components/ribxz/filters"
+import { Filters, Group } from "@/components/ribxz/filters"
+import {PaginationElement} from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
