@@ -41,7 +41,7 @@ export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.proteins
     const rnas = props.rnas
     return (
-        <div className="border rounded-md  w-full bg-rose-50">
+        <div className="border rounded-md  w-full ">
             <Table className="m-2 ">
 
                 <TableHeader>

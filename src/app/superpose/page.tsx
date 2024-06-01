@@ -7,14 +7,14 @@ import { ChainsByStruct, Polymer, PolymerByStruct, RibosomeStructure, useRouters
 import { initiatePluginUIContext, download_struct, superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import ChainPicker from "@/components/chain_picker"
-import { FilterSidebar } from "../structures/filters"
+import ChainPicker from "@/components/ribxz/chain_picker"
+import {Filters} from "@/components/ribxz/filters"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
 import { Label } from "@/components/ui/label";
 import { dynamicSuperimpose } from "@/store/molstar/dynamic_superposition";
-import { SidebarMenu } from "@/components/sidebar";
+import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 
 function PlusIcon() {
     return (
@@ -103,7 +103,7 @@ export default function Superimpose() {
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
 
                             <div className="flex flex-col gap-4">
-                                <FilterSidebar  />
+                                <Filters   />
                             </div>
 
                             <Separator className="my-4" />

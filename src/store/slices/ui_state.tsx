@@ -116,11 +116,9 @@ export const uiSlice = createSlice({
             slice_name: 'structures' | 'polymers',
             set_to_page: number
         }>) {
-
             if (action.payload.slice_name === 'polymers') {
                 if (action.payload.set_to_page <= state.pagination.total_polymers_pages! && 1 <= action.payload.set_to_page) {
                     state.pagination.current_polymers_page = action.payload.set_to_page
-                    console.log("New page", state.pagination.current_polymers_page);
                 }
             } else if (action.payload.slice_name === 'structures') {
                 if (action.payload.set_to_page <= state.pagination.total_structures_pages! && 1 <= action.payload.set_to_page) {

@@ -320,7 +320,9 @@ function useDebouncePagination(value: PaginationState, delay: number): Paginatio
     return () => {
       clearTimeout(handler);
     };
-  }, [value, delay]);
+  }, [value, delay]);    useEffect(()=>{
+    console.log("page changed");
+},[current_polymer_page])
 
   return debouncedValue;
 }

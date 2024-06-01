@@ -62,17 +62,12 @@ export default function PolymersPage() {
     const [triggerPolymersRefetch_byStructure, { polymers_data_byStructure, polymers_error_byStructure }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
     const filter_state          = useAppSelector((state) => state.ui.filters)
-
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
     const current_polymer_page  = useAppSelector((state) => state.ui.pagination.current_polymers_page)
-    const pagination_poly  = useAppSelector((state) => state.ui.pagination)
+    const pagination_poly       = useAppSelector((state) => state.ui.pagination)
 
     useEffect(() => {
-        console.log("tab");
-        
         if (tab == "by_polymer_class") {
-            console.log("tab is polyclass", "page changed");
-            
             if (current_polymer_class != null) {
                 triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: current_polymer_page })
             }
@@ -111,9 +106,6 @@ export default function PolymersPage() {
         }
     }, [current_polymer_page])
 
-    useEffect(()=>{
-        console.log("page changed");
-    },[current_polymer_page])
 
 
 
@@ -131,15 +123,12 @@ export default function PolymersPage() {
                         <div className="p-1 my-4 rounded-md border w-full">
                             <PaginationElement slice_type={"polymers"} />
                         </div>
-                        <p>{pagination_poly.current_polymers_page}</p>
-                        <p>{pagination_poly.total_polymers_pages}</p>
                     </div>
                     <div className="col-span-9 scrollbar-hidden">
                         <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
                             <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
                                 <Tabs defaultValue="by_polymer_class" value={tab} onValueChange={onTabChange}>
                                     <TabsList className="grid w-full grid-cols-2">
-
                                         {/* TODO: Add tooltip what each means */}
                                         <TabsTrigger className="w-full" value="by_polymer_class">By Polymer Class</TabsTrigger>
                                         <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
