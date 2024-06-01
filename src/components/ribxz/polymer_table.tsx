@@ -66,16 +66,9 @@ export default function PolymersTable(props: PolymersTableProps) {
                         : null
                 }
 
-                {/* Proteins is active */}
                 {proteins.length != 0 ?
                     <>
-                        {/* <TableHeader>
-                            <TableRow> */}
-                                
-                                {/* <p className="font-bold text-base">Proteins</p> */}
-                                <TableHead className="font-bold text-base">Proteins</TableHead>
-                            {/* </TableRow>
-                        </TableHeader> */}
+                        <TableHead className="font-bold text-base">Proteins</TableHead>
                         <TableBody >
                             {proteins.map(p => <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>
@@ -83,24 +76,16 @@ export default function PolymersTable(props: PolymersTableProps) {
                     : null}
 
 
-                {/* RNA is active */}
                 {rnas.length != 0 ?
 
                     <>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="font-bold text-base">RNA</TableHead>
-                            </TableRow>
-                        </TableHeader>
-
+                        <TableHead className="font-bold text-base ">RNA</TableHead>
                         <TableBody >
                             {rnas.map(r => <PolymerTableRow key={r.parent_rcsb_id + r.auth_asym_id} polymer={r} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>
                     </>
                     : null
                 }
-                {/* Other Polymers is active */}
-                {/* TODO */}
             </Table>
 
         </ScrollArea>

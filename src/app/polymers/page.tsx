@@ -2,7 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HoverMenu } from "../structures/page"
 import { Filters, Group } from "@/components/ribxz/filters"
-import {PaginationElement} from '@/components/ribxz/pagination_element'
+import { PaginationElement } from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
@@ -51,9 +51,9 @@ function PolymerInput(props: PolymerInputProps) {
 }
 
 export default function PolymersPage() {
-    const [tab, setTab]    = useState("by_polymer_class");
-    const dispatch         = useAppDispatch();
-    const onTabChange      = (value: string) => { setTab(value); }
+    const [tab, setTab] = useState("by_polymer_class");
+    const dispatch = useAppDispatch();
+    const onTabChange = (value: string) => { setTab(value); }
     const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
     //! -----------
 
@@ -62,10 +62,10 @@ export default function PolymersPage() {
     const [triggerPolymersRefetch_byPolymerClass, { polymers_data_byPolymerClass, polymers_error_byPolymerClass }] = ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.useLazyQuery()
     const [triggerPolymersRefetch_byStructure, { polymers_data_byStructure, polymers_error_byStructure }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
-    const filter_state          = useAppSelector((state) => state.ui.filters)
+    const filter_state = useAppSelector((state) => state.ui.filters)
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
-    const current_polymer_page  = useAppSelector((state) => state.ui.pagination.current_polymers_page)
-    const pagination_poly       = useAppSelector((state) => state.ui.pagination)
+    const current_polymer_page = useAppSelector((state) => state.ui.pagination.current_polymers_page)
+    const pagination_poly = useAppSelector((state) => state.ui.pagination)
 
     useEffect(() => {
         if (tab == "by_polymer_class") {
@@ -109,7 +109,6 @@ export default function PolymersPage() {
 
 
     return (
-        // This needs two tabs "by structure" and "by polymer Class"
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
             <HoverMenu />
             <h1 className="text-2xl font-bold mb-6 ">Polymers</h1>
@@ -124,30 +123,25 @@ export default function PolymersPage() {
                         </div>
                     </div>
                     <div className="col-span-9 scrollbar-hidden">
+                        <Tabs defaultValue="by_polymer_class" value={tab} onValueChange={onTabChange} className="w-full  max-h-[90vh] " >
+                            <TabsList className="grid w-full grid-cols-2">
+                                {/* TODO: Add tooltip what each means */}
+                                <TabsTrigger className="w-full" value="by_polymer_class">By Polymer Class</TabsTrigger>
+                                <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="by_polymer_class" >
 
-                            {/* <div className=" gap-4 flex  flex-wrap   max-h-[90vh]  no-scrollbar"  > */}
-
-                                <Tabs defaultValue="by_polymer_class" value={tab} onValueChange={onTabChange}  className="w-full  max-h-[90vh] " >
-
-                                    <TabsList className="grid w-full grid-cols-2">
-                                        {/* TODO: Add tooltip what each means */}
-                                        <TabsTrigger className="w-full" value="by_polymer_class">By Polymer Class</TabsTrigger>
-                                        <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
-                                    </TabsList>
-                                    {/* <TabsContent value="by_polymer_class" className="max-h-full ">
-
-                                        <PolymersTable
-                                            if_empty_prompt={<div className="text-center w-full"> { "<---" } Select a Polymer Class</div>}
-                                            proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
-                                            rnas    ={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA'    )} />
-                                    </TabsContent> */}
-                                    <TabsContent value="by_structure" >
-                                        <PolymersTable
-                                            proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
-                                            rnas    ={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA'    )} />
-                                    </TabsContent>
-                                </Tabs>
-                            {/* </div> */}
+                                <PolymersTable
+                                    if_empty_prompt={<div className="text-center w-full"> {"<---"} Select a Polymer Class</div>}
+                                    proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
+                                    rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />
+                            </TabsContent>
+                            <TabsContent value="by_structure" >
+                                <PolymersTable
+                                    proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
+                                    rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </div>
             </div>
