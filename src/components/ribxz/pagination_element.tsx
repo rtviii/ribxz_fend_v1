@@ -13,9 +13,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { useAppDispatch, useAppSelector } from "@/store/store";
+
 function useDebouncePagination(value: PaginationState, delay: number): PaginationState {
   const [debouncedValue, setDebouncedValue] = useState(value);
-
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);

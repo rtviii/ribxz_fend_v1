@@ -32,9 +32,10 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
 }
 
 interface PolymersTableProps {
-    proteins: Protein[],
-    rnas: Rna[],
+    proteins               : Protein[],
+    rnas                   : Rna[],
     connect_to_molstar_ctx?: boolean
+    if_empty_prompt        : React.ReactNode
 }
 
 export default function PolymersTable(props: PolymersTableProps) {
@@ -43,7 +44,6 @@ export default function PolymersTable(props: PolymersTableProps) {
     return (
         <div className="border rounded-md  w-full ">
             <Table className="m-2 ">
-
                 <TableHeader>
                     <TableRow>
                         <TableHead>Parent Structure</TableHead>
@@ -54,6 +54,17 @@ export default function PolymersTable(props: PolymersTableProps) {
                         <TableHead className="w-12" />
                     </TableRow>
                 </TableHeader>
+                {
+                    proteins.length == 0 && rnas.length == 0 ?
+                        <TableBody>
+                            <TableRow>
+                                <TableCell colSpan={12} className="text-center">
+                                    {props.if_empty_prompt}
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                        : null
+                }
 
                 {/* Proteins is active */}
                 {proteins.length != 0 ?

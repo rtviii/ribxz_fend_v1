@@ -136,6 +136,8 @@ export default function PolymersPage() {
                                     </TabsList>
                                     <TabsContent value="by_polymer_class">
                                         <PolymersTable
+                                            if_empty_prompt={<div className="text-center w-full"> { "<---" } Select a Polymer Class</div>}
+
                                             proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
                                             rnas    ={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA'    )} />
                                     </TabsContent>
