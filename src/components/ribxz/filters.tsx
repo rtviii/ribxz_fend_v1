@@ -97,23 +97,23 @@ export function Filters(props: FiltersProps) {
   const [triggerStructuresRefetch, { struct_data, struct_error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
-  const struct_state      = useAppSelector((state) => state.ui.data)
-  const filters           = useAppSelector(state => state.ui.filters)!
+  const struct_state = useAppSelector((state) => state.ui.data)
+  const filters = useAppSelector(state => state.ui.filters)!
   const debounced_filters = useDebounceFilters(filters, 250)
-  const dispatch          = useAppDispatch();
+  const dispatch = useAppDispatch();
 
 
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
     triggerStructuresRefetch({
-      page          : 1,
-      year          : filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa      : filters.host_taxa.length == 0 ? ''                                                : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa    : filters.source_taxa.length == 0 ? ''                                              : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filters.polymer_classes.length == 0 ? ''                                          : filters.polymer_classes.join(','),
-      search        : filters.search === null ? ''                                                      : filters.search
+      page: 1,
+      year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
+      search: filters.search === null ? '' : filters.search
     }).unwrap()
 
     dispatch(pagination_set_page({
@@ -155,10 +155,10 @@ export function Filters(props: FiltersProps) {
 
         <div className="space-y-2">
 
-          <Input placeholder = "Search"
-                 disabled    = {props.disabled_whole}
-                 value       = {filters.search == null ? '' : filters.search}
-                 onChange    = {(e) => {
+          <Input placeholder="Search"
+            disabled={props.disabled_whole}
+            value={filters.search == null ? '' : filters.search}
+            onChange={(e) => {
               dispatch(set_filter({
                 filter_type: "search",
                 value: e.target.value
@@ -324,18 +324,17 @@ function useDebouncePagination(value: PaginationState, delay: number): Paginatio
 
   return debouncedValue;
 }
-export function StructuresPagination() {
+
+
+interface PaginationProps {
+  slice_type: "structures" | "polymers"
+}
+
+export function PaginationElement(props: PaginationProps) {
 
   const dispatch = useAppDispatch();
   const page_state = useAppSelector(state => state.ui.pagination)!
   const debounced_page_state = useDebouncePagination(page_state, 250)
-
-  const YscrolltoX = (event: any) => {
-    event.preventDefault();
-    event.target.scrollBy({
-      left: event.deltaY < 0 ? -30 : 30,
-    });
-  }
 
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const filter_state = useAppSelector((state) => state.ui.filters)
@@ -355,6 +354,16 @@ export function StructuresPagination() {
 
   }, [debounced_page_state.current_structures_page])
 
+
+  const YscrolltoX = (event: any) => {
+    event.preventDefault();
+    event.target.scrollBy({
+      left: event.deltaY < 0 ? -30 : 30,
+    });
+  }
+
+
+
   const innerRef = useRef(null);
 
   useEffect(() => {
@@ -372,10 +381,11 @@ export function StructuresPagination() {
   return (
     <Pagination >
       <PaginationContent className="flex flex-row overflow-auto" >
-
         <div>
           <PaginationItem className="hover:cursor-pointer hover:bg-slate-200 rounded-md" onClick={() => {
-            dispatch(pagination_prev_page())
+            dispatch(pagination_prev_page({
+              slice_name: props.slice_type
+            }))
           }}>
             <PaginationPrevious />
           </PaginationItem>
@@ -388,21 +398,27 @@ export function StructuresPagination() {
               .map(
                 (v) =>
                   <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md" onClick={() => {
-                    console.log("Dispathce ", v);
-
-
-                    dispatch(pagination_set_page(v))
+                    dispatch(pagination_set_page({ set_to_page: v, slice_name: props.slice_type }))
                   }}>
-                    <PaginationLink isActive={v == page_state.current_structures_page} >
-                      {v}
-                    </PaginationLink>
+                    {
+                      props.slice_type === 'polymers' ?
+                        <PaginationLink isActive={v == page_state.current_polymers_page} >
+                          {v}
+                        </PaginationLink> :
+
+                        <PaginationLink isActive={v == page_state.current_structures_page} >
+                          {v}
+                        </PaginationLink>
+                    }
                   </PaginationItem>
               )
           }
         </div>
         <div>
           <PaginationItem className="hover:cursor-pointer hover:bg-slate-200 rounded-md" onClick={() => {
-            dispatch(pagination_next_page())
+            dispatch(pagination_next_page({
+              slice_name: props.slice_type
+            }))
           }}>
             <PaginationNext />
           </PaginationItem>

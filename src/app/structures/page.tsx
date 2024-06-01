@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard from "../../components/ribxz/structure_card"
 import { useEffect, useState } from "react"
-import { StructuresPagination, Filters } from "@/components/ribxz/filters"
+import { PaginationElement, Filters } from "@/components/ribxz/filters"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
@@ -55,7 +55,7 @@ export default function StructureCatalogue() {
             <Filters />
             <SidebarMenu />
             <div className="p-1 my-4 rounded-md border w-full">
-              <StructuresPagination />
+              <PaginationElement  slice_type={ "structures" }/>
             </div>
           </div>
           <div className="col-span-9 scrollbar-hidden">

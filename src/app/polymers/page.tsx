@@ -1,7 +1,7 @@
 "use client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HoverMenu } from "../structures/page"
-import { Filters, Group, StructuresPagination } from "@/components/ribxz/filters"
+import { Filters, Group, PaginationElement } from "@/components/ribxz/filters"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
@@ -19,7 +19,6 @@ import PolymersTable from "@/components/ribxz/polymer_table"
 interface PolymerInputProps {
     isDisabled?: boolean
 }
-
 
 function PolymerInput(props: PolymerInputProps) {
 
@@ -51,9 +50,9 @@ function PolymerInput(props: PolymerInputProps) {
 }
 
 export default function PolymersPage() {
-    const [tab, setTab] = useState("by_polymer_class");
-    const dispatch = useAppDispatch();
-    const onTabChange = (value: string) => { setTab(value); }
+    const [tab, setTab]    = useState("by_polymer_class");
+    const dispatch         = useAppDispatch();
+    const onTabChange      = (value: string) => { setTab(value); }
     const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
     //! -----------
 
@@ -61,15 +60,21 @@ export default function PolymersPage() {
 
     const [triggerPolymersRefetch_byPolymerClass, { polymers_data_byPolymerClass, polymers_error_byPolymerClass }] = ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.useLazyQuery()
     const [triggerPolymersRefetch_byStructure, { polymers_data_byStructure, polymers_error_byStructure }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
-    const filter_state = useAppSelector((state) => state.ui.filters)
-    const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
 
-    // TODO : Parametrize pagination to structs/polymers
+    const filter_state          = useAppSelector((state) => state.ui.filters)
+
+    const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
+    const current_polymer_page  = useAppSelector((state) => state.ui.pagination.current_polymers_page)
+    const pagination_poly  = useAppSelector((state) => state.ui.pagination)
 
     useEffect(() => {
+        console.log("tab");
+        
         if (tab == "by_polymer_class") {
+            console.log("tab is polyclass", "page changed");
+            
             if (current_polymer_class != null) {
-                triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: 1 })
+                triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: current_polymer_page })
             }
             else {
                 dispatch(set_current_polymers([]))
@@ -77,7 +82,7 @@ export default function PolymersPage() {
         }
         else if (tab == "by_structure") {
             triggerPolymersRefetch_byStructure({
-                page: 1,
+                page: current_polymer_page,
                 year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
                 resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
                 hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
@@ -86,7 +91,7 @@ export default function PolymersPage() {
                 search: filter_state.search === null ? '' : filter_state.search
             }).unwrap()
         }
-    }, [tab])
+    }, [tab, current_polymer_page])
 
     useEffect(() => {
         if (current_polymer_class != null) {
@@ -95,9 +100,20 @@ export default function PolymersPage() {
         else {
             dispatch(set_current_polymers([]))
         }
-    },
-        [ current_polymer_class ])
+    }, [current_polymer_class])
 
+    useEffect(() => {
+        if (current_polymer_class != null) {
+            triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: current_polymer_page })
+        }
+        else {
+            dispatch(set_current_polymers([]))
+        }
+    }, [current_polymer_page])
+
+    useEffect(()=>{
+        console.log("page changed");
+    },[current_polymer_page])
 
 
 
@@ -113,8 +129,10 @@ export default function PolymersPage() {
                         <Filters disabled_whole={tab == "by_polymer_class"} />
                         <SidebarMenu />
                         <div className="p-1 my-4 rounded-md border w-full">
-                            <StructuresPagination />
+                            <PaginationElement slice_type={"polymers"} />
                         </div>
+                        <p>{pagination_poly.current_polymers_page}</p>
+                        <p>{pagination_poly.total_polymers_pages}</p>
                     </div>
                     <div className="col-span-9 scrollbar-hidden">
                         <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
@@ -125,18 +143,16 @@ export default function PolymersPage() {
                                         {/* TODO: Add tooltip what each means */}
                                         <TabsTrigger className="w-full" value="by_polymer_class">By Polymer Class</TabsTrigger>
                                         <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
-
                                     </TabsList>
-
                                     <TabsContent value="by_polymer_class">
                                         <PolymersTable
                                             proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
-                                            rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />
+                                            rnas    ={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA'    )} />
                                     </TabsContent>
                                     <TabsContent value="by_structure">
                                         <PolymersTable
                                             proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
-                                            rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />
+                                            rnas    ={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA'    )} />
                                     </TabsContent>
                                 </Tabs>
                             </div>
