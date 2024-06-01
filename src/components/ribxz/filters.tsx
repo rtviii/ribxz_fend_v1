@@ -42,8 +42,6 @@ export const Group = (props: GroupProps<PolymerClassOption, false>) => (
   </div>
 );
 
-
-
 export enum FilterType {
   PolymerClass = "PolymerClass",
   SourceOrganism = "SourceOrganism",
@@ -53,7 +51,6 @@ export enum FilterType {
   Search = "Search",
   Sort = "Sort"
 }
-
 
 function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -70,8 +67,6 @@ function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partia
 
   return debouncedValue;
 }
-
-
 
 interface FiltersProps {
   disabled_whole?: boolean,
@@ -307,8 +302,6 @@ function ChevronDownIcon(props) {
   )
 }
 
-
-
 function useDebouncePagination(value: PaginationState, delay: number): PaginationState {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -320,9 +313,7 @@ function useDebouncePagination(value: PaginationState, delay: number): Paginatio
     return () => {
       clearTimeout(handler);
     };
-  }, [value, delay]);    useEffect(()=>{
-    console.log("page changed");
-},[current_polymer_page])
+  }, [value, delay]);    
 
   return debouncedValue;
 }
