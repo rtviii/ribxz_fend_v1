@@ -13,17 +13,21 @@ export interface FiltersState {
 }
 
 export interface PaginationState {
-    current_page: number
-    total_pages: number | null
+
+    current_polymers_page: number
+    total_polymers_pages: number | null
+
+    current_structures_page: number
+    total_structures_pages: number | null
 
 }
 
 export interface UIState {
     data: {
-        current_structures    : RibosomeStructure[],
-        current_polymers      : Array<Polymer|Rna|Protein>,
+        current_structures: RibosomeStructure[],
+        current_polymers: Array<Polymer | Rna | Protein>,
         total_structures_count: number | null,
-        total_polymers_count  : number | null
+        total_polymers_count: number | null
     },
     polymers: {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
@@ -34,26 +38,29 @@ export interface UIState {
 
 const initialState: UIState = {
     data: {
-        current_structures    : [],
-        current_polymers      : [],
+        current_structures: [],
+        current_polymers: [],
         total_structures_count: null,
-        total_polymers_count  : null
+        total_polymers_count: null
     },
     polymers: {
         current_polymer_class: null
     },
 
     filters: {
-        search         : '',
-        year           : [null, null],
-        resolution     : [null, null],
+        search: '',
+        year: [null, null],
+        resolution: [null, null],
         polymer_classes: [],
-        source_taxa    : [],
-        host_taxa      : [],
+        source_taxa: [],
+        host_taxa: [],
     },
     pagination: {
-        current_page: 1,
-        total_pages: null
+        current_structures_page: 1,
+        total_structures_pages: null,
+
+        current_polymers_page: 1,
+        total_polymers_pages: null
     }
 }
 
@@ -77,10 +84,13 @@ export const uiSlice = createSlice({
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
+        set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
+            state.data.current_polymers = action.payload
+        },
         //* ------------------------- Polymers
         set_current_polymer_class(state, action: PayloadAction<CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
-            
+
         },
         //* ------------------------- Filters 
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
@@ -88,46 +98,76 @@ export const uiSlice = createSlice({
         },
 
         //* ------------------------- Pagination
-        pagination_prev_page(state) {
-            if (1 < state.pagination.current_page) {
-                state.pagination.current_page -= 1
+        pagination_prev_page(state, action: PayloadAction<{
+            slice_name: 'structures' | 'polymers',
+        }>) {
+            if (action.payload.slice_name === 'polymers') {
+                if (1 < state.pagination.current_polymers_page) {
+                    state.pagination.current_polymers_page -= 1
+                }
             }
-
-        },
-        pagination_set_page(state, action: PayloadAction<number>) {
-            if (action.payload <= state.pagination.total_pages! && 1 <= action.payload) {
-                state.pagination.current_page = action.payload
+            if (action.payload.slice_name === 'structures') {
+                if (1 < state.pagination.current_structures_page) {
+                    state.pagination.current_structures_page -= 1
+                }
             }
-
         },
-        pagination_next_page(state) {
-            if (state.pagination.current_page < state.pagination.total_pages!) {
-                state.pagination.current_page += 1
+        pagination_set_page(state, action: PayloadAction<{
+            slice_name: 'structures' | 'polymers',
+            set_to_page: number
+        }>) {
+            if (action.payload.slice_name === 'polymers') {
+                if (action.payload.set_to_page <= state.pagination.total_polymers_pages! && 1 <= action.payload.set_to_page) {
+                    state.pagination.current_polymers_page = action.payload.set_to_page
+                }
+            } else if (action.payload.slice_name === 'structures') {
+                if (action.payload.set_to_page <= state.pagination.total_structures_pages! && 1 <= action.payload.set_to_page) {
+                    state.pagination.current_structures_page = action.payload.set_to_page
+                }
+
+            }
+        },
+        pagination_next_page(state, action: PayloadAction<{
+            slice_name: 'structures' | 'polymers',
+        }>) {
+            if (action.payload.slice_name == 'polymers') {
+                if (state.pagination.current_polymers_page < state.pagination.total_polymers_pages!) {
+                    state.pagination.current_polymers_page += 1
+                }
+            } else if (action.payload.slice_name == 'structures') {
+                if (state.pagination.current_structures_page < state.pagination.total_structures_pages!) {
+                    state.pagination.current_structures_page += 1
+                }
             }
         },
 
     },
     extraReducers: (builder) => {
+
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
-            state.data.current_structures = action.payload.structures
-            state.data.total_structures_count = action.payload.count
-            state.pagination.total_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
+            state.data.current_structures           = action.payload.structures
+            state.data.total_structures_count       = action.payload.count
+            state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
         });
+
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
-            state.data.current_polymers = action.payload.polymers
-            state.data.total_polymers_count = action.payload.count
-            state.pagination.total_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+            state.data.current_polymers           = action.payload.polymers
+            state.data.total_polymers_count       = action.payload.count
+            state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+        });
+
+        builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.matchFulfilled, (state, action) => {
+
+            state.data.current_polymers           = action.payload.polymers
+            state.data.total_polymers_count       = action.payload.count
+            state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         })
     }
-
 })
 
 
-
-
-
-
 export const {
+    set_current_polymers,
     set_current_polymer_class,
     set_new_structs,
     set_filter,

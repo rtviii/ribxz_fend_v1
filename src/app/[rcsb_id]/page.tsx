@@ -45,7 +45,6 @@ export default function StructurePage() {
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
-
                         <CardContent className="flex-grow overflow-auto">
                             <Tabs defaultValue="info" >
                                 <TabsList className="grid w-full grid-cols-2">
