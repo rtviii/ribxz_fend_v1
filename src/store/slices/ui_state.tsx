@@ -173,10 +173,6 @@ export const uiSlice = createSlice({
 })
 
 
-
-
-
-
 export const {
     set_current_polymers,
     set_current_polymer_class,
