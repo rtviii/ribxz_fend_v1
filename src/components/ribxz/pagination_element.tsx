@@ -59,28 +59,28 @@ export function PaginationElement(props: PaginationProps) {
   }, [debounced_page_state.current_structures_page])
 
 
-  const YscrolltoX = (event: any) => {
-    event.preventDefault();
-    event.target.scrollBy({
-      left: event.deltaY < 0 ? -30 : 30,
-    });
-  }
+  // const YscrolltoX = (event: any) => {
+  //   event.preventDefault();
+  //   event.target.scrollBy({
+  //     left: event.deltaY < 0 ? -30 : 30,
+  //   });
+  // }
 
 
 
-  const innerRef = useRef(null);
+  // const innerRef = useRef(null);
 
-  useEffect(() => {
-    const div = innerRef.current;
-    // subscribe event
-    div.addEventListener("wheel", YscrolltoX);
+  // useEffect(() => {
+  //   const div = innerRef.current;
+  //   // subscribe event
+  //   div.addEventListener("wheel", YscrolltoX);
 
-    return () => {
-      // unsubscribe event
-      div.removeEventListener("wheel", YscrolltoX);
-    };
+  //   return () => {
+  //     // unsubscribe event
+  //     div.removeEventListener("wheel", YscrolltoX);
+  //   };
 
-  }, [innerRef])
+  // }, [innerRef])
 
   return (
     <Pagination >
@@ -95,7 +95,7 @@ export function PaginationElement(props: PaginationProps) {
           </PaginationItem>
         </div>
 
-        <div className=" flex flex-row max-w-xs  no-scrollbar  overflow-x-scroll scroll-mx-4" ref={innerRef}>
+        <div className=" flex flex-row max-w-xs  no-scrollbar  overflow-x-scroll scroll-mx-4">
           {
             Array.from({ length: page_state.total_structures_pages! }, (_, i) => i + 1)
               .slice(page_state.current_structures_page - 6 < 0 ? 0 : page_state.current_structures_page - 6, page_state.current_structures_page + 6 <= page_state.total_structures_pages! ? page_state.current_structures_page + 6 : page_state.total_structures_pages!)

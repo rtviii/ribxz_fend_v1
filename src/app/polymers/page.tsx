@@ -14,6 +14,7 @@ import { PolymerClassOption, groupedOptions } from "@/components/ribxz/filters_p
 import { set_current_polymer_class, set_current_polymers } from "@/store/slices/ui_state"
 import { ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
 import PolymersTable from "@/components/ribxz/polymer_table"
+import { TableRow } from "@/components/ui/table"
 
 
 
@@ -132,7 +133,6 @@ export default function PolymersPage() {
                             <TabsContent value="by_polymer_class" >
 
                                 <PolymersTable
-                                    if_empty_prompt={<div className="text-center w-full"> {"<---"} Select a Polymer Class</div>}
                                     proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
                                     rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />
                             </TabsContent>
