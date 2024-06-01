@@ -94,13 +94,12 @@ export function Filters(props: FiltersProps) {
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
   const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
 
-  const [triggerStructuresRefetch, { struct_data, struct_error }]   = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const [triggerStructuresRefetch, { struct_data, struct_error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
   const struct_state      = useAppSelector((state) => state.ui.data)
-  const filter_state      = useAppSelector((state) => state.ui.filters)
   const filters           = useAppSelector(state => state.ui.filters)!
-  const debounced_filters = useDebounceFilters(filter_state, 250)
+  const debounced_filters = useDebounceFilters(filters, 250)
   const dispatch          = useAppDispatch();
 
 
@@ -108,23 +107,13 @@ export function Filters(props: FiltersProps) {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
     triggerStructuresRefetch({
-      page: 1,
-      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-      search: filter_state.search === null ? '' : filter_state.search
-    }).unwrap()
-
-    triggerPolymersRefetch({
-      page: 1,
-      year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-      search: filter_state.search === null ? '' : filter_state.search
+      page          : 1,
+      year          : filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa      : filters.host_taxa.length == 0 ? ''                                                : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa    : filters.source_taxa.length == 0 ? ''                                              : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filters.polymer_classes.length == 0 ? ''                                          : filters.polymer_classes.join(','),
+      search        : filters.search === null ? ''                                                      : filters.search
     }).unwrap()
 
     dispatch(pagination_set_page({
@@ -165,10 +154,11 @@ export function Filters(props: FiltersProps) {
       <CollapsibleContent >
 
         <div className="space-y-2">
-          <Input placeholder="Search"
-            disabled={props.disabled_whole}
-            value={filters.search == null ? '' : filters.search}
-            onChange={(e) => {
+
+          <Input placeholder = "Search"
+                 disabled    = {props.disabled_whole}
+                 value       = {filters.search == null ? '' : filters.search}
+                 onChange    = {(e) => {
               dispatch(set_filter({
                 filter_type: "search",
                 value: e.target.value

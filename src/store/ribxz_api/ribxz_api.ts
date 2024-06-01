@@ -1424,6 +1424,7 @@ export type NomenclatureSet = {
 export const {
   useRoutersRouterStructPolymersByPolymerClassQuery,
   useRoutersRouterStructPolymersByStructureQuery,
+
   useRoutersRouterStructFilterListQuery,
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructStructurePtcQuery,

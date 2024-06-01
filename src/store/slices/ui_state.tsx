@@ -84,6 +84,9 @@ export const uiSlice = createSlice({
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
+        set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
+            state.data.current_polymers = action.payload
+        },
         //* ------------------------- Polymers
         set_current_polymer_class(state, action: PayloadAction<CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
@@ -109,7 +112,6 @@ export const uiSlice = createSlice({
                     state.pagination.current_structures_page -= 1
                 }
             }
-
         },
         pagination_set_page(state, action: PayloadAction<{
             slice_name: 'structures' | 'polymers',
@@ -143,15 +145,28 @@ export const uiSlice = createSlice({
 
     },
     extraReducers: (builder) => {
+
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
             state.data.current_structures = action.payload.structures
             state.data.total_structures_count = action.payload.count
             state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
         });
+
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
-            state.data.current_polymers = action.payload.polymers
+            console.log("dispatched triggerRefetch, by STRUCTURE");
+
+            state.data.current_polymers     = action.payload.polymers
             state.data.total_polymers_count = action.payload.count
-            state.pagination.total_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+            state.pagination.total_pages    = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+        });
+
+        builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.matchFulfilled, (state, action) => {
+
+            console.log("dispatched triggerRefetch, by POLYMER CLASS");
+            
+            state.data.current_polymers     = action.payload.polymers
+            state.data.total_polymers_count = action.payload.count
+            state.pagination.total_pages    = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         })
     }
 
@@ -163,6 +178,7 @@ export const uiSlice = createSlice({
 
 
 export const {
+    set_current_polymers,
     set_current_polymer_class,
     set_new_structs,
     set_filter,
