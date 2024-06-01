@@ -108,8 +108,6 @@ export default function PolymersPage() {
     }, [current_polymer_page])
 
 
-
-
     return (
         // This needs two tabs "by structure" and "by polymer Class"
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -126,29 +124,30 @@ export default function PolymersPage() {
                         </div>
                     </div>
                     <div className="col-span-9 scrollbar-hidden">
-                        <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
-                            <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
-                                <Tabs defaultValue="by_polymer_class" value={tab} onValueChange={onTabChange}>
+
+                            {/* <div className=" gap-4 flex  flex-wrap   max-h-[90vh]  no-scrollbar"  > */}
+
+                                <Tabs defaultValue="by_polymer_class" value={tab} onValueChange={onTabChange}  className="w-full  max-h-[90vh] " >
+
                                     <TabsList className="grid w-full grid-cols-2">
                                         {/* TODO: Add tooltip what each means */}
                                         <TabsTrigger className="w-full" value="by_polymer_class">By Polymer Class</TabsTrigger>
                                         <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
                                     </TabsList>
-                                    <TabsContent value="by_polymer_class">
+                                    {/* <TabsContent value="by_polymer_class" className="max-h-full ">
+
                                         <PolymersTable
                                             if_empty_prompt={<div className="text-center w-full"> { "<---" } Select a Polymer Class</div>}
-
                                             proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
                                             rnas    ={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA'    )} />
-                                    </TabsContent>
-                                    <TabsContent value="by_structure">
+                                    </TabsContent> */}
+                                    <TabsContent value="by_structure" >
                                         <PolymersTable
                                             proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
                                             rnas    ={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA'    )} />
                                     </TabsContent>
                                 </Tabs>
-                            </div>
-                        </ScrollArea>
+                            {/* </div> */}
                     </div>
                 </div>
             </div>

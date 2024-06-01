@@ -3,6 +3,7 @@ import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@
 import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein, Rna } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
+import { ScrollArea } from "@radix-ui/react-scroll-area"
 
 
 interface PolymerTableRowProps {
@@ -15,11 +16,10 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
     const polymer = props.polymer
 
     return <TableRow
-        className    = "hover:bg-gray-400 hover:text-white hover:cursor-pointer"
-        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
-        onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
-        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined}
-    >
+        className="hover:bg-gray-400 hover:text-white hover:cursor-pointer"
+        onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
+        onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
+        onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} >
 
         <TableCell>{polymer.parent_rcsb_id}</TableCell>
         <TableCell>{polymer.auth_asym_id}</TableCell>
@@ -32,18 +32,18 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
 }
 
 interface PolymersTableProps {
-    proteins               : Protein[],
-    rnas                   : Rna[],
+    proteins: Protein[],
+    rnas: Rna[],
     connect_to_molstar_ctx?: boolean
-    if_empty_prompt        : React.ReactNode
+    if_empty_prompt: React.ReactNode
 }
 
 export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.proteins
     const rnas = props.rnas
     return (
-        <div className="border rounded-md  w-full ">
-            <Table className="m-2 ">
+        <ScrollArea className="max-h-[85vh] rounded-md border overflow-auto">
+            <Table >
                 <TableHeader>
                     <TableRow>
                         <TableHead>Parent Structure</TableHead>
@@ -69,11 +69,13 @@ export default function PolymersTable(props: PolymersTableProps) {
                 {/* Proteins is active */}
                 {proteins.length != 0 ?
                     <>
-                        <TableHeader>
-                            <TableRow>
+                        {/* <TableHeader>
+                            <TableRow> */}
+                                
+                                {/* <p className="font-bold text-base">Proteins</p> */}
                                 <TableHead className="font-bold text-base">Proteins</TableHead>
-                            </TableRow>
-                        </TableHeader>
+                            {/* </TableRow>
+                        </TableHeader> */}
                         <TableBody >
                             {proteins.map(p => <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>
@@ -100,7 +102,8 @@ export default function PolymersTable(props: PolymersTableProps) {
                 {/* Other Polymers is active */}
                 {/* TODO */}
             </Table>
-        </div>
+
+        </ScrollArea>
     )
 }
 
