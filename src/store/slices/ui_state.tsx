@@ -24,10 +24,11 @@ export interface PaginationState {
 
 export interface UIState {
     data: {
-        current_structures: RibosomeStructure[],
-        current_polymers: Array<Polymer | Rna | Protein>,
+        current_structures    : RibosomeStructure[],
+        current_polymers      : Array<Polymer | Rna | Protein>,
+
         total_structures_count: number | null,
-        total_polymers_count: number | null
+        total_polymers_count  : number | null
     },
     polymers: {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
@@ -145,6 +146,8 @@ export const uiSlice = createSlice({
     extraReducers: (builder) => {
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
+            console.log("Received structures");
+            
             state.data.current_structures           = action.payload.structures
             state.data.total_structures_count       = action.payload.count
             state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)

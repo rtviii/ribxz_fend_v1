@@ -83,10 +83,10 @@ export function Filters(props: FiltersProps) {
   const [triggerStructuresRefetch, { struct_data, struct_error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
-  const struct_state = useAppSelector((state) => state.ui.data)
-  const filters = useAppSelector(state => state.ui.filters)!
+  const struct_state      = useAppSelector((state) => state.ui.data)
+  const filters           = useAppSelector(state => state.ui.filters)!
   const debounced_filters = useDebounceFilters(filters, 250)
-  const dispatch = useAppDispatch();
+  const dispatch          = useAppDispatch();
 
 
   // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
@@ -121,10 +121,6 @@ export function Filters(props: FiltersProps) {
       setPolymerClassOptions(groupedOptions(nomenclature_classes))
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
-
-  useEffect(() => {
-
-  })
 
 
   return (

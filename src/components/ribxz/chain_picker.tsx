@@ -14,6 +14,7 @@ import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribx
 import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
 import { set_filter } from "@/store/slices/ui_state"
+import { useEffect } from "react"
 
 
 const ChainSelection = ({ structure }: { structure: RibosomeStructure }) => {
@@ -27,6 +28,7 @@ const ChainSelection = ({ structure }: { structure: RibosomeStructure }) => {
             <HoverCardTrigger asChild>
                 <span className="min-w-full cursor-pointer px-1 text-sm">{structure.rcsb_id}</span>
             </HoverCardTrigger>
+
             <HoverCardContent side="right">
                 <div className="chain-picker grid gap-1 max-h-64 overflow-y-auto">
 
@@ -57,12 +59,20 @@ const ChainSelection = ({ structure }: { structure: RibosomeStructure }) => {
     </div>
 }
 
+// Any element can be a chain picker. 
+
 export default function ChainPicker({ children }: { children?: React.ReactNode }) {
 
-    const dispatch = useAppDispatch();
-    const search_val = useAppSelector(state => state.molstar.superimpose.struct_search)!
+    const dispatch           = useAppDispatch();
+    const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
     const current_structures = useAppSelector(state => state.ui.data.current_structures)
-    const filters = useAppSelector(state => state.ui.filters)
+    const filters            = useAppSelector(state => state.ui.filters)
+
+    useEffect(() => {
+
+        console.log("current_structures", current_structures);
+
+    }, [])
 
     return (
         <HoverCard openDelay={0} closeDelay={0}>
@@ -72,11 +82,7 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
             <HoverCardContent className="w-80 p-4" side="right">
                 <div className="chain-picker grid gap-2">
                     <div className="flex items-center gap-2">
-                        <Input placeholder="Search"
-                            value={filters.search}
-                            onChange={(e) => {
-                                dispatch(set_filter({ filter_type: "search", value: e.target.value }))
-                            }} />
+                        <Input placeholder="Search" value={filters.search!} onChange={(e) => { dispatch(set_filter({ filter_type: "search", value: e.target.value })) }} />
                     </div>
                     {
                         current_structures

@@ -8,37 +8,38 @@ import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuPortal,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import ChainPicker from "@/components/ribxz/chain_picker"
 
 
-interface DCCProps{
-    count  : number
+interface DCCProps {
+    count: number
     species: string[]
 }
-export function DropdownComponentCount(props:DCCProps) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">{props.count}</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
-        {props.species.toSorted().map((spec, i) => <DropdownMenuItem key={i}>{spec}</DropdownMenuItem> )}
-        <DropdownMenuSeparator />
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
+export function DropdownComponentCount(props: DCCProps) {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">{props.count}</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
+                {props.species.toSorted().map((spec, i) => <DropdownMenuItem key={i}>{spec}</DropdownMenuItem>)}
+                <DropdownMenuSeparator />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
 }
 
 
@@ -73,9 +74,15 @@ const LigandTableRow = (props: LigandRowProps) => {
     // onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} 
     >
         <TableCell>{lig.chemicalId}</TableCell>
-        <TableCell><Badge variant="outline">{props.structures_info.parent_structures.length}</Badge></TableCell>
         <TableCell>
-            <DropdownComponentCount count={props.structures_info.parent_organism_ids.length} species={props.structures_info.parent_organism_names}/>
+
+            <ChainPicker>
+                <p>{props.structures_info.parent_structures.length}</p>
+            </ChainPicker>
+
+        </TableCell>
+        <TableCell>
+            <DropdownComponentCount count={props.structures_info.parent_organism_ids.length} species={props.structures_info.parent_organism_names} />
         </TableCell>
         <TableCell>{lig.chemicalName.length > 40 ? lig.chemicalName.slice(0, 10) + "..." : lig.chemicalName}</TableCell>
         <TableCell className="whitespace-pre">
