@@ -27,6 +27,12 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
+    routersRouterStructListLignads: build.query<
+      RoutersRouterStructListLignadsApiResponse,
+      RoutersRouterStructListLignadsApiArg
+    >({
+      query: () => ({ url: `/structures/list_ligands` }),
+    }),
     routersRouterStructFilterList: build.query<
       RoutersRouterStructFilterListApiResponse,
       RoutersRouterStructFilterListApiArg
@@ -403,6 +409,11 @@ export type RoutersRouterStructPolymersByStructureApiArg = {
   sourceTaxa?: string;
   hostTaxa?: string;
 };
+export type RoutersRouterStructListLignadsApiResponse = /** status 200 OK */ (
+  | object
+  | string[]
+)[];
+export type RoutersRouterStructListLignadsApiArg = void;
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
 export type RoutersRouterStructFilterListApiArg = {
@@ -1424,7 +1435,7 @@ export type NomenclatureSet = {
 export const {
   useRoutersRouterStructPolymersByPolymerClassQuery,
   useRoutersRouterStructPolymersByStructureQuery,
-
+  useRoutersRouterStructListLignadsQuery,
   useRoutersRouterStructFilterListQuery,
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructStructurePtcQuery,
