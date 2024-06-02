@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import StructureCard from "../../components/ribxz/structure_card"
 import { useEffect, useState } from "react"
-import {  Filters } from "@/components/ribxz/filters"
+import {  Filters, useDebounceFilters } from "@/components/ribxz/filters"
 import {PaginationElement} from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
+import { pagination_set_page } from "@/store/slices/ui_state"
 
 export const LoadingSpinner = () => {
   <svg
@@ -46,6 +47,40 @@ export function HoverMenu() {
 
 export default function StructureCatalogue() {
   const current_structures = useAppSelector((state) => state.ui.data.current_structures)
+
+  const [triggerStructuresRefetch, { struct_data, struct_error }]   = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
+  const struct_state                                                = useAppSelector((state) => state.ui.data)
+  const filters                                                     = useAppSelector(state => state.ui.filters)!
+  const debounced_filters                                           = useDebounceFilters(filters, 250)
+  const dispatch                                                    = useAppDispatch();
+
+
+  // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
+  useEffect(() => {
+    //? This garbage is needed to send a all filter params as one url string.
+    //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
+    triggerStructuresRefetch({
+      page: 1,
+      year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
+      search: filters.search === null ? '' : filters.search
+    }).unwrap()
+
+    dispatch(pagination_set_page({
+      set_to_page: 1,
+      slice_name: 'structures'
+    }))
+
+  }, [debounced_filters]);
+
+
+
+
+
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
       <HoverMenu />
