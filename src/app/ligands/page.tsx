@@ -6,17 +6,58 @@ import { NonpolymericLigand, ribxz_api, useRoutersRouterStructListLignadsQuery }
 import { useAppSelector } from "@/store/store"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+
+interface DCCProps{
+    count  : number
+    species: string[]
+}
+export function DropdownComponentCount(props:DCCProps) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">{props.count}</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
+        {props.species.toSorted().map((spec, i) => <DropdownMenuItem key={i}>{spec}</DropdownMenuItem> )}
+        <DropdownMenuSeparator />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+
+
 
 interface LigandRowProps {
     ligandinfo: {
-        chemicalId           : string,
-        chemicalName         : string,
-        formula_weight       : number,
-        pdbx_description     : string,
-        drugbank_id         ?: string,
+        chemicalId: string,
+        chemicalName: string,
+        formula_weight: number,
+        pdbx_description: string,
+        drugbank_id?: string,
         drugbank_description?: string,
     },
-    associated_structs: string[],
+    structures_info: {
+        parent_structures: string[],
+        parent_organism_ids: number[],
+        parent_organism_names: string[],
+    }
 }
 
 
@@ -32,11 +73,14 @@ const LigandTableRow = (props: LigandRowProps) => {
     // onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} 
     >
         <TableCell>{lig.chemicalId}</TableCell>
-        <TableCell><Badge variant="outline">{props.associated_structs.length}</Badge></TableCell>
-        <TableCell>{lig.chemicalName.length > 40 ? lig.chemicalName.slice(0,10) + "..." : lig.chemicalName  }</TableCell>
+        <TableCell><Badge variant="outline">{props.structures_info.parent_structures.length}</Badge></TableCell>
+        <TableCell>
+            <DropdownComponentCount count={props.structures_info.parent_organism_ids.length} species={props.structures_info.parent_organism_names}/>
+        </TableCell>
+        <TableCell>{lig.chemicalName.length > 40 ? lig.chemicalName.slice(0, 10) + "..." : lig.chemicalName}</TableCell>
         <TableCell className="whitespace-pre">
             {lig.drugbank_id}
-            </TableCell>
+        </TableCell>
 
     </TableRow>
 }
@@ -56,6 +100,7 @@ export default function Ligands() {
                 <TableRow>
                     <TableHead>Chemical Id</TableHead>
                     <TableHead># Host Structures</TableHead>
+                    <TableHead># Host Species</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Drugbank ID</TableHead>
                 </TableRow>
@@ -63,7 +108,7 @@ export default function Ligands() {
             <TableBody>
                 {
                     ligands_data?.map((ligand, i) => {
-                        return <LigandTableRow key={i} ligandinfo={ligand[0]} associated_structs={ligand[1]} />
+                        return <LigandTableRow key={i} ligandinfo={ligand[0]} structures_info={ligand[1]} />
                     })
                 }
                 <TableRow>
