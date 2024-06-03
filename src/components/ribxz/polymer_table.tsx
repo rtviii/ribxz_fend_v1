@@ -32,7 +32,7 @@ interface PolymersTableProps {
     proteins: Protein[],
     rnas: Rna[],
     connect_to_molstar_ctx?: boolean
-    if_empty_prompt: React.ReactNode
+    if_empty_prompt?: React.ReactNode
 }
 
 export default function PolymersTable(props: PolymersTableProps) {

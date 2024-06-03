@@ -11,6 +11,7 @@ import PolymersTable from "../../components/ribxz/polymer_table"
 import { useEffect, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import { Separator } from "@/components/ui/separator"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -24,8 +25,9 @@ export default function StructurePage() {
     const molstarNodeRef             = useRef<HTMLDivElement>(null);
     const dispatch                   = useAppDispatch();
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    const ctx                        = useAppSelector(state => state.molstar.ui_plugin)
 
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)
+
     useEffect(() => {
         dispatch(initiatePluginUIContext({
             parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id
@@ -40,12 +42,13 @@ export default function StructurePage() {
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className="rounded-lg border ">
                 <ResizablePanel defaultSize={25} >
-                    <Card className="h-full flex flex-col">
+                    <Card className="h-full flex flex-col ">
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
-                        <CardContent className="flex-grow overflow-auto">
+
+                        <CardContent className="flex-grow overflow-hidden">
                             <Tabs defaultValue="info" >
                                 <TabsList className="grid w-full grid-cols-2">
                                     <TabsTrigger value="info">Structure Info</TabsTrigger>
@@ -80,14 +83,14 @@ export default function StructurePage() {
                                                 <strong>Experimental Method:</strong>
                                                 <p>{data?.expMethod}</p>
                                             </div>
-                                            {data?.citation_rcsb_authors ? null :
+
+                                            {data?.citation_rcsb_authors ? 
                                                 <div className="relative flex justify-between items-center mt-1">
                                                     <strong>Authors:</strong>
                                                     <HoverCard>
                                                         <HoverCardTrigger asChild>
-                                                            <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors z-10" title="Full list of authors" >
-
-                                                                <span style={{ fontStyle: "italic" }}>{data?.citation_rcsb_authors[0]}</span>
+                                                            <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1  transition-colors z-10" title="Full list of authors" >
+                                                                <span style={{ fontStyle: "italic" }} className="px-4">{data?.citation_rcsb_authors[0]}</span>
                                                                 <span style={{
                                                                     cursor: "pointer",
                                                                     display: 'inline-block',
@@ -120,6 +123,8 @@ export default function StructurePage() {
                                                         </HoverCardContent>
                                                     </HoverCard>
                                                 </div>
+                                                :
+                                                null
                                             }
                                             <div className="flex justify-between">
                                                 <strong>Year:</strong>
@@ -127,15 +132,48 @@ export default function StructurePage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mt-4 flex justify-between">
-                                    </div>
+
+{/* ! ---------------------------------------------------------- NEW LAYout */}
+<div className="grid grid-cols-2 gap-4">
+          <div>
+            <h4 className="text-sm font-medium">Protein Name</h4>
+            <p>Hemoglobin</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium">Protein ID</h4>
+            <p>P68871</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium">Organism</h4>
+            <p>Homo sapiens</p>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium">Molecular Weight</h4>
+            <p>16.1 kDa</p>
+          </div>
+        </div>
+
+
+
                                 </TabsContent>
+
                                 <TabsContent value="components">
-                                    {!isLoading ? <PolymersTable  proteins={data.proteins} rnas={data.rnas} connect_to_molstar_ctx={true} /> : null}
+                                    {!isLoading ? <PolymersTable proteins={data?.proteins} rnas={data?.rnas} connect_to_molstar_ctx={true} /> : null}
                                 </TabsContent>
                             </Tabs>
-                            <div className="flex flex-col gap-4">
-                            </div>
+ <div className="border-t pt-4 my-4">
+          <h3 className="text-lg font-medium">Ligands</h3>
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            <div className="border rounded-md p-4">
+              <h4 className="text-sm font-medium">ERY</h4>
+              <p>Erythritol</p>
+            </div>
+            <div className="border rounded-md p-4">
+              <h4 className="text-sm font-medium">SPM</h4>
+              <p>Spermine</p>
+            </div>
+          </div>
+        </div>
                         </CardContent>
                         <CardFooter className="flex justify-between">
                             {/* <Button variant="outline">Log query</Button>

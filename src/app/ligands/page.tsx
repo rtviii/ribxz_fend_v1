@@ -40,9 +40,9 @@ export function LigandTaxonomyDropdown(props: { count: number, species: LigandAs
             <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
                 <p className="italic ">
 
-                {props.species.toSorted().map((spec, i) =>
-                    <DropdownMenuItem key={i}>{spec[1]}</DropdownMenuItem>
-                )}
+                    {props.species.toSorted().map((spec, i) =>
+                        <DropdownMenuItem key={i}>{spec[1]}</DropdownMenuItem>
+                    )}
                 </p>
             </DropdownMenuContent>
         </DropdownMenu>
@@ -58,7 +58,7 @@ export function LigandStructuresDropdown(props: { count: number, structures: Lig
                 <Button variant="outline" className="w-40">{props.count}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="max-h-80 overflow-y-scroll">
-                {props.structures.toSorted(( s1,s2 )=> Number(s1.src_organism_names[0] > s2.src_organism_names[0])).map((struct, i) =>
+                {props.structures.toSorted((s1, s2) => Number(s1.src_organism_names[0] > s2.src_organism_names[0])).map((struct, i) =>
                     <DropdownMenuItem key={i} >
                         <Badge className="w-60 flex justify-between items-center cursor-pointer">
                             {struct.parent_structure}
