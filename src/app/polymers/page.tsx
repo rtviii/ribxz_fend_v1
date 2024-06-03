@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/store/store"
 import React from 'react';
 import { Select } from 'antd';
 import { PolymerClassOption, groupedOptions } from "@/components/ribxz/filters_protein_class_options"
-import { set_current_polymer_class, set_current_polymers } from "@/store/slices/ui_state"
+import { pagination_set_page, set_current_polymer_class, set_current_polymers } from "@/store/slices/ui_state"
 import { ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { TableRow } from "@/components/ui/table"
@@ -23,7 +23,6 @@ interface PolymerInputProps {
 }
 
 function PolymerInput(props: PolymerInputProps) {
-
     const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
     const dispatch = useAppDispatch();
     const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
@@ -38,11 +37,11 @@ function PolymerInput(props: PolymerInputProps) {
     return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
         <Label htmlFor="input" className={`font-bold text-md mb-2   ${props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
         <Select<PolymerClassOption >
-            defaultValue={null}
-            className="w-full max-h-64"
-            components={{ Group }}
-            options={polymerClassOptions}
-            onChange={(value) => {
+            defaultValue = {null}
+            className    = "w-full max-h-64"
+            components   = {{ Group }}
+            options      = {polymerClassOptions}
+            onChange     = {(value) => {
                 dispatch(set_current_polymer_class(value))
             }}
             disabled={props.isDisabled}
@@ -65,7 +64,7 @@ export default function PolymersPage() {
 
     const filter_state = useAppSelector((state) => state.ui.filters)
     const debounced_filters = useDebounceFilters(filter_state, 250)
-  
+
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
     const current_polymer_page = useAppSelector((state) => state.ui.pagination.current_polymers_page)
     const pagination_poly = useAppSelector((state) => state.ui.pagination)
@@ -79,19 +78,32 @@ export default function PolymersPage() {
                 dispatch(set_current_polymers([]))
             }
         }
-
         else if (tab == "by_structure") {
             triggerPolymersRefetch_byStructure({
-                page          : current_polymer_page,
-                year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-                sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-                polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
-                search        : filter_state.search === null ? ''                                                      : filter_state.search
+                page: current_polymer_page,
+                year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+                sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+                polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+                search: filter_state.search === null ? '' : filter_state.search
             }).unwrap()
         }
+
+
+
     }, [tab, current_polymer_page, debounced_filters])
+
+    useEffect(() => {
+
+        dispatch(pagination_set_page({
+            set_to_page: 1,
+            slice_name: 'polymers'
+        }))
+    }, [tab, debounced_filters, current_polymer_class])
+
+
+
 
     useEffect(() => {
         if (current_polymer_class != null) {

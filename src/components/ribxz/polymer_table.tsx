@@ -22,8 +22,8 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
         onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} >
         <TableCell>{polymer.parent_rcsb_id}</TableCell>
         <TableCell>{polymer.auth_asym_id}</TableCell>
-        <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
-        <TableCell className="whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
+        <TableCell><Badge variant   = "outline">{polymer.nomenclature}</Badge></TableCell>
+        <TableCell        className = "whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
         {/* <TableCell><DeleteIcon className="h-5 w-5" /></TableCell> */}
     </TableRow>
 }
@@ -37,7 +37,7 @@ interface PolymersTableProps {
 
 export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.proteins
-    const rnas = props.rnas
+    const rnas     = props.rnas
     return (
         <ScrollArea className="max-h-[85vh] rounded-md border overflow-auto">
             <Table >

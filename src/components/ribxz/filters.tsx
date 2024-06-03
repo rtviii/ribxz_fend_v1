@@ -75,15 +75,6 @@ interface FiltersProps {
 
 export function Filters(props: FiltersProps) {
 
-  // for proteins and rna, 
-  // * disable:
-  // * -- PolymerClass
-  // * -- PolymerClass
-
-  // New props to generalize to proteins and rna:
-  // * -- Title (structure/proteins/rna)
-  // * -- Count source (rna/protein/struct)
-  // * -- Count source (rna/protein/struct)
 
   const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
@@ -92,10 +83,10 @@ export function Filters(props: FiltersProps) {
   const [triggerStructuresRefetch, { struct_data, struct_error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
-  const struct_state = useAppSelector((state) => state.ui.data)
-  const filters = useAppSelector(state => state.ui.filters)!
+  const struct_state      = useAppSelector((state) => state.ui.data)
+  const filters           = useAppSelector(state => state.ui.filters)!
   const debounced_filters = useDebounceFilters(filters, 250)
-  const dispatch = useAppDispatch();
+  const dispatch          = useAppDispatch();
 
 
   // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
@@ -130,10 +121,6 @@ export function Filters(props: FiltersProps) {
       setPolymerClassOptions(groupedOptions(nomenclature_classes))
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
-
-  useEffect(() => {
-
-  })
 
 
   return (
@@ -189,7 +176,7 @@ export function Filters(props: FiltersProps) {
                     <abbr
                       className="ml-1 text-lg font-semibold text-red-500 hover:text-red-700 hover:cursor-pointer"
                       style={{
-                        textDecoration: "none",
+                        textDecoration: "none"
                       }}>
                       *
                     </abbr>
