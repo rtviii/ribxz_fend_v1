@@ -56,88 +56,7 @@ export default function StructurePage() {
                                 </TabsList>
                                 <TabsContent value="info">
                                     <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
-                                    {/* <div className="mt-4">
-                                        <div className="flex flex-col gap-4">
-                                            <div className="flex justify-between">
-                                                <strong>Source Organism:</strong>
-                                                <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                    {data?.src_organism_names[0]}
-                                                </p>
-                                            </div>
-                                            {
-                                                data?.host_organism_names.length < 1 ?
-                                                    null :
-                                                    <div className="flex justify-between">
-                                                        <strong>Host Organism:</strong>
-                                                        <p className="overflow-ellipsis overflow-hidden hover:overflow-visible">
-                                                            {data?.host_organism_names[0]}
-                                                        </p>
-                                                    </div>
-                                            }
-
-                                            <div className="flex justify-between">
-                                                <strong>Resolution:</strong>
-                                                <p>{data?.resolution} Å</p>
-                                            </div>
-
-                                            <div className="flex justify-between">
-                                                <strong>Experimental Method:</strong>
-                                                <p>{data?.expMethod}</p>
-                                            </div>
-
-                                            {data?.citation_rcsb_authors ?
-                                                <div className="relative flex justify-between items-center mt-1">
-                                                    <strong>Authors:</strong>
-                                                    <HoverCard>
-                                                        <HoverCardTrigger asChild>
-                                                            <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1  transition-colors z-10" title="Full list of authors" >
-                                                                <span style={{ fontStyle: "italic" }} className="px-4">{data?.citation_rcsb_authors[0]}</span>
-                                                                <span style={{
-                                                                    cursor: "pointer",
-                                                                    display: 'inline-block',
-                                                                    width: '15px',
-                                                                    height: '15px',
-                                                                    borderRadius: '50%',
-                                                                    backgroundColor: '#cccccc',
-                                                                    textAlign: 'center',
-                                                                    lineHeight: '15px',
-                                                                    fontWeight: 'bold',
-                                                                    fontSize: '14px',
-                                                                    color: 'white'
-                                                                }}>+</span>
-
-
-
-                                                            </span>
-
-                                                        </HoverCardTrigger>
-                                                        <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
-                                                            {
-                                                                data?.citation_rcsb_authors.map((author) => {
-                                                                    return <div key={author} className="flex items-center gap-2">
-                                                                        <div>
-                                                                            <div className="font-medium">{author}</div>
-                                                                            <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
-                                                                        </div>
-                                                                    </div>
-                                                                })}
-                                                        </HoverCardContent>
-                                                    </HoverCard>
-                                                </div>
-                                                :
-                                                null
-                                            }
-                                            <div className="flex justify-between">
-                                                <strong>Year:</strong>
-                                                <p>{data?.citation_year}</p>
-                                            </div>
-                                        </div>
-                                    </div> */}
-
-                                    {/* ! ---------------------------------------------------------- NEW LAYout */}
                                     <div className="grid grid-cols-2 gap-4">
-
-
                                         {data?.citation_rcsb_authors ?
                                             <div>
                                                 <h4 className="text font-medium">Authors</h4>
@@ -194,49 +113,38 @@ export default function StructurePage() {
                                             <p>{data?.resolution} Å</p>
                                         </div>
 
-
                                         <div>
                                             <h4 className="text font-medium">Source Organism</h4>
                                             <p> {data?.src_organism_names.join(", ")} </p>
                                         </div>
-
-
                                         {data?.host_organism_names.length > 0 ?
                                             <div>
                                                 <h4 className="text font-medium">Host Organism</h4>
                                                 <p>{data?.host_organism_names[0]} </p>
                                             </div> : null}
 
-
-
                                     </div>
-
                                 </TabsContent>
-
                                 <TabsContent value="components">
                                     {!isLoading ? <PolymersTable proteins={data?.proteins} rnas={data?.rnas} connect_to_molstar_ctx={true} /> : null}
                                 </TabsContent>
                             </Tabs>
                             {data?.nonpolymeric_ligands.length > 0 ?
-
                                 <div className="border-t pt-4 my-4">
                                     <h3 className="text-lg font-medium">Ligands</h3>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
                                         {
-                                        data?.nonpolymeric_ligands
-                                        .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion") )
-                                        .map(ligand => <div key={ligand.chemicalId} className="hover:bg-slate-200 hover:cursor-pointer hover:border-white border rounded-md p-4"> 
-                                                        <h4 className="text-sm font-medium">{ligand.chemicalId}</h4> 
-                                                        <p>{ligand.chemicalName}</p> 
-                                                        </div> )
+                                            data?.nonpolymeric_ligands
+                                                .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                                                .map(ligand => <div key={ligand.chemicalId} className="hover:bg-slate-200 hover:cursor-pointer hover:border-white border rounded-md p-4">
+                                                    <h4 className="text-sm font-medium">{ligand.chemicalId}</h4>
+                                                    <p>{ligand.chemicalName}</p>
+                                                </div>)
                                         }
                                     </div>
                                 </div> : null
                             }
                         </CardContent>
-                        {/* <CardFooter className="flex justify-between">
-                        </CardFooter> */}
-
                     </Card>
                 </ResizablePanel>
                 <ResizableHandle />
