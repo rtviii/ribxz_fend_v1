@@ -38,48 +38,40 @@ export function LigandTaxonomyDropdown(props: { count: number, species: LigandAs
                 <Button variant="outline" className="w-20">{props.count}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
+                <p className="italic ">
+
                 {props.species.toSorted().map((spec, i) =>
-                    <DropdownMenuItem key={i}>{spec}</DropdownMenuItem>
-
+                    <DropdownMenuItem key={i}>{spec[1]}</DropdownMenuItem>
                 )}
+                </p>
             </DropdownMenuContent>
         </DropdownMenu>
     )
 }
 
 
-export function DrugbankDescriptionDropdown(props: { drugbank_id: string, description: string }) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <p className="w-20">(Description)</p>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="max-h-60 w-80 overflow-y-scroll">
-                <DropdownMenuItem>
-                    {props.description}
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    )
-
-}
 
 export function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-20">{props.count}</Button>
+                <Button variant="outline" className="w-40">{props.count}</Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="max-h-60 overflow-y-scroll">
-                {props.structures.map((struct, i) =>
+            <DropdownMenuContent className="max-h-80 overflow-y-scroll">
+                {props.structures.toSorted(( s1,s2 )=> Number(s1.src_organism_names[0] > s2.src_organism_names[0])).map((struct, i) =>
                     <DropdownMenuItem key={i} >
-                        <Badge className="w-20 flex justify-between items-center cursor-pointer">
+                        <Badge className="w-60 flex justify-between items-center cursor-pointer">
                             {struct.parent_structure}
-                            <TaxonomyDot className={`w-2 h-2 ${(() => {
-                                if (struct.superkingdom == 2) return "fill-green-500"
-                                else if (struct.superkingdom == 2157) return "fill-orange-500"
-                                else if (struct.superkingdom === 2759) return "fill-blue-500"
-                            })()}`} />
+                            <div className="italic text-white flex gap-2 flex-row">
+                                {struct.src_organism_names[0].split(" ").slice(0, 2).join(" ")}
+                                <TaxonomyDot className={`w-2 h-2 ${(() => {
+                                    if (struct.superkingdom == 2) return "fill-green-500"
+                                    else if (struct.superkingdom == 2157) return "fill-orange-500"
+                                    else if (struct.superkingdom === 2759) return "fill-blue-500"
+                                })()}`} />
+
+                            </div>
+
                         </Badge>
                     </DropdownMenuItem>
                 )}
@@ -102,7 +94,7 @@ interface LigandAssociatedStructure {
     src_organism_names: string[],
     superkingdom: number
 }
-type LigandAssociatedTaxa = string[]
+type LigandAssociatedTaxa = Array<[string, number]>
 
 
 
@@ -130,14 +122,9 @@ const LigandTableRow = (props: LigandRowProps) => {
         </TableCell>
         <TableCell>{info.chemicalName.length > 40 ? info.chemicalName.slice(0, 10) + "..." : info.chemicalName}</TableCell>
         <TableCell className="whitespace-pre" >
-            <Link href={`https://go.drugbank.com/drugs/${info.drugbank_id}`} className="hover:cursor-pointer">
+            <Link href={`https://go.drugbank.com/drugs/${info.drugbank_id}`} className="hover:cursor-pointer font-bold text-blue-900" >
                 {info.drugbank_id}
             </Link>
-            {
-
-
-                info.drugbank_id !== undefined && info.drugbank_description ? <DrugbankDescriptionDropdown drugbank_id={info.drugbank_id} description={info.drugbank_description} /> : info.drugbank_id
-            }
         </TableCell>
 
     </TableRow>
@@ -162,7 +149,7 @@ export default function Ligands() {
                     <TableHead><p># Host Structures </p>
                         <div className="flex flex-row"> (Eukarya<TaxonomyDot className={`w-2 h-2 fill-blue-500`} />|Bacteria<TaxonomyDot className={`w-2 h-2 fill-green-500`} />|Archaea<TaxonomyDot className={`w-2 h-2 fill-orange-500`} />)</div>
                     </TableHead>
-                    <TableHead># Host Species</TableHead>
+                    <TableHead># Unique Host Species</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Drugbank ID</TableHead>
                 </TableRow>
