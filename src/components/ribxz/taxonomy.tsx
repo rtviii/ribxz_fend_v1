@@ -1,4 +1,4 @@
-function TaxonomyDot(props) {
+export function TaxonomyDot(props) {
   return (
     <svg
       {...props}

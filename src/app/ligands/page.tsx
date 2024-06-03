@@ -22,56 +22,74 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import StructureSelection from "@/components/ribxz/chain_picker"
+import { TaxonomyDot } from "@/components/ribxz/taxonomy"
 
 
 interface TaxaDropdownProps {
     count: number
     species: string[]
 }
-export function LigandTaxonomyDropdown(props: { count:number, species:LigandAssociatedTaxa }) {
+export function LigandTaxonomyDropdown(props: { count: number, species: LigandAssociatedTaxa }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline">{props.count}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
-                {props.species.toSorted().map((spec, i) => <DropdownMenuItem key={i}>{spec}</DropdownMenuItem>)}
+                {props.species.toSorted().map((spec, i) =>
+                    <DropdownMenuItem key={i}>{spec}</DropdownMenuItem>
+
+                )}
                 <DropdownMenuSeparator />
             </DropdownMenuContent>
         </DropdownMenu>
     )
 }
 
-export function LigandStructuresDropdown(props: {count:number, structures: LigandAssociatedStructure[], info: LigandInfo}) {
+export function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
+    
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline">{props.count}</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
-                {props.structures.map((struct, i) => <DropdownMenuItem key={i}>{struct.parent_structure}</DropdownMenuItem>)}
+                {props.structures.map((struct, i) =>
+                    <DropdownMenuItem key={i} >
+                        <Badge className="w-20 flex justify-between items-center cursor-pointer">
+                            {struct.parent_structure}
+                        <TaxonomyDot className={`w-2 h-2 ${(() => {
+                            if (struct.superkingdom == 2) return "fill-blue-500"
+                            else if (struct.superkingdom == 2157) return "fill-green-500"
+                            else if (struct.superkingdom === 2759) return "fill-red-500"
+                        })()}`} />
+                        
+                        </Badge>
+
+
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
             </DropdownMenuContent>
         </DropdownMenu>
     )
 }
-
 
 interface LigandInfo {
-    chemicalId           : string,
-    chemicalName         : string,
-    formula_weight       : number,
-    pdbx_description     : string,
-    drugbank_id         ?: string,
+    chemicalId: string,
+    chemicalName: string,
+    formula_weight: number,
+    pdbx_description: string,
+    drugbank_id?: string,
     drugbank_description?: string,
 }
 interface LigandAssociatedStructure {
-    parent_structure : string,
-    src_organism_ids  : number[],
+    parent_structure: string,
+    src_organism_ids: number[],
     src_organism_names: string[],
-    superkingdom      : 2 | 2157 | 2759
+    superkingdom: number
 }
-type LigandAssociatedTaxa  = string[]
+type LigandAssociatedTaxa = string[]
 
 
 
@@ -79,10 +97,10 @@ type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociated
 
 
 const LigandTableRow = (props: LigandRowProps) => {
-    const ctx        = useAppSelector(state => state.molstar.ui_plugin)
-    const info       = props[0]
+    const ctx = useAppSelector(state => state.molstar.ui_plugin)
+    const info = props[0]
     const structures = props[1]
-    const taxa       = props[2]
+    const taxa = props[2]
 
     return <TableRow
         className="hover:bg-slate-100   hover:cursor-pointer"
@@ -112,7 +130,7 @@ export default function Ligands() {
 
     useEffect(() => {
         console.log("got lig data");
-        
+
         console.log(ligands_data);
     }, [ligands_data])
 
@@ -129,7 +147,7 @@ export default function Ligands() {
             </TableHeader>
             <TableBody>
                 {
-                    ligands_data?.map((ligand, i) => {
+                    (ligands_data as LigandRowProps[])?.map((ligand, i) => {
                         return <LigandTableRow key={i} {...ligand} />
                     })
                 }
