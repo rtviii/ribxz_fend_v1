@@ -17,7 +17,7 @@ import { set_filter } from "@/store/slices/ui_state"
 import { useEffect } from "react"
 
 
-const ChainSelection = ({ structure }: { structure: RibosomeStructure }) => {
+const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
 
     const dispatch = useAppDispatch();
     const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
@@ -59,9 +59,8 @@ const ChainSelection = ({ structure }: { structure: RibosomeStructure }) => {
     </div>
 }
 
-// Any element can be a chain picker. 
 
-export default function ChainPicker({ children }: { children?: React.ReactNode }) {
+export default function StructureSelection({ children, structures }: { children?: React.ReactNode, structures: RibosomeStructure[]}) {
 
     const dispatch           = useAppDispatch();
     const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
@@ -69,9 +68,7 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
     const filters            = useAppSelector(state => state.ui.filters)
 
     useEffect(() => {
-
         console.log("current_structures", current_structures);
-
     }, [])
 
     return (
@@ -86,7 +83,7 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
                     </div>
                     {
                         current_structures
-                            .map(S => <ChainSelection structure={S} key={S.rcsb_id} />)
+                            .map(S => <StructureComponentsSelection structure={S} key={S.rcsb_id} />)
                     }
                     <Pagination>
                         <PaginationContent>

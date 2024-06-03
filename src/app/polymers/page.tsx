@@ -23,7 +23,6 @@ interface PolymerInputProps {
 }
 
 function PolymerInput(props: PolymerInputProps) {
-
     const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
     const dispatch = useAppDispatch();
     const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
@@ -38,11 +37,11 @@ function PolymerInput(props: PolymerInputProps) {
     return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
         <Label htmlFor="input" className={`font-bold text-md mb-2   ${props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
         <Select<PolymerClassOption >
-            defaultValue={null}
-            className="w-full max-h-64"
-            components={{ Group }}
-            options={polymerClassOptions}
-            onChange={(value) => {
+            defaultValue = {null}
+            className    = "w-full max-h-64"
+            components   = {{ Group }}
+            options      = {polymerClassOptions}
+            onChange     = {(value) => {
                 dispatch(set_current_polymer_class(value))
             }}
             disabled={props.isDisabled}

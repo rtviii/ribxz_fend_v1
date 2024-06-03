@@ -15,21 +15,6 @@ import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
 import { pagination_set_page } from "@/store/slices/ui_state"
 
-export const LoadingSpinner = () => {
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-  </svg>
-}
 
 export function HoverMenu() {
   return (
@@ -56,7 +41,6 @@ export default function StructureCatalogue() {
   const dispatch                                                    = useAppDispatch();
 
 
-  // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a

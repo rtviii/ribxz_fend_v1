@@ -21,14 +21,14 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import ChainPicker from "@/components/ribxz/chain_picker"
+import StructureSelection from "@/components/ribxz/chain_picker"
 
 
-interface DCCProps {
+interface TaxaDropdownProps {
     count: number
     species: string[]
 }
-export function DropdownComponentCount(props: DCCProps) {
+export function LigandTaxonomyDropdown(props: { count:number, species:LigandAssociatedTaxa }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -42,51 +42,64 @@ export function DropdownComponentCount(props: DCCProps) {
     )
 }
 
-
-
-
-interface LigandRowProps {
-    ligandinfo: {
-        chemicalId: string,
-        chemicalName: string,
-        formula_weight: number,
-        pdbx_description: string,
-        drugbank_id?: string,
-        drugbank_description?: string,
-    },
-    structures_info: {
-        parent_structures: string[],
-        parent_organism_ids: number[],
-        parent_organism_names: string[],
-    }
+export function LigandStructuresDropdown(props: {count:number, structures: LigandAssociatedStructure[], info: LigandInfo}) {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline">{props.count}</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
+                {props.structures.map((struct, i) => <DropdownMenuItem key={i}>{struct.parent_structure}</DropdownMenuItem>)}
+                <DropdownMenuSeparator />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
 }
 
 
-// TODO: Ligands page (just a table) + small mention on each structure info page
-const LigandTableRow = (props: LigandRowProps) => {
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)
+interface LigandInfo {
+    chemicalId           : string,
+    chemicalName         : string,
+    formula_weight       : number,
+    pdbx_description     : string,
+    drugbank_id         ?: string,
+    drugbank_description?: string,
+}
+interface LigandAssociatedStructure {
+    parent_structure : string,
+    src_organism_ids  : number[],
+    src_organism_names: string[],
+    superkingdom      : 2 | 2157 | 2759
+}
+type LigandAssociatedTaxa  = string[]
 
-    const lig = props.ligandinfo
+
+
+type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
+
+
+const LigandTableRow = (props: LigandRowProps) => {
+    const ctx        = useAppSelector(state => state.molstar.ui_plugin)
+    const info       = props[0]
+    const structures = props[1]
+    const taxa       = props[2]
+
     return <TableRow
         className="hover:bg-slate-100   hover:cursor-pointer"
     // onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
     // onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
     // onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} 
     >
-        <TableCell>{lig.chemicalId}</TableCell>
+        <TableCell>{info.chemicalId}</TableCell>
         <TableCell>
-
-            <ChainPicker>
-                <p>{props.structures_info.parent_structures.length}</p>
-            </ChainPicker>
-
+            <LigandStructuresDropdown count={structures.length} structures={structures} info={info} />
         </TableCell>
         <TableCell>
-            <DropdownComponentCount count={props.structures_info.parent_organism_ids.length} species={props.structures_info.parent_organism_names} />
+            <LigandTaxonomyDropdown count={taxa.length} species={taxa} />
         </TableCell>
-        <TableCell>{lig.chemicalName.length > 40 ? lig.chemicalName.slice(0, 10) + "..." : lig.chemicalName}</TableCell>
+        <TableCell>{info.chemicalName.length > 40 ? info.chemicalName.slice(0, 10) + "..." : info.chemicalName}</TableCell>
         <TableCell className="whitespace-pre">
-            {lig.drugbank_id}
+            {info.drugbank_id}
         </TableCell>
 
     </TableRow>
@@ -98,6 +111,8 @@ export default function Ligands() {
 
 
     useEffect(() => {
+        console.log("got lig data");
+        
         console.log(ligands_data);
     }, [ligands_data])
 
@@ -115,7 +130,7 @@ export default function Ligands() {
             <TableBody>
                 {
                     ligands_data?.map((ligand, i) => {
-                        return <LigandTableRow key={i} ligandinfo={ligand[0]} structures_info={ligand[1]} />
+                        return <LigandTableRow key={i} {...ligand} />
                     })
                 }
                 <TableRow>
