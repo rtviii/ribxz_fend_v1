@@ -21,7 +21,7 @@ import { MolstarNode } from "@/components/mstar/lib"
 // https://github.com/molstar/molstar/issues/1112
 // https://github.com/molstar/molstar/issues/1121
 
-export const ExampleContext    = createContext<null|MolstarRibxz>(null);
+export const ExampleContext = createContext<null | MolstarRibxz>(null);
 
 export default function StructurePage() {
 
@@ -140,21 +140,23 @@ export default function StructurePage() {
                                 </TabsContent>
                                 <TabsContent value="components">
                                     <ExampleContext.Provider value={ctx}>
-                                    {!isLoading ? <PolymersTable proteins={data?.proteins} rnas={data?.rnas} connect_to_molstar_ctx={true} /> : null}
+                                        {!isLoading ? <PolymersTable proteins={data?.proteins} rnas={data?.rnas} connect_to_molstar_ctx={true} /> : null}
                                     </ExampleContext.Provider>
                                 </TabsContent>
                             </Tabs>
-                            {data?.nonpolymeric_ligands.length > 0 ?
+                            {data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")).length > 0 ?
                                 <div className="border-t pt-4 my-4">
                                     <h3 className="text-lg font-medium">Ligands</h3>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
                                         {
                                             data?.nonpolymeric_ligands
                                                 .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                                                .map(ligand => <div key={ligand.chemicalId} className="hover:bg-slate-200 hover:cursor-pointer hover:border-white border rounded-md p-4">
-                                                    <h4 className="text-sm font-medium">{ligand.chemicalId}</h4>
-                                                    <p>{ligand.chemicalName}</p>
-                                                </div>)
+                                                .map(ligand =>
+                                                    <div key={ligand.chemicalId} className="hover:bg-slate-200 hover:cursor-pointer hover:border-white border rounded-md p-4">
+                                                        <h4 className="text-sm font-medium">{ligand.chemicalId}</h4>
+                                                        <p>{ligand.chemicalName}</p>
+                                                    </div>
+                                                )
                                         }
                                     </div>
                                 </div> : null

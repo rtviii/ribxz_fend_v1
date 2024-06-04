@@ -16,35 +16,33 @@ interface PolymerTableRowProps {
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
     // const ctx         = useAppSelector(state => state.molstar.ui_plugin)
     const polymer = props.polymer
-    const ctx     = useContext(MolstarAppContext)
+    const ctx = useContext(MolstarAppContext)
 
 
     return <TableRow
-        className="hover:bg-slate-100   hover:cursor-pointer"
-
-        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain( polymer.auth_asym_id) } : undefined}
+        className    = "hover:bg-slate-100   hover:cursor-pointer"
+        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
         onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
         onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}
-        >
+    >
 
         <TableCell>{polymer.parent_rcsb_id}</TableCell>
         <TableCell>{polymer.auth_asym_id}</TableCell>
-        <TableCell><Badge variant   = "outline">{polymer.nomenclature}</Badge></TableCell>
-        <TableCell        className = "whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
-        {/* <TableCell><DeleteIcon className="h-5 w-5" /></TableCell> */}
+        <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
+        <TableCell className="whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
     </TableRow>
 }
 
 interface PolymersTableProps {
-    proteins               : Protein[],
-    rnas                   : Rna[],
+    proteins: Protein[],
+    rnas: Rna[],
     connect_to_molstar_ctx?: boolean
-    if_empty_prompt       ?: React.ReactNode
+    if_empty_prompt?: React.ReactNode
 }
 
 export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.proteins
-    const rnas     = props.rnas
+    const rnas = props.rnas
     return (
         <ScrollArea className="max-h-[85vh] rounded-md border overflow-auto">
             <Table >
