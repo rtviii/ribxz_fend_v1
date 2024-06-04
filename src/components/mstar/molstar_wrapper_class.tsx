@@ -73,67 +73,6 @@ declare global {
   }
 }
 
-interface WrapperProps {
-  switch: boolean
-}
-
-export function MolStarWrapper(props: WrapperProps) {
-  const parent = createRef<HTMLDivElement>();
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    const unsubscribe = dispatch(
-      addListener({
-        actionCreator: molstarSlice.actions.toggle_tools,
-        effect: (action, listenerApi) => {
-        },
-      })
-    )
-    return unsubscribe
-  }, [])
-
-
-  async function _download_struct({ plugin, rcsb_id }: { plugin: PluginUIContext, rcsb_id: string }): Promise<null> {
-    const data = await plugin.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id}.cif` }, { state: { isGhost: true } });
-    const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
-    await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-    return null
-  }
-
-  useEffect(() => {
-    console.log("Got new props");
-    console.log(props);
-  }, [props])
-
-  useEffect(() => {
-    async function init() {
-      window.molstar = await createPluginUI({
-        target: parent.current as HTMLDivElement,
-        render: renderReact18,
-        spec: MySpec
-      },);
-
-      const data = await window.molstar.builders.data.download(
-        { url: "https://files.rcsb.org/download/3PTB.pdb" }, /* replace with your URL */
-        { state: { isGhost: true } }
-      );
-      const trajectory =
-        await window.molstar.builders.structure.parseTrajectory(data, "pdb");
-      await window.molstar.builders.structure.hierarchy.applyPreset(
-        trajectory,
-        "default"
-      );
-    }
-    init();
-    return () => {
-      window.molstar?.dispose();
-      window.molstar = undefined;
-    };
-  }, []);
-
-  return <div ref={parent} id='molstar-wrapper' className={`min-h-screen bg-blue-${props.switch ? 200 : 800}`} />
-}
-
 
 export class MolstarRibxz {
 
@@ -147,18 +86,29 @@ export class MolstarRibxz {
       render: renderReact18
     });
 
-    //   const data = await this.plugin.builders.data.download(
-    //       { url: "https://files.rcsb.org/download/3PTB.pdb" }, /* replace with your URL */
-    //       { state: { isGhost: true } }
-    //     );
-    // const trajectory = await this.plugin.builders.structure.parseTrajectory(data, 'pdb');
-    // await this.plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default');
-
   }
 
 
+  select_chain = (auth_asym_id: string) => {
 
-  _highlightChain = ( auth_asym_id: string) => {
+    const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    if (!data) return;
+    const sel = Script.getStructureSelection(
+      Q => Q.struct.generator.atomGroups({
+        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+      }), data);
+
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    this.plugin.managers.structure.selection.clear();
+    this.plugin.managers.structure.selection.fromLoci('add', loci);
+    this.plugin.managers.camera.focusLoci(loci);
+  }
+
+  removeHighlight = () => {
+    this.plugin.managers.interactivity.lociHighlights.clearHighlights();
+  }
+
+  _highlightChain = (auth_asym_id: string) => {
     const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
 
     if (!data) {
@@ -175,9 +125,9 @@ export class MolstarRibxz {
     this.plugin.managers.interactivity.lociHighlights.highlight({ loci });
   }
 
- highlightChain = _.memoize(_highlightChain =>
+  highlightChain = _.memoize(_highlightChain =>
     _.debounce((auth_asym_id) => {
-      _highlightChain( auth_asym_id)
+      _highlightChain(auth_asym_id)
     }, 50, { "leading": true, "trailing": true })
   )(this._highlightChain);
 
