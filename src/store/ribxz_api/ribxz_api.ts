@@ -27,6 +27,15 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
+    routersRouterStructStructurePtc: build.query<
+      RoutersRouterStructStructurePtcApiResponse,
+      RoutersRouterStructStructurePtcApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/structures/ptc`,
+        params: { rcsb_id: queryArg.rcsbId },
+      }),
+    }),
     routersRouterStructListLignads: build.query<
       RoutersRouterStructListLignadsApiResponse,
       RoutersRouterStructListLignadsApiArg
@@ -56,15 +65,6 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/structures/profile`,
-        params: { rcsb_id: queryArg.rcsbId },
-      }),
-    }),
-    routersRouterStructStructurePtc: build.query<
-      RoutersRouterStructStructurePtcApiResponse,
-      RoutersRouterStructStructurePtcApiArg
-    >({
-      query: (queryArg) => ({
-        url: `/structures/ptc`,
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
@@ -409,10 +409,12 @@ export type RoutersRouterStructPolymersByStructureApiArg = {
   sourceTaxa?: string;
   hostTaxa?: string;
 };
-export type RoutersRouterStructListLignadsApiResponse = /** status 200 OK */ (
-  | object
-  | string[]
-)[];
+export type RoutersRouterStructStructurePtcApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterStructStructurePtcApiArg = {
+  rcsbId: string;
+};
+export type RoutersRouterStructListLignadsApiResponse = unknown;
 export type RoutersRouterStructListLignadsApiArg = void;
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
@@ -428,11 +430,6 @@ export type RoutersRouterStructFilterListApiArg = {
 export type RoutersRouterStructStructureProfileApiResponse =
   /** status 200 OK */ RibosomeStructure;
 export type RoutersRouterStructStructureProfileApiArg = {
-  rcsbId: string;
-};
-export type RoutersRouterStructStructurePtcApiResponse =
-  /** status 200 OK */ object;
-export type RoutersRouterStructStructurePtcApiArg = {
   rcsbId: string;
 };
 export type RoutersRouterStructChainsByStructApiResponse =
@@ -1435,10 +1432,10 @@ export type NomenclatureSet = {
 export const {
   useRoutersRouterStructPolymersByPolymerClassQuery,
   useRoutersRouterStructPolymersByStructureQuery,
+  useRoutersRouterStructStructurePtcQuery,
   useRoutersRouterStructListLignadsQuery,
   useRoutersRouterStructFilterListQuery,
   useRoutersRouterStructStructureProfileQuery,
-  useRoutersRouterStructStructurePtcQuery,
   useRoutersRouterStructChainsByStructQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
   useRoutersRouterStructListSourceTaxaQuery,
