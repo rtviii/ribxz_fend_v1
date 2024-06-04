@@ -21,11 +21,10 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
 
     return <TableRow
         className="hover:bg-slate-100   hover:cursor-pointer"
-        onClick={() => {console.log("Clicked on polymer table row"); console.log("it has context:", ctx); ctx?.highlightChain(polymer.auth_asym_id)}}
 
-        // onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
-        // onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
-        // onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined}
+        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain( polymer.auth_asym_id) } : undefined}
+        onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
+        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}
         >
 
         <TableCell>{polymer.parent_rcsb_id}</TableCell>
