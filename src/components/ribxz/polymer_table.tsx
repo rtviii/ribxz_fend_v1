@@ -1,4 +1,4 @@
-import { ExampleContext as MolstarAppContext } from "@/app/[rcsb_id]/page"
+import { MolstarContext as MolstarAppContext } from "@/app/[rcsb_id]/page"
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 // import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
