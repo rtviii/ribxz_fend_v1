@@ -23,10 +23,10 @@ function transform(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.Structu
 }
 
 async function loadStructure(plugin: PluginContext, url: string, format: BuiltInTrajectoryFormat, assemblyId?: string) {
-    const data = await plugin.builders.data.download({ url: Asset.Url(url) });
+    const data       = await plugin.builders.data.download({ url: Asset.Url(url) });
     const trajectory = await plugin.builders.structure.parseTrajectory(data, format);
-    const model = await plugin.builders.structure.createModel(trajectory);
-    const structure = await plugin.builders.structure.createStructure(model, assemblyId ? { name: 'assembly', params: { id: assemblyId } } : void 0);
+    const model      = await plugin.builders.structure.createModel(trajectory);
+    const structure  = await plugin.builders.structure.createStructure(model, assemblyId ? { name: 'assembly', params: { id: assemblyId } } : void 0);
 
     return { data, trajectory, model, structure };
 }

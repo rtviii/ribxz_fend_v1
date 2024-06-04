@@ -78,10 +78,10 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 export const MolstarContext = createContext<null | MolstarRibxz>(null);
 export default function Superimpose() {
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
-    const dispatch = useAppDispatch();
+    const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
+    const dispatch                  = useAppDispatch();
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
-    const pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
+    const pivot                     = useAppSelector(state => state.molstar.superimpose.pivot)!
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
@@ -139,7 +139,7 @@ export default function Superimpose() {
                         </CardContent>
                         <CardFooter className="flex justify-between">
                             <Button
-                                // onClick={() => { dynamicSuperimpose(ctx, pivot.polymer.auth_asym_id) }}
+                                onClick={() => { ctx!.dynamicSuperimpose("e") }}
                                 className="min-w-full group gap-2 text-white flex-col flex hover:bg-gray-800 focus:outline-none  font-medium rounded-md text-sm  text-center  items-center justify-center w-10 h-24">
                                 <p className="font-bold">Superimpose</p>
                                 <div className="grid grid-cols-3 gap-8 group-hover:gap-0 transition-all duration-200 ease-in-out  w-30">

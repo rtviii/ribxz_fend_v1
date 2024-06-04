@@ -134,12 +134,65 @@ export class MolstarRibxz {
 
 
 
+ private async siteVisual( s: StateObjectRef<PSO.Molecule.Structure>, pivot: Expression, ) {
+    const center = await this.ctx.builders.structure.tryCreateComponentFromExpression(s, pivot, 'pivot');
+    if (center) await    this.ctx.builders.structure.representation.addRepresentation(center, { type: 'ball-and-stick', color: 'residue-name' });
+
+    // const surr = await plugin.builders.structure.tryCreateComponentFromExpression(s, rest, 'rest');
+    // if (surr) await plugin.builders.structure.representation.addRepresentation(surr, { type: 'ball-and-stick', color: 'uniform', size: 'uniform', sizeParams: { value: 0.33 } });
+}
+
+private transform( s: StateObjectRef<PSO.Molecule.Structure>, matrix: Mat4) {
+    const b = this.ctx.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
+    return    this.ctx.runTask(this.ctx.state.data.updateTree(b));
+}
+
+dynamicSuperimpose(pivot_auth_asym_id: string ) {
+    return this.ctx.dataTransaction(async () => {
+
+        // for (const [ rcsb_id,aaid ] of src) {
+        //     await loadStructure(plugin, `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${aaid}`, 'mmcif');
+        // }
+
+        // const pivot = MS.struct.filter.first([
+        //     MS.struct.generator.atomGroups({
+        //         'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), comp_id]),
+        //         'group-by'    : MS.struct.atomProperty.macromolecular.residueKey()
+        //     })
+        // ]);
+
+        // console.log("Got pivot ", pivot_auth_asym_id);
+
+
+
+        
+        const pivot = MS.struct.filter.first([
+            MS.struct.generator.atomGroups({
+                'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), pivot_auth_asym_id]),
+                'group-by'  : MS.struct.atomProperty.macromolecular.residueKey()
+            })
+        ]);
+
+        const query         = compile<StructureSelection>(pivot);
+        const structureRefs = this.ctx.managers.structure.hierarchy.current.structures;
+        const selections    = structureRefs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
+        const transforms    = superpose(selections);
+        console.log({...transforms});
+        
+        await this.siteVisual( structureRefs[0].cell, pivot)
+
+        for (let i = 1; i < selections.length; i++) {
+            await this.transform( structureRefs[i].cell, transforms[i - 1].bTransform);
+            await this.siteVisual( structureRefs[i].cell, pivot)
+        }
+    });
+}
     
   async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string}) {
-    const myUrl      = `http://localhost:8000/mmcif/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+    const myUrl      = `http://localhost:8000/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data       = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-    await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default' );
+    await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default' );
   }
 
 
