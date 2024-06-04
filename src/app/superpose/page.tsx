@@ -15,6 +15,8 @@ import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/rib
 import { Label } from "@/components/ui/label";
 // import { dynamicSuperimpose } from "@/store/molstar/dynamic_superposition";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
+import { MolstarNode } from "@/components/mstar/lib";
+import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
 
 function PlusIcon() {
     return (
@@ -56,6 +58,7 @@ function XIcon({ props }) {
 
 const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerByStruct, rcsb_id: string }) => {
 
+
     const dispatch = useAppDispatch();
     const current_pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
     const is_self_current_pivot = () => { if ( current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id && current_pivot?.rcsb_id === rcsb_id ){return true} else {return false}}
@@ -75,17 +78,26 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 export default function Superimpose() {
 
     const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
-    const molstarNodeRef            = useRef<HTMLDivElement>(null);
     const dispatch                  = useAppDispatch();
-    const ctx                       = useAppSelector(state => state.molstar.ui_plugin)!
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
     const pivot                     = useAppSelector(state => state.molstar.superimpose.pivot)!
 
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
+    useEffect(() => {
+        console.log("Page mounted. Initializing Molstar Plugin UI Context");
+        (async () => {
+            const x = new MolstarRibxz
+            await x.init(molstarNodeRef.current!)
+            setCtx(x)
+        })()
+    }, [])
 
-    useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
+
+    // useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
 
     const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-    const [test_active, test_active_set] = useState<boolean>(false)
+    const [test_active, test_active_set]                    = useState<boolean>(false)
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">

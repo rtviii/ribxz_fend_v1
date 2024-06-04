@@ -47,9 +47,7 @@ export default function StructurePage() {
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
-
     useEffect(() => {
         console.log("Page mounted. Initializing Molstar Plugin UI Context");
         (async () => {

@@ -77,11 +77,11 @@ declare global {
 
 export class MolstarRibxz {
 
-  plugin: PluginUIContext;
+  ctx: PluginUIContext;
   constructor() { }
 
   async init(parent: HTMLElement) {
-    this.plugin = await createPluginUI({
+    this.ctx = await createPluginUI({
       target: parent,
       spec: MySpec,
       render: renderReact18
@@ -92,7 +92,7 @@ export class MolstarRibxz {
 
   select_chain = (auth_asym_id: string) => {
 
-    const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
     const sel = Script.getStructureSelection(
       Q => Q.struct.generator.atomGroups({
@@ -100,17 +100,17 @@ export class MolstarRibxz {
       }), data);
 
     let loci = StructureSelection.toLociWithSourceUnits(sel);
-    this.plugin.managers.structure.selection.clear();
-    this.plugin.managers.structure.selection.fromLoci('add', loci);
-    this.plugin.managers.camera.focusLoci(loci);
+    this.ctx.managers.structure.selection.clear();
+    this.ctx.managers.structure.selection.fromLoci('add', loci);
+    this.ctx.managers.camera.focusLoci(loci);
   }
 
   removeHighlight = () => {
-    this.plugin.managers.interactivity.lociHighlights.clearHighlights();
+    this.ctx.managers.interactivity.lociHighlights.clearHighlights();
   }
 
   _highlightChain = (auth_asym_id: string) => {
-    const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
 
     if (!data) {
       console.log("no data");
@@ -123,7 +123,7 @@ export class MolstarRibxz {
       'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
     }), data);
     let loci = StructureSelection.toLociWithSourceUnits(sel);
-    this.plugin.managers.interactivity.lociHighlights.highlight({ loci });
+    this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
   }
 
   highlightChain = _.memoize(_highlightChain =>
@@ -133,6 +133,14 @@ export class MolstarRibxz {
   )(this._highlightChain);
 
 
+
+    
+  async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string}) {
+    const myUrl      = `http://localhost:8000/mmcif/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+    const data       = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
+    const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
+    await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default' );
+  }
 
 
   select_multiple_residues(chain_residues_tuples: [string, number[]][]) {
@@ -146,40 +154,40 @@ export class MolstarRibxz {
         }));
       }
     }
-    this.plugin.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
+    this.ctx.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
     var expression =  MS.struct.combinator.merge(groups);
 
 
 
-    const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
 
     const sel = Script.getStructureSelection(expression, data);
     let loci = StructureSelection.toLociWithSourceUnits(sel);
 
-    this.plugin.managers.structure.selection.clear();
-    this.plugin.managers.structure.selection.fromLoci('add', loci);
-    this.plugin.managers.camera.focusLoci(loci);
+    this.ctx.managers.structure.selection.clear();
+    this.ctx.managers.structure.selection.fromLoci('add', loci);
+    this.ctx.managers.camera.focusLoci(loci);
 
 
   }
 
   async download_struct(rcsb_id: string): Promise<MolstarRibxz> {
-    const data = await this.plugin.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
-    const trajectory = await this.plugin.builders.structure.parseTrajectory(data, "mmcif");
-    await this.plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
+    const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
+    await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
     return this
     // return null
   }
 
 
   create_ligand_surroundings(chemicalId: string) {
-    return this.plugin.dataTransaction(async () => {
+    return this.ctx.dataTransaction(async () => {
       const RADIUS = 5
 
-      let structures = this.plugin.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+      let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
       const struct = structures[0];
-      const update = this.plugin.build();
+      const update = this.ctx.build();
 
 
       const core = MS.struct.filter.first([
@@ -195,29 +203,29 @@ export class MolstarRibxz {
       const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'group' }, { ref: StateElements.HetGroupFocusGroup });
       const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Neighborhood (${RADIUS} Å)`, expression: surr_sel }, { ref: StateElements.HetGroupFocus });
 
-      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.plugin, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
-      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.plugin, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
+      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
+      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
 
-      await PluginCommands.State.Update(this.plugin, { state: this.plugin.state.data, tree: update });
+      await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
       const compiled = compile<StructureSelection>(surr_sel);
       const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
       let loci = StructureSelection.toLociWithSourceUnits(selection);
-      this.plugin.managers.structure.selection.clear();
-      this.plugin.managers.structure.selection.fromLoci('add', loci);
-      this.plugin.managers.camera.focusLoci(loci);
+      this.ctx.managers.structure.selection.clear();
+      this.ctx.managers.structure.selection.fromLoci('add', loci);
+      this.ctx.managers.camera.focusLoci(loci);
     })
   }
   create_ligand(chemicalId: string) {
-    return this.plugin.dataTransaction(async () => {
+    return this.ctx.dataTransaction(async () => {
       console.log("create ligand");
       console.log("got chemid ", chemicalId);
 
 
 
-      let structures = this.plugin.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+      let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
       const struct = structures[0];
-      const update = this.plugin.build();
+      const update = this.ctx.build();
 
       const core = MS.struct.filter.first([
         MS.struct.generator.atomGroups({
@@ -229,17 +237,17 @@ export class MolstarRibxz {
       const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'ligand_group' }, { ref: StateElements.HetGroupFocusGroup });
       const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: chemicalId, expression: core }, { ref: StateElements.HetGroupFocus });
 
-      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.plugin, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
-      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.plugin, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
+      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
+      coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
 
-      await PluginCommands.State.Update(this.plugin, { state: this.plugin.state.data, tree: update });
+      await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
       const compiled = compile<StructureSelection>(core);
       const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
       let loci = StructureSelection.toLociWithSourceUnits(selection);
-      this.plugin.managers.structure.selection.clear();
-      this.plugin.managers.structure.selection.fromLoci('add', loci);
-      this.plugin.managers.camera.focusLoci(loci);
+      this.ctx.managers.structure.selection.clear();
+      this.ctx.managers.structure.selection.fromLoci('add', loci);
+      this.ctx.managers.camera.focusLoci(loci);
 
 
     });
