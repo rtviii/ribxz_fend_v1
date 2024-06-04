@@ -27,7 +27,7 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
             ctx?.create_ligand_surroundings(data.chemicalId)
         }
     }>
-        <div className="absolute top-4 right-4 text-sm font-semibold text-green-600">LIGAND</div>
+        <div className="absolute top-4 right-4 text-sm  text-green-600">LIGAND</div>
         <h4 className="font-semibold">{data.chemicalId}</h4>
         <p>{data.chemicalName}</p>
     </div>
@@ -164,11 +164,18 @@ export default function StructurePage() {
 
 
                                 <div>
-                                    <Separator className="my-4"/>
+                                    <Separator className="my-4" />
                                     <h3 className="text-lg font-medium my-4">Ligands & Landmarks</h3>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
 
-                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4">
+                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" 
+                                        onClick={()=>{
+                                            var auth_asym_id = ptc_data['LSU_rRNA_auth_asym_id']
+                                            var ptc_query    = [auth_asym_id, ptc_data['site_9_residues'].map((r)=>{return r[1]})]
+                                            ctx?.select_multiple_residues([ ptc_query]) 
+                                            
+                                        }}
+                                        >
 
                                             <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
                                             <h4 className="font-semibold">PTC</h4>
