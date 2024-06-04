@@ -116,6 +116,15 @@ const injectedRtkApi = api.injectEndpoints({
         params: { factor_class: queryArg.factorClass },
       }),
     }),
+    routersRouterMmcifPolymer: build.query<
+      RoutersRouterMmcifPolymerApiResponse,
+      RoutersRouterMmcifPolymerApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/mmcif/polymer`,
+        params: { rcsb_id: queryArg.rcsbId, auth_asym_id: queryArg.authAsymId },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -729,6 +738,11 @@ export type RoutersRouterClassesLifecycleFactorClassApiArg = {
     | "aIF2B_delta"
     | "aIF5A"
     | "aIF5B";
+};
+export type RoutersRouterMmcifPolymerApiResponse = unknown;
+export type RoutersRouterMmcifPolymerApiArg = {
+  rcsbId: string;
+  authAsymId: string;
 };
 export type NonpolymerEntityInstanceContainerIdentifiers = {
   entity_id: string;
@@ -1442,4 +1456,5 @@ export const {
   useRoutersRouterClassesPolynucleotideClassQuery,
   useRoutersRouterClassesPolypeptideClassQuery,
   useRoutersRouterClassesLifecycleFactorClassQuery,
+  useRoutersRouterMmcifPolymerQuery,
 } = injectedRtkApi;

@@ -14,14 +14,16 @@ import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribx
 import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
 import { set_filter } from "@/store/slices/ui_state"
-import { useEffect } from "react"
+import { useContext, useEffect } from "react"
+import { MolstarContext } from "@/app/superpose/page"
 
 
 const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
 
-    const dispatch = useAppDispatch();
+    const dispatch   = useAppDispatch();
     const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
-    const polymers = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
+    const polymers   = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
+    const ctx        = useContext(MolstarContext)
 
     return <div className="border rounded-lg p-1 max-h-64 overflow-y-auto scrollbar-hide flex items-center justify-between hover:bg-slate-200">
         <HoverCard openDelay={0} closeDelay={0}>
@@ -48,7 +50,13 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
                         })
                         .map(p =>
                             <div key={p.auth_asym_id}
-                                onClick={() => { dispatch(superimpose_add_chain({ polymer: p, rcsb_id: structure.rcsb_id })) }}
+                                onClick={() => { 
+                                    // dispatch(superimpose_add_chain({ polymer: p, rcsb_id: structure.rcsb_id }))
+                                    ctx?.load_mmcif_chain({
+                                        auth_asym_id: p.auth_asym_id,
+                                        rcsb_id: structure.rcsb_id
+                                    })
+                                 }}
                                 className="border rounded-sm p-0.5 px-2 text-sm flex justify-between hover:cursor-pointer hover:bg-slate-200">
                                 <span>{p.auth_asym_id}</span>
                                 <span>{p.nomenclature[0]}</span>

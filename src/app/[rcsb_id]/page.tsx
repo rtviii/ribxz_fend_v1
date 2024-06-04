@@ -18,9 +18,9 @@ import { Separator } from "@/components/ui/separator"
 // https://github.com/molstar/molstar/issues/1112
 // https://github.com/molstar/molstar/issues/1121
 
-export const ExampleContext = createContext<null | MolstarRibxz>(null);
+export const MolstarContext = createContext<null | MolstarRibxz>(null);
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
-    const ctx = useContext(ExampleContext)
+    const ctx = useContext(MolstarContext)
     return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" onClick={
         () => {
             ctx?.create_ligand(data.chemicalId)
@@ -76,7 +76,7 @@ export default function StructurePage() {
                             <p className="text-gray-500 text-sm">{data?.citation_title}</p>
                         </CardHeader>
 
-                        <ExampleContext.Provider value={ctx}>
+                        <MolstarContext.Provider value={ctx}>
                             <CardContent className="flex-grow overflow-hidden">
                                 <Tabs defaultValue="info" >
                                     <TabsList className="grid w-full grid-cols-2">
@@ -190,7 +190,7 @@ export default function StructurePage() {
                                     </div>
                                 </div>
                             </CardContent>
-                        </ExampleContext.Provider>
+                        </MolstarContext.Provider>
                     </Card>
                 </ResizablePanel>
 
