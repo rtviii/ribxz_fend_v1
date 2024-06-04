@@ -6,13 +6,13 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/compone
 import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 // import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "../../components/ribxz/polymer_table"
 import { createContext, useEffect, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { Separator } from "@/components/ui/separator"
-import { MolStarWrapper, MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
+import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
 import { Button } from "@/components/ui/button"
 import { MolstarNode } from "@/components/mstar/lib"
 
@@ -26,11 +26,20 @@ export const ExampleContext = createContext<null | MolstarRibxz>(null);
 export default function StructurePage() {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+
+    const searchParams = useSearchParams()
+    const ligand_param = searchParams.get('ligand')
+
+
+
+
+
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         console.log(data);
+        console.log("got ligand parameter", ligand_param);
     }, [data])
 
 
@@ -44,8 +53,22 @@ export default function StructurePage() {
             setCtx(x)
         })()
     }, [])
+
     useEffect(() => {
-        ctx?.download_struct(rcsb_id)
+        ctx?.download_struct(rcsb_id).then((ctx)=>{
+
+            console.log("Loaded structure", ctx);
+            
+                ctx.create_ligand(ligand_param!)
+        })
+
+        // .then(() => {
+        //     if (ligand_param) {
+        //         ctx.create_ligand(ligand_param!)
+        //         ctx.create_ligand_surroundings(ligand_param!)
+        //     }
+        // })
+
     }, [ctx, rcsb_id])
 
 

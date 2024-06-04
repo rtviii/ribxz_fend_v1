@@ -61,28 +61,24 @@ export function LigandStructuresDropdown(props: { count: number, structures: Lig
             <DropdownMenuContent className="max-h-80 overflow-y-scroll">
                 {props.structures.toSorted((s1, s2) => Number(s1.src_organism_names[0] > s2.src_organism_names[0])).map((struct, i) =>
                     <DropdownMenuItem key={i} >
-                        <Link
-                            href={{
+                        <Link href={{
                                 pathname: `/${struct.parent_structure}`,
-                                query: { ligand: 'ery' },
-                            }} > send to page</Link>
-                        <Badge className="w-60 flex justify-between items-center cursor-pointer" onClick={() => {
-                            console.log(struct.parent_structure);
-                            console.log({ ...props.info });
-                            // router.push(`/${struct.parent_structure}`)
-                        }}>
-                            {struct.parent_structure}
-                            <div className="italic text-white flex gap-2 flex-row">
-                                {struct.src_organism_names[0].split(" ").slice(0, 2).join(" ")}
-                                <TaxonomyDot className={`w-2 h-2 ${(() => {
-                                    if (struct.superkingdom == 2) return "fill-green-500"
-                                    else if (struct.superkingdom == 2157) return "fill-orange-500"
-                                    else if (struct.superkingdom === 2759) return "fill-blue-500"
-                                })()}`} />
+                                query: { ligand: props.info.chemicalId },
+                            }}>
+                            <Badge className="w-60 flex justify-between items-center cursor-pointer">
+                                {struct.parent_structure}
+                                <div className="italic text-white flex gap-2 flex-row">
+                                    {struct.src_organism_names[0].split(" ").slice(0, 2).join(" ")}
+                                    <TaxonomyDot className={`w-2 h-2 ${(() => {
+                                        if (struct.superkingdom == 2) return "fill-green-500"
+                                        else if (struct.superkingdom == 2157) return "fill-orange-500"
+                                        else if (struct.superkingdom === 2759) return "fill-blue-500"
+                                    })()}`} />
 
-                            </div>
+                                </div>
 
-                        </Badge>
+                            </Badge>
+                        </Link>
                     </DropdownMenuItem>
                 )}
             </DropdownMenuContent>
