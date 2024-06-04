@@ -263,6 +263,7 @@ const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
 
 }
 _.memoize.Cache = WeakMap;
+
 export const highlightChain = _.memoize(_highlightChain =>
   _.debounce((ctx, auth_asym_id) => {
     _highlightChain(ctx, auth_asym_id)

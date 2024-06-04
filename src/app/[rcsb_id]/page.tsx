@@ -8,7 +8,7 @@ import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 import PolymersTable from "../../components/ribxz/polymer_table"
-import { useEffect, useRef, useState } from "react"
+import { createContext, useEffect, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { Separator } from "@/components/ui/separator"
@@ -21,19 +21,13 @@ import { MolstarNode } from "@/components/mstar/lib"
 // https://github.com/molstar/molstar/issues/1112
 // https://github.com/molstar/molstar/issues/1121
 
+export const ExampleContext    = createContext<null|MolstarRibxz>(null);
 
 export default function StructurePage() {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const dispatch = useAppDispatch();
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-    // const ctx = useAppSelector(state => state.molstar.ui_plugin)
-
-
-    // useEffect(() => {
-    //     dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id }))
-    // }, [molstarNodeRef, dispatch])
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         console.log(data);
@@ -41,7 +35,6 @@ export default function StructurePage() {
 
 
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
-
 
     useEffect(() => {
         console.log("Page mounted. Initializing Molstar Plugin UI Context");
@@ -51,6 +44,9 @@ export default function StructurePage() {
             setCtx(x)
         })()
     }, [])
+    useEffect(() => {
+        ctx?.download_struct(rcsb_id)
+    }, [ctx, rcsb_id])
 
 
     const [count, setCount] = useState<boolean>(true);
@@ -143,7 +139,9 @@ export default function StructurePage() {
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="components">
+                                    <ExampleContext.Provider value={ctx}>
                                     {!isLoading ? <PolymersTable proteins={data?.proteins} rnas={data?.rnas} connect_to_molstar_ctx={true} /> : null}
+                                    </ExampleContext.Provider>
                                 </TabsContent>
                             </Tabs>
                             {data?.nonpolymeric_ligands.length > 0 ?
@@ -165,13 +163,8 @@ export default function StructurePage() {
                     </Card>
                 </ResizablePanel>
                 <ResizableHandle />
-                <Button onClick={() => {console.log("got molstar wrapper captured in state", ctx);
-                }}> hit switch</Button>
-                <Button onClick={() => {ctx?.download_struct('3j7z') }}> download cahin</Button>
                 <ResizablePanel defaultSize={75}>
                     <div className="flex flex-col gap-4">
-
-                        {/* <MolStarWrapper switch={count}/> */}
                         <MolstarNode ref={molstarNodeRef} />
                     </div>
                 </ResizablePanel>

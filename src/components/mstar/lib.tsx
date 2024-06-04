@@ -181,11 +181,11 @@ export async function createPlugin({parent_element, initiate_with_structure}:{ p
     return ctx;
 }
 
-export async function on_hover_chain(parent: HTMLElement):Promise<PluginUIContext> {
-    const plugin = await createPluginUI({ target: parent, spec  : MySpec, render: renderReact18 });
-    window.molstar = plugin;
-    return plugin;
-}
+// export async function on_hover_chain(parent: HTMLElement):Promise<PluginUIContext> {
+//     const plugin = await createPluginUI({ target: parent, spec  : MySpec, render: renderReact18 });
+//     window.molstar = plugin;
+//     return plugin;
+// }
 
 export type QueryParam = {
 

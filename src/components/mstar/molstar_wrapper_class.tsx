@@ -1,4 +1,34 @@
 "use client"
+
+import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
+import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
+import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'
+import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure/structure'
+import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
+import { compileIdListSelection } from 'molstar/lib/mol-script/util/id-list'
+import { log } from 'console';
+import { Asset } from 'molstar/lib/mol-util/assets';
+import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/interactivity';
+import { debounceTime } from 'rxjs';
+import { Script } from 'molstar/lib/mol-script/script';
+import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
+import { QueryHelper } from './lib';
+import { StructureFocusControls } from 'molstar/lib/mol-plugin-ui/structure/focus'
+import { StateObjectRef } from 'molstar/lib/mol-state/object';
+import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
+import { PluginContext } from "molstar/lib/mol-plugin/context";
+import { compile } from "molstar/lib/mol-script/runtime/query/compiler";
+import { superpose } from 'molstar/lib/mol-model/structure/structure/util/superposition'
+import { QueryContext } from "molstar/lib/mol-model/structure/query/context";
+import { Expression } from "molstar/lib/mol-script/language/expression";
+import { PluginStateObject as PSO } from "molstar/lib/mol-plugin-state/objects";
+import { Mat4 } from "molstar/lib/mol-math/linear-algebra/3d/mat4";
+import { Loci } from 'molstar/lib/mol-model/loci';
+import { StateSelection } from 'molstar/lib/mol-state';
+import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
+import { StructureComponent } from 'molstar/lib/mol-plugin-state/transforms/model';
+import { StructureRepresentation3D } from 'molstar/lib/mol-plugin-state/transforms/representation';
+import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
@@ -27,7 +57,9 @@ import { MySpec } from "./lib";
 import { addListener } from "@reduxjs/toolkit";
 import { useAppDispatch } from "@/store/store";
 import { molstarSlice } from "@/store/slices/molstar_state";
+import _ from "lodash";
 
+_.memoize.Cache = WeakMap;
 
 
 // TODO : 
@@ -123,6 +155,31 @@ export class MolstarRibxz {
     // await this.plugin.builders.structure.hierarchy.applyPreset(trajectory, 'default');
 
   }
+
+
+
+  _highlightChain = ( auth_asym_id: string) => {
+    const data = this.plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+
+    if (!data) {
+      console.log("no data");
+      return;
+    } else {
+      console.log("data found");
+    }
+
+    const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+      'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+    }), data);
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    this.plugin.managers.interactivity.lociHighlights.highlight({ loci });
+  }
+
+ highlightChain = _.memoize(_highlightChain =>
+    _.debounce((auth_asym_id) => {
+      _highlightChain( auth_asym_id)
+    }, 50, { "leading": true, "trailing": true })
+  )(this._highlightChain);
 
 
 
