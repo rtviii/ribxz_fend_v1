@@ -2,9 +2,9 @@
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { MolstarNode, } from "@/store/molstar/lib"
+// import { MolstarNode, } from "@/store/molstar/lib"
 import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
-import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
+// import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 import PolymersTable from "../../components/ribxz/polymer_table"
@@ -12,6 +12,9 @@ import { useEffect, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { Separator } from "@/components/ui/separator"
+import { MolStarWrapper, MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
+import { Button } from "@/components/ui/button"
+import { MolstarNode } from "@/components/mstar/lib"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -25,18 +28,32 @@ export default function StructurePage() {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const dispatch = useAppDispatch();
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)
+    // const ctx = useAppSelector(state => state.molstar.ui_plugin)
 
 
-    useEffect(() => {
-        dispatch(initiatePluginUIContext({
-            parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id
-        }))
-    }, [molstarNodeRef, dispatch])
+    // useEffect(() => {
+    //     dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current!, initiate_with_structure: rcsb_id }))
+    // }, [molstarNodeRef, dispatch])
 
     useEffect(() => {
         console.log(data);
     }, [data])
+
+
+    const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
+
+
+    useEffect(() => {
+        console.log("Page mounted. Initializing Molstar Plugin UI Context");
+        (async () => {
+            const x = new MolstarRibxz
+            await x.init(molstarNodeRef.current!)
+            setCtx(x)
+        })()
+    }, [])
+
+
+    const [count, setCount] = useState<boolean>(true);
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -148,8 +165,13 @@ export default function StructurePage() {
                     </Card>
                 </ResizablePanel>
                 <ResizableHandle />
+                <Button onClick={() => {console.log("got molstar wrapper captured in state", ctx);
+                }}> hit switch</Button>
+                <Button onClick={() => {ctx?.download_struct('3j7z') }}> download cahin</Button>
                 <ResizablePanel defaultSize={75}>
                     <div className="flex flex-col gap-4">
+
+                        {/* <MolStarWrapper switch={count}/> */}
                         <MolstarNode ref={molstarNodeRef} />
                     </div>
                 </ResizablePanel>
