@@ -19,7 +19,6 @@ export const DefaultPluginSpec = (): PluginSpec => ({
         PluginSpec.Behavior(PluginBehaviors.Representation.FocusLoci),
         PluginSpec.Behavior(PluginBehaviors.Camera.FocusLoci),
         PluginSpec.Behavior(PluginBehaviors.Camera.CameraAxisHelper),
-
         PluginSpec.Behavior(PluginBehaviors.CustomProps.StructureInfo),
         PluginSpec.Behavior(PluginBehaviors.CustomProps.AccessibleSurfaceArea),
         // PluginSpec.Behavior(PDBeSIFTSMapping, {autoAttach: true, showTooltip: true}),

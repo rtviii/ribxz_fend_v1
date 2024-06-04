@@ -25,6 +25,7 @@ import StructureSelection from "@/components/ribxz/chain_picker"
 import { TaxonomyDot } from "@/components/ribxz/taxonomy"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 
 interface TaxaDropdownProps {
@@ -39,7 +40,6 @@ export function LigandTaxonomyDropdown(props: { count: number, species: LigandAs
             </DropdownMenuTrigger>
             <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
                 <p className="italic ">
-
                     {props.species.toSorted().map((spec, i) =>
                         <DropdownMenuItem key={i}>{spec[1]}</DropdownMenuItem>
                     )}
@@ -52,6 +52,7 @@ export function LigandTaxonomyDropdown(props: { count: number, species: LigandAs
 
 
 export function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
+    const router = useRouter()
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -60,7 +61,16 @@ export function LigandStructuresDropdown(props: { count: number, structures: Lig
             <DropdownMenuContent className="max-h-80 overflow-y-scroll">
                 {props.structures.toSorted((s1, s2) => Number(s1.src_organism_names[0] > s2.src_organism_names[0])).map((struct, i) =>
                     <DropdownMenuItem key={i} >
-                        <Badge className="w-60 flex justify-between items-center cursor-pointer">
+                        <Link
+                            href={{
+                                pathname: `/${struct.parent_structure}`,
+                                query: { ligand: 'ery' },
+                            }} > send to page</Link>
+                        <Badge className="w-60 flex justify-between items-center cursor-pointer" onClick={() => {
+                            console.log(struct.parent_structure);
+                            console.log({ ...props.info });
+                            // router.push(`/${struct.parent_structure}`)
+                        }}>
                             {struct.parent_structure}
                             <div className="italic text-white flex gap-2 flex-row">
                                 {struct.src_organism_names[0].split(" ").slice(0, 2).join(" ")}
