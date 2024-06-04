@@ -1,10 +1,10 @@
 "use client"
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { MolstarNode, } from "@/store/molstar/lib"
+// import { MolstarNode } from "@/store/molstar/lib"
 import { createRef, useEffect, useRef, useState } from "react";
 import { ChainsByStruct, Polymer, PolymerByStruct, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
-import { initiatePluginUIContext, download_struct, superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state"
+// import { initiatePluginUIContext, download_struct, superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 import StructureSelection from "@/components/ribxz/chain_picker"
@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
 import { Label } from "@/components/ui/label";
-import { dynamicSuperimpose } from "@/store/molstar/dynamic_superposition";
+// import { dynamicSuperimpose } from "@/store/molstar/dynamic_superposition";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 
 function PlusIcon() {
@@ -122,7 +122,7 @@ export default function Superimpose() {
                         </CardContent>
                         <CardFooter className="flex justify-between">
                             <Button
-                                onClick={() => { dynamicSuperimpose(ctx, pivot.polymer.auth_asym_id) }}
+                                // onClick={() => { dynamicSuperimpose(ctx, pivot.polymer.auth_asym_id) }}
                                 className="min-w-full group gap-2 text-white flex-col flex hover:bg-gray-800 focus:outline-none  font-medium rounded-md text-sm  text-center  items-center justify-center w-10 h-24">
                                 <p className="font-bold">Superimpose</p>
                                 <div className="grid grid-cols-3 gap-8 group-hover:gap-0 transition-all duration-200 ease-in-out  w-30">
