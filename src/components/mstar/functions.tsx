@@ -223,59 +223,60 @@ export const transform = (ctx: PluginContext) => {
   return ctx.runTask(ctx.state.data.updateTree(b));
 }
 
-export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
-  console.log("Got context", plugin);
-  
-  const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-  if (!data) return;
+// export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
+//   console.log("Got context", plugin);
 
-  const sel = Script.getStructureSelection(
-    Q => Q.struct.generator.atomGroups({
-      'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-    }), data);
+//   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+//   if (!data) return;
 
-  let loci = StructureSelection.toLociWithSourceUnits(sel);
-  plugin.managers.structure.selection.clear();
-  plugin.managers.structure.selection.fromLoci('add', loci);
-  plugin.managers.camera.focusLoci(loci);
-}
+//   const sel = Script.getStructureSelection(
+//     Q => Q.struct.generator.atomGroups({
+//       'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+//     }), data);
 
-
-
-const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
-  console.log("Hl chain go", auth_asym_id);
-
-  const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-  if (!data) {
-    console.log("no data");
-    return;
-  } else {
-    console.log("data found");
-  }
-
-  const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-    // 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-    'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_asym_id(), auth_asym_id]),
-  }), data);
-  let loci = StructureSelection.toLociWithSourceUnits(sel);
-  console.log("loci", loci);
-  plugin.managers.interactivity.lociHighlights.highlight({ loci });
-
-}
-_.memoize.Cache = WeakMap;
-export const highlightChain = _.memoize(_highlightChain =>
-  _.debounce((ctx, auth_asym_id) => {
-    _highlightChain(ctx, auth_asym_id)
-  }, 50, { "leading": true, "trailing": true })
-)(_highlightChain);
+//   let loci = StructureSelection.toLociWithSourceUnits(sel);
+//   plugin.managers.structure.selection.clear();
+//   plugin.managers.structure.selection.fromLoci('add', loci);
+//   plugin.managers.camera.focusLoci(loci);
+// }
 
 
 
+// const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
+//   console.log("Hl chain go", auth_asym_id);
+
+//   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+//   if (!data) {
+//     console.log("no data");
+//     return;
+//   } else {
+//     console.log("data found");
+//   }
+
+//   const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
+//     // 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+//     'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_asym_id(), auth_asym_id]),
+//   }), data);
+//   let loci = StructureSelection.toLociWithSourceUnits(sel);
+//   console.log("loci", loci);
+//   plugin.managers.interactivity.lociHighlights.highlight({ loci });
+
+// }
+// _.memoize.Cache = WeakMap;
+
+// export const highlightChain = _.memoize(_highlightChain =>
+//   _.debounce((ctx, auth_asym_id) => {
+//     _highlightChain(ctx, auth_asym_id)
+//   }, 50, { "leading": true, "trailing": true })
+// )(_highlightChain);
 
 
-export const removeHighlight = (plugin: PluginUIContext) => {
-  plugin.managers.interactivity.lociHighlights.clearHighlights();
-}
+
+
+
+// export const removeHighlight = (plugin: PluginUIContext) => {
+//   plugin.managers.interactivity.lociHighlights.clearHighlights();
+// }
 
 export const select_current_struct = (ctx: PluginUIContext) => {
 
@@ -319,7 +320,6 @@ const applyStyle = (ctx: PluginUIContext) => {
       color: 'uniform',
     }));
 }
-
 
 function next_residue_on_hover() {
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0]!.cell.obj!.data;

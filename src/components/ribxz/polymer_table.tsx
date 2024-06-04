@@ -1,9 +1,11 @@
+import { ExampleContext as MolstarAppContext } from "@/app/[rcsb_id]/page"
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
+// import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
 import { NonpolymericLigand, Polymer, Protein, Rna } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
+import { useContext } from "react"
 
 
 interface PolymerTableRowProps {
@@ -12,19 +14,22 @@ interface PolymerTableRowProps {
 }
 
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
-    const ctx = useAppSelector(state => state.molstar.ui_plugin)
+    // const ctx         = useAppSelector(state => state.molstar.ui_plugin)
     const polymer = props.polymer
+    const ctx = useContext(MolstarAppContext)
+
 
     return <TableRow
-        className="hover:bg-slate-100   hover:cursor-pointer"
-        onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
-        onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
-        onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} >
+        className    = "hover:bg-slate-100   hover:cursor-pointer"
+        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
+        onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
+        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}
+    >
+
         <TableCell>{polymer.parent_rcsb_id}</TableCell>
         <TableCell>{polymer.auth_asym_id}</TableCell>
-        <TableCell><Badge variant   = "outline">{polymer.nomenclature}</Badge></TableCell>
-        <TableCell        className = "whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
-        {/* <TableCell><DeleteIcon className="h-5 w-5" /></TableCell> */}
+        <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
+        <TableCell className="whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
     </TableRow>
 }
 
@@ -37,7 +42,7 @@ interface PolymersTableProps {
 
 export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.proteins
-    const rnas     = props.rnas
+    const rnas = props.rnas
     return (
         <ScrollArea className="max-h-[85vh] rounded-md border overflow-auto">
             <Table >

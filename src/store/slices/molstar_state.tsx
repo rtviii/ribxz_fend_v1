@@ -1,7 +1,6 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from './../store'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
-import { createPlugin, _download_struct, load_mmcif_chain } from '../molstar/lib';
 import { ChainsByStruct, PolymerByStruct } from '../ribxz_api/ribxz_api';
 
 // TODO: Factor out
@@ -13,13 +12,15 @@ declare global {
 
 export const molstarListenerMiddleware = createListenerMiddleware()
 
-export const download_struct         = createAsyncThunk('molstar/download_struct', _download_struct)
-export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
-export const loadMmcifChain          = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
+// TODO : reimport from separte mstar module
+// export const download_struct         = createAsyncThunk('molstar/download_struct', _download_struct)
+// export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
+// export const loadMmcifChain          = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
 
 
 
 export interface SuperimposeState {
+
   pivot: {
     rcsb_id: string,
     polymer: PolymerByStruct
@@ -71,10 +72,10 @@ export const molstarSlice = createSlice({
     superimpose_add_chain(state, action: PayloadAction<{ rcsb_id: string, polymer: PolymerByStruct }>) {
       state.superimpose.active_chains.push({ rcsb_id: action.payload.rcsb_id, polymer: action.payload.polymer })
 
-      load_mmcif_chain({ rcsb_id: action.payload.rcsb_id, auth_asym_id: action.payload.polymer.auth_asym_id })
-      if (state.superimpose.pivot === null) {
-        Object.assign(state.superimpose, { pivot: { polymer: action.payload.polymer, rcsb_id: action.payload.rcsb_id } })
-      }
+      // load_mmcif_chain({ rcsb_id: action.payload.rcsb_id, auth_asym_id: action.payload.polymer.auth_asym_id })
+      // if (state.superimpose.pivot === null) {
+      //   Object.assign(state.superimpose, { pivot: { polymer: action.payload.polymer, rcsb_id: action.payload.rcsb_id } })
+      // }
     },
     superimpose_pop_chain(state, action: PayloadAction<{ rcsb_id: string, polymer: PolymerByStruct }>) {
       Object.assign(state.superimpose, {
@@ -85,9 +86,9 @@ export const molstarSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(initiatePluginUIContext.fulfilled, (state, action) => {
-      Object.assign(state, { ui_plugin: action.payload })
-    })
+    // builder.addCase(initiatePluginUIContext.fulfilled, (state, action) => {
+    //   Object.assign(state, { ui_plugin: action.payload })
+    // })
   }
 })
 
