@@ -63,11 +63,6 @@ import { StateElements } from './functions';
 _.memoize.Cache = WeakMap;
 
 
-// TODO : 
-//! - It's a class component tthat initiates into a given div element
-//! - mapstate and mapdispatch listens to redux state
-
-
 declare global {
   interface Window {
     molstar?: PluginUIContext;
@@ -75,6 +70,7 @@ declare global {
 }
 
 
+//! - mapstate and mapdispatch listens to redux state
 export class MolstarRibxz {
 
   ctx: PluginUIContext;
