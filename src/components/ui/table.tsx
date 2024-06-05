@@ -71,7 +71,6 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "  ",
       className
     )}
     {...props}

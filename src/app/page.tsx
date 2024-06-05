@@ -41,8 +41,8 @@ const PolymersStatsTable = (props: { data: any }) => {
     <Table className='text-xs'>
       <TableHeader >
         <TableRow >
-          <TableHead >Polypeptide</TableHead>
-          <TableHead >Polynucleotide</TableHead>
+          <TableHead className='p-1 text-start align-middle justify-start'>Polypeptides</TableHead>
+          <TableHead className='p-1 text-start  align-middle justify-start'>Polynucleotides</TableHead>
         </TableRow>
       </TableHeader>
 
@@ -73,10 +73,10 @@ const StructStatsTable = (props: { data: any }) => {
       <TableHeader >
         <TableRow >
           <TableHead ></TableHead>
-          <TableHead >Total</TableHead>
-          <TableHead >Bacteria</TableHead>
-          <TableHead >Eukarya</TableHead>
-          <TableHead >Archaea</TableHead>
+          <TableHead className=' italic '>Total</TableHead>
+          <TableHead className=' italic '>Bacteria</TableHead>
+          <TableHead className=' italic '>Eukarya</TableHead>
+          <TableHead className=' italic '>Archaea</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -192,7 +192,7 @@ export default function Home() {
 
 
             <div className="bg-slate-50-200 p-4 rounded-md relative border border-gray-400">
-              <h4 className="text-sm font-medium leading-none">124124 Polymers</h4>
+                {/* <h4 className=" leading-none hover:cursor-pointer hover:bg-blue-50 p-1 mb-2">Polymers</h4> */}
               <PolymersStatsTable data={{}}/>
  
 
