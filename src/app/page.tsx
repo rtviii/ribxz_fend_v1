@@ -22,6 +22,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 export function PolymerClassesHoverCard({children, opens_to, classes}:{children:React.ReactNode,opens_to:"right"|"left", classes:CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]}) {
@@ -30,21 +31,37 @@ export function PolymerClassesHoverCard({children, opens_to, classes}:{children:
       <HoverCardTrigger className='w-full hover:bg-blue-200 rounded-md hover:cursor-pointer pl-2 pr-8 py-1' >
         { children }
       </HoverCardTrigger>
-      <HoverCardContent className="w-80" side={opens_to}>
-        little table with classes
-        {/* <div className="flex justify-between space-x-4">
-          <div className="space-y-1">
-            <h4 className="text-sm font-semibold">@nextjs</h4>
-            <p className="text-sm">
-              The React Framework – created and maintained by @vercel.
-            </p>
-            <div className="flex items-center pt-2">
-              <span className="text-xs text-muted-foreground">
-                Joined December 2021
-              </span>
-            </div>
-          </div>
-        </div> */}
+      <HoverCardContent className="w-60 " side={opens_to}>
+        <ScrollArea className='overflow-y-scroll max-h-60 px-2'>
+          { [
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+            "uL4", "uL22",
+          
+        ].map(
+            (cl,i)=>{
+              return (
+                <div key={i} className='flex justify-between'>
+                  <span>{cl}</span>
+                  <span> 12</span>
+                </div>
+              )
+            }
+          )
+          
+          
+          }
+
+
+        </ScrollArea>
       </HoverCardContent>
     </HoverCard>
   )
@@ -98,7 +115,7 @@ const PolymersStatsTable = (props: { data: any }) => {
         </TableRow>
         <TableRow >
           <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left' classes={classes.E_I_Factors}> E & I Factors</PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' classes={classes.tRNA}> tRNA</PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' > tRNA</PolymerClassesHoverCard></TableCell>
         </TableRow>
       </TableBody>
     </Table>

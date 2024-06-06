@@ -39,7 +39,7 @@ function PolymerInput(props: PolymerInputProps) {
         <Select<PolymerClassOption >
             defaultValue = {null}
             className    = "w-full max-h-82"
-            showSearch={true}
+            showSearch   = {true}
             components   = {{ Group }}
             options      = {polymerClassOptions}
             onChange     = {(value) => {

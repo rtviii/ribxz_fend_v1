@@ -1435,6 +1435,7 @@ export type CytosolicRnaClass =
   | "18SrRNA"
   | "28SrRNA";
 export type MitochondrialRnaClass = "mt12SrRNA" | "mt16SrRNA";
+export type TRna = "tRNA";
 export type NomenclatureSet = {
   ElongationFactorClass: ElongationFactorClass[];
   InitiationFactorClass: InitiationFactorClass[];
@@ -1442,6 +1443,7 @@ export type NomenclatureSet = {
   MitochondrialProteinClass: MitochondrialProteinClass[];
   CytosolicRNAClass: CytosolicRnaClass[];
   MitochondrialRNAClass: MitochondrialRnaClass[];
+  tRNAClass: TRna[];
 };
 export const {
   useRoutersRouterStructPolymersByPolymerClassQuery,
