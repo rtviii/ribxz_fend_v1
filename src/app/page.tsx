@@ -2,11 +2,11 @@
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import StoreProvider from './store_provider';
 import StructureCatalogue from './structures/page';
-import { useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api';
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api';
 import { Card, CardContent } from "@/components/ui/card"
 import { CaretSortIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Button } from "@/components/ui/button"
 import {
@@ -17,9 +17,37 @@ import {
 import { SidebarMenu } from '@/components/ribxz/sidebar_menu';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 
-
+export function HoverCardDemo({children, classes}:{children:React.ReactNode, classes:CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]}) {
+  return (
+    <HoverCard openDelay={100} closeDelay={100}>
+      <HoverCardTrigger >
+        { children }
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80" side='left'>
+        <div className="flex justify-between space-x-4">
+          <div className="space-y-1">
+            <h4 className="text-sm font-semibold">@nextjs</h4>
+            <p className="text-sm">
+              The React Framework – created and maintained by @vercel.
+            </p>
+            <div className="flex items-center pt-2">
+              <span className="text-xs text-muted-foreground">
+                Joined December 2021
+              </span>
+            </div>
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  )
+}
 
 const citation = `
 @article{kushner2023riboxyz,
@@ -45,11 +73,9 @@ const PolymersStatsTable = (props: { data: any }) => {
           <TableHead className='p-1 text-start  align-middle justify-start'>Polynucleotides</TableHead>
         </TableRow>
       </TableHeader>
-
-
       <TableBody>
         <TableRow >
-          <TableCell className='p-1 m-0'>Cytosolic rProteins</TableCell>
+          <TableCell className='p-1 m-0'><HoverCardDemo> CytosolicProteins</HoverCardDemo></TableCell>
           <TableCell className='p-1 m-0'>Cytosolic rRNA</TableCell>
         </TableRow>
         <TableRow >
@@ -192,9 +218,9 @@ export default function Home() {
 
 
             <div className="bg-slate-50-200 p-4 rounded-md relative border border-gray-400">
-                {/* <h4 className=" leading-none hover:cursor-pointer hover:bg-blue-50 p-1 mb-2">Polymers</h4> */}
-              <PolymersStatsTable data={{}}/>
- 
+              {/* <h4 className=" leading-none hover:cursor-pointer hover:bg-blue-50 p-1 mb-2">Polymers</h4> */}
+              <PolymersStatsTable data={{}} />
+
 
             </div>
 
