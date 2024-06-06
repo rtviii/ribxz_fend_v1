@@ -67,7 +67,7 @@ export default function StructurePage() {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal" className="rounded-lg border ">
+            <ResizablePanelGroup direction="horizontal" className=" ">
                 <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col ">
                         <CardHeader>
@@ -169,7 +169,7 @@ export default function StructurePage() {
                                         onClick={()=>{
                                             var auth_asym_id = ptc_data['LSU_rRNA_auth_asym_id']
                                             var ptc_query    = [auth_asym_id, ptc_data['site_9_residues'].map((r)=>{return r[1]})]
-                                            ctx?.select_multiple_residues([ ptc_query]) 
+                                            ctx?.select_multiple_residues([ptc_query]) 
                                             
                                         }}
                                         >

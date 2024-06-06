@@ -1,6 +1,12 @@
 import { empty_api as api } from "./template";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    routersRouterStructStructureCompositionStats: build.query<
+      RoutersRouterStructStructureCompositionStatsApiResponse,
+      RoutersRouterStructStructureCompositionStatsApiArg
+    >({
+      query: () => ({ url: `/structures/structure_composition_stats` }),
+    }),
     routersRouterStructRandomProfile: build.query<
       RoutersRouterStructRandomProfileApiResponse,
       RoutersRouterStructRandomProfileApiArg
@@ -135,6 +141,9 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as ribxz_api };
+export type RoutersRouterStructStructureCompositionStatsApiResponse =
+  /** status 200 OK */ StructureCompositionStats;
+export type RoutersRouterStructStructureCompositionStatsApiArg = void;
 export type RoutersRouterStructRandomProfileApiResponse =
   /** status 200 OK */ RibosomeStructure;
 export type RoutersRouterStructRandomProfileApiArg = void;
@@ -752,6 +761,18 @@ export type RoutersRouterMmcifPolymerApiResponse = unknown;
 export type RoutersRouterMmcifPolymerApiArg = {
   rcsbId: string;
   authAsymId: string;
+};
+export type CompositionStats = {
+  lsu_only: number;
+  ssu_only: number;
+  ssu_lsu: number;
+  drugbank_compounds: number;
+  mitochondrial: number;
+};
+export type StructureCompositionStats = {
+  archaea: CompositionStats;
+  bacteria: CompositionStats;
+  eukaryota: CompositionStats;
 };
 export type NonpolymerEntityInstanceContainerIdentifiers = {
   entity_id: string;
@@ -1455,6 +1476,7 @@ export type NomenclatureSet = {
   tRNAClass: TRna[];
 };
 export const {
+  useRoutersRouterStructStructureCompositionStatsQuery,
   useRoutersRouterStructRandomProfileQuery,
   useRoutersRouterStructPolymersByPolymerClassQuery,
   useRoutersRouterStructPolymersByStructureQuery,

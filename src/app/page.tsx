@@ -203,7 +203,7 @@ export default function Home() {
                 <p className='mr-2'><code className='border font-medium border-gray-200 bg-gray-100 rounded-sm my-2'>ribosome.xyz</code> provides organized access to atomic structures of the ribosome.</p>
               </p>
               <p className="text-sm">
-                We classify polymer chains of the ribosome and extra-ribosomal elements like tRNA and ligands. Structural landmarks and tools for visualization, alignment are provided for the navigation of deposited models.
+                Why not just PDB? We classify polymer chains of the ribosome and extra-ribosomal elements like tRNA and ligands. Structural landmarks and tools for visualization, alignment are provided for the navigation of deposited models.
               </p>
               <p className="text-sm"> API is available at <code className='border border-gray-200 bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
             </div>
