@@ -43,13 +43,13 @@ export const Group = (props: GroupProps<PolymerClassOption, false>) => (
 );
 
 export enum FilterType {
-  PolymerClass = "PolymerClass",
+  PolymerClass   = "PolymerClass",
   SourceOrganism = "SourceOrganism",
-  HostOrganism = "HostOrganism",
+  HostOrganism   = "HostOrganism",
   DepositionDate = "DepositionDate",
-  Resolution = "Resolution",
-  Search = "Search",
-  Sort = "Sort"
+  Resolution     = "Resolution",
+  Search         = "Search",
+  Sort           = "Sort"
 }
 
 export function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
@@ -76,9 +76,9 @@ interface FiltersProps {
 export function Filters(props: FiltersProps) {
 
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
+  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
 
   const [triggerStructuresRefetch, { struct_data, struct_error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
@@ -196,6 +196,7 @@ export function Filters(props: FiltersProps) {
               components={{ Group }}
               isMulti={true}
               isDisabled={props.disabled_whole}
+              isSearchable={true}
             />
           </div>
 

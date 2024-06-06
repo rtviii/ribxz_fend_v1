@@ -38,7 +38,8 @@ function PolymerInput(props: PolymerInputProps) {
         <Label htmlFor="input" className={`font-bold text-md mb-2   ${props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
         <Select<PolymerClassOption >
             defaultValue = {null}
-            className    = "w-full max-h-64"
+            className    = "w-full max-h-82"
+            showSearch={true}
             components   = {{ Group }}
             options      = {polymerClassOptions}
             onChange     = {(value) => {

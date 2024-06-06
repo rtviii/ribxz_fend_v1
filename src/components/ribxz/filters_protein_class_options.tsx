@@ -5,16 +5,17 @@ export interface PolymerClassOption {
     readonly color: string;
 }
 
-type ElongationFactorClass = PolymerClassOption
-type InitiationFactorClass = PolymerClassOption
-type CytosolicProteinClass = PolymerClassOption
+type ElongationFactorClass     = PolymerClassOption
+type InitiationFactorClass     = PolymerClassOption
+type CytosolicProteinClass     = PolymerClassOption
 type MitochondrialProteinClass = PolymerClassOption
-type CytosolicRNAClass = PolymerClassOption
-type MitochondrialRNAClass = PolymerClassOption
+type CytosolicRNAClass         = PolymerClassOption
+type MitochondrialRNAClass     = PolymerClassOption
+type tRNA                      = PolymerClassOption
 
 export interface GroupedOption {
     readonly label: string;
-    readonly options: readonly ElongationFactorClass[] | readonly InitiationFactorClass[] | CytosolicProteinClass[] | MitochondrialProteinClass[] | CytosolicRNAClass[] | MitochondrialRNAClass[];
+    readonly options: readonly ElongationFactorClass[] | readonly InitiationFactorClass[] | CytosolicProteinClass[] | MitochondrialProteinClass[] | CytosolicRNAClass[] | MitochondrialRNAClass[] | tRNA[];
 }
 
 
@@ -26,6 +27,7 @@ export const groupedOptions = (data: {
     "MitochondrialProteinClass": string[],
     "CytosolicRNAClass"        : string[],
     "MitochondrialRNAClass"    : string[],
+    "tRNAClass"                : string[],
 
 }): readonly GroupedOption[] => {
 
@@ -54,6 +56,10 @@ export const groupedOptions = (data: {
         {
             label: 'Initiation Factors',
             options: data['InitiationFactorClass'].map((value) => ({ value,id:value, label: value, color: 'red' })),
+        },
+        {
+            label: 'tRNA',
+            options: data['tRNAClass'].map((value) => ({ value,id:value, label: value, color: 'red' })),
         },
     ]
 };
