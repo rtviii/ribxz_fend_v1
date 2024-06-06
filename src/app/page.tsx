@@ -65,9 +65,6 @@ export function PolymerClassesHoverCard({ children, opens_to, class_names, table
   )
 }
 
-
-
-
 const PolymersStatsTable = (props: { data: any }) => {
 
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
@@ -125,8 +122,6 @@ const PolymersStatsTable = (props: { data: any }) => {
     </Table>
   )
 }
-
-
 
 const StructStatsTable = (props: { data: any }) => {
   return (
@@ -206,10 +201,10 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center w-full">
         <div className="w-3/6 flex flex-col items-center justify-center mt-36">
           <div className="flex flex-row items-start justify-center space-x-10 relative">
-            <img src="/ribosome.gif" alt="Ribosome structure" className="w-60" />
+            <Image src="/sping.gif" alt="Ribosome structure" className="w-60" width={60} height={120}/>
             <div className="space-y-4">
               <p className="text-lg">
-                ribosome.xyz provides organized access to atomic structures of the ribosome and their components.
+                <pre>ribosome.xyz</pre> provides organized access to atomic structures of the ribosome and their components.
               </p>
               <p className="text-sm">
                 We implement standard nomenclatures for proteins, rRNA and multiple classes of factors and provide
@@ -269,14 +264,6 @@ export default function Home() {
 
         </div>
 
-
-
-
-
-
-
-
-
       </div>
 
 
@@ -331,9 +318,9 @@ export function Citation() {
       </ScrollArea>
     </div>
     <Button
-      variant="outline"
+      variant="default"
       size="sm"
-      className="absolute bottom-4 right-4"
+      className="absolute bottom-4 right-8"
       onClick={() => { navigator.clipboard.writeText(citation) }} >
       Copy
     </Button>
