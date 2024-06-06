@@ -286,7 +286,7 @@ function VisualizeRandom() {
                   src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
                 <Separator orientation='vertical' className='ml-4' />
               </div>
-              <Link href={`/structure/${random_profile?.rcsb_id}`}>
+              <Link href={`/structures/${random_profile?.rcsb_id}`}>
                 <div className='w-4/5 flex  rounded-sm   mx-4 px-4 hover:bg-muted hover:cursor-pointer'>
                   <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>{random_profile?.rcsb_id}</div>
                   <div className="flex flex-col text-xs  justify-center">
