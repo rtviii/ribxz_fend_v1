@@ -30,6 +30,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TaxonomyDot } from '@/components/ribxz/taxonomy';
 import { useRouter } from 'next/navigation';
+import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 
 
 export function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
@@ -125,7 +126,7 @@ const PolymersStatsTable = (props: { data: any }) => {
 }
 
 const StructStatsTable = (props: { data: any }) => {
-  const {data, isLoading, isError } =  useRoutersRouterStructStructureCompositionStatsQuery()
+  const { data, isLoading, isError } = useRoutersRouterStructStructureCompositionStatsQuery()
 
   return (
     <Table className='text-xs'>
@@ -140,42 +141,60 @@ const StructStatsTable = (props: { data: any }) => {
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell >LSU &amp; SSU</TableCell>
-          <TableCell className='text-center py-1' >{data?.bacteria.ssu_lsu + data?.eukaryota.ssu_lsu +  data?.archaea.ssu_lsu} </TableCell>
+          <TableCell >LSU &amp; SSU
+
+
+
+          </TableCell>
+          <TableCell className='text-center py-1' >{data?.bacteria.ssu_lsu + data?.eukaryota.ssu_lsu + data?.archaea.ssu_lsu} </TableCell>
           <TableCell className='text-center py-1' >{data?.bacteria.ssu_lsu}</TableCell>
           <TableCell className='text-center py-1' >{data?.eukaryota.ssu_lsu}</TableCell>
           <TableCell className='text-center py-1' >{data?.archaea.ssu_lsu}</TableCell>
         </TableRow>
+
         <TableRow>
-          <TableCell >LSU</TableCell>
-          <TableCell className='text-center py-1'>{data?.archaea.lsu_only + data?.bacteria.lsu_only + data?.eukaryota.lsu_only } </TableCell>
-          <TableCell className='text-center py-1'>{ data?.bacteria.lsu_only }</TableCell>
-          <TableCell className='text-center py-1'>{ data?.eukaryota.lsu_only }</TableCell>
-          <TableCell className='text-center py-1'>{ data?.archaea.lsu_only }</TableCell>
+
+          <TableCell >LSU
+            <AsteriskTooltip className='text-red-500'>
+              <p>LSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA16S,5.8SrRNA,5SrRNA,23SrRNA,25SrRNA,25sRNA </code>] are present.</p>
+            </AsteriskTooltip>
+
+
+          </TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.lsu_only + data?.bacteria.lsu_only + data?.eukaryota.lsu_only} </TableCell>
+          <TableCell className='text-center py-1'>{data?.bacteria.lsu_only}</TableCell>
+          <TableCell className='text-center py-1'>{data?.eukaryota.lsu_only}</TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.lsu_only}</TableCell>
         </TableRow>
 
         <TableRow>
-          <TableCell >SSU</TableCell>
-          <TableCell className='text-center py-1'>{   data?.archaea.ssu_only + data?.bacteria.ssu_only + data?.eukaryota.ssu_only }</TableCell>
-          <TableCell className='text-center py-1'>{    data?.bacteria.ssu_only}</TableCell>
-          <TableCell className='text-center py-1'>{    data?.eukaryota.ssu_only}</TableCell>
-          <TableCell className='text-center py-1'>{    data?.archaea.ssu_only}</TableCell>
+          <TableCell >SSU
+
+            <AsteriskTooltip className='text-red-500'>
+              <p>SSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA12S,16SrRNA,18SrRNA </code>] are present.</p >
+            </AsteriskTooltip>
+
+          </TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.ssu_only + data?.bacteria.ssu_only + data?.eukaryota.ssu_only}</TableCell>
+          <TableCell className='text-center py-1'>{data?.bacteria.ssu_only}</TableCell>
+          <TableCell className='text-center py-1'>{data?.eukaryota.ssu_only}</TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.ssu_only}</TableCell>
         </TableRow>
 
         <TableRow>
           <TableCell >Mitoribosome</TableCell>
-          <TableCell className='text-center py-1'>{  data?.archaea.mitochondrial + data?.bacteria.mitochondrial + data?.eukaryota.mitochondrial }</TableCell>
-          <TableCell className='text-center py-1'>{   data?.bacteria.mitochondrial}</TableCell>
-          <TableCell className='text-center py-1'>{   data?.eukaryota.mitochondrial}</TableCell>
-          <TableCell className='text-center py-1'>{  data?.archaea.mitochondrial }</TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.mitochondrial + data?.bacteria.mitochondrial + data?.eukaryota.mitochondrial}</TableCell>
+          <TableCell className='text-center py-1'>{data?.bacteria.mitochondrial}</TableCell>
+          <TableCell className='text-center py-1'>{data?.eukaryota.mitochondrial}</TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.mitochondrial}</TableCell>
         </TableRow>
 
         <TableRow>
           <TableCell >Ligand Bound</TableCell>
-          <TableCell className='text-center py-1'>{  data?.archaea.drugbank_compounds + data?.eukaryota.drugbank_compounds + data?.bacteria.drugbank_compounds }</TableCell>
-          <TableCell className='text-center py-1'>{   data?.bacteria.drugbank_compounds}</TableCell>
-          <TableCell className='text-center py-1'>{   data?.eukaryota.drugbank_compounds}</TableCell>
-          <TableCell className='text-center py-1'>{  data?.archaea.drugbank_compounds }</TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.drugbank_compounds + data?.eukaryota.drugbank_compounds + data?.bacteria.drugbank_compounds}</TableCell>
+          <TableCell className='text-center py-1'>{data?.bacteria.drugbank_compounds}</TableCell>
+          <TableCell className='text-center py-1'>{data?.eukaryota.drugbank_compounds}</TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.drugbank_compounds}</TableCell>
         </TableRow>
       </TableBody>
     </Table>
@@ -290,15 +309,15 @@ function VisualizeRandom() {
                   src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
                 <Separator orientation='vertical' className='ml-4' />
               </div>
-                <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={()=>{
-                  router.push(`/structures/${random_profile?.rcsb_id}`)
-                }}>
-                  <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>{random_profile?.rcsb_id}</div>
-                  <div className="flex flex-col text-xs  justify-center w-full">
-                    <p>{random_profile?.citation_year ? random_profile.citation_year + ", "+ random_profile?.citation_rcsb_authors[0] + " et al." : random_profile?.citation_rcsb_authors[0] + " et al."}</p>
-                    <p>{random_profile?.src_organism_names[0]}</p>
-                  </div>
+              <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={() => {
+                router.push(`/structures/${random_profile?.rcsb_id}`)
+              }}>
+                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>{random_profile?.rcsb_id}</div>
+                <div className="flex flex-col text-xs  justify-center w-full">
+                  <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + random_profile?.citation_rcsb_authors[0] + " et al." : random_profile?.citation_rcsb_authors[0] + " et al."}</p>
+                  <p>{random_profile?.src_organism_names[0]}</p>
                 </div>
+              </div>
             </div>
           </TooltipTrigger>
         </div>
