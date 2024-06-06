@@ -297,7 +297,7 @@ function VisualizeRandom() {
             <div className="flex justify-between  ">
               <div className="flex items-center justify-between w-1/5 ">
                 <Image src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
-                <Separator orientation='vertical' className='ml-4' />
+                <Separator orientation='vertical' className='ml-4'/>
               </div>
               <div className='w-4/5 flex  rounded-sm   mx-4 px-4 hover:bg-muted hover:cursor-pointer'>
                 <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>8J7X</div>
@@ -321,18 +321,19 @@ function VisualizeRandom() {
 
 export function Citation() {
   return <div className="bg-slate-50-200 p-2 rounded-md  relative border border-gray-400 h-50">
-    <div className="text-xs font-medium my-4">Developed by A. Kushner and K. Dao-Duc. Cite and reach out <ChatBubbleIcon /> </div>
+    <div className="text-xs   p-2 mb-2 flex">Developed by A. Kushner and K. Dao Duc. Cite and reach out.  </div>
+
     <div >
-      <ScrollArea className='h-20 shadow-inner outline rounded-sm'>
+      <ScrollArea className='h-20 shadow-inner border rounded-sm'>
         <pre>
-          <code className='text-xs'>{citation}</code>
+          <code className='text-xs p-2'>{citation}</code>
         </pre>
       </ScrollArea>
     </div>
     <Button
       variant="outline"
       size="sm"
-      className="absolute top-2 right-2"
+      className="absolute bottom-4 right-4"
       onClick={() => { navigator.clipboard.writeText(citation) }} >
       Copy
     </Button>
