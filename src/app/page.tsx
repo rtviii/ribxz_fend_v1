@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/hover-card"
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TaxonomyDot } from '@/components/ribxz/taxonomy';
+import { useRouter } from 'next/navigation';
 
 
 export function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
@@ -271,6 +272,7 @@ function VisualizeRandom() {
 
   const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
   const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
+  const router = useRouter()
 
   return (
 
@@ -286,15 +288,15 @@ function VisualizeRandom() {
                   src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
                 <Separator orientation='vertical' className='ml-4' />
               </div>
-              <Link href={`/structures/${random_profile?.rcsb_id}`}>
-                <div className='w-4/5 flex  rounded-sm   mx-4 px-4 hover:bg-muted hover:cursor-pointer'>
+                <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={()=>{
+                  router.push(`/structures/${random_profile?.rcsb_id}`)
+                }}>
                   <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>{random_profile?.rcsb_id}</div>
-                  <div className="flex flex-col text-xs  justify-center">
-                    <p>{random_profile?.citation_year}, {random_profile?.citation_rcsb_authors[0]}</p>
-                    <p>{random_profile?.src_organism_names.join(",")}</p>
+                  <div className="flex flex-col text-xs  justify-center w-full">
+                    <p>{random_profile?.citation_year ? random_profile.citation_year + ", "+ random_profile?.citation_rcsb_authors[0] + " et al." : random_profile?.citation_rcsb_authors[0] + " et al."}</p>
+                    <p>{random_profile?.src_organism_names[0]}</p>
                   </div>
                 </div>
-              </Link>
             </div>
           </TooltipTrigger>
         </div>

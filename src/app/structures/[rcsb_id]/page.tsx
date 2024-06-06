@@ -3,7 +3,6 @@ import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription }
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
-// import { initiatePluginUIContext, download_struct } from "@/store/slices/molstar_state"
 import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
@@ -37,10 +36,10 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
 
 export default function StructurePage() {
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+    const { rcsb_id }  = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
-    const ptc = searchParams.get('ptc')
+    const ptc          = searchParams.get('ptc')
 
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
