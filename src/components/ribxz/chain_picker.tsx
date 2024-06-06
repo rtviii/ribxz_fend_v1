@@ -75,10 +75,6 @@ export default function StructureSelection({ children, structures }: { children?
     const current_structures = useAppSelector(state => state.ui.data.current_structures)
     const filters            = useAppSelector(state => state.ui.filters)
 
-    useEffect(() => {
-        console.log("current_structures", current_structures);
-    }, [])
-
     return (
         <HoverCard openDelay={0} closeDelay={0}>
             <HoverCardTrigger asChild >

@@ -1,9 +1,13 @@
 "use client"
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import StoreProvider from './store_provider';
+import DiceIcon from '../../public/dice.svg'
+
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
+import Image from 'next/image';
 import StructureCatalogue from './structures/page';
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
-import {GearIcon, GitHubLogoIcon, ChatBubbleIcon} from '@radix-ui/react-icons'
+import { GearIcon, GitHubLogoIcon, ChatBubbleIcon } from '@radix-ui/react-icons'
 import { Card, CardContent } from "@/components/ui/card"
 import { CaretSortIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
@@ -24,6 +28,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { TaxonomyDot } from '@/components/ribxz/taxonomy';
 
 
 export function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
@@ -59,6 +64,7 @@ export function PolymerClassesHoverCard({ children, opens_to, class_names, table
     </HoverCard>
   )
 }
+
 
 
 
@@ -255,7 +261,6 @@ export default function Home() {
 
 
             <div className="bg-slate-50-200 p-4 rounded-md relative border border-gray-400">
-              {/* <h4 className=" leading-none hover:cursor-pointer hover:bg-blue-50 p-1 mb-2">Polymers</h4> */}
               <PolymersStatsTable data={{}} />
 
 
@@ -266,34 +271,16 @@ export default function Home() {
 
 
 
-          <div className="w-3/6 bg-slate-50-200 p-4 rounded-md  relative border border-gray-400 h-50">
-            <div className="text-xs font-medium my-4">Developed by A. Kushner and K. Dao-Duc. Cite and reach out <ChatBubbleIcon/> </div>
-            <div >
-              <ScrollArea className='h-20 shadow-inner outline  px-4 rounded-sm'>
-                <pre>
-                  <code className='text-xs'>{citation}</code>
-                </pre>
-              </ScrollArea>
-            </div>
+          <div className="w-3/6 bg-slate-50-200 p-2 rounded-md  relative border border-gray-400 h-50">
 
 
+            <VisualizeRandom />
 
-            <div >
-              <ScrollArea className='h-20 mt-4 shadow-inner outline  px-4 rounded-sm'>
-                <pre>
-                  <code className='text-xs'>{citation}</code>
-                </pre>
-              </ScrollArea>
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="absolute top-2 right-2"
-              onClick={() => { navigator.clipboard.writeText(citation) }} >
-              Copy
-            </Button>
           </div>
+
+
+
+
         </div>
 
 
@@ -313,3 +300,56 @@ export default function Home() {
   )
 }
 
+function VisualizeRandom() {
+  return (
+
+    <TooltipProvider>
+      <Tooltip delayDuration={0}>
+          <div className="bg-white  rounded-lg ">
+
+        <TooltipTrigger asChild  >
+            <div className="flex justify-between ">
+              <div className="flex items-center justify-between w-1/5 ">
+                <Image src={DiceIcon} className='w-12 h-12  rounded-sm border p-1' alt="some" />
+                <Separator orientation='vertical' className='ml-4' />
+              </div>
+              <div className='w-4/5 flex  rounded-sm  hover:bg-muted hover:cursor-pointer  mx-4 px-4'>
+                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>8J7X</div>
+                <div className="flex flex-col text-xs  justify-center">
+                  <p> 2024, Myasnikov et al.</p>
+                  <p>T. Thermophilius (Archae)</p>
+                </div>
+              </div>
+            </div>
+        </TooltipTrigger>
+          </div>
+        <TooltipContent side="top">
+          <p>Visualize random structure</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+
+
+  )
+}
+
+export function Citation() {
+  return <div>
+    <div className="text-xs font-medium my-4">Developed by A. Kushner and K. Dao-Duc. Cite and reach out <ChatBubbleIcon /> </div>
+    <div >
+      <ScrollArea className='h-20 shadow-inner outline rounded-sm'>
+        <pre>
+          <code className='text-xs'>{citation}</code>
+        </pre>
+      </ScrollArea>
+    </div>
+    <Button
+      variant="outline"
+      size="sm"
+      className="absolute top-2 right-2"
+      onClick={() => { navigator.clipboard.writeText(citation) }} >
+      Copy
+    </Button>
+
+  </div>
+}
