@@ -6,7 +6,7 @@ import DiceIcon from '../../public/dice.svg'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
 import StructureCatalogue from './structures/page';
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructRandomProfileQuery } from '@/store/ribxz_api/ribxz_api';
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import { GearIcon, GitHubLogoIcon, ChatBubbleIcon } from '@radix-ui/react-icons'
 import { Card, CardContent } from "@/components/ui/card"
 import { CaretSortIcon } from "@radix-ui/react-icons"
@@ -125,6 +125,8 @@ const PolymersStatsTable = (props: { data: any }) => {
 }
 
 const StructStatsTable = (props: { data: any }) => {
+  const {data, isLoading, isError } =  useRoutersRouterStructStructureCompositionStatsQuery()
+
   return (
     <Table className='text-xs'>
       <TableHeader >
@@ -139,41 +141,41 @@ const StructStatsTable = (props: { data: any }) => {
       <TableBody>
         <TableRow>
           <TableCell >LSU &amp; SSU</TableCell>
-          <TableCell className='text-center py-1' >1200</TableCell>
-          <TableCell className='text-center py-1' >234</TableCell>
-          <TableCell className='text-center py-1' >876</TableCell>
-          <TableCell className='text-center py-1' >90</TableCell>
+          <TableCell className='text-center py-1' >{data?.bacteria.ssu_lsu + data?.eukaryota.ssu_lsu +  data?.archaea.ssu_lsu} </TableCell>
+          <TableCell className='text-center py-1' >{data?.bacteria.ssu_lsu}</TableCell>
+          <TableCell className='text-center py-1' >{data?.eukaryota.ssu_lsu}</TableCell>
+          <TableCell className='text-center py-1' >{data?.archaea.ssu_lsu}</TableCell>
         </TableRow>
         <TableRow>
           <TableCell >LSU</TableCell>
-          <TableCell className='text-center py-1'>740</TableCell>
-          <TableCell className='text-center py-1'>156</TableCell>
-          <TableCell className='text-center py-1'>512</TableCell>
-          <TableCell className='text-center py-1'>72</TableCell>
+          <TableCell className='text-center py-1'>{data?.archaea.lsu_only + data?.bacteria.lsu_only + data?.eukaryota.lsu_only } </TableCell>
+          <TableCell className='text-center py-1'>{ data?.bacteria.lsu_only }</TableCell>
+          <TableCell className='text-center py-1'>{ data?.eukaryota.lsu_only }</TableCell>
+          <TableCell className='text-center py-1'>{ data?.archaea.lsu_only }</TableCell>
         </TableRow>
 
         <TableRow>
           <TableCell >SSU</TableCell>
-          <TableCell className='text-center py-1'>490</TableCell>
-          <TableCell className='text-center py-1'>78</TableCell>
-          <TableCell className='text-center py-1'>364</TableCell>
-          <TableCell className='text-center py-1'>48</TableCell>
+          <TableCell className='text-center py-1'>{   data?.archaea.ssu_only + data?.bacteria.ssu_only + data?.eukaryota.ssu_only }</TableCell>
+          <TableCell className='text-center py-1'>{    data?.bacteria.ssu_only}</TableCell>
+          <TableCell className='text-center py-1'>{    data?.eukaryota.ssu_only}</TableCell>
+          <TableCell className='text-center py-1'>{    data?.archaea.ssu_only}</TableCell>
         </TableRow>
 
         <TableRow>
           <TableCell >Mitoribosome</TableCell>
-          <TableCell className='text-center py-1'>94</TableCell>
-          <TableCell className='text-center py-1'>12</TableCell>
-          <TableCell className='text-center py-1'>82</TableCell>
-          <TableCell className='text-center py-1'>0</TableCell>
+          <TableCell className='text-center py-1'>{  data?.archaea.mitochondrial + data?.bacteria.mitochondrial + data?.eukaryota.mitochondrial }</TableCell>
+          <TableCell className='text-center py-1'>{   data?.bacteria.mitochondrial}</TableCell>
+          <TableCell className='text-center py-1'>{   data?.eukaryota.mitochondrial}</TableCell>
+          <TableCell className='text-center py-1'>{  data?.archaea.mitochondrial }</TableCell>
         </TableRow>
 
         <TableRow>
           <TableCell >Ligand Bound</TableCell>
-          <TableCell className='text-center py-1'>1243</TableCell>
-          <TableCell className='text-center py-1'>287</TableCell>
-          <TableCell className='text-center py-1'>856</TableCell>
-          <TableCell className='text-center py-1'>100</TableCell>
+          <TableCell className='text-center py-1'>{  data?.archaea.drugbank_compounds + data?.eukaryota.drugbank_compounds + data?.bacteria.drugbank_compounds }</TableCell>
+          <TableCell className='text-center py-1'>{   data?.bacteria.drugbank_compounds}</TableCell>
+          <TableCell className='text-center py-1'>{   data?.eukaryota.drugbank_compounds}</TableCell>
+          <TableCell className='text-center py-1'>{  data?.archaea.drugbank_compounds }</TableCell>
         </TableRow>
       </TableBody>
     </Table>
