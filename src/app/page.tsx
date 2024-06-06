@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/store/store';
 import StoreProvider from './store_provider';
 import StructureCatalogue from './structures/page';
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
+import {GearIcon, GitHubLogoIcon, ChatBubbleIcon} from '@radix-ui/react-icons'
 import { Card, CardContent } from "@/components/ui/card"
 import { CaretSortIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
@@ -59,18 +60,6 @@ export function PolymerClassesHoverCard({ children, opens_to, class_names, table
   )
 }
 
-const citation = `
-@article{kushner2023riboxyz,
-  title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
-  author={Kushner, Artem and Petrov, Anton S and Dao Duc, Khanh},
-  journal={Nucleic Acids Research},
-  volume={51},
-  number={D1},
-  pages={D509--D516},
-  year={2023},
-  publisher={Oxford University Press}
-}
-`
 
 
 const PolymersStatsTable = (props: { data: any }) => {
@@ -78,23 +67,24 @@ const PolymersStatsTable = (props: { data: any }) => {
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
   const [nom_classes, setClasses] = useState({
-    'CytosolicProteins'    : [],
+    'CytosolicProteins': [],
     'MitochondrialProteins': [],
-    'CytosolicRNA'         : [],
-    'MitochondrialRNA'     : [],
-    'E_I_Factors'          : [],
+    'CytosolicRNA': [],
+    'MitochondrialRNA': [],
+    'E_I_Factors': [],
   });
 
   useEffect(() => {
     console.log(nomenclature_classes_backend)
     if (nomenclature_classes_backend === undefined) return
-   var _ = {
-    "MitochondrialRNA"     :nomenclature_classes_backend?.MitochondrialRNAClass,
-   "CytosolicProteins"    : nomenclature_classes_backend?.CytosolicProteinClass,
-   "MitochondrialProteins": nomenclature_classes_backend?.MitochondrialProteinClass,
-   "CytosolicRNA"         : nomenclature_classes_backend?.CytosolicRNAClass,
-   "E_I_Factors"          : [ ...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass ] }
-   setClasses(_)
+    var _ = {
+      "MitochondrialRNA": nomenclature_classes_backend?.MitochondrialRNAClass,
+      "CytosolicProteins": nomenclature_classes_backend?.CytosolicProteinClass,
+      "MitochondrialProteins": nomenclature_classes_backend?.MitochondrialProteinClass,
+      "CytosolicRNA": nomenclature_classes_backend?.CytosolicRNAClass,
+      "E_I_Factors": [...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass]
+    }
+    setClasses(_)
   }, [nomenclature_classes_backend])
 
 
@@ -108,12 +98,12 @@ const PolymersStatsTable = (props: { data: any }) => {
       </TableHeader>
       <TableBody>
         <TableRow >
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='left'  table_label='Cytosolic Protein Classes' class_names={nom_classes.CytosolicProteins}> CytosolicProteins     </PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='right' table_label='Cytosolic RNA Classes'     class_names={nom_classes.CytosolicRNA     }> Cytosolic         rRNA</PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='left' table_label='Cytosolic Protein Classes' class_names={nom_classes.CytosolicProteins}> CytosolicProteins     </PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='right' table_label='Cytosolic RNA Classes' class_names={nom_classes.CytosolicRNA}> Cytosolic         rRNA</PolymerClassesHoverCard></TableCell>
         </TableRow>
         <TableRow >
-          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left'  table_label='Mitochondrial Protein Classes' class_names={nom_classes.MitochondrialProteins}>Mitochondrial rProteins</PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' table_label='Mitochondrial RNA Classes'     class_names={nom_classes.MitochondrialRNA     }>Mitochondrial rRNA     </PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left' table_label='Mitochondrial Protein Classes' class_names={nom_classes.MitochondrialProteins}>Mitochondrial rProteins</PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' table_label='Mitochondrial RNA Classes' class_names={nom_classes.MitochondrialRNA}>Mitochondrial rRNA     </PolymerClassesHoverCard></TableCell>
         </TableRow>
         <TableRow >
           <TableCell className='p-1 m-0'>
@@ -121,7 +111,7 @@ const PolymersStatsTable = (props: { data: any }) => {
           </TableCell>
           <TableCell className='p-1 m-0'>
             <Link href={'/polymers?class=tRNA'} className='px-2'>
-               tRNA
+              tRNA
             </Link>
           </TableCell>
         </TableRow>
@@ -189,6 +179,14 @@ const StructStatsTable = (props: { data: any }) => {
 }
 
 
+const citation = `@article{kushner2023riboxyz,
+  title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
+  author={Kushner, Artem and Petrov, Anton S and Dao Duc, Khanh},
+  journal={Nucleic Acids Research},
+  volume={51}, number={D1}, pages={D509--D516},
+  year={2023},
+  publisher={Oxford University Press}
+}`
 export default function Home() {
   const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
   const [isOpen_structs, setIsOpen_structs] = useState(false)
@@ -266,15 +264,28 @@ export default function Home() {
 
           </div>
 
-          {/* CITATION BIT */}
-          {/* <div className="flex justify-center mt-10 w-full"> */}
-          <div className="w-3/6 bg-slate-50-200 p-4 rounded-md relative border border-gray-400">
-            <div className="text-xs font-medium mb-2">Developed by A. Kushner and K. Dao-Duc. Cite and reach out:</div>
+
+
+          <div className="w-3/6 bg-slate-50-200 p-4 rounded-md  relative border border-gray-400 h-50">
+            <div className="text-xs font-medium my-4">Developed by A. Kushner and K. Dao-Duc. Cite and reach out <ChatBubbleIcon/> </div>
             <div >
-              <pre>
-                <code className='text-xs'>{citation}</code>
-              </pre>
+              <ScrollArea className='h-20 shadow-inner outline  px-4 rounded-sm'>
+                <pre>
+                  <code className='text-xs'>{citation}</code>
+                </pre>
+              </ScrollArea>
             </div>
+
+
+
+            <div >
+              <ScrollArea className='h-20 mt-4 shadow-inner outline  px-4 rounded-sm'>
+                <pre>
+                  <code className='text-xs'>{citation}</code>
+                </pre>
+              </ScrollArea>
+            </div>
+
             <Button
               variant="outline"
               size="sm"
@@ -283,11 +294,6 @@ export default function Home() {
               Copy
             </Button>
           </div>
-          {/* </div> */}
-
-          {/* CITATION BIT */}
-
-
         </div>
 
 

@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Sheet,
   SheetClose,
@@ -11,6 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { GearIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 
 
@@ -20,7 +19,7 @@ export function SidebarMenu() {
       <SheetTrigger asChild>
         <div className="fixed bottom-16 left-16">
           <Button className="rounded-lg text-lg p-6 bg-gray-900 text-gray-50 shadow-none transition-all hover:shadow-lg dark:bg-gray-50 dark:text-gray-900"  >
-            Menu
+            Menu <GearIcon className="ml-4 w-5 h-5"/>
           </Button>
         </div>
       </SheetTrigger>
