@@ -76,6 +76,13 @@
   }
 
 }
+.inline-code {
+    display: inline-block;
+    padding: 2px 4px;
+    color: #232629;
+    background-color: #e3e6e8;
+    border-radius: 3px;
+}
 
  .dice-image:hover {
       /* Custom hover effect for the image */

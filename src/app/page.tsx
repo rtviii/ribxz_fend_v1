@@ -180,14 +180,6 @@ const StructStatsTable = (props: { data: any }) => {
 }
 
 
-const citation = `@article{kushner2023riboxyz,
-  title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
-  author={Kushner, Artem and Petrov, Anton S and Dao Duc, Khanh},
-  journal={Nucleic Acids Research},
-  volume={51}, number={D1}, pages={D509--D516},
-  year={2023},
-  publisher={Oxford University Press}
-}`
 export default function Home() {
   const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
   const [isOpen_structs, setIsOpen_structs] = useState(false)
@@ -200,17 +192,18 @@ export default function Home() {
 
       <div className="flex flex-col items-center justify-center w-full">
         <div className="w-3/6 flex flex-col items-center justify-center mt-36">
+
           <div className="flex flex-row items-start justify-center space-x-10 relative">
-            <Image src="/sping.gif" alt="Ribosome structure" className="w-60" width={60} height={120}/>
+            <Image src="/sping.gif" alt="Ribosome structure" className="w-60" width={60} height={120} />
             <div className="space-y-4">
-              <p className="text-lg">
-                <pre>ribosome.xyz</pre> provides organized access to atomic structures of the ribosome and their components.
+              <p className="flex font-medium">
+                <p className='mr-2'><code className='border font-medium border-gray-200 bg-gray-100 rounded-sm my-2'>ribosome.xyz</code> provides organized access to atomic structures of the ribosome.</p>
+
               </p>
               <p className="text-sm">
-                We implement standard nomenclatures for proteins, rRNA and multiple classes of factors and provide
-                structural landmarks to facilitate the navigation of deposited models. per [Ban, Schmitt, Xu and others]
+                We classify polymer chains of the ribosome and extra-ribosomal elements like tRNA and ligands. Structural landmarks and tools for visualization, alignment are provided for the navigation of deposited models. 
               </p>
-              <p className="text-sm">An API is available at api.ribosome.xyz</p>
+              <p className="text-sm"> API is available at <code className='border border-gray-200 bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
             </div>
           </div>
         </div>
@@ -284,7 +277,7 @@ function VisualizeRandom() {
             <div className="flex justify-between  ">
               <div className="flex items-center justify-between w-1/5 ">
                 <Image src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
-                <Separator orientation='vertical' className='ml-4'/>
+                <Separator orientation='vertical' className='ml-4' />
               </div>
               <div className='w-4/5 flex  rounded-sm   mx-4 px-4 hover:bg-muted hover:cursor-pointer'>
                 <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>8J7X</div>
@@ -306,6 +299,14 @@ function VisualizeRandom() {
   )
 }
 
+const citation = `@article{kushner2023riboxyz,
+  title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
+  author={Kushner, Artem and Petrov, Anton S and Dao Duc, Khanh},
+  journal={Nucleic Acids Research},
+  volume={51}, number={D1}, pages={D509--D516},
+  year={2023},
+  publisher={Oxford University Press}
+}`
 export function Citation() {
   return <div className="bg-slate-50-200 p-2 rounded-md  relative border border-gray-400 h-50">
     <div className="text-xs   p-2 mb-2 flex">Developed by A. Kushner and K. Dao Duc. Cite and reach out.  </div>
