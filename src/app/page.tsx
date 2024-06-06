@@ -222,27 +222,19 @@ export default function Home() {
 
         <div className="flex flex-row items-start justify-end space-x-10 mt-10 w-3/6">
 
-
           <div className='w-3/6  relative  flex-col flex gap-2'>
-
-
             <div className="w-full bg-slate-50-200 p-4 rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
 
               <div className="space-y-1">
                 <h4 className=" font-medium leading-none hover:cursor-pointer hover:bg-blue-50 p-1 mb-2">1894 Atomic Structures</h4>
               </div>
-
-
               <StructStatsTable data={data} />
-
 
               <div className="flex flex-row justify-between  mt-4">
                 <p className='text-xs text-gray-700'>
                   Last Update: 2024.06.14
                 </p>
-
                 <div>
-
                   <p className='text-xs text-gray-700'>Added:
                     <Link href="#" className="text-blue-600" prefetch={false}>
                       8V7X
@@ -252,31 +244,25 @@ export default function Home() {
                     </Link>,
                     ...
                   </p>
-
                 </div>
-
               </div>
-
             </div>
 
 
             <div className="bg-slate-50-200 p-4 rounded-md relative border border-gray-400">
               <PolymersStatsTable data={{}} />
-
-
             </div>
-
-
           </div>
 
-
-
-          <div className="w-3/6 bg-slate-50-200 p-2 rounded-md  relative border border-gray-400 h-50">
+          <div className="w-3/6 flex flex-col gap-4 justify-between  relative  ">
 
 
             <VisualizeRandom />
 
+            <Citation />
           </div>
+
+
 
 
 
@@ -305,24 +291,24 @@ function VisualizeRandom() {
 
     <TooltipProvider>
       <Tooltip delayDuration={0}>
-          <div className="bg-white  rounded-lg ">
+        <div className="bg-white  rounded-lg border  p-2 group  border-gray-400 ">
 
-        <TooltipTrigger asChild  >
-            <div className="flex justify-between ">
+          <TooltipTrigger asChild  >
+            <div className="flex justify-between  ">
               <div className="flex items-center justify-between w-1/5 ">
-                <Image src={DiceIcon} className='w-12 h-12  rounded-sm border p-1' alt="some" />
+                <Image src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
                 <Separator orientation='vertical' className='ml-4' />
               </div>
-              <div className='w-4/5 flex  rounded-sm  hover:bg-muted hover:cursor-pointer  mx-4 px-4'>
+              <div className='w-4/5 flex  rounded-sm   mx-4 px-4 hover:bg-muted hover:cursor-pointer'>
                 <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>8J7X</div>
                 <div className="flex flex-col text-xs  justify-center">
-                  <p> 2024, Myasnikov et al.</p>
+                  <p>2024, Myasnikov et al.</p>
                   <p>T. Thermophilius (Archae)</p>
                 </div>
               </div>
             </div>
-        </TooltipTrigger>
-          </div>
+          </TooltipTrigger>
+        </div>
         <TooltipContent side="top">
           <p>Visualize random structure</p>
         </TooltipContent>
@@ -334,7 +320,7 @@ function VisualizeRandom() {
 }
 
 export function Citation() {
-  return <div>
+  return <div className="bg-slate-50-200 p-2 rounded-md  relative border border-gray-400 h-50">
     <div className="text-xs font-medium my-4">Developed by A. Kushner and K. Dao-Duc. Cite and reach out <ChatBubbleIcon /> </div>
     <div >
       <ScrollArea className='h-20 shadow-inner outline rounded-sm'>

@@ -77,6 +77,12 @@
 
 }
 
+ .dice-image:hover {
+      /* Custom hover effect for the image */
+      transform: scale(1.1);
+
+      /* filter: brightness(1.2); */
+    }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
