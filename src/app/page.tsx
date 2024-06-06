@@ -6,7 +6,7 @@ import DiceIcon from '../../public/dice.svg'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
 import StructureCatalogue from './structures/page';
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructRandomProfileQuery } from '@/store/ribxz_api/ribxz_api';
 import { GearIcon, GitHubLogoIcon, ChatBubbleIcon } from '@radix-ui/react-icons'
 import { Card, CardContent } from "@/components/ui/card"
 import { CaretSortIcon } from "@radix-ui/react-icons"
@@ -181,10 +181,12 @@ const StructStatsTable = (props: { data: any }) => {
 
 
 export default function Home() {
-  const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
-  const [isOpen_structs, setIsOpen_structs] = useState(false)
+  const { data, isLoading, isError }          = useRoutersRouterStructFilterListQuery({})
+  const [isOpen_structs, setIsOpen_structs]   = useState(false)
   const [isOpen_polymers, setIsOpen_polymers] = useState(false)
 
+
+  
 
   return (
     <StoreProvider >
@@ -198,7 +200,6 @@ export default function Home() {
             <div className="space-y-4">
               <p className="flex font-medium">
                 <p className='mr-2'><code className='border font-medium border-gray-200 bg-gray-100 rounded-sm my-2'>ribosome.xyz</code> provides organized access to atomic structures of the ribosome.</p>
-
               </p>
               <p className="text-sm">
                 We classify polymer chains of the ribosome and extra-ribosomal elements like tRNA and ligands. Structural landmarks and tools for visualization, alignment are provided for the navigation of deposited models. 
@@ -267,6 +268,10 @@ export default function Home() {
 }
 
 function VisualizeRandom() {
+
+  const {data:random_profile, isLoading:random_profile_IL, isError:random_profile_IE} = useRoutersRouterStructRandomProfileQuery()
+  const [ refetch_profile, _ ]                                                        = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
+
   return (
 
     <TooltipProvider>
@@ -276,14 +281,16 @@ function VisualizeRandom() {
           <TooltipTrigger asChild  >
             <div className="flex justify-between  ">
               <div className="flex items-center justify-between w-1/5 ">
-                <Image src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
+                <Image 
+                onClick={() => { refetch_profile() }}
+                src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
                 <Separator orientation='vertical' className='ml-4' />
               </div>
               <div className='w-4/5 flex  rounded-sm   mx-4 px-4 hover:bg-muted hover:cursor-pointer'>
-                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>8J7X</div>
+                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>{random_profile?.rcsb_id}</div>
                 <div className="flex flex-col text-xs  justify-center">
-                  <p>2024, Myasnikov et al.</p>
-                  <p>T. Thermophilius (Archae)</p>
+                  <p>{random_profile?.citation_year}, {random_profile?.citation_rcsb_authors[0]}</p>
+                  <p>{random_profile?.src_organism_names.join(",")}</p>
                 </div>
               </div>
             </div>

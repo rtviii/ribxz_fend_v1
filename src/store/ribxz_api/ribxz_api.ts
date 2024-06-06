@@ -1,6 +1,12 @@
 import { empty_api as api } from "./template";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    routersRouterStructRandomProfile: build.query<
+      RoutersRouterStructRandomProfileApiResponse,
+      RoutersRouterStructRandomProfileApiArg
+    >({
+      query: () => ({ url: `/structures/random_profile` }),
+    }),
     routersRouterStructPolymersByPolymerClass: build.query<
       RoutersRouterStructPolymersByPolymerClassApiResponse,
       RoutersRouterStructPolymersByPolymerClassApiArg
@@ -129,6 +135,9 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as ribxz_api };
+export type RoutersRouterStructRandomProfileApiResponse =
+  /** status 200 OK */ RibosomeStructure;
+export type RoutersRouterStructRandomProfileApiArg = void;
 export type RoutersRouterStructPolymersByPolymerClassApiResponse =
   /** status 200 OK */ object;
 export type RoutersRouterStructPolymersByPolymerClassApiArg = {
@@ -1446,6 +1455,7 @@ export type NomenclatureSet = {
   tRNAClass: TRna[];
 };
 export const {
+  useRoutersRouterStructRandomProfileQuery,
   useRoutersRouterStructPolymersByPolymerClassQuery,
   useRoutersRouterStructPolymersByStructureQuery,
   useRoutersRouterStructStructurePtcQuery,
