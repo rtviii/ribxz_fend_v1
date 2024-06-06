@@ -25,7 +25,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 
-export function PolymerClassesHoverCard({ children, opens_to, classes }: { children: React.ReactNode, opens_to: "right" | "left", classes: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
+export function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
   return (
     <HoverCard openDelay={100} closeDelay={100}>
       <HoverCardTrigger className='w-full hover:bg-blue-200 rounded-md hover:cursor-pointer pl-2 pr-8 py-1' >
@@ -33,35 +33,23 @@ export function PolymerClassesHoverCard({ children, opens_to, classes }: { child
       </HoverCardTrigger>
       <HoverCardContent className="w-60 " side={opens_to}>
         <ScrollArea className='overflow-y-scroll max-h-60 no-scrollbar'>
-          <label className='font-semibold '>Cytosolic Protein Classes </label>
-          <Separator className='my-2'/>
-          <div className="grid grid-cols-3 gap-1">
+          <label className='italic '>{table_label}</label>
+          <Separator className='my-2' />
+          <div className="grid grid-cols-2 gap-1">
             {
-              [
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-                "uL4", "uL22",
-              ]
-              .toSorted((a, b) => Number(a > b))
-              .map(
-                (cl, i) => {
-                 return (
-                  <Link key={i} href={ `/polymers?class=${cl}` } className='hover:bg-slate-200 hover:cursor-pointer rounded-sm hover:shadow-inner'>
-                    <p key={i} className='border rounded-sm p-1 text-center text-sm'>
-                      {cl}
-                    </p>
-                </Link>
-                  )
-                }
-              )
+              class_names
+                .toSorted((a, b) => Number(a > b))
+                .map(
+                  (cl, i) => {
+                    return (
+                      <Link key={i} href={`/polymers?class=${cl}`} >
+                        <p key={i} className='border w-20 rounded-sm p-1 text-center text-xs hover:bg-slate-200 hover:cursor-pointer  hover:shadow-inner' >
+                          {cl}
+                        </p>
+                      </Link>
+                    )
+                  }
+                )
             }
           </div>
 
@@ -87,19 +75,28 @@ const citation = `
 
 const PolymersStatsTable = (props: { data: any }) => {
 
-  const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
+  const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
+
+  const [nom_classes, setClasses] = useState({
+    'CytosolicProteins'    : [],
+    'MitochondrialProteins': [],
+    'CytosolicRNA'         : [],
+    'MitochondrialRNA'     : [],
+    'E_I_Factors'          : [],
+  });
 
   useEffect(() => {
-    console.log(nomenclature_classes)
-  }, [nomenclature_classes])
+    console.log(nomenclature_classes_backend)
+    if (nomenclature_classes_backend === undefined) return
+   var _ = {
+    "MitochondrialRNA"     :nomenclature_classes_backend?.MitochondrialRNAClass,
+   "CytosolicProteins"    : nomenclature_classes_backend?.CytosolicProteinClass,
+   "MitochondrialProteins": nomenclature_classes_backend?.MitochondrialProteinClass,
+   "CytosolicRNA"         : nomenclature_classes_backend?.CytosolicRNAClass,
+   "E_I_Factors"          : [ ...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass ] }
+   setClasses(_)
+  }, [nomenclature_classes_backend])
 
-  const classes = {
-    'CytosolicProteins': [],
-    'MitochondrialProteins': [],
-    'CytosolicRNA': [],
-    'MitochondrialRNA': [],
-    'E_I_Factors': [],
-  }
 
   return (
     <Table className='text-xs'>
@@ -111,19 +108,21 @@ const PolymersStatsTable = (props: { data: any }) => {
       </TableHeader>
       <TableBody>
         <TableRow >
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='left' classes={classes.CytosolicProteins}> CytosolicProteins</PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='right' classes={classes.CytosolicRNA}>Cytosolic rRNA</PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='left'  table_label='Cytosolic Protein Classes' class_names={nom_classes.CytosolicProteins}> CytosolicProteins     </PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='right' table_label='Cytosolic RNA Classes'     class_names={nom_classes.CytosolicRNA     }> Cytosolic         rRNA</PolymerClassesHoverCard></TableCell>
         </TableRow>
         <TableRow >
-          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left' classes={classes.MitochondrialProteins}>Mitochondrial rProteins</PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' classes={classes.MitochondrialRNA}>Mitochondrial rRNA</PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left'  table_label='Mitochondrial Protein Classes' class_names={nom_classes.MitochondrialProteins}>Mitochondrial rProteins</PolymerClassesHoverCard></TableCell>
+          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' table_label='Mitochondrial RNA Classes'     class_names={nom_classes.MitochondrialRNA     }>Mitochondrial rRNA     </PolymerClassesHoverCard></TableCell>
         </TableRow>
         <TableRow >
           <TableCell className='p-1 m-0'>
-            <PolymerClassesHoverCard opens_to='left' classes={classes.E_I_Factors}> E & I Factors</PolymerClassesHoverCard>
+            <PolymerClassesHoverCard opens_to='left' table_label='Elongation & Initiation Factors' class_names={nom_classes.E_I_Factors}> E & I Factors</PolymerClassesHoverCard>
           </TableCell>
           <TableCell className='p-1 m-0'>
-            <PolymerClassesHoverCard opens_to='right' > tRNA</PolymerClassesHoverCard>
+            <Link href={'/polymers?class=tRNA'} className='px-2'>
+               tRNA
+            </Link>
           </TableCell>
         </TableRow>
       </TableBody>
