@@ -36,14 +36,14 @@ import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 export function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
   return (
     <HoverCard openDelay={100} closeDelay={100}>
-      <HoverCardTrigger className='w-full hover:bg-blue-200 rounded-md hover:cursor-pointer pl-2 pr-8 py-1' >
+      <HoverCardTrigger className='w-full hover:bg-muted rounded-md hover:cursor-pointer pl-2 pr-8 py-1' >
         {children}
       </HoverCardTrigger>
-      <HoverCardContent className="w-60 " side={opens_to}>
-        <ScrollArea className='overflow-y-scroll max-h-60 no-scrollbar'>
+      <HoverCardContent className="w-80 min-h-30 " side={opens_to}>
+        <ScrollArea className='overflow-y-scroll max-h-60 '>
           <label className='italic '>{table_label}</label>
           <Separator className='my-2' />
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid grid-flow-row-dense grid-cols-3   gap-1">
             {
               class_names
                 .toSorted((a, b) => Number(a > b))
@@ -51,7 +51,7 @@ export function PolymerClassesHoverCard({ children, opens_to, class_names, table
                   (cl, i) => {
                     return (
                       <Link key={i} href={`/polymers?class=${cl}`} >
-                        <p key={i} className='border w-20 rounded-sm p-1 text-center text-xs hover:bg-slate-200 hover:cursor-pointer  hover:shadow-inner' >
+                        <p key={i} className='border min-w-20 rounded-sm p-1 text-center text-xs hover:bg-muted hover:cursor-pointer  hover:shadow-inner' >
                           {cl}
                         </p>
                       </Link>
@@ -234,10 +234,10 @@ export default function Home() {
         <div className="flex flex-row items-start justify-end space-x-10 mt-10 w-3/6">
 
           <div className='w-3/6  relative  flex-col flex gap-2'>
-            <div className="w-full bg-slate-50-200 p-4 rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
+            <div className="w-full  p-4 rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
 
               <div className="space-y-1">
-                <h4 className=" font-medium leading-none hover:cursor-pointer hover:bg-blue-50 p-1 mb-2">1894 Atomic Structures</h4>
+                <h4 className=" font-medium leading-none hover:cursor-pointer hover:bg-muted p-1 mb-2">1894 Atomic Structures</h4>
               </div>
               <StructStatsTable data={data} />
 
@@ -260,7 +260,7 @@ export default function Home() {
             </div>
 
 
-            <div className="bg-slate-50-200 p-4 rounded-md relative border border-gray-400">
+            <div className=" p-4 rounded-md relative border border-gray-400">
               <PolymersStatsTable data={{}} />
             </div>
           </div>
@@ -340,7 +340,7 @@ const citation = `@article{kushner2023riboxyz,
   publisher={Oxford University Press}
 }`
 export function Citation() {
-  return <div className="bg-slate-50-200 p-2 rounded-md  relative border border-gray-400 h-50">
+  return <div className=" p-2 rounded-md  relative border border-gray-400 h-50">
     <div className="text-xs   p-2 mb-2 flex">Developed by A. Kushner and K. Dao Duc. Cite and reach out.  </div>
 
     <div >
