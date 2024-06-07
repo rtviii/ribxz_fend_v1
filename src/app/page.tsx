@@ -59,22 +59,22 @@ const PolymersStatsTable = (props: { data: any }) => {
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
   const [nom_classes, setClasses] = useState({
-    'CytosolicProteins'    : [],
+    'CytosolicProteins': [],
     'MitochondrialProteins': [],
-    'CytosolicRNA'         : [],
-    'MitochondrialRNA'     : [],
-    'E_I_Factors'          : [],
+    'CytosolicRNA': [],
+    'MitochondrialRNA': [],
+    'E_I_Factors': [],
   });
 
   useEffect(() => {
     console.log(nomenclature_classes_backend)
     if (nomenclature_classes_backend === undefined) return
     var _ = {
-      "MitochondrialRNA"     : nomenclature_classes_backend?.MitochondrialRNAClass,
-      "CytosolicProteins"    : nomenclature_classes_backend?.CytosolicProteinClass,
+      "MitochondrialRNA": nomenclature_classes_backend?.MitochondrialRNAClass,
+      "CytosolicProteins": nomenclature_classes_backend?.CytosolicProteinClass,
       "MitochondrialProteins": nomenclature_classes_backend?.MitochondrialProteinClass,
-      "CytosolicRNA"         : nomenclature_classes_backend?.CytosolicRNAClass,
-      "E_I_Factors"          : [...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass]
+      "CytosolicRNA": nomenclature_classes_backend?.CytosolicRNAClass,
+      "E_I_Factors": [...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass]
     }
     setClasses(_)
   }, [nomenclature_classes_backend])
@@ -260,18 +260,9 @@ export default function Home() {
             <Citation />
           </div>
 
-
-
-
-
-
         </div>
 
       </div>
-
-
-
-
     </StoreProvider>
   )
 }
