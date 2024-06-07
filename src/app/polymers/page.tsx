@@ -15,6 +15,8 @@ import { pagination_set_page, set_current_polymer_class, set_current_polymers } 
 import { ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { TableRow } from "@/components/ui/table"
+import { useSearchParams } from "next/navigation"
+import { PolymerType } from "molstar/lib/mol-model/structure/model/types"
 
 
 
@@ -37,12 +39,12 @@ function PolymerInput(props: PolymerInputProps) {
     return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
         <Label htmlFor="input" className={`font-bold text-md mb-2   ${props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
         <Select<PolymerClassOption >
-            defaultValue = {null}
-            className    = "w-full max-h-82"
-            showSearch   = {true}
-            components   = {{ Group }}
-            options      = {polymerClassOptions}
-            onChange     = {(value) => {
+            defaultValue={null}
+            className="w-full max-h-82"
+            showSearch={true}
+            components={{ Group }}
+            options={polymerClassOptions}
+            onChange={(value) => {
                 dispatch(set_current_polymer_class(value))
             }}
             disabled={props.isDisabled}
@@ -53,6 +55,7 @@ function PolymerInput(props: PolymerInputProps) {
 
 export default function PolymersPage() {
     const [tab, setTab] = useState("by_polymer_class");
+
     const dispatch = useAppDispatch();
     const onTabChange = (value: string) => { setTab(value); }
     const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
@@ -69,6 +72,18 @@ export default function PolymersPage() {
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
     const current_polymer_page = useAppSelector((state) => state.ui.pagination.current_polymers_page)
     const pagination_poly = useAppSelector((state) => state.ui.pagination)
+
+
+    const searchParams = useSearchParams()
+    const class_param = searchParams.get('class')
+
+    useEffect(() => {
+        
+        if ( class_param != null) {
+            dispatch(set_current_polymer_class(class_param as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum  ))
+        }
+    }, [class_param])
+
 
     useEffect(() => {
         if (tab == "by_polymer_class") {

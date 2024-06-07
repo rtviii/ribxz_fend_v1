@@ -24,7 +24,7 @@ function useDebouncePagination(value: PaginationState, delay: number): Paginatio
     return () => {
       clearTimeout(handler);
     };
-  }, [value, delay]);    
+  }, [value, delay]);
 
   return debouncedValue;
 }
@@ -36,15 +36,14 @@ interface PaginationProps {
 
 export function PaginationElement(props: PaginationProps) {
 
-  const dispatch             = useAppDispatch();
-  const page_state           = useAppSelector(state => state.ui.pagination)!
+  const dispatch = useAppDispatch();
+  const page_state = useAppSelector(state => state.ui.pagination)!
   const debounced_page_state = useDebouncePagination(page_state, 250)
 
   const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const filter_state = useAppSelector((state) => state.ui.filters)
 
   useEffect(() => {
-
     triggerRefetch({
       page: page_state.current_structures_page,
       year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
@@ -55,32 +54,8 @@ export function PaginationElement(props: PaginationProps) {
       search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
 
-
   }, [debounced_page_state.current_structures_page])
 
-
-  // const YscrolltoX = (event: any) => {
-  //   event.preventDefault();
-  //   event.target.scrollBy({
-  //     left: event.deltaY < 0 ? -30 : 30,
-  //   });
-  // }
-
-
-
-  // const innerRef = useRef(null);
-
-  // useEffect(() => {
-  //   const div = innerRef.current;
-  //   // subscribe event
-  //   div.addEventListener("wheel", YscrolltoX);
-
-  //   return () => {
-  //     // unsubscribe event
-  //     div.removeEventListener("wheel", YscrolltoX);
-  //   };
-
-  // }, [innerRef])
 
   return (
     <Pagination >
@@ -97,25 +72,34 @@ export function PaginationElement(props: PaginationProps) {
 
         <div className=" flex flex-row max-w-xs  no-scrollbar  overflow-x-scroll scroll-mx-4">
           {
-            Array.from({ length: page_state.total_structures_pages! }, (_, i) => i + 1)
-              .slice(page_state.current_structures_page - 6 < 0 ? 0 : page_state.current_structures_page - 6, page_state.current_structures_page + 6 <= page_state.total_structures_pages! ? page_state.current_structures_page + 6 : page_state.total_structures_pages!)
-              .map(
-                (v) =>
-                  <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md" onClick={() => {
-                    dispatch(pagination_set_page({ set_to_page: v, slice_name: props.slice_type }))
-                  }}>
-                    {
-                      props.slice_type === 'polymers' ?
-                        <PaginationLink isActive={v == page_state.current_polymers_page} >
-                          {v}
-                        </PaginationLink> :
+            props.slice_type === 'polymers' ?
 
-                        <PaginationLink isActive={v == page_state.current_structures_page} >
-                          {v}
-                        </PaginationLink>
-                    }
-                  </PaginationItem>
-              )
+              Array.from({ length: page_state.total_structures_pages! }, (_, i) => i + 1)
+                .slice(page_state.current_polymers_page - 6 < 0 ? 0 : page_state.current_polymers_page - 6, page_state.current_polymers_page + 6 <= page_state.total_polymers_pages! ? page_state.current_polymers_page + 6 : page_state.total_polymers_pages!)
+                .map(
+                  (v) =>
+                    <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md" onClick={() => {
+                      dispatch(pagination_set_page({ set_to_page: v, slice_name: props.slice_type }))
+                    }}>
+                      <PaginationLink isActive={v == page_state.current_polymers_page} >
+                        {v}
+                      </PaginationLink>
+                    </PaginationItem>
+                )
+              :
+
+              Array.from({ length: page_state.total_structures_pages! }, (_, i) => i + 1)
+                .slice(page_state.current_structures_page - 6 < 0 ? 0 : page_state.current_structures_page - 6, page_state.current_structures_page + 6 <= page_state.total_structures_pages! ? page_state.current_structures_page + 6 : page_state.total_structures_pages!)
+                .map(
+                  (v) =>
+                    <PaginationItem key={v} className="hover:bg-slate-200 hover:cursor-pointer rounded-md" onClick={() => {
+                      dispatch(pagination_set_page({ set_to_page: v, slice_name: props.slice_type }))
+                    }}>
+                      <PaginationLink isActive={v == page_state.current_structures_page} >
+                        {v}
+                      </PaginationLink>
+                    </PaginationItem>
+                )
           }
         </div>
         <div>

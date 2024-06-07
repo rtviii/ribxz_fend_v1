@@ -163,13 +163,16 @@ export const uiSlice = createSlice({
         });
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.matchFulfilled, (state, action) => {
-
             console.log("Received polymers by polymer class");
-            console.log({...action});
-
+            console.log({...action.payload});
             state.data.current_polymers           = action.payload.polymers
             state.data.total_polymers_count       = action.payload.count
             state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+            
+            console.log("Got polymers by polymer class total ", action.payload.count);
+            console.log("hence, setting pages to ", Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+);
+            
         })
     }
 })
