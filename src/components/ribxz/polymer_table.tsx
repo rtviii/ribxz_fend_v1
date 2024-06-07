@@ -16,19 +16,18 @@ interface PolymerTableRowProps {
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
     // const ctx         = useAppSelector(state => state.molstar.ui_plugin)
     const polymer = props.polymer
-    const ctx = useContext(MolstarAppContext)
+    const ctx     = useContext(MolstarAppContext)
 
 
     return <TableRow
         className    = "hover:bg-slate-100   hover:cursor-pointer"
         onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
         onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
-        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}
-    >
+        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
 
-        <TableCell>{polymer.parent_rcsb_id}</TableCell>
-        <TableCell>{polymer.auth_asym_id}</TableCell>
-        <TableCell><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
+        <TableCell className="text-center">{polymer.parent_rcsb_id}</TableCell>
+        <TableCell className="text-center">{polymer.auth_asym_id}</TableCell>
+        <TableCell className="text-center"><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
         <TableCell className="whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
     </TableRow>
 }
@@ -48,10 +47,10 @@ export default function PolymersTable(props: PolymersTableProps) {
             <Table >
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Parent Structure</TableHead>
-                        <TableHead>Chain ID</TableHead>
-                        <TableHead>Polymer Class</TableHead>
-                        <TableHead>Source Organism</TableHead>
+                        <TableHead className="font-normal">Parent Structure</TableHead>
+                        <TableHead className="font-normal">Chain ID</TableHead>
+                        <TableHead className="font-normal">Polymer Class</TableHead>
+                        <TableHead className="font-normal">Source Organism</TableHead>
                     </TableRow>
                 </TableHeader>
                 {
@@ -70,7 +69,7 @@ export default function PolymersTable(props: PolymersTableProps) {
                         <TableBody >
                             <TableRow>
 
-                                <TableHead className="font-bold text-base">Proteins</TableHead>
+                                <TableHead className=" font-normal">Proteins</TableHead>
                             </TableRow>
                             {proteins.map(p => <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>
@@ -83,7 +82,7 @@ export default function PolymersTable(props: PolymersTableProps) {
                         <TableBody >
                             <TableRow>
 
-                                <TableHead className="font-bold text-base">RNA</TableHead>
+                                <TableHead className=" text-base">RNA</TableHead>
                             </TableRow>
                             {rnas.map(r => <PolymerTableRow key={r.parent_rcsb_id + r.auth_asym_id} polymer={r} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />)}
                         </TableBody>

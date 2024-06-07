@@ -27,6 +27,7 @@ interface PolymerInputProps {
 function PolymerInput(props: PolymerInputProps) {
     const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
     const dispatch = useAppDispatch();
+    const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
     const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
     useEffect(() => {
         if (!nomenclature_classes_is_loading) {
@@ -43,6 +44,7 @@ function PolymerInput(props: PolymerInputProps) {
             className="w-full max-h-82"
             showSearch={true}
             components={{ Group }}
+            value={current_polymer_class as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum}
             options={polymerClassOptions}
             onChange={(value) => {
                 dispatch(set_current_polymer_class(value))
@@ -78,7 +80,6 @@ export default function PolymersPage() {
     const class_param = searchParams.get('class')
 
     useEffect(() => {
-        
         if ( class_param != null) {
             dispatch(set_current_polymer_class(class_param as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum  ))
         }
