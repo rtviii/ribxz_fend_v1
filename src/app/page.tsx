@@ -1,24 +1,12 @@
 "use client"
-import { useAppDispatch, useAppSelector } from '@/store/store';
 import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
-
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
-import StructureCatalogue from './structures/page';
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
-import { GearIcon, GitHubLogoIcon, ChatBubbleIcon } from '@radix-ui/react-icons'
-import { Card, CardContent } from "@/components/ui/card"
-import { CaretSortIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import * as d3 from 'd3';
 import { Button } from "@/components/ui/button"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import { SidebarMenu } from '@/components/ribxz/sidebar_menu';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
@@ -28,7 +16,6 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { TaxonomyDot } from '@/components/ribxz/taxonomy';
 import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 
@@ -72,22 +59,22 @@ const PolymersStatsTable = (props: { data: any }) => {
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
   const [nom_classes, setClasses] = useState({
-    'CytosolicProteins': [],
+    'CytosolicProteins'    : [],
     'MitochondrialProteins': [],
-    'CytosolicRNA': [],
-    'MitochondrialRNA': [],
-    'E_I_Factors': [],
+    'CytosolicRNA'         : [],
+    'MitochondrialRNA'     : [],
+    'E_I_Factors'          : [],
   });
 
   useEffect(() => {
     console.log(nomenclature_classes_backend)
     if (nomenclature_classes_backend === undefined) return
     var _ = {
-      "MitochondrialRNA": nomenclature_classes_backend?.MitochondrialRNAClass,
-      "CytosolicProteins": nomenclature_classes_backend?.CytosolicProteinClass,
+      "MitochondrialRNA"     : nomenclature_classes_backend?.MitochondrialRNAClass,
+      "CytosolicProteins"    : nomenclature_classes_backend?.CytosolicProteinClass,
       "MitochondrialProteins": nomenclature_classes_backend?.MitochondrialProteinClass,
-      "CytosolicRNA": nomenclature_classes_backend?.CytosolicRNAClass,
-      "E_I_Factors": [...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass]
+      "CytosolicRNA"         : nomenclature_classes_backend?.CytosolicRNAClass,
+      "E_I_Factors"          : [...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass]
     }
     setClasses(_)
   }, [nomenclature_classes_backend])
@@ -300,7 +287,6 @@ function VisualizeRandom() {
     <TooltipProvider>
       <Tooltip delayDuration={0}>
         <div className="bg-white  rounded-lg border  p-2 group  border-gray-400 ">
-
           <TooltipTrigger asChild  >
             <div className="flex justify-between  ">
               <div className="flex items-center justify-between w-1/5 ">
@@ -312,7 +298,7 @@ function VisualizeRandom() {
               <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={() => {
                 router.push(`/structures/${random_profile?.rcsb_id}`)
               }}>
-                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4'>{random_profile?.rcsb_id}</div>
+                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4 text-blue-700'>{random_profile?.rcsb_id}</div>
                 <div className="flex flex-col text-xs  justify-center w-full">
                   <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + random_profile?.citation_rcsb_authors[0] + " et al." : random_profile?.citation_rcsb_authors[0] + " et al."}</p>
                   <p>{random_profile?.src_organism_names[0]}</p>
@@ -351,9 +337,9 @@ export function Citation() {
       </ScrollArea>
     </div>
     <Button
-      variant="default"
+      variant="outline"
       size="sm"
-      className="absolute bottom-4 right-8"
+      className="absolute bg-transparent hover:bg-black text-black hover:text-white border border-black bottom-4 right-8"
       onClick={() => { navigator.clipboard.writeText(citation) }} >
       Copy
     </Button>

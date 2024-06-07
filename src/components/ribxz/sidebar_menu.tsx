@@ -18,7 +18,7 @@ export function SidebarMenu() {
     <Sheet>
       <SheetTrigger asChild>
         <div className="fixed bottom-16 left-16">
-          <Button className="rounded-lg text-lg p-6 bg-gray-900 text-gray-50 shadow-none transition-all hover:shadow-lg dark:bg-gray-50 dark:text-gray-900"  >
+          <Button  className="rounded-lg text-lg p-6 bg-transparent hover:bg-black  text-blackk  shadow-none transition-all hover:shadow-lg border border-gray-500 hover:text-white"    >
             Menu <GearIcon className="ml-4 w-5 h-5"/>
           </Button>
         </div>

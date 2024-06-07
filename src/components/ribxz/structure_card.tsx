@@ -8,7 +8,7 @@ import Link from "next/link"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   return (
-    <Link href={_.rcsb_id}>
+    <Link href={`/structures/${_.rcsb_id}`}>
     <Card className="w-80  max-h-full h-full  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
 
       <Popover>
