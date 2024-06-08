@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
@@ -11,13 +11,14 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
 import { MolstarNode } from "@/components/mstar/lib"
 import { Separator } from "@/components/ui/separator"
+import Image from 'next/image'
+import { MolstarContext } from "@/components/ribxz/molstar_context"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
 // https://github.com/molstar/molstar/issues/1112
 // https://github.com/molstar/molstar/issues/1121
 
-export const MolstarContext = createContext<null | MolstarRibxz>(null);
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     const ctx = useContext(MolstarContext)
     return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" onClick={
@@ -33,17 +34,25 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
 
 }
 
+// export async function generateStaticParams(){
+//     return [{rcsb_id: "3J7Z"}, {rcsb_id:"3J7Y"}]
 
-export default function StructurePage() {
+// }
+
+export default function StructurePage({params}:{params:{rcsb_id:string}}) {
 
     const { rcsb_id }  = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
     const ptc          = searchParams.get('ptc')
+    // const ligand_param = "ERY"
+    // const ptc          = "True"
 
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+
+    ptc_data as any
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
@@ -83,7 +92,7 @@ export default function StructurePage() {
                                         <TabsTrigger value="components">Polymers</TabsTrigger>
                                     </TabsList>
                                     <TabsContent value="info">
-                                        <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
+                                        <Image alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
                                         <div className="grid grid-cols-2 gap-4">
                                             {data?.citation_rcsb_authors ?
                                                 <div>
@@ -145,7 +154,7 @@ export default function StructurePage() {
                                                 <h4 className="text font-medium">Source Organism</h4>
                                                 <p> {data?.src_organism_names.join(", ")} </p>
                                             </div>
-                                            {data?.host_organism_names.length > 0 ?
+                                            {data?.host_organism_names  ?
                                                 <div>
                                                     <h4 className="text font-medium">Host Organism</h4>
                                                     <p>{data?.host_organism_names[0]} </p>
@@ -154,7 +163,7 @@ export default function StructurePage() {
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="components">
-                                        {!isLoading ? <PolymersTable proteins={data?.proteins} rnas={data?.rnas} connect_to_molstar_ctx={true} /> : null}
+                                        {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
                                     </TabsContent>
                                 </Tabs>
 
@@ -164,20 +173,22 @@ export default function StructurePage() {
                                     <Separator className="my-4" />
                                     <h3 className="text-lg font-medium my-4">Ligands & Landmarks</h3>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
+                                        {
+                                            ptc_data ? 
 
                                         <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" 
                                         onClick={()=>{
-                                            var auth_asym_id = ptc_data['LSU_rRNA_auth_asym_id']
-                                            var ptc_query    = [auth_asym_id, ptc_data['site_9_residues'].map((r)=>{return r[1]})]
-                                            ctx?.select_multiple_residues([ptc_query]) 
+                                            var auth_asym_id = ( ptc_data as any )['LSU_rRNA_auth_asym_id']
+                                            var ptc_query    = [auth_asym_id, ( ptc_data as any )['site_9_residues'].map((r:any)=>{return r[1]})]
+                                            ctx?.select_multiple_residues([ptc_query as [string, number[]]]) 
                                             
-                                        }}
-                                        >
+                                        }} >
 
                                             <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
                                             <h4 className="font-semibold">PTC</h4>
                                             <p >Peptidyl Transferase Center</p>
-                                        </div>
+                                        </div>: null
+                                        }
                                         {
                                             data?.nonpolymeric_ligands
                                                 .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
@@ -208,5 +219,3 @@ export default function StructurePage() {
         </div>
     )
 }
-
-

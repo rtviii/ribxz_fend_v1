@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
 import './mstar.css'
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
@@ -18,12 +18,13 @@ import { StateActions } from 'molstar/lib/mol-plugin-state/actions'
 import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
 import {StructureSelectionQuery} from "molstar/lib/mol-plugin-state/helpers/structure-selection-query";
 import { StructureProperties } from "molstar/lib/mol-model/structure/structure/properties";
-import { Queries, StructureSelection } from "molstar/lib/mol-model/structure/query";
+import { Queries, QueryContext, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure/query";
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { Asset } from 'molstar/lib/mol-util/assets';
+import { compile } from "molstar/lib/mol-script/runtime/query/compiler";
 
 export class CustomStructureTools extends PluginUIComponent {
   render() {
@@ -221,7 +222,7 @@ export type QueryParam = {
 
 export namespace QueryHelper {
 
-    export function getQueryObject(params: QueryParam[], contextData: any): Expression.Expression {
+    export function getQueryObject(params: QueryParam[], contextData: any): Expression {
 
         let selections: any = [];
         let siftMappings: any;
@@ -309,7 +310,7 @@ export namespace QueryHelper {
         return StructureSelection.toLociWithSourceUnits(sel);
     }
 
-    export function getHetLoci(queryExp: Expression.Expression, contextData: any) {
+    export function getHetLoci(queryExp: Expression, contextData: any) {
         const query = compile<StructureSelection>(queryExp);
         const sel = query(new QueryContext(contextData));
         return StructureSelection.toLociWithSourceUnits(sel);

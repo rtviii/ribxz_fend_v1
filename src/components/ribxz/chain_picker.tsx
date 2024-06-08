@@ -15,7 +15,7 @@ import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_st
 import { Separator } from "@radix-ui/react-select"
 import { set_filter } from "@/store/slices/ui_state"
 import { useContext, useEffect } from "react"
-import { MolstarContext } from "@/app/superpose/page"
+import { MolstarContext } from "@/components/ribxz/molstar_context"
 
 
 const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
@@ -68,7 +68,7 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 }
 
 
-export default function StructureSelection({ children, structures }: { children?: React.ReactNode, structures: RibosomeStructure[]}) {
+export default function StructureSelection({ children}: { children?: React.ReactNode}) {
 
     const dispatch           = useAppDispatch();
     const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!

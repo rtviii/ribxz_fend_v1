@@ -1,5 +1,6 @@
-import { cn } from "@/utils"
+// import { cn } from "@/myutils"
 
+import { cn } from "@/components/utils"
 function Skeleton({
   className,
   ...props

@@ -1,3 +1,4 @@
+'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { RootState } from './../store'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';

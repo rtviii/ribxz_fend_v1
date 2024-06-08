@@ -1,3 +1,4 @@
+'use client'
 import { Input } from "@/components/ui/input"
 import { CollapsibleTrigger, CollapsibleContent, Collapsible } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
@@ -16,16 +17,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
@@ -78,13 +69,13 @@ export function Filters(props: FiltersProps) {
 
   const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
+  const [polymerClassOptions, setPolymerClassOptions]                              = useState<any>([]);
 
-  const [triggerStructuresRefetch, { struct_data, struct_error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
+  const [triggerStructuresRefetch]   = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 
   const struct_state      = useAppSelector((state) => state.ui.data)
   const filters           = useAppSelector(state => state.ui.filters)!
+
   const debounced_filters = useDebounceFilters(filters, 250)
   const dispatch          = useAppDispatch();
 
@@ -94,13 +85,13 @@ export function Filters(props: FiltersProps) {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
     triggerStructuresRefetch({
-      page: 1,
-      year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
-      search: filters.search === null ? '' : filters.search
+      page          : 1,
+      year          : filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa      : filters.host_taxa.length == 0 ? ''                                                : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa    : filters.source_taxa.length == 0 ? ''                                              : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filters.polymer_classes.length == 0 ? ''                                          : filters.polymer_classes.join(','),
+      search        : filters.search === null ? ''                                                      : filters.search
     }).unwrap()
 
     dispatch(pagination_set_page({
@@ -113,11 +104,12 @@ export function Filters(props: FiltersProps) {
       slice_name: 'polymers'
     }))
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced_filters]);
 
 
   useEffect(() => {
-    if (!nomenclature_classes_is_loading) {
+    if (nomenclature_classes !== undefined) {
       setPolymerClassOptions(groupedOptions(nomenclature_classes))
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
@@ -188,12 +180,14 @@ export function Filters(props: FiltersProps) {
                 </Tooltip>
               </TooltipProvider>
             </label>
-            <Select<PolymerClassOption>
+            <Select
               defaultValue={[]}
+              // @ts-ignore
               onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
               instanceId={"polymer_class"}
               options={polymerClassOptions}
               components={{ Group }}
+              // @ts-ignore
               isMulti={true}
               isDisabled={props.disabled_whole}
               isSearchable={true}
@@ -272,7 +266,7 @@ export function Filters(props: FiltersProps) {
   )
 }
 
-function ChevronDownIcon(props) {
+function ChevronDownIcon(props:any) {
   return (
     <svg
       {...props}

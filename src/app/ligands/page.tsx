@@ -32,7 +32,7 @@ interface TaxaDropdownProps {
     count: number
     species: string[]
 }
-export function LigandTaxonomyDropdown(props: { count: number, species: LigandAssociatedTaxa }) {
+function LigandTaxonomyDropdown(props: { count: number, species: LigandAssociatedTaxa }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -51,7 +51,7 @@ export function LigandTaxonomyDropdown(props: { count: number, species: LigandAs
 
 
 
-export function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
+function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
     const router = useRouter()
     return (
         <DropdownMenu>
@@ -62,8 +62,8 @@ export function LigandStructuresDropdown(props: { count: number, structures: Lig
                 {props.structures.toSorted((s1, s2) => Number(s1.src_organism_names[0] > s2.src_organism_names[0])).map((struct, i) =>
                     <DropdownMenuItem key={i} >
                         <Link href={{
-                                pathname: `/${struct.parent_structure}`,
-                                query: { ligand: props.info.chemicalId },
+                                pathname: `/structures/${struct.parent_structure}`,
+                                query   : { ligand: props.info.chemicalId },
                             }}>
                             <Badge className="w-60 flex justify-between items-center cursor-pointer">
                                 {struct.parent_structure}
@@ -101,7 +101,6 @@ interface LigandAssociatedStructure {
     superkingdom: number
 }
 type LigandAssociatedTaxa = Array<[string, number]>
-
 
 
 type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]

@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -9,11 +10,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { useAppSelector } from "@/store/store"
 import { GearIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
+import { useEffect } from "react"
 
 
 export function SidebarMenu() {
+
+  const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
+
+  useEffect(()=>{
+    console.log("Current polymers hcanged")
+    console.log(current_polymers)
+  })
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -28,7 +38,7 @@ export function SidebarMenu() {
         <SheetHeader>
           <SheetTitle>
 
-            <Link className="flex items-center space-x-2 text-gray-800 hover:text-gray-600 hover:bg-slate-200 rounded-sm" href="#">
+            <Link className="flex items-center space-x-2 text-gray-800 hover:text-gray-600 hover:bg-slate-200 rounded-sm" href="/">
               <HomeIcon className="h-5 w-5" />
               <span>Home</span>
             </Link>
@@ -45,11 +55,11 @@ export function SidebarMenu() {
 
           <h2 className="text-xs font-semibold uppercase text-gray-400">Available Data</h2>
 
-          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="structures">
+          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/structures">
             Structures
           </Link>
 
-          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="polymers">
+          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/polymers">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
               <span>{"Polymers (Proteins & RNA)"} </span>
               <DnaIcon className="h-5 w-5" />
@@ -63,14 +73,14 @@ export function SidebarMenu() {
             </div>
           </Link> */}
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="ligands">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/ligands">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span> Ligands/Binding Sites </span>
             </div>
           </Link>
 
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="nomenclature">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/nomenclature">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>Nomenclature</span>
               <NotebookIcon className="h-5 w-5" />
@@ -82,7 +92,7 @@ export function SidebarMenu() {
           {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-xs font-semibold uppercase text-gray-400">Tools</h2>
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="superpose">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superpose">
             <span>3D Superposition</span>
           </Link>
 
@@ -105,7 +115,7 @@ export function SidebarMenu() {
   )
 }
 
-function DnaIcon(props) {
+function DnaIcon(props:any) {
   return (
     <svg
       {...props}
@@ -135,7 +145,7 @@ function DnaIcon(props) {
 }
 
 
-function GaugeIcon(props) {
+function GaugeIcon(props:any) {
   return (
     <svg
       {...props}
@@ -156,7 +166,7 @@ function GaugeIcon(props) {
 }
 
 
-function HomeIcon(props) {
+function HomeIcon(props:any) {
   return (
     <svg
       {...props}
@@ -177,7 +187,7 @@ function HomeIcon(props) {
 }
 
 
-function InfoIcon(props) {
+function InfoIcon(props:any) {
   return (
     <svg
       {...props}
@@ -199,7 +209,7 @@ function InfoIcon(props) {
 }
 
 
-function LigatureIcon(props) {
+function LigatureIcon(props:any) {
   return (
     <svg
       {...props}
@@ -223,7 +233,7 @@ function LigatureIcon(props) {
 }
 
 
-function NotebookIcon(props) {
+function NotebookIcon(props:any) {
   return (
     <svg
       {...props}
@@ -248,7 +258,7 @@ function NotebookIcon(props) {
 }
 
 
-function Rotate3dIcon(props) {
+function Rotate3dIcon(props:any) {
   return (
     <svg
       {...props}
@@ -270,7 +280,7 @@ function Rotate3dIcon(props) {
 }
 
 
-function ViewIcon(props) {
+function ViewIcon(props:any) {
   return (
     <svg
       {...props}
