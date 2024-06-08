@@ -24,7 +24,6 @@ interface PolymerInputProps {
 }
 
 function PolymerInput(props: PolymerInputProps) {
-
     const [polymerClassOptions, setPolymerClassOptions]                              = useState<any>([]);
     const dispatch                                                                   = useAppDispatch();
     const current_polymer_class                                                      = useAppSelector((state) => state.ui.polymers.current_polymer_class)
@@ -163,7 +162,7 @@ export default function PolymersPage() {
     }, [current_polymer_class, current_polymer_page])
 
     return (
-        <Suspense>
+        <Suspense fallback={<div>suspense</div>}>
             <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
                 <h1 className="text-2xl font-bold mb-6 ">Polymers</h1>
                 <div className="grow"  >
