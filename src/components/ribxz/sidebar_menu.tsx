@@ -63,7 +63,7 @@ export function SidebarMenu() {
             </div>
           </Link> */}
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="ligands">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/ligands">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span> Ligands/Binding Sites </span>
             </div>

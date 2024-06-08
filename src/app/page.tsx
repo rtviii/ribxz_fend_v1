@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 
 
-export function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
+function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
   return (
     <HoverCard openDelay={100} closeDelay={100}>
       <HoverCardTrigger className='w-full hover:bg-muted rounded-md hover:cursor-pointer pl-2 pr-8 py-1' >
@@ -68,15 +68,17 @@ const PolymersStatsTable = (props: { data: any }) => {
 
   useEffect(() => {
     console.log(nomenclature_classes_backend)
-    if (nomenclature_classes_backend === undefined) return
+    if (nomenclature_classes_backend !== undefined) {
+
     var _ = {
-      "MitochondrialRNA": nomenclature_classes_backend?.MitochondrialRNAClass,
-      "CytosolicProteins": nomenclature_classes_backend?.CytosolicProteinClass,
+      "MitochondrialRNA"     : nomenclature_classes_backend?.MitochondrialRNAClass,
+      "CytosolicProteins"    : nomenclature_classes_backend?.CytosolicProteinClass,
       "MitochondrialProteins": nomenclature_classes_backend?.MitochondrialProteinClass,
-      "CytosolicRNA": nomenclature_classes_backend?.CytosolicRNAClass,
-      "E_I_Factors": [...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass]
+      "CytosolicRNA"         : nomenclature_classes_backend?.CytosolicRNAClass,
+      "E_I_Factors"          : [...nomenclature_classes_backend!.ElongationFactorClass, ...nomenclature_classes_backend!.InitiationFactorClass]
     }
-    setClasses(_)
+    setClasses(_ as any)
+    }
   }, [nomenclature_classes_backend])
 
 
@@ -316,7 +318,7 @@ const citation = `@article{kushner2023riboxyz,
   year={2023},
   publisher={Oxford University Press}
 }`
-export function Citation() {
+ function Citation() {
   return <div className=" p-2 rounded-md  relative border border-gray-400 h-50">
     <div className="text-xs   p-2 mb-2 flex">Developed by A. Kushner and K. Dao Duc. Cite and reach out.  </div>
 

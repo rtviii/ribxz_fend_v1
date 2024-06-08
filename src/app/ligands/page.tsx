@@ -32,7 +32,7 @@ interface TaxaDropdownProps {
     count: number
     species: string[]
 }
-export function LigandTaxonomyDropdown(props: { count: number, species: LigandAssociatedTaxa }) {
+function LigandTaxonomyDropdown(props: { count: number, species: LigandAssociatedTaxa }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -51,7 +51,7 @@ export function LigandTaxonomyDropdown(props: { count: number, species: LigandAs
 
 
 
-export function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
+function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
     const router = useRouter()
     return (
         <DropdownMenu>
@@ -101,7 +101,6 @@ interface LigandAssociatedStructure {
     superkingdom: number
 }
 type LigandAssociatedTaxa = Array<[string, number]>
-
 
 
 type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]

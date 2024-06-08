@@ -4,17 +4,17 @@ import { CardContent, CardFooter, Card } from "@/components/ui/card"
 import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 import Link from "next/link"
+import Image from 'next/image'
 // import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   return (
     <Link href={`/structures/${_.rcsb_id}`}>
     <Card className="w-80  max-h-full h-full  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
-
       <Popover>
         <PopoverTrigger asChild>
           <div className="relative h-[40%] transition-all duration-150 hover:h-[100%] border-2">
-            <img alt="Card Image" className="w-full h-full object-cover" height={160} src="/7k00.png" style={{ aspectRatio: "400/160", objectFit: "cover", }} width={400} />
+            <Image alt="Card Image" className="w-full h-full object-cover" height={160} src="/7k00.png" style={{ aspectRatio: "400/160", objectFit: "cover", }} width={400} />
             <div className="absolute top-4 left-4 transform  bg-white rounded-md px-3 py-1 text-sm font-bold">
               {_.rcsb_id}
             </div>

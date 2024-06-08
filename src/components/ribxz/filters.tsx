@@ -113,7 +113,7 @@ export function Filters(props: FiltersProps) {
       slice_name: 'polymers'
     }))
 
-  }, [debounced_filters]);
+  }, [debounced_filters, dispatch, filters, triggerStructuresRefetch]);
 
 
   useEffect(() => {

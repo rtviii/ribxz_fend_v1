@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
+import { MolstarContext } from "@/components/ribxz/molstar_context";
 
 function PlusIcon() {
     return (
@@ -75,7 +76,6 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 }
 
 
-export const MolstarContext = createContext<null | MolstarRibxz>(null);
 export default function Superimpose() {
 
     const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
@@ -120,7 +120,7 @@ export default function Superimpose() {
                             </div>
 
                             <Separator className="my-4" />
-                            <p className="text-gray-500 p-1">Please select chains to superimpose from the "+" menu.</p>
+                            <p className="text-gray-500 p-1">Please select chains to superimpose from the { "+" } menu.</p>
 
 
                             <MolstarContext.Provider value={ctx}>

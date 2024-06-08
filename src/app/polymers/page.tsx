@@ -1,6 +1,5 @@
 "use client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { HoverMenu } from "../structures/page"
 import { Filters, Group, useDebounceFilters } from "@/components/ribxz/filters"
 import { PaginationElement } from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
@@ -83,7 +82,7 @@ export default function PolymersPage() {
         if ( class_param != null) {
             dispatch(set_current_polymer_class(class_param as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum  ))
         }
-    }, [class_param])
+    }, [class_param, dispatch])
 
 
     useEffect(() => {
@@ -109,7 +108,7 @@ export default function PolymersPage() {
 
 
 
-    }, [tab, current_polymer_page, debounced_filters])
+    }, [tab, current_polymer_page, debounced_filters, current_polymer_class, dispatch, triggerPolymersRefetch_byPolymerClass, triggerPolymersRefetch_byStructure, filter_state])
 
     useEffect(() => {
 
@@ -117,7 +116,7 @@ export default function PolymersPage() {
             set_to_page: 1,
             slice_name: 'polymers'
         }))
-    }, [tab, debounced_filters, current_polymer_class])
+    }, [tab, debounced_filters, current_polymer_class, dispatch])
 
 
 
@@ -129,7 +128,7 @@ export default function PolymersPage() {
         else {
             dispatch(set_current_polymers([]))
         }
-    }, [current_polymer_class])
+    }, [current_polymer_class, dispatch, triggerPolymersRefetch_byStructure, triggerPolymersRefetch_byPolymerClass])
 
     useEffect(() => {
         if (current_polymer_class != null) {
@@ -138,12 +137,11 @@ export default function PolymersPage() {
         else {
             dispatch(set_current_polymers([]))
         }
-    }, [current_polymer_page])
+    }, [current_polymer_page, dispatch , current_polymer_class, triggerPolymersRefetch_byPolymerClass])
 
 
     return (
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
-            <HoverMenu />
             <h1 className="text-2xl font-bold mb-6 ">Polymers</h1>
             <div className="grow"  >
                 <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">

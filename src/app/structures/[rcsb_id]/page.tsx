@@ -11,13 +11,14 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
 import { MolstarNode } from "@/components/mstar/lib"
 import { Separator } from "@/components/ui/separator"
+import Image from 'next/image'
+import { MolstarContext } from "@/components/ribxz/molstar_context"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
 // https://github.com/molstar/molstar/issues/1112
 // https://github.com/molstar/molstar/issues/1121
 
-export const MolstarContext = createContext<null | MolstarRibxz>(null);
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     const ctx = useContext(MolstarContext)
     return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" onClick={
@@ -83,7 +84,7 @@ export default function StructurePage() {
                                         <TabsTrigger value="components">Polymers</TabsTrigger>
                                     </TabsList>
                                     <TabsContent value="info">
-                                        <img alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
+                                        <Image alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
                                         <div className="grid grid-cols-2 gap-4">
                                             {data?.citation_rcsb_authors ?
                                                 <div>
@@ -209,4 +210,17 @@ export default function StructurePage() {
     )
 }
 
-
+// export async function generateStaticParams() {
+//   const posts = await fetch('https://.../posts').then((res) => res.json())
+ 
+//   return posts.map((post) => ({
+//     slug: post.slug,
+//   }))
+// }
+ 
+// // Multiple versions of this page will be statically generated
+// // using the `params` returned by `generateStaticParams`
+// export default function Page({ params }) {
+//   const { slug } = params
+//   // ...
+// }
