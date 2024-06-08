@@ -57,6 +57,10 @@ export default function StructurePage() {
         })()
     }, [])
 
+
+
+
+
     useEffect(() => {
         ctx?.download_struct(rcsb_id)
             .then((ctx) => {

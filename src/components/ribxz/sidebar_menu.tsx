@@ -9,11 +9,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { useAppSelector } from "@/store/store"
 import { GearIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
+import { useEffect } from "react"
 
 
 export function SidebarMenu() {
+
+  const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
+
+  useEffect(()=>{
+    console.log("Current polymers hcanged")
+    console.log(current_polymers)
+  })
   return (
     <Sheet>
       <SheetTrigger asChild>

@@ -16,14 +16,14 @@ interface PolymerTableRowProps {
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
     // const ctx         = useAppSelector(state => state.molstar.ui_plugin)
     const polymer = props.polymer
-    const ctx     = useContext(MolstarAppContext)
+    const ctx = useContext(MolstarAppContext)
 
 
     return <TableRow
-        className    = "hover:bg-slate-100   hover:cursor-pointer"
-        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
-        onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
-        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
+        className="hover:bg-slate-100   hover:cursor-pointer"
+        onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
+        onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
+        onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
 
         <TableCell className="text-center">{polymer.parent_rcsb_id}</TableCell>
         <TableCell className="text-center">{polymer.auth_asym_id}</TableCell>
@@ -95,7 +95,7 @@ export default function PolymersTable(props: PolymersTableProps) {
     )
 }
 
-function DeleteIcon(props) {
+function DeleteIcon(props: any) {
     return (
         <svg
             {...props}

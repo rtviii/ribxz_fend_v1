@@ -14,42 +14,38 @@ import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
 import { pagination_set_page } from "@/store/slices/ui_state"
+import { useDebouncePagination } from "@/my_utils"
 
 
 
 export default function StructureCatalogue() {
   const current_structures = useAppSelector((state) => state.ui.data.current_structures)
 
-  // const [triggerStructuresRefetch ] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  // const [triggerPolymersRefetch]    = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
-  // const struct_state                = useAppSelector((state) => state.ui.data)
-  // const filters                     = useAppSelector(state => state.ui.filters)!
-  // const debounced_filters           = useDebounceFilters(filters, 250)
-  // const dispatch                    = useAppDispatch();
+  const current_page = useAppSelector(state => state.ui.pagination.current_structures_page )
+  // const total_pages = useAppSelector(state => {
+  //   if (props.slice_type === 'polymers') { return state.ui.pagination.total_polymers_pages }
+  //   else if (props.slice_type === 'structures') { return state.ui.pagination.total_structures_pages }
+  // })!
 
 
-  // useEffect(() => {
-  //   //? This garbage is needed to send a all filter params as one url string.
-  //   //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
-  //   triggerStructuresRefetch({
-  //     page          : 1,
-  //     year          : filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-  //     resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-  //     hostTaxa      : filters.host_taxa.length == 0 ? ''                                                : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-  //     sourceTaxa    : filters.source_taxa.length == 0 ? ''                                              : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-  //     polymerClasses: filters.polymer_classes.length == 0 ? ''                                          : filters.polymer_classes.join(','),
-  //     search        : filters.search === null ? ''                                                      : filters.search
-  //   }).unwrap()
+  const debounced_page_state       = useDebouncePagination(current_page, 250)
+  const [triggerStructuresRefetch] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const filter_state               = useAppSelector((state) => state.ui.filters)
+  useEffect(() => {
+      triggerStructuresRefetch({
+        page: current_page,
+        year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+        resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+        hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+        sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+        polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+        search: filter_state.search === null ? '' : filter_state.search
+      }).unwrap()
 
-  //   dispatch(pagination_set_page({
-  //     set_to_page: 1,
-  //     slice_name: 'structures'
-  //   }))
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [debounced_filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debounced_page_state])
 
-
-
+  // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
       {/* <HoverMenu /> */}
@@ -75,5 +71,6 @@ export default function StructureCatalogue() {
     </div>
   )
 }
+
 
 

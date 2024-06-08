@@ -88,17 +88,17 @@ export const uiSlice = createSlice({
         set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
             state.data.current_polymers = action.payload
         },
-        //* ------------------------- Polymers
+
+
+
         set_current_polymer_class(state, action: PayloadAction<CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
 
         },
-        //* ------------------------- Filters 
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
 
-        //* ------------------------- Pagination
         pagination_prev_page(state, action: PayloadAction<{
             slice_name: 'structures' | 'polymers',
         }>) {
@@ -139,7 +139,6 @@ export const uiSlice = createSlice({
 
     },
     extraReducers: (builder) => {
-
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
             state.data.current_structures           = action.payload.structures
             state.data.total_structures_count       = action.payload.count
@@ -147,12 +146,17 @@ export const uiSlice = createSlice({
         });
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
+            console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");
+            
             state.data.current_polymers           = action.payload.polymers
             state.data.total_polymers_count       = action.payload.count
             state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         });
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.matchFulfilled, (state, action) => {
+
+            console.log("Dispatch fetch polymer BY POLYCLASS matchFulfilled");
+
             state.data.current_polymers           = action.payload.polymers
             state.data.total_polymers_count       = action.payload.count
             state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
