@@ -150,7 +150,7 @@ export default function StructurePage() {
                                                 <h4 className="text font-medium">Source Organism</h4>
                                                 <p> {data?.src_organism_names.join(", ")} </p>
                                             </div>
-                                            {data?.host_organism_names.length > 0 ?
+                                            {data?.host_organism_names  ?
                                                 <div>
                                                     <h4 className="text font-medium">Host Organism</h4>
                                                     <p>{data?.host_organism_names[0]} </p>
@@ -159,7 +159,7 @@ export default function StructurePage() {
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="components">
-                                        {!isLoading ? <PolymersTable proteins={data?.proteins} rnas={data?.rnas} connect_to_molstar_ctx={true} /> : null}
+                                        {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
                                     </TabsContent>
                                 </Tabs>
 
@@ -169,6 +169,8 @@ export default function StructurePage() {
                                     <Separator className="my-4" />
                                     <h3 className="text-lg font-medium my-4">Ligands & Landmarks</h3>
                                     <div className="grid grid-cols-2 gap-4 mt-2">
+                                        {
+                                            ptc_data ? 
 
                                         <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" 
                                         onClick={()=>{
@@ -176,13 +178,13 @@ export default function StructurePage() {
                                             var ptc_query    = [auth_asym_id, ptc_data['site_9_residues'].map((r)=>{return r[1]})]
                                             ctx?.select_multiple_residues([ptc_query]) 
                                             
-                                        }}
-                                        >
+                                        }} >
 
                                             <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
                                             <h4 className="font-semibold">PTC</h4>
                                             <p >Peptidyl Transferase Center</p>
-                                        </div>
+                                        </div>: null
+                                        }
                                         {
                                             data?.nonpolymeric_ligands
                                                 .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
@@ -213,18 +215,3 @@ export default function StructurePage() {
         </div>
     )
 }
-
-// export async function generateStaticParams() {
-//   const posts = await fetch('https://.../posts').then((res) => res.json())
- 
-//   return posts.map((post) => ({
-//     slug: post.slug,
-//   }))
-// }
- 
-// // Multiple versions of this page will be statically generated
-// // using the `params` returned by `generateStaticParams`
-// export default function Page({ params }) {
-//   const { slug } = params
-//   // ...
-// }

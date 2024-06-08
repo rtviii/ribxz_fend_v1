@@ -14,8 +14,8 @@ type MitochondrialRNAClass     = PolymerClassOption
 type tRNA                      = PolymerClassOption
 
 export interface GroupedOption {
-    readonly label: string;
-    readonly options: readonly ElongationFactorClass[] | readonly InitiationFactorClass[] | CytosolicProteinClass[] | MitochondrialProteinClass[] | CytosolicRNAClass[] | MitochondrialRNAClass[] | tRNA[];
+     label: string;
+     options: readonly ElongationFactorClass[] | readonly InitiationFactorClass[] | CytosolicProteinClass[] | MitochondrialProteinClass[] | CytosolicRNAClass[] | MitochondrialRNAClass[] | tRNA[];
 }
 
 
@@ -29,7 +29,7 @@ export const groupedOptions = (data: {
     "MitochondrialRNAClass"    : string[],
     "tRNAClass"                : string[],
 
-}): readonly GroupedOption[] => {
+}): GroupedOption[] => {
 
     return [
 

@@ -11,7 +11,7 @@ import React from 'react';
 import { Select } from 'antd';
 import { PolymerClassOption, groupedOptions } from "@/components/ribxz/filters_protein_class_options"
 import { pagination_set_page, set_current_polymer_class, set_current_polymers } from "@/store/slices/ui_state"
-import { ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
+import { Protein, Rna, ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { TableRow } from "@/components/ui/table"
 import { useSearchParams } from "next/navigation"
@@ -24,12 +24,12 @@ interface PolymerInputProps {
 }
 
 function PolymerInput(props: PolymerInputProps) {
-    const [polymerClassOptions, setPolymerClassOptions] = useState<PolymerClassOption[]>([]);
+    const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
     const dispatch = useAppDispatch();
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
     const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
     useEffect(() => {
-        if (!nomenclature_classes_is_loading) {
+        if (nomenclature_classes !== undefined) {
             setPolymerClassOptions(groupedOptions(nomenclature_classes))
         }
     }, [nomenclature_classes, nomenclature_classes_is_loading]);
@@ -38,12 +38,12 @@ function PolymerInput(props: PolymerInputProps) {
 
     return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
         <Label htmlFor="input" className={`font-bold text-md mb-2   ${props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
-        <Select<PolymerClassOption >
+        <Select
             defaultValue={null}
             className="w-full max-h-82"
             showSearch={true}
-            components={{ Group }}
-            value={current_polymer_class as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum}
+            // components={{ Group }}
+            value={current_polymer_class}
             options={polymerClassOptions}
             onChange={(value) => {
                 dispatch(set_current_polymer_class(value))
@@ -77,7 +77,7 @@ export default function PolymersPage() {
 
     useEffect(() => {
         if (class_param != null) {
-            dispatch(set_current_polymer_class(class_param as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum))
+            dispatch(set_current_polymer_class(class_param  ))
         }
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [class_param])
@@ -184,13 +184,13 @@ export default function PolymersPage() {
                             </TabsList>
                             <TabsContent value="by_polymer_class" >
                                 <PolymersTable
-                                    proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
-                                    rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />
+                                    proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein') as Protein[]}
+                                    rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA') as Rna[]} />
                             </TabsContent>
                             <TabsContent value="by_structure" >
                                 <PolymersTable
-                                    proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein')}
-                                    rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA')} />
+                                    proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein') as Protein[]}
+                                    rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA') as Rna[]} />
                             </TabsContent>
                         </Tabs>
                     </div>

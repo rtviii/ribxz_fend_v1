@@ -91,7 +91,7 @@ export const uiSlice = createSlice({
 
 
 
-        set_current_polymer_class(state, action: PayloadAction<CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum>) {
+        set_current_polymer_class(state, action: PayloadAction<string>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
 
         },
