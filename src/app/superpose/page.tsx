@@ -18,6 +18,7 @@ import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
 import { MolstarContext } from "@/components/ribxz/molstar_context";
+import { superimpose_pop_chain } from "@/store/slices/molstar_state";
 
 function PlusIcon() {
     return (
@@ -37,7 +38,7 @@ function PlusIcon() {
     )
 }
 
-function XIcon({ props }) {
+function XIcon({ props }:{props:any}) {
     return (
         <svg
             {...props}
@@ -127,7 +128,7 @@ export default function Superimpose() {
 
                                 <StructureSelection>
                                     <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
-                                        <PlusIcon className="text-white" />
+                                        <PlusIcon  />
                                     </Button>
                                 </StructureSelection>
                             </MolstarContext.Provider>

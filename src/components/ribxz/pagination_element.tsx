@@ -54,7 +54,7 @@ export function PaginationElement(props: PaginationProps) {
       search: filter_state.search === null ? '' : filter_state.search
     }).unwrap()
 
-  }, [debounced_page_state.current_structures_page, filter_state, page_state, triggerRefetch])
+  }, [debounced_page_state.current_structures_page])
 
 
   return (

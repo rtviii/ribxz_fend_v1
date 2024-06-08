@@ -17,16 +17,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
@@ -80,11 +70,11 @@ export function Filters(props: FiltersProps) {
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
   const [polymerClassOptions, setPolymerClassOptions]                              = useState<PolymerClassOption[]>([]);
 
-  const [triggerStructuresRefetch, { struct_data, struct_error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const [triggerPolymersRefetch, { polymers_data, polymers_error }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
+  const [triggerStructuresRefetch]   = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 
   const struct_state      = useAppSelector((state) => state.ui.data)
   const filters           = useAppSelector(state => state.ui.filters)!
+
   const debounced_filters = useDebounceFilters(filters, 250)
   const dispatch          = useAppDispatch();
 
@@ -94,13 +84,13 @@ export function Filters(props: FiltersProps) {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
     triggerStructuresRefetch({
-      page: 1,
-      year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
-      search: filters.search === null ? '' : filters.search
+      page          : 1,
+      year          : filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa      : filters.host_taxa.length == 0 ? ''                                                : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa    : filters.source_taxa.length == 0 ? ''                                              : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filters.polymer_classes.length == 0 ? ''                                          : filters.polymer_classes.join(','),
+      search        : filters.search === null ? ''                                                      : filters.search
     }).unwrap()
 
     dispatch(pagination_set_page({
@@ -113,7 +103,7 @@ export function Filters(props: FiltersProps) {
       slice_name: 'polymers'
     }))
 
-  }, [debounced_filters, dispatch, filters, triggerStructuresRefetch]);
+  }, [debounced_filters]);
 
 
   useEffect(() => {

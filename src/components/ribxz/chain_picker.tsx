@@ -68,7 +68,7 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 }
 
 
-export default function StructureSelection({ children, structures }: { children?: React.ReactNode, structures: RibosomeStructure[]}) {
+export default function StructureSelection({ children}: { children?: React.ReactNode}) {
 
     const dispatch           = useAppDispatch();
     const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!

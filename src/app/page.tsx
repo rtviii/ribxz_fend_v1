@@ -20,7 +20,9 @@ import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 
 
-function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[] }) {
+function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: string[] }) {
+ 
+
   return (
     <HoverCard openDelay={100} closeDelay={100}>
       <HoverCardTrigger className='w-full hover:bg-muted rounded-md hover:cursor-pointer pl-2 pr-8 py-1' >
@@ -32,9 +34,7 @@ function PolymerClassesHoverCard({ children, opens_to, class_names, table_label 
           <Separator className='my-2' />
           <div className="grid grid-flow-row-dense grid-cols-3   gap-1">
             {
-              class_names
-                .toSorted((a, b) => Number(a > b))
-                .map(
+              class_names.slice().sort((a, b) => Number(a > b)).map(
                   (cl, i) => {
                     return (
                       <Link key={i} href={`/polymers?class=${cl}`} >
@@ -92,8 +92,8 @@ const PolymersStatsTable = (props: { data: any }) => {
       </TableHeader>
       <TableBody>
         <TableRow >
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='left' table_label='Cytosolic Protein Classes' class_names={nom_classes.CytosolicProteins}> CytosolicProteins     </PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='right' table_label='Cytosolic RNA Classes' class_names={nom_classes.CytosolicRNA}> Cytosolic         rRNA</PolymerClassesHoverCard></TableCell>
+          <TableCell className = 'p-1 m-0'><PolymerClassesHoverCard opens_to = 'left' table_label  = 'Cytosolic Protein Classes' class_names = {nom_classes.CytosolicProteins}> CytosolicProteins     </PolymerClassesHoverCard></TableCell>
+          <TableCell className = 'p-1 m-0'><PolymerClassesHoverCard opens_to = 'right' table_label = 'Cytosolic RNA Classes' class_names     = {nom_classes.CytosolicRNA}> Cytosolic         rRNA</PolymerClassesHoverCard></TableCell>
         </TableRow>
         <TableRow >
           <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left' table_label='Mitochondrial Protein Classes' class_names={nom_classes.MitochondrialProteins}>Mitochondrial rProteins</PolymerClassesHoverCard></TableCell>
@@ -135,7 +135,7 @@ const StructStatsTable = (props: { data: any }) => {
 
 
           </TableCell>
-          <TableCell className='text-center py-1' >{data?.bacteria.ssu_lsu + data?.eukaryota.ssu_lsu + data?.archaea.ssu_lsu} </TableCell>
+          <TableCell className='text-center py-1' >{data ? data?.bacteria.ssu_lsu + data?.eukaryota.ssu_lsu + data?.archaea.ssu_lsu : ""} </TableCell>
           <TableCell className='text-center py-1' >{data?.bacteria.ssu_lsu}</TableCell>
           <TableCell className='text-center py-1' >{data?.eukaryota.ssu_lsu}</TableCell>
           <TableCell className='text-center py-1' >{data?.archaea.ssu_lsu}</TableCell>
@@ -150,7 +150,7 @@ const StructStatsTable = (props: { data: any }) => {
 
 
           </TableCell>
-          <TableCell className='text-center py-1'>{data?.archaea.lsu_only + data?.bacteria.lsu_only + data?.eukaryota.lsu_only} </TableCell>
+          <TableCell className='text-center py-1'>{data ? data?.archaea.lsu_only + data?.bacteria.lsu_only + data?.eukaryota.lsu_only : ""} </TableCell>
           <TableCell className='text-center py-1'>{data?.bacteria.lsu_only}</TableCell>
           <TableCell className='text-center py-1'>{data?.eukaryota.lsu_only}</TableCell>
           <TableCell className='text-center py-1'>{data?.archaea.lsu_only}</TableCell>
@@ -164,7 +164,7 @@ const StructStatsTable = (props: { data: any }) => {
             </AsteriskTooltip>
 
           </TableCell>
-          <TableCell className='text-center py-1'>{data?.archaea.ssu_only + data?.bacteria.ssu_only + data?.eukaryota.ssu_only}</TableCell>
+          <TableCell className='text-center py-1'>{data ? data?.archaea.ssu_only + data?.bacteria.ssu_only + data?.eukaryota.ssu_only :  ""}</TableCell>
           <TableCell className='text-center py-1'>{data?.bacteria.ssu_only}</TableCell>
           <TableCell className='text-center py-1'>{data?.eukaryota.ssu_only}</TableCell>
           <TableCell className='text-center py-1'>{data?.archaea.ssu_only}</TableCell>
@@ -172,7 +172,7 @@ const StructStatsTable = (props: { data: any }) => {
 
         <TableRow>
           <TableCell >Mitoribosome</TableCell>
-          <TableCell className='text-center py-1'>{data?.archaea.mitochondrial + data?.bacteria.mitochondrial + data?.eukaryota.mitochondrial}</TableCell>
+          <TableCell className='text-center py-1'>{ data ? data?.archaea.mitochondrial + data?.bacteria.mitochondrial + data?.eukaryota.mitochondrial : " "}</TableCell>
           <TableCell className='text-center py-1'>{data?.bacteria.mitochondrial}</TableCell>
           <TableCell className='text-center py-1'>{data?.eukaryota.mitochondrial}</TableCell>
           <TableCell className='text-center py-1'>{data?.archaea.mitochondrial}</TableCell>
@@ -180,7 +180,7 @@ const StructStatsTable = (props: { data: any }) => {
 
         <TableRow>
           <TableCell >Ligand Bound</TableCell>
-          <TableCell className='text-center py-1'>{data?.archaea.drugbank_compounds + data?.eukaryota.drugbank_compounds + data?.bacteria.drugbank_compounds}</TableCell>
+          <TableCell className='text-center py-1'>{data ? data?.archaea.drugbank_compounds + data?.eukaryota.drugbank_compounds + data?.bacteria.drugbank_compounds : " "}</TableCell>
           <TableCell className='text-center py-1'>{data?.bacteria.drugbank_compounds}</TableCell>
           <TableCell className='text-center py-1'>{data?.eukaryota.drugbank_compounds}</TableCell>
           <TableCell className='text-center py-1'>{data?.archaea.drugbank_compounds}</TableCell>
@@ -272,8 +272,10 @@ export default function Home() {
 function VisualizeRandom() {
 
   const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
-  const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
-  const router = useRouter()
+  const [refetch_profile, _]                                                               = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
+  const router                                                                             = useRouter()
+
+
 
   return (
 
@@ -293,7 +295,7 @@ function VisualizeRandom() {
               }}>
                 <div className='text-2xl text-center align-middle justify-center items-center flex mr-4 text-blue-700'>{random_profile?.rcsb_id}</div>
                 <div className="flex flex-col text-xs  justify-center w-full">
-                  <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + random_profile?.citation_rcsb_authors[0] + " et al." : random_profile?.citation_rcsb_authors[0] + " et al."}</p>
+                  <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + (random_profile.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : " ")  + " et al." : (random_profile?.citation_rcsb_authors? random_profile?.citation_rcsb_authors[0]:"") + " et al."}</p>
                   <p>{random_profile?.src_organism_names[0]}</p>
                 </div>
               </div>

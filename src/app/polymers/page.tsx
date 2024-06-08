@@ -64,15 +64,15 @@ export default function PolymersPage() {
 
     // const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
 
-    const [triggerPolymersRefetch_byPolymerClass, { polymers_data_byPolymerClass, polymers_error_byPolymerClass }] = ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.useLazyQuery()
-    const [triggerPolymersRefetch_byStructure, { polymers_data_byStructure, polymers_error_byStructure }] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
+    const [triggerPolymersRefetch_byPolymerClass] = ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.useLazyQuery()
+    const [triggerPolymersRefetch_byStructure ]   = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
-    const filter_state = useAppSelector((state) => state.ui.filters)
+    const filter_state      = useAppSelector((state) => state.ui.filters)
     const debounced_filters = useDebounceFilters(filter_state, 250)
 
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
-    const current_polymer_page = useAppSelector((state) => state.ui.pagination.current_polymers_page)
-    const pagination_poly = useAppSelector((state) => state.ui.pagination)
+    const current_polymer_page  = useAppSelector((state) => state.ui.pagination.current_polymers_page)
+    const pagination_poly       = useAppSelector((state) => state.ui.pagination)
 
 
     const searchParams = useSearchParams()
@@ -96,29 +96,26 @@ export default function PolymersPage() {
         }
         else if (tab == "by_structure") {
             triggerPolymersRefetch_byStructure({
-                page: current_polymer_page,
-                year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-                sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-                polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-                search: filter_state.search === null ? '' : filter_state.search
+                page          : current_polymer_page,
+                year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+                sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+                polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
+                search        : filter_state.search === null ? ''                                                      : filter_state.search
             }).unwrap()
         }
 
-
-
-    }, [tab, current_polymer_page, debounced_filters, current_polymer_class, dispatch, triggerPolymersRefetch_byPolymerClass, triggerPolymersRefetch_byStructure, filter_state])
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tab])
 
     useEffect(() => {
-
         dispatch(pagination_set_page({
             set_to_page: 1,
             slice_name: 'polymers'
         }))
-    }, [tab, debounced_filters, current_polymer_class, dispatch])
-
-
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tab])
 
 
     useEffect(() => {
@@ -128,16 +125,10 @@ export default function PolymersPage() {
         else {
             dispatch(set_current_polymers([]))
         }
-    }, [current_polymer_class, dispatch, triggerPolymersRefetch_byStructure, triggerPolymersRefetch_byPolymerClass])
 
-    useEffect(() => {
-        if (current_polymer_class != null) {
-            triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: current_polymer_page })
-        }
-        else {
-            dispatch(set_current_polymers([]))
-        }
-    }, [current_polymer_page, dispatch , current_polymer_class, triggerPolymersRefetch_byPolymerClass])
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [current_polymer_class, current_polymer_page])
+
 
 
     return (
