@@ -130,6 +130,16 @@ export default function PolymersPage() {
     }, [current_polymer_class, current_polymer_page])
 
 
+    useEffect(() => {
+        if (current_polymer_class != null) {
+            triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: current_polymer_page })
+        }
+        else {
+            dispatch(set_current_polymers([]))
+        }
+
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ current_polymer_page])
 
     return (
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
