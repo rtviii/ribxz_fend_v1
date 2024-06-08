@@ -53,7 +53,7 @@ export function SidebarMenu() {
 
         <div className="grid-flow-col   bg-white  ">
 
-          <h2 className="text-xs font-semibold uppercase text-gray-400">Available Data</h2>
+          <h2 className="text-sm  uppercase text-gray-400 ">Available Data</h2>
 
           <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/structures">
             Structures
@@ -66,12 +66,6 @@ export function SidebarMenu() {
             </div>
           </Link>
 
-          {/* <Link className="block py-2  px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="rna">
-            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
-              <span>RNA</span>
-              <DnaIcon className="h-5 w-5" />
-            </div>
-          </Link> */}
 
           <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/ligands">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
@@ -82,7 +76,7 @@ export function SidebarMenu() {
 
           <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/nomenclature">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
-              <span>Nomenclature</span>
+              <span>Nomenclature (WIP)</span>
               <NotebookIcon className="h-5 w-5" />
             </div>
           </Link>
@@ -90,7 +84,7 @@ export function SidebarMenu() {
           <hr className="border-t my-4 border-gray-200" />
 
           {/* <div className="space-y-2 pt-2"> */}
-          <h2 className="text-xs font-semibold uppercase text-gray-400">Tools</h2>
+          <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
 
           <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superpose">
             <span>3D Superposition</span>
@@ -99,10 +93,10 @@ export function SidebarMenu() {
 
         </div>
         <div className="flex-col  h-full   align-bottom justify-end justify-items-end content-end  ">
-          <h2 className="text-xs font-semibold uppercase text-gray-400">Info</h2>
-          <Link className="block py-2 text-sm text-gray-700" href="#"> About </Link>
-          <Link className="block py-2 text-sm text-gray-700" href="#"> How To </Link>
-          <Link className="block py-2 text-sm text-gray-700" href="#"> Contact </Link>
+          <h2 className="text-sm  uppercase text-gray-400 ">Info</h2>
+          <Link className="block py-2 text-sm " href="#"> About (WIP) </Link>
+          <Link className="block py-2 text-sm " href="#"> How To (WIP) </Link>
+          <Link className="block py-2 text-sm " href="mailto:rtkushner@gmail.com; kdd@math.ubc.ca"> Contact </Link>
         </div>
 
         <SheetFooter>
