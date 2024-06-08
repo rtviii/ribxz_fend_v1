@@ -1,3 +1,4 @@
+'use client'
 import { Loci } from "molstar/lib/mol-model/loci";
 import { StateActions } from "molstar/lib/mol-plugin-state/actions";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";

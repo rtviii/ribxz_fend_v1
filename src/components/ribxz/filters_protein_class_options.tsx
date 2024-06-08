@@ -1,4 +1,4 @@
-
+'use client'
 export interface PolymerClassOption {
     readonly value: string;
     readonly label: string;

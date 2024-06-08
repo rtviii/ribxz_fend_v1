@@ -1,3 +1,4 @@
+'use client'
 import { BuiltInTrajectoryFormat } from "molstar/lib/mol-plugin-state/formats/trajectory";
 import { PluginContext } from "molstar/lib/mol-plugin/context";
 import { Asset } from "molstar/lib/mol-util/assets";

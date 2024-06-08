@@ -1,3 +1,4 @@
+'use client'
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
 import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
 import { CalendarIcon, ChartPieIcon, DocumentDuplicateIcon, FolderIcon, HomeIcon, UsersIcon, } from '@heroicons/react/24/outline'

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
@@ -35,12 +35,14 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
 }
 
 
-export default function StructurePage() {
+export default function StructurePage({params}:{params:any}) {
 
     const { rcsb_id }  = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
     const ptc          = searchParams.get('ptc')
+    // const ligand_param = "ERY"
+    // const ptc          = "True"
 
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
@@ -58,10 +60,6 @@ export default function StructurePage() {
             setCtx(x)
         })()
     }, [])
-
-
-
-
 
     useEffect(() => {
         ctx?.download_struct(rcsb_id)

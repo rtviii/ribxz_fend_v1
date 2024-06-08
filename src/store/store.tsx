@@ -1,3 +1,4 @@
+"use client"
 import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit'
 import { ribxz_api } from './ribxz_api/ribxz_api'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'

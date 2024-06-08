@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useRef, useState } from "react"
 import { PaginationState, pagination_next_page, pagination_prev_page, pagination_set_page } from '@/store/slices/ui_state'
 import {

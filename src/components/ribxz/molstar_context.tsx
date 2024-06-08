@@ -1,3 +1,4 @@
+'use client'
 import { createContext , useState} from "react";
 import { MolstarRibxz } from "../mstar/molstar_wrapper_class";
 

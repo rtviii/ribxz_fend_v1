@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import { DefaultPluginUISpec, PluginUISpec } from "molstar/lib/mol-plugin-ui/spec";
 import './mstar.css'
 import "molstar/lib/mol-plugin-ui/skin/light.scss";

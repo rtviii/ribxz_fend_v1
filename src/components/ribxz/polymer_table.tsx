@@ -1,3 +1,4 @@
+'use client'
 import { MolstarContext as MolstarAppContext } from "@/components/ribxz/molstar_context"
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"

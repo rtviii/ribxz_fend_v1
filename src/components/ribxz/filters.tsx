@@ -1,3 +1,4 @@
+'use client'
 import { Input } from "@/components/ui/input"
 import { CollapsibleTrigger, CollapsibleContent, Collapsible } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"

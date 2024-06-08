@@ -60,7 +60,6 @@ function XIcon({ props }:{props:any}) {
 
 const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerByStruct, rcsb_id: string }) => {
 
-
     const dispatch = useAppDispatch();
     const current_pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
     const is_self_current_pivot = () => { if (current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id && current_pivot?.rcsb_id === rcsb_id) { return true } else { return false } }
@@ -79,21 +78,22 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 
 export default function Superimpose() {
 
-    const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
+    // const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
+    const rcsb_id = '3J7Z'
     const dispatch                  = useAppDispatch();
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
     const pivot                     = useAppSelector(state => state.molstar.superimpose.pivot)!
 
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    // const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
-    useEffect(() => {
-        console.log("Page mounted. Initializing Molstar Plugin UI Context");
-        (async () => {
-            const x = new MolstarRibxz
-            await x.init(molstarNodeRef.current!)
-            setCtx(x)
-        })()
-    }, [])
+    // useEffect(() => {
+    //     console.log("Page mounted. Initializing Molstar Plugin UI Context");
+    //     (async () => {
+    //         const x = new MolstarRibxz
+    //         await x.init(molstarNodeRef.current!)
+    //         setCtx(x)
+    //     })()
+    // }, [])
 
 
     // useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
@@ -159,7 +159,7 @@ export default function Superimpose() {
 
                 <ResizablePanel defaultSize={75}>
                     <div className="flex flex-col gap-4">
-                        <MolstarNode ref={molstarNodeRef} />
+                        {/* <MolstarNode ref={molstarNodeRef} /> */}
                     </div>
                 </ResizablePanel>
             </ResizablePanelGroup>
