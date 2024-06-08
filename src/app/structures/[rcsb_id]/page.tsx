@@ -21,7 +21,7 @@ import { MolstarContext } from "@/components/ribxz/molstar_context"
 
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     const ctx = useContext(MolstarContext)
-    return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" onClick={
+    return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4 text-xs" onClick={
         () => {
             ctx?.create_ligand(data.chemicalId)
             ctx?.create_ligand_surroundings(data.chemicalId)
@@ -39,12 +39,12 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
 
 // }
 
-export default function StructurePage({params}:{params:{rcsb_id:string}}) {
+export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
 
-    const { rcsb_id }  = useParams<{ rcsb_id: string; }>()
+    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
-    const ptc          = searchParams.get('ptc')
+    const ptc = searchParams.get('ptc')
     // const ligand_param = "ERY"
     // const ptc          = "True"
 
@@ -81,7 +81,7 @@ export default function StructurePage({params}:{params:{rcsb_id:string}}) {
                     <Card className="h-full flex flex-col ">
                         <CardHeader>
                             <CardTitle>{data?.rcsb_id}</CardTitle>
-                            <p className="text-gray-500 text-sm">{data?.citation_title}</p>
+                            <p className="text-gray-500 text-xs">{data?.citation_title}</p>
                         </CardHeader>
 
                         <MolstarContext.Provider value={ctx}>
@@ -96,10 +96,10 @@ export default function StructurePage({params}:{params:{rcsb_id:string}}) {
                                         <div className="grid grid-cols-2 gap-4">
                                             {data?.citation_rcsb_authors ?
                                                 <div>
-                                                    <h4 className="text font-medium">Authors</h4>
+                                                    <h4 className="text text-sm font-medium">Authors</h4>
                                                     <HoverCard>
                                                         <HoverCardTrigger asChild>
-                                                            <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md   transition-colors z-10" title="Full list of authors" >
+                                                            <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md text-xs   transition-colors z-10" title="Full list of authors"  >
                                                                 <span style={{ fontStyle: "italic" }} >{data?.citation_rcsb_authors[0]}</span>
                                                                 <span style={{
                                                                     cursor: "pointer",
@@ -136,30 +136,29 @@ export default function StructurePage({params}:{params:{rcsb_id:string}}) {
 
 
                                             <div>
-                                                <h4 className="text font-medium">Deposition Year</h4>
-                                                <p>{data?.citation_year}</p>
+                                                <h4 className="text text-sm font-medium">Deposition Year</h4>
+                                                <p className="text-xs mt-1">{data?.citation_year}</p>
                                             </div>
 
                                             <div>
-                                                <h4 className="text font-medium">Experimental Method</h4>
-                                                <p>{data?.expMethod}</p>
+                                                <h4 className="text text-sm font-medium">Experimental Method</h4>
+                                                <p className="text-xs mt-1">{data?.expMethod}</p>
                                             </div>
 
                                             <div>
-                                                <h4 className="text font-medium">Resolution</h4>
-                                                <p>{data?.resolution} Å</p>
+                                                <h4 className="text text-sm font-medium">Resolution</h4>
+                                                <p className="text-xs mt-1">{data?.resolution + " Å"} </p>
                                             </div>
 
                                             <div>
-                                                <h4 className="text font-medium">Source Organism</h4>
-                                                <p> {data?.src_organism_names.join(", ")} </p>
+                                                <h4 className="text text-sm font-medium">Source Organism</h4>
+                                                <p className="text-xs mt-1"> {data?.src_organism_names.join(", ")} </p>
                                             </div>
-                                            {data?.host_organism_names  ?
+                                            {data?.host_organism_names && data.host_organism_names.length > 0 ?
                                                 <div>
-                                                    <h4 className="text font-medium">Host Organism</h4>
-                                                    <p>{data?.host_organism_names[0]} </p>
+                                                    <h4 className="text text-sm font-medium">Host Organism</h4>
+                                                    <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
                                                 </div> : null}
-
                                         </div>
                                     </TabsContent>
                                     <TabsContent value="components">
@@ -167,37 +166,43 @@ export default function StructurePage({params}:{params:{rcsb_id:string}}) {
                                     </TabsContent>
                                 </Tabs>
 
-
-
                                 <div>
-                                    <Separator className="my-4" />
-                                    <h3 className="text-lg font-medium my-4">Ligands & Landmarks</h3>
-                                    <div className="grid grid-cols-2 gap-4 mt-2">
-                                        {
-                                            ptc_data ? 
+                                    {
+                                        ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
+                                            <>
 
-                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" 
-                                        onClick={()=>{
-                                            var auth_asym_id = ( ptc_data as any )['LSU_rRNA_auth_asym_id']
-                                            var ptc_query    = [auth_asym_id, ( ptc_data as any )['site_9_residues'].map((r:any)=>{return r[1]})]
-                                            ctx?.select_multiple_residues([ptc_query as [string, number[]]]) 
-                                            
-                                        }} >
+                                                <Separator className="my-2" />
+                                                <h3 className=" font-medium my-2">Ligands & Landmarks</h3>
+                                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                                    {
+                                                        ptc_data ?
+                                                            <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
+                                                                onClick={() => {
+                                                                    var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
+                                                                    var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
+                                                                    ctx?.select_multiple_residues([ptc_query as [string, number[]]])
 
-                                            <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
-                                            <h4 className="font-semibold">PTC</h4>
-                                            <p >Peptidyl Transferase Center</p>
-                                        </div>: null
-                                        }
-                                        {
-                                            data?.nonpolymeric_ligands
-                                                .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                                                .map(ligand =>
-                                                    <LigandThumbnail data={ligand} key={ligand.chemicalId} />
-                                                )
-                                        }
+                                                                }} >
 
-                                    </div>
+                                                                <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
+                                                                <h4 className="font-semibold">PTC</h4>
+                                                                <p >Peptidyl Transferase Center</p>
+                                                            </div> : null
+                                                    }
+                                                    {
+                                                        data?.nonpolymeric_ligands
+                                                            .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                                                            .map(ligand =>
+                                                                <LigandThumbnail data={ligand} key={ligand.chemicalId} />
+                                                            )
+                                                    }
+
+                                                </div>
+                                            </> : null
+
+
+
+                                    }
                                 </div>
                             </CardContent>
                         </MolstarContext.Provider>
