@@ -21,8 +21,6 @@ import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 
 
 function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: string[] }) {
- 
-
   return (
     <HoverCard openDelay={100} closeDelay={100}>
       <HoverCardTrigger className='w-full hover:bg-muted rounded-md hover:cursor-pointer pl-2 pr-8 py-1' >
@@ -332,9 +330,9 @@ const citation = `@article{kushner2023riboxyz,
       </ScrollArea>
     </div>
     <Button
-      variant="outline"
-      size="sm"
-      className="absolute bg-transparent hover:bg-black text-black hover:text-white border border-black bottom-4 right-8"
+      // variant="outline"
+      size="xs"
+      className="absolute  hover:bg-transparent hover:text-black border border-black bottom-4 right-8 text-xs p-1 px-2"
       onClick={() => { navigator.clipboard.writeText(citation) }} >
       Copy
     </Button>
