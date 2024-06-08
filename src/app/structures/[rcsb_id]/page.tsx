@@ -46,6 +46,8 @@ export default function StructurePage() {
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
 
+    ptc_data as any
+
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
@@ -174,9 +176,9 @@ export default function StructurePage() {
 
                                         <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4" 
                                         onClick={()=>{
-                                            var auth_asym_id = ptc_data['LSU_rRNA_auth_asym_id']
-                                            var ptc_query    = [auth_asym_id, ptc_data['site_9_residues'].map((r)=>{return r[1]})]
-                                            ctx?.select_multiple_residues([ptc_query]) 
+                                            var auth_asym_id = ( ptc_data as any )['LSU_rRNA_auth_asym_id']
+                                            var ptc_query    = [auth_asym_id, ( ptc_data as any )['site_9_residues'].map((r:any)=>{return r[1]})]
+                                            ctx?.select_multiple_residues([ptc_query as [string, number[]]]) 
                                             
                                         }} >
 

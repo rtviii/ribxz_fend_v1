@@ -73,6 +73,7 @@ declare global {
 //! - mapstate and mapdispatch listens to redux state
 export class MolstarRibxz {
 
+  //@ts-ignore
   ctx: PluginUIContext;
   constructor() { }
 

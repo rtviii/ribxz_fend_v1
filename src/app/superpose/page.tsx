@@ -18,7 +18,7 @@ import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
 import { MolstarContext } from "@/components/ribxz/molstar_context";
-import { superimpose_pop_chain } from "@/store/slices/molstar_state";
+import { superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state";
 
 function PlusIcon() {
     return (
@@ -71,7 +71,7 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
             <span className="ml-2 text-sm">Pivot</span>
         </div>
         <div className="hover:cursor-pointer border rounded hover:bg-slate-200" onClick={() => { dispatch(superimpose_pop_chain({ polymer, rcsb_id })) }}>
-            <XIcon className="h-4 w-4" />
+            <XIcon props={{ className: "w-6 h-6 p-1" }} />
         </div>
     </div>
 }

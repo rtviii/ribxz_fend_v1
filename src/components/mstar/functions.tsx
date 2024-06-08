@@ -294,32 +294,32 @@ export const select_current_struct = (ctx: PluginUIContext) => {
   // window.molstar?.managers.structure.selection.fromSelectionQuery('add',StructureSelectionQuery('struct', query));
 }
 
-const applyStyle = (ctx: PluginUIContext) => {
+// const applyStyle = (ctx: PluginUIContext) => {
 
-  const q = MS.struct.generator.atomGroups({
-    'chain-test': MS.core.rel.eq([
-      MS.ammp('label_asym_id'),
-      'B',
-    ]),
-    'residue-test': MS.core.logic.and([
-      MS.core.rel.gre([
-        MS.ammp('auth_seq_id'),
-        330
-      ]),
-      MS.core.rel.lte([
-        MS.ammp('auth_seq_id'),
-        340
-      ])
-    ]),
-  })
+//   const q = MS.struct.generator.atomGroups({
+//     'chain-test': MS.core.rel.eq([
+//       MS.ammp('label_asym_id'),
+//       'B',
+//     ]),
+//     'residue-test': MS.core.logic.and([
+//       MS.core.rel.gre([
+//         MS.ammp('auth_seq_id'),
+//         330
+//       ]),
+//       MS.core.rel.lte([
+//         MS.ammp('auth_seq_id'),
+//         340
+//       ])
+//     ]),
+//   })
 
-  const update2 = ctx.build();
-  update2.to(structure)
-    .apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, structure.data, {
-      type: 'cartoon',
-      color: 'uniform',
-    }));
-}
+//   const update2 = ctx.build();
+//   update2.to(structure)
+//     .apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, structure.data, {
+//       type: 'cartoon',
+//       color: 'uniform',
+//     }));
+// }
 
 function next_residue_on_hover() {
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0]!.cell.obj!.data;
