@@ -63,23 +63,47 @@ export default function PolymersPage() {
 
 
     const [triggerPolymersRefetch_byPolymerClass] = ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.useLazyQuery()
-    const [triggerPolymersRefetch_byStructure ]   = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
+    const [triggerPolymersRefetch_byStructure] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
-    const filter_state      = useAppSelector((state) => state.ui.filters)
+    const filter_state = useAppSelector((state) => state.ui.filters)
     const debounced_filters = useDebounceFilters(filter_state, 250)
 
     const current_polymer_class = useAppSelector((state) => state.ui.polymers.current_polymer_class)
-    const current_polymer_page  = useAppSelector((state) => state.ui.pagination.current_polymers_page)
+    const current_polymer_page = useAppSelector((state) => state.ui.pagination.current_polymers_page)
 
 
     const searchParams = useSearchParams()
     const class_param = searchParams.get('class')
 
     useEffect(() => {
-        if ( class_param != null) {
-            dispatch(set_current_polymer_class(class_param as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum  ))
+        if (class_param != null) {
+            dispatch(set_current_polymer_class(class_param as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum))
         }
+        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [class_param])
+
+
+    useEffect(() => {
+        if (tab == "by_structure") {
+            triggerPolymersRefetch_byStructure({
+                page          : current_polymer_page,
+                year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                hostTaxa      : filter_state.host_taxa.length       == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+                sourceTaxa    : filter_state.source_taxa.length     == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+                polymerClasses: filter_state.polymer_classes.length  == 0 ? '' : filter_state.polymer_classes.join(','),
+                search        : filter_state.search                === null ? '' : filter_state.search
+            }).unwrap()
+        }
+
+        dispatch(pagination_set_page({
+            set_to_page: 1,
+            slice_name: 'polymers'
+        }))
+
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debounced_filters])
+
 
 
     useEffect(() => {
@@ -93,45 +117,39 @@ export default function PolymersPage() {
         }
         else if (tab == "by_structure") {
             triggerPolymersRefetch_byStructure({
-                page          : current_polymer_page,
-                year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-                sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-                polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
-                search        : filter_state.search === null ? ''                                                      : filter_state.search
+                page: current_polymer_page,
+                year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+                sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+                polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+                search: filter_state.search === null ? '' : filter_state.search
             }).unwrap()
         }
 
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tab])
-
-    useEffect(() => {
         dispatch(pagination_set_page({
             set_to_page: 1,
             slice_name: 'polymers'
         }))
 
-    //eslint-disable-next-line react-hooks/exhaustive-deps
+        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tab])
 
 
     useEffect(() => {
-        
-        if (tab =='by_structure') {
-
+        if (tab == 'by_structure') {
             triggerPolymersRefetch_byStructure({
-                page          : current_polymer_page,
-                year          : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                resolution    : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-                hostTaxa      : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-                sourceTaxa    : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-                polymerClasses: filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
-                search        : filter_state.search === null ? ''                                                      : filter_state.search
+                page: current_polymer_page,
+                year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+                hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+                sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+                polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
+                search: filter_state.search === null ? '' : filter_state.search
             }).unwrap()
 
 
-        } else  if (tab == 'by_polymer_class') {
+        } else if (tab == 'by_polymer_class') {
             if (current_polymer_class != null) {
                 triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: current_polymer_page })
             }
@@ -139,28 +157,9 @@ export default function PolymersPage() {
                 dispatch(set_current_polymers([]))
             }
         }
-        // if (current_polymer_class != null) {
-        //     triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: 1 })
-        // }
-        // else {
-        //     dispatch(set_current_polymers([]))
-        // }
 
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [current_polymer_class, current_polymer_page])
-
-
-    // useEffect(() => {
-
-    //     if (current_polymer_class != null) {
-    //         triggerPolymersRefetch_byPolymerClass({ polymerClass: current_polymer_class, page: current_polymer_page })
-    //     }
-    //     else {
-    //         dispatch(set_current_polymers([]))
-    //     }
-
-    //     //eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [current_polymer_page])
 
     return (
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -169,8 +168,8 @@ export default function PolymersPage() {
                 <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
                     <div className="col-span-3  flex flex-col min-h-full pr-4">
 
-                        <PolymerInput isDisabled     = {tab === "by_structure"} />
-                        <Filters      disabled_whole = {tab === "by_polymer_class"} />
+                        <PolymerInput isDisabled={tab === "by_structure"} />
+                        <Filters disabled_whole={tab === "by_polymer_class"} />
                         <SidebarMenu />
                         <div className="p-1 my-4 rounded-md border w-full">
                             <PaginationElement slice_type={"polymers"} />
