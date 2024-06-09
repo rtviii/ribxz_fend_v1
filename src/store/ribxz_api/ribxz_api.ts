@@ -1,6 +1,12 @@
 import { empty_api as api } from "./template";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    routersRouterStructTaxDict: build.query<
+      RoutersRouterStructTaxDictApiResponse,
+      RoutersRouterStructTaxDictApiArg
+    >({
+      query: () => ({ url: `/structures/tax_dict` }),
+    }),
     routersRouterStructStructureCompositionStats: build.query<
       RoutersRouterStructStructureCompositionStatsApiResponse,
       RoutersRouterStructStructureCompositionStatsApiArg
@@ -141,6 +147,8 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as ribxz_api };
+export type RoutersRouterStructTaxDictApiResponse = /** status 200 OK */ object;
+export type RoutersRouterStructTaxDictApiArg = void;
 export type RoutersRouterStructStructureCompositionStatsApiResponse =
   /** status 200 OK */ StructureCompositionStats;
 export type RoutersRouterStructStructureCompositionStatsApiArg = void;
@@ -1200,6 +1208,7 @@ export type NomenclatureSet = {
   tRNAClass: string[];
 };
 export const {
+  useRoutersRouterStructTaxDictQuery,
   useRoutersRouterStructStructureCompositionStatsQuery,
   useRoutersRouterStructRandomProfileQuery,
   useRoutersRouterStructPolymersByPolymerClassQuery,

@@ -14,21 +14,20 @@ export interface FiltersState {
 }
 
 export interface PaginationState {
-
     current_polymers_page: number
     total_polymers_pages: number | null
 
     current_structures_page: number
     total_structures_pages: number | null
-
 }
 
 export interface UIState {
+    taxid_dict : Record<number, [ string, "Bacteria" | "Eukaryota" | "Archaea" ]>,
     data: {
-        current_structures: RibosomeStructure[],
-        current_polymers: Array<Polymer | Rna | Protein>,
+        current_structures    : RibosomeStructure[],
+        current_polymers      : Array<Polymer | Rna | Protein>,
         total_structures_count: number | null,
-        total_polymers_count: number | null
+        total_polymers_count  : number | null
     },
     polymers: {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
@@ -38,6 +37,7 @@ export interface UIState {
 }
 
 const initialState: UIState = {
+    taxid_dict : {},
     data: {
         current_structures: [],
         current_polymers: [],
@@ -82,6 +82,9 @@ export const uiSlice = createSlice({
     name: 'ui',
     initialState,
     reducers: {
+        set_tax_dict(state, action: PayloadAction<Record<number, [ string, "Bacteria" | "Eukaryota" | "Archaea" ]>>) {
+            state.taxid_dict = action.payload
+        },
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
@@ -173,6 +176,7 @@ export const uiSlice = createSlice({
 
 
 export const {
+    set_tax_dict,
     set_current_polymers,
     set_current_polymer_class,
     set_new_structs,
