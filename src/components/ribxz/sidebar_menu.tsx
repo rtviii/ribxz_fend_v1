@@ -19,11 +19,6 @@ import { useEffect } from "react"
 export function SidebarMenu() {
 
   const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
-
-  useEffect(()=>{
-    console.log("Current polymers hcanged")
-    console.log(current_polymers)
-  })
   return (
     <Sheet>
       <SheetTrigger asChild>

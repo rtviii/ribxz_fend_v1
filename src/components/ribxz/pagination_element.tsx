@@ -28,6 +28,7 @@ export function PaginationElement(props: PaginationProps) {
     if (props.slice_type === 'polymers') { return state.ui.pagination.current_polymers_page }
     else if (props.slice_type === 'structures') { return state.ui.pagination.current_structures_page }
   })!
+
   const total_pages = useAppSelector(state => {
     if (props.slice_type === 'polymers') { return state.ui.pagination.total_polymers_pages }
     else if (props.slice_type === 'structures') { return state.ui.pagination.total_structures_pages }
@@ -37,9 +38,6 @@ export function PaginationElement(props: PaginationProps) {
   return (
     <Pagination >
       <div className="flex flex-col">
-      <p>{props.slice_type}</p>
-      <p>{current_page}</p>
-      <p>{total_pages}</p>
       </div>
       <PaginationContent className="flex flex-row overflow-auto" >
         <div>

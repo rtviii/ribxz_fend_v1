@@ -57,13 +57,13 @@ function PolymerInput(props: PolymerInputProps) {
 export default function PolymersPage() {
     const [tab, setTab] = useState("by_polymer_class");
 
-    const dispatch = useAppDispatch();
-    const onTabChange = (value: string) => { setTab(value); }
+    const dispatch         = useAppDispatch();
+    const onTabChange      = (value: string) => { setTab(value); }
     const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
 
 
     const [triggerPolymersRefetch_byPolymerClass] = ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.useLazyQuery()
-    const [triggerPolymersRefetch_byStructure] = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
+    const [triggerPolymersRefetch_byStructure]    = ribxz_api.endpoints.routersRouterStructPolymersByStructure.useLazyQuery()
 
     const filter_state = useAppSelector((state) => state.ui.filters)
     const debounced_filters = useDebounceFilters(filter_state, 250)
@@ -147,7 +147,6 @@ export default function PolymersPage() {
                 polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
                 search: filter_state.search === null ? '' : filter_state.search
             }).unwrap()
-
 
         } else if (tab == 'by_polymer_class') {
             if (current_polymer_class != null) {

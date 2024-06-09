@@ -1,16 +1,16 @@
 'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, Polymer, Protein, RibosomeStructure, ribxz_api,  Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
 export interface FiltersState {
-    search: string | null
-    year: [number | null, number | null]
-    resolution: [number | null, number | null]
+    search         : string | null
+    year           : [number | null, number | null]
+    resolution     : [number | null, number | null]
     polymer_classes: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
-    source_taxa: number[]
-    host_taxa: number[]
+    source_taxa    : number[]
+    host_taxa      : number[]
 }
 
 export interface PaginationState {
@@ -25,11 +25,10 @@ export interface PaginationState {
 
 export interface UIState {
     data: {
-        current_structures    : RibosomeStructure[],
-        current_polymers      : Array<Polymer | Rna | Protein>,
-
+        current_structures: RibosomeStructure[],
+        current_polymers: Array<Polymer | Rna | Protein>,
         total_structures_count: number | null,
-        total_polymers_count  : number | null
+        total_polymers_count: number | null
     },
     polymers: {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
@@ -90,11 +89,8 @@ export const uiSlice = createSlice({
             state.data.current_polymers = action.payload
         },
 
-
-
         set_current_polymer_class(state, action: PayloadAction<string>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
-
         },
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
@@ -143,20 +139,20 @@ export const uiSlice = createSlice({
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
 
             // @ts-ignore
-            state.data.current_structures           = action.payload.structures
+            state.data.current_structures = action.payload.structures
             // @ts-ignore
-            state.data.total_structures_count       = action.payload.count
+            state.data.total_structures_count = action.payload.count
             // @ts-ignore
             state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
         });
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
             console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");
-            
+
             // @ts-ignore
-            state.data.current_polymers           = action.payload.polymers
+            state.data.current_polymers = action.payload.polymers
             // @ts-ignore
-            state.data.total_polymers_count       = action.payload.count
+            state.data.total_polymers_count = action.payload.count
             // @ts-ignore
             state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         });
@@ -166,9 +162,9 @@ export const uiSlice = createSlice({
             console.log("Dispatch fetch polymer BY POLYCLASS matchFulfilled");
 
             // @ts-ignore
-            state.data.current_polymers           = action.payload.polymers
+            state.data.current_polymers = action.payload.polymers
             // @ts-ignore
-            state.data.total_polymers_count       = action.payload.count
+            state.data.total_polymers_count = action.payload.count
             // @ts-ignore
             state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
         })
