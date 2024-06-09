@@ -91,6 +91,9 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                         <TabsTrigger value="info">Structure Info</TabsTrigger>
                                         <TabsTrigger value="components">Polymers</TabsTrigger>
                                     </TabsList>
+
+
+
                                     <TabsContent value="info">
                                         <Image alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
                                         <div className="grid grid-cols-2 gap-4">
@@ -160,50 +163,54 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                                     <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
                                                 </div> : null}
                                         </div>
+
+
+                                        <div>
+                                            {
+                                                ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
+                                                    <>
+
+                                                        <Separator className="my-2" />
+                                                        <h3 className=" font-medium my-2">Ligands & Landmarks</h3>
+                                                        <div className="grid grid-cols-2 gap-2 mt-2">
+                                                            {
+                                                                ptc_data ?
+                                                                    <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
+                                                                        onClick={() => {
+                                                                            var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
+                                                                            var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
+                                                                            ctx?.select_multiple_residues([ptc_query as [string, number[]]])
+
+                                                                        }} >
+
+                                                                        <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
+                                                                        <h4 className="font-semibold">PTC</h4>
+                                                                        <p >Peptidyl Transferase Center</p>
+                                                                    </div> : null
+                                                            }
+                                                            {
+                                                                data?.nonpolymeric_ligands
+                                                                    .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                                                                    .map(ligand =>
+                                                                        <LigandThumbnail data={ligand} key={ligand.chemicalId} />
+                                                                    )
+                                                            }
+
+                                                        </div>
+                                                    </> : null
+
+                                            }
+                                        </div>
+
                                     </TabsContent>
+
+
+
                                     <TabsContent value="components">
                                         {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
                                     </TabsContent>
                                 </Tabs>
 
-                                <div>
-                                    {
-                                        ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
-                                            <>
-
-                                                <Separator className="my-2" />
-                                                <h3 className=" font-medium my-2">Ligands & Landmarks</h3>
-                                                <div className="grid grid-cols-2 gap-2 mt-2">
-                                                    {
-                                                        ptc_data ?
-                                                            <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
-                                                                onClick={() => {
-                                                                    var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
-                                                                    var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
-                                                                    ctx?.select_multiple_residues([ptc_query as [string, number[]]])
-
-                                                                }} >
-
-                                                                <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
-                                                                <h4 className="font-semibold">PTC</h4>
-                                                                <p >Peptidyl Transferase Center</p>
-                                                            </div> : null
-                                                    }
-                                                    {
-                                                        data?.nonpolymeric_ligands
-                                                            .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                                                            .map(ligand =>
-                                                                <LigandThumbnail data={ligand} key={ligand.chemicalId} />
-                                                            )
-                                                    }
-
-                                                </div>
-                                            </> : null
-
-
-
-                                    }
-                                </div>
                             </CardContent>
                         </MolstarContext.Provider>
                     </Card>

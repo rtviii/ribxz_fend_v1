@@ -44,14 +44,14 @@ export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.proteins
     const rnas = props.rnas
     return (
-        <ScrollArea className="max-h-[85vh] rounded-md border overflow-auto">
+        <ScrollArea className="max-h-[80vh] rounded-md border overflow-auto">
             <Table >
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="font-normal">Parent Structure</TableHead>
-                        <TableHead className="font-normal">Chain ID</TableHead>
-                        <TableHead className="font-normal">Polymer Class</TableHead>
-                        <TableHead className="font-normal">Source Organism</TableHead>
+                        <TableHead className="font-normal bg-muted border-b-2">Parent Structure</TableHead>
+                        <TableHead className="font-normal bg-muted border-b-2">Chain ID</TableHead>
+                        <TableHead className="font-normal bg-muted border-b-2">Polymer Class</TableHead>
+                        <TableHead className="font-normal bg-muted border-b-2">Source Organism</TableHead>
                     </TableRow>
                 </TableHeader>
                 {
