@@ -13,6 +13,7 @@ import { MolstarNode } from "@/components/mstar/lib"
 import { Separator } from "@/components/ui/separator"
 import Image from 'next/image'
 import { MolstarContext } from "@/components/ribxz/molstar_context"
+import { ScrollArea } from "@radix-ui/react-scroll-area"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -94,8 +95,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
 
 
-                                    <TabsContent value="info">
-                                        <Image alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/ribosome.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" />
+                                    <TabsContent value="info" className=" h-[80vh] ">
+                                        {/* <Image alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/sping.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" /> */}
                                         <div className="grid grid-cols-2 gap-4">
                                             {data?.citation_rcsb_authors ?
                                                 <div>
@@ -165,43 +166,62 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                         </div>
 
 
-                                        <div>
-                                            {
-                                                ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
-                                                    <>
+                                                            {/* <Separator className="my-2" /> */}
+                                                            <h3 className=" font-medium my-2 text-gray-600">Ligands <span className="text-xs font-semibold text-gray-600">| </span>Landmarks</h3>
+                                        <ScrollArea className="p-2 h-[55vh] overflow-auto rounded-sm no-scrollbar border-l border-r border-t ">
+                                            <div>
+                                                {
+                                                    ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
+                                                        <>
 
-                                                        <Separator className="my-2" />
-                                                        <h3 className=" font-medium my-2">Ligands & Landmarks</h3>
-                                                        <div className="grid grid-cols-2 gap-2 mt-2">
-                                                            {
-                                                                ptc_data ?
-                                                                    <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
-                                                                        onClick={() => {
-                                                                            var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
-                                                                            var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
-                                                                            ctx?.select_multiple_residues([ptc_query as [string, number[]]])
+                                                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                                                {
+                                                                    ptc_data ?
+                                                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
+                                                                            onClick={() => {
+                                                                                var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
+                                                                                var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
+                                                                                ctx?.select_multiple_residues([ptc_query as [string, number[]]])
 
-                                                                        }} >
+                                                                            }} >
 
-                                                                        <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
-                                                                        <h4 className="font-semibold">PTC</h4>
-                                                                        <p >Peptidyl Transferase Center</p>
-                                                                    </div> : null
-                                                            }
-                                                            {
-                                                                data?.nonpolymeric_ligands
-                                                                    .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                                                                    .map(ligand =>
-                                                                        <LigandThumbnail data={ligand} key={ligand.chemicalId} />
-                                                                    )
-                                                            }
+                                                                            <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
+                                                                            <h4 className="font-semibold">PTC</h4>
+                                                                            <p >Peptidyl Transferase Center</p>
+                                                                        </div> : null
+                                                                }
+                                                                {
+                                                                    data?.nonpolymeric_ligands
+                                                                        .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                                                                        .map((ligand, i) => {
+                                                                            return <>
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
+                                                                                <LigandThumbnail data={ligand} key={i} />
 
-                                                        </div>
-                                                    </> : null
+                                                                            </>
+                                                                        }
+                                                                        )
 
-                                            }
-                                        </div>
+                                                                }
 
+                                                            </div>
+                                                        </> : null
+
+                                                }
+                                            </div>
+
+                                        </ScrollArea>
                                     </TabsContent>
 
 

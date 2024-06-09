@@ -26,10 +26,10 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
         onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
         onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
 
-        <TableCell className="text-center">{polymer.parent_rcsb_id}</TableCell>
-        <TableCell className="text-center">{polymer.auth_asym_id}</TableCell>
-        <TableCell className="text-center"><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
-        <TableCell className="whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
+        <TableCell className="text-xs text-center">{polymer.parent_rcsb_id}</TableCell>
+        <TableCell className="text-xs text-center">{polymer.auth_asym_id}</TableCell>
+        <TableCell className="text-xs text-center"><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
+        <TableCell className="text-xs whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
     </TableRow>
 }
 
@@ -44,14 +44,14 @@ export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.proteins
     const rnas = props.rnas
     return (
-        <ScrollArea className="max-h-[80vh] rounded-md border overflow-auto">
+        <ScrollArea className="max-h-[80vh] rounded-md border overflow-auto no-scrollbar">
             <Table >
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="font-normal bg-muted border-b-2">Parent Structure</TableHead>
-                        <TableHead className="font-normal bg-muted border-b-2">Chain ID</TableHead>
-                        <TableHead className="font-normal bg-muted border-b-2">Polymer Class</TableHead>
-                        <TableHead className="font-normal bg-muted border-b-2">Source Organism</TableHead>
+                        <TableHead className="font-normal text-xs bg-muted border-b-2">Parent Structure</TableHead>
+                        <TableHead className="font-normal text-xs bg-muted border-b-2">Chain ID</TableHead>
+                        <TableHead className="font-normal text-xs bg-muted border-b-2">Polymer Class</TableHead>
+                        <TableHead className="font-normal text-xs bg-muted border-b-2">Source Organism</TableHead>
                     </TableRow>
                 </TableHeader>
                 {
