@@ -29,7 +29,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   })()
 
   const method_color = (() => {
-    switch(method){
+    switch (method) {
       case "EM":
         return "text-cyan-500"
       case "XRAY":
@@ -37,7 +37,6 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
       case "NMR":
         return "text-green-500"
     }
-
   })()
 
 
@@ -52,10 +51,10 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
               <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
               <div className="absolute bottom-4 left-4         bg-muted border rounded-sm px-3 py-1 text-xs " >{_.resolution} Å</div>
 
-              <div className={ `absolute top-4 right-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}` } >
+              <div className={`absolute top-4 right-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}`} >
 
                 {
-method
+                  method
 
                 }
               </div>
@@ -83,9 +82,9 @@ method
                 {/* TODO: VARY COLOR OF TOOLTIP BASED ON SPECIES .
               this can be done by looking up the given tax id in the redux store once the species are actually there(just backend hooks atm)
               */}
-                <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#ffccaa]" />
                 <span className="ml-2 text-xs" title="Full taxonomic lineage">
-                  {_.src_organism_names[0]}
+                  {_.src_organism_names}
+                  {_.src_organism_ids.join(",")}
                 </span>
               </div>
             </div>
@@ -108,7 +107,7 @@ method
             <div className="flex justify-between items-center mt-1 group relative">
               <span>Ligands:</span>
               <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
-                <span title="List of ligands">{_.nonpolymeric_ligands.length}</span>
+                <span title="List of ligands">{ _.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) .length}</span>
               </div>
             </div>
             {
@@ -117,9 +116,7 @@ method
                   <span>Authors:</span>
                   <HoverCard>
                     <HoverCardTrigger asChild>
-
                       <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors z-10" title="Full list of authors" >
-
                         <span style={{ fontStyle: "italic" }}>{_.citation_rcsb_authors[0]}</span> <span style={{
                           cursor: "pointer",
                           display: 'inline-block',
@@ -133,11 +130,7 @@ method
                           fontSize: '14px',
                           color: 'white'
                         }}>+</span>
-
-
-
                       </span>
-
                     </HoverCardTrigger>
                     <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
                       {

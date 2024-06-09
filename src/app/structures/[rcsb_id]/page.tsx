@@ -196,19 +196,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                                                         .map((ligand, i) => {
                                                                             return <>
                                                                                 <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                                <LigandThumbnail data={ligand} key={i} />
-
                                                                             </>
                                                                         }
                                                                         )

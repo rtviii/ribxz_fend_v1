@@ -24,7 +24,7 @@ import { FiltersState, pagination_next_page, pagination_prev_page, pagination_se
 
 const groupStyles = {
   borderRadius: '5px',
-  background: '#f2fcff',
+  background  : '#f2fcff',
 };
 
 export const Group = (props: GroupProps<PolymerClassOption, false>) => (
@@ -69,15 +69,19 @@ export function Filters(props: FiltersProps) {
 
   const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
+
+ 
+
+
   const [polymerClassOptions, setPolymerClassOptions]                              = useState<any>([]);
 
-  const [triggerStructuresRefetch]   = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
+  const [triggerStructuresRefetch] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 
-  const struct_state      = useAppSelector((state) => state.ui.data)
-  const filters           = useAppSelector(state => state.ui.filters)!
+  const struct_state               = useAppSelector((state) => state.ui.data)
+  const filters                    = useAppSelector(state => state.ui.filters)!
 
   const debounced_filters = useDebounceFilters(filters, 250)
-  const dispatch          = useAppDispatch();
+  const dispatch = useAppDispatch();
 
 
   // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
@@ -85,13 +89,13 @@ export function Filters(props: FiltersProps) {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
     triggerStructuresRefetch({
-      page          : 1,
-      year          : filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution    : filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa      : filters.host_taxa.length == 0 ? ''                                                : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa    : filters.source_taxa.length == 0 ? ''                                              : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filters.polymer_classes.length == 0 ? ''                                          : filters.polymer_classes.join(','),
-      search        : filters.search === null ? ''                                                      : filters.search
+      page: 1,
+      year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
+      search: filters.search === null ? '' : filters.search
     }).unwrap()
 
     dispatch(pagination_set_page({
@@ -127,9 +131,7 @@ export function Filters(props: FiltersProps) {
       </div>
 
       <CollapsibleContent >
-
         <div className="space-y-2">
-
           <Input placeholder="Search"
             disabled={props.disabled_whole}
             value={filters.search == null ? '' : filters.search}
@@ -266,7 +268,7 @@ export function Filters(props: FiltersProps) {
   )
 }
 
-function ChevronDownIcon(props:any) {
+function ChevronDownIcon(props: any) {
   return (
     <svg
       {...props}
