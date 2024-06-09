@@ -8,14 +8,6 @@ import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
 import { contract_taxname } from "@/my_utils"
 import { taxdot } from "./taxonomy"
-// import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
-
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { AsteriskTooltip } from "./asterisk_tooltip"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
@@ -61,10 +53,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
 
           <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
           <div className="absolute bottom-4 left-4         bg-muted border rounded-sm px-3 py-1 text-xs " >{_.resolution.toFixed(2)} Å</div>
-
-          <div className={`absolute top-4 right-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}`} >
-            {method}
-          </div>
+          <div className={`absolute top-4 right-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}`} > {method} </div>
           {
             _.citation_year ?
               <div className="absolute bottom-4 right-4        bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> :
@@ -82,12 +71,6 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                 <div className="flex justify-between group relative">
                   <span>Organisms:</span>
                   <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md  px-1 py-1 transition-colors">
-                    {/* TODO: VARY COLOR OF TOOLTIP BASED ON SPECIES .
-              this can be done by looking up the given tax id in the redux store once the species are actually there(just backend hooks atm)
-              */}
-                    {/* {
-                  taxid_dict[_.src_organism_ids[0]][1] in ["Archaea", "Eukaryota", "Bacteria"] ? taxdot(taxid_dict[_.src_organism_ids[0]][1]) : null
-                } */}
 
                     <span className=" text-xs font-medium" >
                       {_.src_organism_ids.map((taxid) => {
