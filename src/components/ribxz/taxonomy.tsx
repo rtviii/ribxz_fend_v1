@@ -19,7 +19,6 @@ function TaxonomyDot(props:any) {
 }
 
 
-
 export const taxdot = (kingdom:"Archaea" |"Eukaryota" |"Bacteria"):React.ReactNode =>{
   return <TaxonomyDot className={kingdom === "Archaea" ? "fill-red-500" : kingdom === "Eukaryota" ? "fill-green-500" : "fill-blue-500"} />
 }

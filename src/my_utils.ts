@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useAppSelector } from "./store/store";
 
 export function useDebouncePagination(value: number, delay: number): number {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -7,12 +6,10 @@ export function useDebouncePagination(value: number, delay: number): number {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
-
     return () => {
       clearTimeout(handler);
     };
   }, [value, delay]);
-
   return debouncedValue;
 }
 
