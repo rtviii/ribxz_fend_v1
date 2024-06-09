@@ -15,11 +15,31 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
     "3JCN.png", "5IB8.png", "6BZ7.png", "6OFX.png", "6W7M.png", "7ODR.png", "7RQA.png", "8D8K.png", "8OM4.png",
     "4B3S.png", "5KPW.png", "6HRM.png", "6P4G.png", "6ZQF.png", "7OE0.png", "7U2H.png", "8ETJ.png", "8SCB.png",
     "4WRA.png", "5MMM.png", "6LQR.png", "6P5N.png", "7A1G.png", "7OYC.png", "7UVX.png", "8EUG.png", "8T8C.png"]
-    const utf8Encode = new TextEncoder();
-    const byteval    = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
-    const pic        = RCSB_IDs[byteval % RCSB_IDs.length]
-    
-    
+  const utf8Encode = new TextEncoder();
+  const byteval = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
+  const pic = RCSB_IDs[byteval % RCSB_IDs.length]
+  const method = (() => {
+    if (_.expMethod.toLowerCase().includes("electron")) {
+      return "EM"
+    } else if (_.expMethod.toLowerCase().includes("ray")) {
+      return "XRAY"
+    } else if (_.expMethod.toLowerCase().includes("nmr")) {
+      return "NMR"
+    }
+  })()
+
+  const method_color = (() => {
+    switch(method){
+      case "EM":
+        return "text-cyan-500"
+      case "XRAY":
+        return "text-orange-500"
+      case "NMR":
+        return "text-green-500"
+    }
+
+  })()
+
 
   return (
     <Link href={`/structures/${_.rcsb_id}`}>
@@ -27,12 +47,24 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
         <Popover>
           <PopoverTrigger asChild>
             <div className="relative h-[40%] transition-all duration-150 hover:h-[100%] border-2">
-              <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={ `/ribxz_pics/${pic}` } style={{ aspectRatio: "400/160", objectFit: "revert-layer", }}  />
-              <div className="absolute top-4 left-4 transform  bg-white rounded-md px-3 py-1 text-sm font-bold">
-                {_.rcsb_id}
+              <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
+
+              <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
+              <div className="absolute bottom-4 left-4         bg-muted border rounded-sm px-3 py-1 text-xs " >{_.resolution} Å</div>
+
+              <div className={ `absolute top-4 right-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}` } >
+
+                {
+method
+
+                }
               </div>
-              <div className="absolute bottom-4 left-4 bg-white rounded-md px-3 py-1 text-sm font-bold" >{_.resolution} Å</div>
-              <div className="absolute bottom-4 right-4 bg-white rounded-md px-3 py-1 text-sm font-bold">{_.citation_year}  </div>
+              {
+                _.citation_year ?
+                  <div className="absolute bottom-4 right-4        bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> :
+                  null
+              }
+
             </div>
           </PopoverTrigger>
           <PopoverContent className="w-80">
@@ -57,10 +89,10 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between items-center mt-1 group relative">
+            {/* <div className="flex justify-between items-center mt-1 group relative">
               <span>Method:</span>
               <span title="Full method description">{_.expMethod}</span>
-            </div>
+            </div> */}
             <div className="flex justify-between items-center mt-1 group relative">
               <span>Proteins:</span>
               <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
