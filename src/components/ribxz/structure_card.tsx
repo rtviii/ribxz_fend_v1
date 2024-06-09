@@ -5,6 +5,9 @@ import { RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 import Link from "next/link"
 import Image from 'next/image'
+import { useAppSelector } from "@/store/store"
+import { contract_taxname } from "@/my_utils"
+import { TaxonomyDot, taxdot } from "./taxonomy"
 // import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
@@ -39,6 +42,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
     }
   })()
 
+  const taxid_dict  = useAppSelector(state => state.ui.taxid_dict)
 
   return (
     <Link href={`/structures/${_.rcsb_id}`}>
@@ -52,11 +56,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
               <div className="absolute bottom-4 left-4         bg-muted border rounded-sm px-3 py-1 text-xs " >{_.resolution} Å</div>
 
               <div className={`absolute top-4 right-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}`} >
-
-                {
-                  method
-
-                }
+                { method }
               </div>
               {
                 _.citation_year ?
@@ -77,14 +77,19 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
           <div className="text-gray-700 text-sm">
 
             <div className="flex justify-between group relative">
-              <span>Organism:</span>
+              <span>Organisms:</span>
               <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
                 {/* TODO: VARY COLOR OF TOOLTIP BASED ON SPECIES .
               this can be done by looking up the given tax id in the redux store once the species are actually there(just backend hooks atm)
               */}
+              {
+                taxdot(taxid_dict[_.src_organism_ids[0]][1])
+              }
+              
                 <span className="ml-2 text-xs" title="Full taxonomic lineage">
-                  {_.src_organism_names}
-                  {_.src_organism_ids.join(",")}
+                  {_.src_organism_ids.map((taxid) => {
+                    return contract_taxname(taxid_dict[taxid][0] )
+                 })}
                 </span>
               </div>
             </div>

@@ -1,5 +1,5 @@
-
 import { useEffect, useState } from "react";
+import { useAppSelector } from "./store/store";
 
 export function useDebouncePagination(value: number, delay: number): number {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -14,4 +14,13 @@ export function useDebouncePagination(value: number, delay: number): number {
   }, [value, delay]);
 
   return debouncedValue;
+}
+
+
+export function map_ncbi_tax_id_to_name(taxid: number ,taxdict:Record<number, [ string, "Archaea" |"Eukaryota" |"Bacteria"]>): [ string, "Archaea" |"Eukaryota" |"Bacteria"] {
+  return taxdict[taxid]
+}  
+
+export function contract_taxname(name:string){
+  return name.split(" ")[0][0].toUpperCase() + ". " + name.split(" ")[1]
 }

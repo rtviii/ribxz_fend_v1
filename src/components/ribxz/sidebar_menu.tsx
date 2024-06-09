@@ -24,7 +24,7 @@ export function SidebarMenu() {
   const dispatch = useAppDispatch()
   const { data: taxdict_data, isLoading, isError } = useRoutersRouterStructTaxDictQuery()
   useEffect(()=>{
-    if (taxdict_data!==undefined) { dispatch(set_tax_dict(taxdict_data)) }
+    if (taxdict_data!==undefined) { dispatch(set_tax_dict(taxdict_data as any)) }
   },[taxdict_data])
 
   const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
