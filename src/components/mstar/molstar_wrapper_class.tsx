@@ -27,6 +27,9 @@ import { MySpec } from "./lib";
 import _ from "lodash";
 import { StateElements } from './functions';
 import { Script } from 'molstar/lib/mol-script/script';
+import { PresetStructureRepresentations } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
+import { Color } from 'molstar/lib/mol-util/color/color';
+import { QuickStyles } from 'molstar/lib/mol-plugin-ui/structure/quick-styles';
 
 _.memoize.Cache = WeakMap;
 
@@ -194,6 +197,34 @@ dynamicSuperimpose(pivot_auth_asym_id: string ) {
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+
+   const { structures } = this.ctx.managers.structure.hierarchy.selection;
+
+   this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
+
+        if (this.ctx.canvas3d) {
+            const pp = this.ctx.canvas3d.props.postprocessing;
+            this.ctx.canvas3d.setProps({
+                postprocessing: {
+                    outline: {
+                        name: 'on',
+                        params: pp.outline.name === 'on'
+                            ? pp.outline.params
+                            : { scale: 1, color: Color(0x000000), threshold: 0.33 }
+                    },
+                    occlusion: {
+                        name: 'on',
+                        params: pp.occlusion.name === 'on'
+                            ? pp.occlusion.params
+                            : { bias: 0.8, blurKernelSize: 15, radius: 5, samples: 32, resolutionScale: 1 }
+                    },
+                }
+            });
+        }
+
+
+
+
     return this
     // return null
   }

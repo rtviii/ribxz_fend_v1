@@ -81,7 +81,7 @@ export function Filters(props: FiltersProps) {
   const filters                    = useAppSelector(state => state.ui.filters)!
 
   const debounced_filters = useDebounceFilters(filters, 250)
-  const dispatch = useAppDispatch();
+  const dispatch          = useAppDispatch();
 
 
   // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
