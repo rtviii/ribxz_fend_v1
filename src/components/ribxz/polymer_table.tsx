@@ -7,6 +7,8 @@ import { NonpolymericLigand, Polymer, Protein, Rna } from "@/store/ribxz_api/rib
 import { useAppSelector } from "@/store/store"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { useContext } from "react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { Separator } from "../ui/separator"
 
 
 interface PolymerTableRowProps {
@@ -21,14 +23,36 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
 
 
     return <TableRow
-        className="hover:bg-slate-100   hover:cursor-pointer"
+        // className="  hover:cursor-pointer"
         onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
         onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
         onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
 
         <TableCell className="mt-1 text-xs text-center">{polymer.parent_rcsb_id}</TableCell>
         <TableCell className="mt-1 text-xs text-center">{polymer.auth_asym_id}</TableCell>
-        <TableCell className="mt-1 text-xs text-center"><Badge variant="outline">{polymer.nomenclature}</Badge></TableCell>
+        <TableCell className="mt-1 text-xs text-center">
+
+
+
+            <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                    <TooltipTrigger  >
+
+                        <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer">
+                            {polymer.nomenclature}
+                        </Badge>
+                    </TooltipTrigger>
+
+                    <TooltipContent side="top">
+                        <p>E-value consensus sse</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </TableCell>
+
+
+
+
         <TableCell className="mt-1 text-xs whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
     </TableRow>
 }

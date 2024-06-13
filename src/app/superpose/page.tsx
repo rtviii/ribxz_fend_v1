@@ -94,9 +94,6 @@ export default function Superimpose() {
         })()
     }, [])
 
-
-    // useEffect(() => { dispatch(initiatePluginUIContext({ parent_element: molstarNodeRef.current! })) }, [molstarNodeRef, dispatch])
-
     const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     const [test_active, test_active_set] = useState<boolean>(false)
 

@@ -1,5 +1,6 @@
 'use client'
-function TaxonomyDot(props:any) {
+
+export function TaxonomyDot(props:any) {
   return (
     <svg
       {...props}
