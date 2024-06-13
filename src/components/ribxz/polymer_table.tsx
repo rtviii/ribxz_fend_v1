@@ -3,24 +3,34 @@ import { MolstarContext as MolstarAppContext } from "@/components/ribxz/molstar_
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 // import { create_ligand, create_ligand_surroundings, highlightChain, removeHighlight, selectChain } from "@/store/molstar/functions"
-import { NonpolymericLigand, Polymer, Protein, Rna } from "@/store/ribxz_api/ribxz_api"
+import { NonpolymericLigand, Polymer, Protein, Rna, ribxz_api } from "@/store/ribxz_api/ribxz_api"
 import { useAppSelector } from "@/store/store"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 
 
 interface PolymerTableRowProps {
-    polymer: Polymer | Rna | Protein,
-    connect_to_molstar_ctx?: boolean
+    polymer                : Polymer | Rna | Protein,
+    connect_to_molstar_ctx?: boolean,
+    classification_report  : []
+
 }
 
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
-    // const ctx         = useAppSelector(state => state.molstar.ui_plugin)
     const polymer = props.polymer
     const ctx = useContext(MolstarAppContext)
 
+
+    const [trigger, result, lastPromiseInfo] = ribxz_api.useLazyRoutersRouterStructPolymerClassificationReportQuery();
+
+    const [classification_report, setClassificationReport] = useState()
+
+
+    useEffect(()=>{
+        console.log(result);
+    },[result])
 
     return <TableRow
         // className="  hover:cursor-pointer"
@@ -31,23 +41,24 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
         <TableCell className="mt-1 text-xs text-center">{polymer.parent_rcsb_id}</TableCell>
         <TableCell className="mt-1 text-xs text-center">{polymer.auth_asym_id}</TableCell>
         <TableCell className="mt-1 text-xs text-center">
+                        <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer" 
+                        // onMouseEnter={() => { trigger({ authAsymId: polymer.auth_asym_id, rcsbId: polymer.parent_rcsb_id, }); }}
+                        >
+                            {polymer.nomenclature}
+                        </Badge>
 
-
-
-            <TooltipProvider>
+        {/* TODO: When classification reports are generated: plug them in here */}
+            {/* <TooltipProvider>
                 <Tooltip delayDuration={0}>
                     <TooltipTrigger  >
 
-                        <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer">
-                            {polymer.nomenclature}
-                        </Badge>
                     </TooltipTrigger>
 
                     <TooltipContent side="top">
                         <p>E-value consensus sse</p>
                     </TooltipContent>
                 </Tooltip>
-            </TooltipProvider>
+            </TooltipProvider> */}
         </TableCell>
 
 

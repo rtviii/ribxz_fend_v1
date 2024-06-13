@@ -7,6 +7,15 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: () => ({ url: `/structures/tax_dict` }),
     }),
+    routersRouterStructPolymerClassificationReport: build.query<
+      RoutersRouterStructPolymerClassificationReportApiResponse,
+      RoutersRouterStructPolymerClassificationReportApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/structures/polymer_classification_report`,
+        params: { rcsb_id: queryArg.rcsbId, auth_asym_id: queryArg.authAsymId },
+      }),
+    }),
     routersRouterStructStructureCompositionStats: build.query<
       RoutersRouterStructStructureCompositionStatsApiResponse,
       RoutersRouterStructStructureCompositionStatsApiArg
@@ -149,6 +158,12 @@ const injectedRtkApi = api.injectEndpoints({
 export { injectedRtkApi as ribxz_api };
 export type RoutersRouterStructTaxDictApiResponse = /** status 200 OK */ object;
 export type RoutersRouterStructTaxDictApiArg = void;
+export type RoutersRouterStructPolymerClassificationReportApiResponse =
+  /** status 200 OK */ object[];
+export type RoutersRouterStructPolymerClassificationReportApiArg = {
+  rcsbId: string;
+  authAsymId: string;
+};
 export type RoutersRouterStructStructureCompositionStatsApiResponse =
   /** status 200 OK */ StructureCompositionStats;
 export type RoutersRouterStructStructureCompositionStatsApiArg = void;
@@ -1168,6 +1183,7 @@ export type RibosomeStructure = {
   rcsb_id: string;
   expMethod: string;
   resolution: number;
+  deposition_date?: string | null;
   pdbx_keywords?: string | null;
   pdbx_keywords_text?: string | null;
   rcsb_external_ref_id: string[];
@@ -1209,6 +1225,7 @@ export type NomenclatureSet = {
 };
 export const {
   useRoutersRouterStructTaxDictQuery,
+  useRoutersRouterStructPolymerClassificationReportQuery,
   useRoutersRouterStructStructureCompositionStatsQuery,
   useRoutersRouterStructRandomProfileQuery,
   useRoutersRouterStructPolymersByPolymerClassQuery,
