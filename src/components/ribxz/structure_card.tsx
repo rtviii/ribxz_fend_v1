@@ -97,10 +97,6 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                     }
                   </div>
                 </div>
-                {/* <div className="flex justify-between items-center mt-1 group relative">
-              <span>Method:</span>
-              <span title="Full method description">{_.expMethod}</span>
-            </div> */}
                 <div className="flex justify-between items-center mt-1 group relative">
                   <span>Proteins:</span>
                   <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors">
