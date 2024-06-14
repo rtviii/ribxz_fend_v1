@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator"
 import Image from 'next/image'
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
+import { ExpMethodBadge } from "@/components/ribxz/exp_method_badge"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -46,12 +47,13 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
     const ptc = searchParams.get('ptc')
-    // const ligand_param = "ERY"
     // const ptc          = "True"
 
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
-    const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    const { data, isLoading, error }                                          = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    const[  method, setMethod ]                                               = useState<undefined | string>()
+
 
     ptc_data as any
 
@@ -146,7 +148,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
                                             <div>
                                                 <h4 className="text text-sm font-medium">Experimental Method</h4>
-                                                <p className="text-xs mt-1">{data?.expMethod}</p>
+                                                <ExpMethodBadge expMethod={data?.expMethod}/>
                                             </div>
 
                                             <div>
@@ -166,8 +168,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                         </div>
 
 
-                                                            {/* <Separator className="my-2" /> */}
-                                                            <h3 className=" font-medium my-2 text-gray-600">Ligands <span className="text-xs font-semibold text-gray-600">| </span>Landmarks</h3>
+                                        {/* <Separator className="my-2" /> */}
+                                        <h3 className=" font-medium my-2 text-gray-600">Ligands <span className="text-xs font-semibold text-gray-600">| </span>Landmarks</h3>
                                         <ScrollArea className="p-2 h-[55vh] overflow-auto rounded-sm no-scrollbar border-l border-r border-t ">
                                             <div>
                                                 {
@@ -182,7 +184,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                                                                 var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
                                                                                 var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
                                                                                 ctx?.select_multiple_residues([ptc_query as [string, number[]]])
-
                                                                             }} >
 
                                                                             <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>

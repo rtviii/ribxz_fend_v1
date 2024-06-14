@@ -9,6 +9,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { useContext, useEffect, useState } from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
+import {contract_taxname} from '@/my_utils'
 import Link from "next/link"
 
 
@@ -28,11 +29,9 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
     const [classification_report, setClassificationReport] = useState()
 
 
-    useEffect(() => {
-        console.log(result);
-    }, [result])
-
+    const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
     return <TableRow
+
         // className="  hover:cursor-pointer"
         onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
         onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
@@ -67,11 +66,11 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
                 </Tooltip>
             </TooltipProvider> */}
         </TableCell>
+        <TableCell className="mt-1 text-xs whitespace-pre">{polymer.src_organism_ids.map((taxid) => {
 
-
-
-
-        <TableCell className="mt-1 text-xs whitespace-pre">{polymer.src_organism_names.join(',')}</TableCell>
+                        // @ts-ignore
+                          return contract_taxname(taxid_dict[taxid])
+                        })}</TableCell>
     </TableRow>
 }
 

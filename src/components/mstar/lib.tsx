@@ -126,7 +126,7 @@ export const MySpec: PluginUISpec = {
   layout: {
     initial: {
       controlsDisplay: 'portrait',
-      showControls: true, },
+      showControls: false, },
 
 
   },
@@ -135,9 +135,10 @@ export const MySpec: PluginUISpec = {
     structureTools: CustomStructureTools,
     // TODO: hook up current state to custom sequence viewer
     // sequenceViewer:
+    
     controls:{
         bottom:'none',
-        // left:'none'
+        left:'none'
         
     },
     remoteState: 'none',

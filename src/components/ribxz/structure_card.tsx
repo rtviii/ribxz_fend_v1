@@ -18,10 +18,11 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
     "3JCN.png", "5IB8.png", "6BZ7.png", "6OFX.png", "6W7M.png", "7ODR.png", "7RQA.png", "8D8K.png", "8OM4.png",
     "4B3S.png", "5KPW.png", "6HRM.png", "6P4G.png", "6ZQF.png", "7OE0.png", "7U2H.png", "8ETJ.png", "8SCB.png",
     "4WRA.png", "5MMM.png", "6LQR.png", "6P5N.png", "7A1G.png", "7OYC.png", "7UVX.png", "8EUG.png", "8T8C.png"]
+
   const utf8Encode = new TextEncoder();
-  const byteval = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
-  const pic = RCSB_IDs[byteval % RCSB_IDs.length]
-  const method = (() => {
+  const byteval    = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
+  const pic        = RCSB_IDs[byteval % RCSB_IDs.length]
+  const method     = (() => {
     if (_.expMethod.toLowerCase().includes("electron")) {
       return "EM"
     } else if (_.expMethod.toLowerCase().includes("ray")) {
