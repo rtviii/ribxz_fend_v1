@@ -331,7 +331,7 @@ const citation = `@article{kushner2023riboxyz,
     </div>
     <Button
       // variant="outline"
-      size="xs"
+      size="sm"
       className="absolute  hover:bg-transparent hover:text-black border border-black bottom-4 right-8 text-xs p-1 px-2"
       onClick={() => { navigator.clipboard.writeText(citation) }} >
       Copy

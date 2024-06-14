@@ -74,6 +74,8 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
 
                     <span className=" text-xs font-medium" >
                       {_.src_organism_ids.map((taxid) => {
+
+                        // @ts-ignore
                         return contract_taxname(taxid_dict[taxid])
                       })}
                     </span>
@@ -83,6 +85,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                       <span className="ml-2 text-xs text-gray-500" >
                         {_.host_organism_ids.map((taxid) => {
 
+                        // @ts-ignore
                           return contract_taxname(taxid_dict[taxid])
                         })}
                         <AsteriskTooltip>
