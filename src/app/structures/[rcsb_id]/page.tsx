@@ -51,8 +51,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
-    const { data, isLoading, error }                                          = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-    const[  method, setMethod ]                                               = useState<undefined | string>()
+    const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    const [method, setMethod] = useState<undefined | string>()
 
 
     ptc_data as any
@@ -148,7 +148,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
                                             <div>
                                                 <h4 className="text text-sm font-medium">Experimental Method</h4>
-                                                <ExpMethodBadge expMethod={data?.expMethod}/>
+                                                <ExpMethodBadge expMethod={data?.expMethod} />
                                             </div>
 
                                             <div>
@@ -187,8 +187,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                                                             }} >
 
                                                                             <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
-                                                                            <h4 className="font-semibold">PTC</h4>
-                                                                            <p >Peptidyl Transferase Center</p>
+                                                                            <h4 className="font-semibold text-xs">PTC</h4>
+                                                                            <p className="text-xs" >Peptidyl Transferase Center</p>
                                                                         </div> : null
                                                                 }
                                                                 {
