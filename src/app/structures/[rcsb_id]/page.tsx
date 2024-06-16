@@ -108,17 +108,17 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                                             <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md text-xs   transition-colors z-10" title="Full list of authors"  >
                                                                 <span style={{ fontStyle: "italic" }} >{data?.citation_rcsb_authors[0]}</span>
                                                                 <span style={{
-                                                                    cursor: "pointer",
-                                                                    display: 'inline-block',
-                                                                    width: '15px',
-                                                                    height: '15px',
-                                                                    borderRadius: '50%',
+                                                                    cursor         : "pointer",
+                                                                    display        : 'inline-block',
+                                                                    width          : '15px',
+                                                                    height         : '15px',
+                                                                    borderRadius   : '50%',
                                                                     backgroundColor: '#cccccc',
-                                                                    textAlign: 'center',
-                                                                    lineHeight: '15px',
-                                                                    fontWeight: 'bold',
-                                                                    fontSize: '14px',
-                                                                    color: 'white'
+                                                                    textAlign      : 'center',
+                                                                    lineHeight     : '15px',
+                                                                    fontWeight     : 'bold',
+                                                                    fontSize       : '14px',
+                                                                    color          : 'white'
                                                                 }}>+</span>
 
 
