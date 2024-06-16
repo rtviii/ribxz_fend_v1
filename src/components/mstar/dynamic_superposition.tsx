@@ -52,18 +52,6 @@ async function siteVisual(plugin: PluginContext, s: StateObjectRef<PSO.Molecule.
 export function dynamicSuperimpose(ctx: PluginContext,pivot_auth_asym_id: string, src?: [string, string][], ) {
     return ctx.dataTransaction(async () => {
 
-        // for (const [ rcsb_id,aaid ] of src) {
-        //     await loadStructure(plugin, `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${aaid}`, 'mmcif');
-        // }
-
-        // const pivot = MS.struct.filter.first([
-        //     MS.struct.generator.atomGroups({
-        //         'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), comp_id]),
-        //         'group-by'    : MS.struct.atomProperty.macromolecular.residueKey()
-        //     })
-        // ]);
-
-        // console.log("Got pivot ", pivot_auth_asym_id);
         
         const pivot = MS.struct.filter.first([
             MS.struct.generator.atomGroups({

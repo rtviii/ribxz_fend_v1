@@ -118,19 +118,6 @@ export class MolstarRibxz {
   dynamicSuperimpose(pivot_auth_asym_id: string) {
     return this.ctx.dataTransaction(async () => {
 
-      // for (const [ rcsb_id,aaid ] of src) {
-      //     await loadStructure(plugin, `http://localhost:8000/mmcif_structures/chain?rcsb_id=${rcsb_id}&auth_asym_id=${aaid}`, 'mmcif');
-      // }
-
-      // const pivot = MS.struct.filter.first([
-      //     MS.struct.generator.atomGroups({
-      //         'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), comp_id]),
-      //         'group-by'    : MS.struct.atomProperty.macromolecular.residueKey()
-      //     })
-      // ]);
-
-      // console.log("Got pivot ", pivot_auth_asym_id);
-
 
 
 
@@ -157,7 +144,7 @@ export class MolstarRibxz {
   }
 
   async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }) {
-    const myUrl = `http://localhost:8000/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+    const myUrl = `http://127.0.0.1:8000/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');

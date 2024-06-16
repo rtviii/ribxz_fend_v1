@@ -13,7 +13,6 @@ export function useDebouncePagination(value: number, delay: number): number {
   return debouncedValue;
 }
 
-
 export function map_ncbi_tax_id_to_name(taxid: number ,taxdict:Record<number, [ string, "Archaea" |"Eukaryota" |"Bacteria"]>): [ string, "Archaea" |"Eukaryota" |"Bacteria"] {
   return taxdict[taxid]
 }  

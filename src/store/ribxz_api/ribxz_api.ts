@@ -158,8 +158,7 @@ const injectedRtkApi = api.injectEndpoints({
 export { injectedRtkApi as ribxz_api };
 export type RoutersRouterStructTaxDictApiResponse = /** status 200 OK */ object;
 export type RoutersRouterStructTaxDictApiArg = void;
-export type RoutersRouterStructPolymerClassificationReportApiResponse =
-  /** status 200 OK */ object[];
+export type RoutersRouterStructPolymerClassificationReportApiResponse = unknown;
 export type RoutersRouterStructPolymerClassificationReportApiArg = {
   rcsbId: string;
   authAsymId: string;
