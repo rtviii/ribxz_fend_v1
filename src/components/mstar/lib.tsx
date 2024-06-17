@@ -25,6 +25,7 @@ import { Expression } from 'molstar/lib/mol-script/language/expression';
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { compile } from "molstar/lib/mol-script/runtime/query/compiler";
+const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../../.env.local" });
 
 export class CustomStructureTools extends PluginUIComponent {
   render() {
@@ -163,7 +164,7 @@ export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIConte
 }
 
 export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string}) {
-  const myUrl = `http://127.0.0.1:8000/mmcif/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+  const myUrl = `${DJANGO_URL}/mmcif/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
   const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
   const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
   await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default' );

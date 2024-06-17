@@ -4,6 +4,9 @@ const nextConfig = {
   // output: 'export',
   swcMinify: false,
   // reactStrictMode:false
+  // typescript:{
+  //   ignoreBuildErrors:true
+  // }
   images: { unoptimized: true },
   eslint:{
     ignoreDuringBuilds:true
@@ -11,9 +14,6 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
-  // typescript:{
-  //   ignoreBuildErrors:true
-  // }
 }
 
 module.exports = nextConfig

@@ -22,7 +22,6 @@ import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import './mstar.css'
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
-
 import { MySpec } from "./lib";
 import _ from "lodash";
 import { StateElements } from './functions';
@@ -30,6 +29,7 @@ import { Script } from 'molstar/lib/mol-script/script';
 import { PresetStructureRepresentations } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 import { Color } from 'molstar/lib/mol-util/color/color';
 import { QuickStyles } from 'molstar/lib/mol-plugin-ui/structure/quick-styles';
+const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
 
@@ -144,7 +144,7 @@ export class MolstarRibxz {
   }
 
   async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }) {
-    const myUrl = `http://127.0.0.1:8000/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+    const myUrl = `${DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
