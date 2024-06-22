@@ -1,6 +1,18 @@
 import { empty_api as api } from "./template";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    routersRouterStructAllRcsbIds: build.query<
+      RoutersRouterStructAllRcsbIdsApiResponse,
+      RoutersRouterStructAllRcsbIdsApiArg
+    >({
+      query: () => ({ url: `/structures/all_rcsb_ids` }),
+    }),
+    routersRouterStructPolymerClassesStats: build.query<
+      RoutersRouterStructPolymerClassesStatsApiResponse,
+      RoutersRouterStructPolymerClassesStatsApiArg
+    >({
+      query: () => ({ url: `/structures/polymer_classes_stats` }),
+    }),
     routersRouterStructTaxDict: build.query<
       RoutersRouterStructTaxDictApiResponse,
       RoutersRouterStructTaxDictApiArg
@@ -156,6 +168,12 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as ribxz_api };
+export type RoutersRouterStructAllRcsbIdsApiResponse =
+  /** status 200 OK */ string[];
+export type RoutersRouterStructAllRcsbIdsApiArg = void;
+export type RoutersRouterStructPolymerClassesStatsApiResponse =
+  /** status 200 OK */ string[];
+export type RoutersRouterStructPolymerClassesStatsApiArg = void;
 export type RoutersRouterStructTaxDictApiResponse = /** status 200 OK */ object;
 export type RoutersRouterStructTaxDictApiArg = void;
 export type RoutersRouterStructPolymerClassificationReportApiResponse = unknown;
@@ -1223,6 +1241,8 @@ export type NomenclatureSet = {
   tRNAClass: string[];
 };
 export const {
+  useRoutersRouterStructAllRcsbIdsQuery,
+  useRoutersRouterStructPolymerClassesStatsQuery,
   useRoutersRouterStructTaxDictQuery,
   useRoutersRouterStructPolymerClassificationReportQuery,
   useRoutersRouterStructStructureCompositionStatsQuery,
