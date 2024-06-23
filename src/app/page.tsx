@@ -18,6 +18,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
+import StructureCard from '@/components/ribxz/structure_card';
 
 
 function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: string[] }) {
@@ -132,12 +133,10 @@ const StructStatsTable = (props: { data: any }) => {
   const { data: all_rcsb_ids, isLoading: all_ids_loading, isError: all_ids_isError } = useRoutersRouterStructAllRcsbIdsQuery()
 
   return (
-
     <>
       <div className="space-y-1">
         <h4 className=" font-medium text-sm leading-none hover:cursor-pointer hover:bg-muted p-1 mb-2">{all_rcsb_ids?.length} Atomic Structures</h4>
       </div>
-
       <Table className='text-xs'>
         <TableHeader >
           <TableRow >
@@ -216,6 +215,7 @@ export default function Home() {
   const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
   const [isOpen_structs, setIsOpen_structs] = useState(false)
   const [isOpen_polymers, setIsOpen_polymers] = useState(false)
+  const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
 
   return (
     <StoreProvider >
@@ -280,7 +280,8 @@ export default function Home() {
           <div className="w-3/6 flex flex-col gap-4 justify-between  relative  ">
 
 
-            <VisualizeRandom />
+            {/* <VisualizeRandom /> */}
+            {random_profile ? <StructureCard _={random_profile}/> : null}
 
             <Citation />
           </div>
@@ -294,7 +295,6 @@ export default function Home() {
 
 function VisualizeRandom() {
 
-  const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
   const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
   const router = useRouter()
 

@@ -18,5 +18,10 @@ export function map_ncbi_tax_id_to_name(taxid: number ,taxdict:Record<number, [ 
 }  
 
 export function contract_taxname(name:string){
+  if (name){
+
   return name.split(" ")[0][0].toUpperCase() + ". " + name.split(" ")[1]
+  }else{
+    return ""
+  }
 }
