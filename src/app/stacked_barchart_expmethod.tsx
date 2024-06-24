@@ -86,9 +86,6 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
       .domain([0, d3.max(series, d => d3.max(d, d => d[1])) || 0])
       .range([height, 0]);
 
-    // const color = d3.scaleOrdinal()
-    //   .domain(['EM', 'XRAY'])
-    //   .range(['black', 'white']);
 
     svg.selectAll('g')
       .data(series)
@@ -123,7 +120,9 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
       .call(d3.axisBottom(x).tickValues(x.domain().filter((_, i) => i % 5 === 0)));
 
     svg.append('g')
-      .call(d3.axisLeft(y));
+      .call(d3.axisLeft(y).ticks(5))
+      ;
+
 
     // Add legend
     const legend = svg.append('g')
