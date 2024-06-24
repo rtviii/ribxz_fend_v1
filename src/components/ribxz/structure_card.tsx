@@ -7,8 +7,6 @@ import Link from "next/link"
 import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
 import { contract_taxname } from "@/my_utils"
-import { taxdot } from "./taxonomy"
-import { AsteriskTooltip } from "./asterisk_tooltip"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   const RCSB_IDs = ["1FJG.png", "4WZD.png", "5OQL.png", "6MKN.png", "6PPK.png", "7BTB.png", "7PJV.png", "7V08.png", "8FKS.png",
@@ -20,9 +18,9 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
     "4WRA.png", "5MMM.png", "6LQR.png", "6P5N.png", "7A1G.png", "7OYC.png", "7UVX.png", "8EUG.png", "8T8C.png"]
 
   const utf8Encode = new TextEncoder();
-  const byteval    = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
-  const pic        = RCSB_IDs[byteval % RCSB_IDs.length]
-  const method     = (() => {
+  const byteval = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
+  const pic = RCSB_IDs[byteval % RCSB_IDs.length]
+  const method = (() => {
     if (_.expMethod.toLowerCase().includes("electron")) {
       return "EM"
     } else if (_.expMethod.toLowerCase().includes("ray")) {
@@ -52,24 +50,33 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
         <div className="relative h-[40%] transition-all duration-300 hover:h-[100%] border-b-2 ">
           <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
           <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
-          <div className="absolute bottom-4 left-4         bg-muted border rounded-sm px-3 py-1 text-xs " >{_.resolution.toFixed(2)} Å</div>
-          <div className={`absolute top-4 right-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}`} > {method} </div>
-          { _.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null }
+          <div className={`absolute bottom-4 left-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}`} > {method}  {_.resolution.toFixed(2)} Å  </div>
+          {/* TODO: Replace with `deposition_year` */}
+          {_.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null}
+          <div className="absolute top-4 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
+            <div className="border bg-muted rounded-sm px-1"> SSU+LSU</div>
+            {/* <div className="border bg-muted rounded-sm px-1"> SSU</div> */}
+            <div className="border bg-muted rounded-sm px-1"> Mitochondrion</div>
+          </div>
+
+          <div className="absolute top-10 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
+          </div>
+
         </div>
         <Popover>
           <PopoverTrigger asChild>
             <CardContent className="group-hover:hidden pt-4">
               <div className="text-gray-700 text-sm">
 
-                <div className="flex justify-between group relative">
-                  <span className="text-xs"><code>Host</code> Organism:</span>
+                <div className="flex justify-between group relative  rounded-sm">
+                  <span className="text-xs">Source Organism:</span>
                   <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md  px-1 py-1 transition-colors">
                     <span className=" text-xs font-medium" >
                       {_.src_organism_ids.map((taxid) => {
 
                         // @ts-ignore
                         return contract_taxname(taxid_dict[taxid])
-                      })} 
+                      })}
                     </span>
                     {/* { _.host_organism_ids.length > 0 &&
                       <span className="ml-2 text-xs text-gray-500" >
@@ -84,19 +91,19 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                     } */}
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-1 group relative">
+                <div className="flex justify-between items-center  group relative">
                   <span className="text-xs">Proteins:</span>
                   <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
                     <span title="List of proteins">{_.proteins.length}</span>
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-1 group relative">
+                <div className="flex justify-between items-center  group relative">
                   <span className="text-xs">RNA:</span>
                   <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
                     <span title="List of RNA">{_.rnas.length}</span>
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-1 group relative">
+                <div className="flex justify-between items-center  group relative">
                   <span className="text-xs">Ligands:</span>
                   <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
                     <span title="List of ligands">{_.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")).length}</span>

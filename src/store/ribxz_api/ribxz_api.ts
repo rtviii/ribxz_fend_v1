@@ -172,7 +172,7 @@ export type RoutersRouterStructAllRcsbIdsApiResponse =
   /** status 200 OK */ string[];
 export type RoutersRouterStructAllRcsbIdsApiArg = void;
 export type RoutersRouterStructPolymerClassesStatsApiResponse =
-  /** status 200 OK */ string[];
+  /** status 200 OK */ [string, number][];
 export type RoutersRouterStructPolymerClassesStatsApiArg = void;
 export type RoutersRouterStructTaxDictApiResponse = /** status 200 OK */ object;
 export type RoutersRouterStructTaxDictApiArg = void;
@@ -481,7 +481,10 @@ export type RoutersRouterStructStructurePtcApiResponse =
 export type RoutersRouterStructStructurePtcApiArg = {
   rcsbId: string;
 };
-export type RoutersRouterStructListLignadsApiResponse = unknown;
+export type RoutersRouterStructListLignadsApiResponse = /** status 200 OK */ [
+  object,
+  object[]
+][];
 export type RoutersRouterStructListLignadsApiArg = void;
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
@@ -1216,6 +1219,7 @@ export type RibosomeStructure = {
   host_organism_names: string[];
   assembly_map?: AssemblyInstancesMap[] | null;
   mitochondrial: boolean;
+  subunit_presence?: ("ssu" | "lsu")[] | null;
   proteins: Protein[];
   rnas: Rna[];
   other_polymers: Polymer[];

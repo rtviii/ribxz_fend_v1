@@ -3,7 +3,7 @@ import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLignadsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button"
@@ -57,7 +57,8 @@ const PolymersStatsTable = (props: { data: any }) => {
 
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
-  const [nom_classes, setClasses] = useState({ 'CytosolicProteins': [],
+  const [nom_classes, setClasses] = useState({
+    'CytosolicProteins': [],
     'MitochondrialProteins': [],
     'CytosolicRNA': [],
     'MitochondrialRNA': [],
@@ -80,52 +81,86 @@ const PolymersStatsTable = (props: { data: any }) => {
   }, [nomenclature_classes_backend])
 
 
-  const {data:polymer_classes_stats, isLoading:polymer_classes_stats_L, isError:polymer_classes_stats_E} =useRoutersRouterStructPolymerClassesStatsQuery()
+  const { data: polymer_classes_stats, isLoading: polymer_classes_stats_L, isError: polymer_classes_stats_E } = useRoutersRouterStructPolymerClassesStatsQuery()
 
   return (
 
     <>
       <div className="space-y-1">
         <h4 className=" font-medium text-sm leading-none hover:cursor-pointer hover:bg-muted p-1 mb-2">
-
-         {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats?.reduce((acc:number, curr:[string,number]) =>  acc+curr[1], 0)}  chains across {
-          polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length
-         } classes
-
-
-
+          {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats?.reduce((acc: number, curr: [string, number]) => acc + curr[1], 0)}  chains across {
+            polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length
+          } classes
         </h4>
       </div>
-    <Table className='text-xs'>
-      <TableHeader >
-        <TableRow >
-          <TableHead className='p-1 text-start align-middle justify-start'>Polypeptides</TableHead>
-          <TableHead className='p-1 text-start  align-middle justify-start'>Polynucleotides</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow >
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='left' table_label='Cytosolic Protein Classes' class_names={nom_classes.CytosolicProteins}> CytosolicProteins     </PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='right' table_label='Cytosolic RNA Classes' class_names={nom_classes.CytosolicRNA}> Cytosolic         rRNA</PolymerClassesHoverCard></TableCell>
-        </TableRow>
-        <TableRow >
-          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left' table_label='Mitochondrial Protein Classes' class_names={nom_classes.MitochondrialProteins}>Mitochondrial rProteins</PolymerClassesHoverCard></TableCell>
-          <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' table_label='Mitochondrial RNA Classes' class_names={nom_classes.MitochondrialRNA}>Mitochondrial rRNA     </PolymerClassesHoverCard></TableCell>
-        </TableRow>
-        <TableRow >
-          <TableCell className='p-1 m-0'>
-            <PolymerClassesHoverCard opens_to='left' table_label='Elongation & Initiation Factors' class_names={nom_classes.E_I_Factors}> E & I Factors</PolymerClassesHoverCard>
-          </TableCell>
-          <TableCell className='p-1 m-0'>
-            <Link href={'/polymers?class=tRNA'} className='px-2'>
-              tRNA
-            </Link>
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-</>
+      <Table className='text-xs'>
+        <TableHeader >
+          <TableRow >
+            <TableHead className='p-1 text-start align-middle justify-start'>Polypeptides</TableHead>
+            <TableHead className='p-1 text-start  align-middle justify-start'>Polynucleotides</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow >
+            <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='left' table_label='Cytosolic Protein Classes' class_names={nom_classes.CytosolicProteins}> CytosolicProteins     </PolymerClassesHoverCard></TableCell>
+            <TableCell className='p-1 m-0'><PolymerClassesHoverCard opens_to='right' table_label='Cytosolic RNA Classes' class_names={nom_classes.CytosolicRNA}> Cytosolic         rRNA</PolymerClassesHoverCard></TableCell>
+          </TableRow>
+          <TableRow >
+            <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='left' table_label='Mitochondrial Protein Classes' class_names={nom_classes.MitochondrialProteins}>Mitochondrial rProteins</PolymerClassesHoverCard></TableCell>
+            <TableCell className='p-1 m-0'> <PolymerClassesHoverCard opens_to='right' table_label='Mitochondrial RNA Classes' class_names={nom_classes.MitochondrialRNA}>Mitochondrial rRNA     </PolymerClassesHoverCard></TableCell>
+          </TableRow>
+          <TableRow >
+            <TableCell className='p-1 m-0'>
+              <PolymerClassesHoverCard opens_to='left' table_label='Elongation & Initiation Factors' class_names={nom_classes.E_I_Factors}> E & I Factors</PolymerClassesHoverCard>
+            </TableCell>
+            <TableCell className='p-1 m-0'>
+              <Link href={'/polymers?class=tRNA'} className='px-2'>
+                tRNA
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </>
   )
+}
+
+
+
+const LigandsStatsTable = (props: { data: any }) => {
+  const {data, isLoading, isError} = useRoutersRouterStructListLignadsQuery()
+  const [lig_stat, setLigStat]  =useState<{ bact:0,euk:0, arch:0, drugbank: 0}>()
+  useEffect(()=>{
+        const acc = data?.reduce((accumulator, current)=>{
+          if (current[0]['drugbank_id'] != null){
+            accumulator.drugbank +=1
+          }
+          for (var struct of current[1]){
+            switch(struct['tax_node']['ncbi_tax_id']){
+              case 2759:
+                accumulator.euk +=1
+              case 2157:
+                accumulator.arch +=1
+              case 2:
+                accumulator.bact +=1
+            }
+          }
+          return accumulator
+        },{ bact:0,euk:0, arch:0, drugbank: 0})
+        setLigStat(acc)
+  },[data])
+  return (
+    <>
+      <div>
+        {data?.length} Unique Ligands ({lig_stat?.drugbank} in Drugbank)
+      </div>
+      <div>
+        {lig_stat?.arch} in Archaea | {lig_stat?.bact} in Bacteria | {lig_stat?.euk} in Eukarya
+      </div>
+
+    </>
+  )
+
 }
 
 const StructStatsTable = (props: { data: any }) => {
@@ -221,7 +256,7 @@ export default function Home() {
     <StoreProvider >
       <SidebarMenu />
       <div className="flex flex-col items-center justify-center w-full">
-        <div className="w-3/6 flex flex-col items-center justify-center mt-36">
+        <div className="w-3/6 flex flex-col items-center justify-center mt-20">
           <div className="flex flex-row items-start justify-center space-x-10 relative">
             <Image src="/ribxz_logo_black.png" alt="Ribosome structure" className="w-60" width={60} height={120} />
             <div className="space-y-4">
@@ -274,6 +309,10 @@ export default function Home() {
 
             <div className=" p-4 rounded-md relative border border-gray-400">
               <PolymersStatsTable data={{}} />
+
+            </div>
+            <div className=" p-4 rounded-md relative border border-gray-400">
+              <LigandsStatsTable data={{}}/>
             </div>
           </div>
 
@@ -281,7 +320,7 @@ export default function Home() {
 
 
             {/* <VisualizeRandom /> */}
-            {random_profile ? <StructureCard _={random_profile}/> : null}
+            {/* {random_profile ? <StructureCard _={random_profile} /> : null} */}
 
             <Citation />
           </div>
@@ -293,19 +332,43 @@ export default function Home() {
   )
 }
 
+
+
+const citation = `@article{kushner2023riboxyz,
+  title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
+  author={Kushner, Artem and Petrov, Anton S and Dao Duc, Khanh},
+  journal={Nucleic Acids Research},
+  volume={51}, number={D1}, pages={D509--D516},
+  year={2023},
+  publisher={Oxford University Press}
+}`
+function Citation() {
+  return <div className=" p-2 rounded-md  relative border border-gray-400 h-50">
+    <div className="text-xs   p-2 mb-2"> Developed  by <Link className='text-blue-900 px-1' href={"https://rtviii.xyz"}>A. Kushner</Link> and
+      <Link className='text-accent1  pl-1' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  <p><Link className='text-blue-800 p1-2' href='https://academic.oup.com/nar/article/51/D1/D509/6777803'> NAR Publication. </Link> </p></div>
+
+    <div >
+      <ScrollArea className='h-20 shadow-inner border rounded-sm'>
+        <pre>
+          <code className='text-xs p-2'>{citation}</code>
+        </pre>
+      </ScrollArea>
+    </div>
+    <Button
+      // variant="outline"
+      size="sm"
+      className="absolute  hover:bg-transparent hover:text-black border border-black bottom-4 right-8 text-xs p-1 px-2"
+      onClick={() => { navigator.clipboard.writeText(citation) }} >
+      Copy
+    </Button>
+
+  </div>
+}
 function VisualizeRandom() {
 
   const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
   const router = useRouter()
-
-  // ajax(riboXYZurl).then(data => {
-  //                       var pdb_entries = []
-
-  //                       data.forEach(function(poly){
-  //                           let pdb_text = `${poly['parent_rcsb_id']} ${poly['src_organism_names'].length > 0  ?poly.src_organism_names[0].slice(0,39) : ""}`
-  //                           pdb_entries.push({id: poly.parent_rcsb_id.toLowerCase(), name: pdb_text});
-  //                       });
-  //                     })
+  const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
 
 
   return (
@@ -338,35 +401,4 @@ function VisualizeRandom() {
       </Tooltip>
     </TooltipProvider>
   )
-}
-
-const citation = `@article{kushner2023riboxyz,
-  title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
-  author={Kushner, Artem and Petrov, Anton S and Dao Duc, Khanh},
-  journal={Nucleic Acids Research},
-  volume={51}, number={D1}, pages={D509--D516},
-  year={2023},
-  publisher={Oxford University Press}
-}`
-function Citation() {
-  return <div className=" p-2 rounded-md  relative border border-gray-400 h-50">
-    <div className="text-xs   p-2 mb-2"> Developed  by <Link className='text-blue-900 px-1' href={"https://rtviii.xyz"}>A. Kushner</Link> and
-      <Link className='text-accent1  pl-1' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  <p><Link className='text-blue-800 p1-2' href='https://academic.oup.com/nar/article/51/D1/D509/6777803'> NAR Publication. </Link> </p></div>
-
-    <div >
-      <ScrollArea className='h-20 shadow-inner border rounded-sm'>
-        <pre>
-          <code className='text-xs p-2'>{citation}</code>
-        </pre>
-      </ScrollArea>
-    </div>
-    <Button
-      // variant="outline"
-      size="sm"
-      className="absolute  hover:bg-transparent hover:text-black border border-black bottom-4 right-8 text-xs p-1 px-2"
-      onClick={() => { navigator.clipboard.writeText(citation) }} >
-      Copy
-    </Button>
-
-  </div>
 }
