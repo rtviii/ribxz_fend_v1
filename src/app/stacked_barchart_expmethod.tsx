@@ -51,14 +51,13 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
-
     return () => resizeObserver.disconnect();
   }, []);
 
   useEffect(() => {
     if (!svgRef.current || dimensions.width === 0 || dimensions.height === 0) return;
 
-    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+    const margin = { top: 10, right: 3, bottom: 20, left: 27 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
 
@@ -86,7 +85,6 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
       .domain([0, d3.max(series, d => d3.max(d, d => d[1])) || 0])
       .range([height, 0]);
 
-
     svg.selectAll('g')
       .data(series)
       .enter().append('g')
@@ -98,8 +96,9 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
         })
       .selectAll('rect')
       .data(d => d)
-      .enter().append('rect')
-        .attr('x', d => x(d.data.year.toString()) || 0)
+      .enter()
+        .append('rect')
+        .attr('x', d => x(d.data.year.toString()) +2 || 0)
         .attr('y', d => y(d[1]))
         .attr('height', d => y(d[0]) - y(d[1]))
         .attr('width', x.bandwidth()-4)
@@ -115,13 +114,16 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
           onBarClick(d.data.year, d3.select(event.currentTarget.parentNode).datum().key, d[1] - d[0]);
         });
 
+
+
+
+
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
       .call(d3.axisBottom(x).tickValues(x.domain().filter((_, i) => i % 5 === 0)));
 
     svg.append('g')
-      .call(d3.axisLeft(y).ticks(5))
-      ;
+      .call(d3.axisLeft(y).ticks(5)) ;
 
 
     // Add legend
@@ -173,9 +175,9 @@ const MethodsBarchart = () => {
   return (
     // <div className="w-full  rounded-md relative border-gray-400 hover:shadow-lg transition-all">
     //   <h3 className="text-lg font-semibold mb-2">Depositions by Year</h3>
-      <div className="h-48"> {/* Adjust height as needed */}
+      <div className="w-full h-full"> {/* Adjust height as needed */}
         <StackedBarChart onBarClick={handleBarClick} onBarHover={handleBarHover} />
-      </div>
+       </div>
     // </div>
   );
 };

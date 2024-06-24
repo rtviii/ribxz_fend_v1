@@ -3,9 +3,9 @@ import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLignadsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
+import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLignadsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { SidebarMenu } from '@/components/ribxz/sidebar_menu';
 import { Separator } from '@/components/ui/separator';
@@ -16,6 +16,45 @@ import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 import MethodsBarchart from './stacked_barchart_expmethod';
 
+
+
+
+const StructuresOverviewPanel = () => {
+
+  return (
+    // <div className="  rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
+
+    <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
+      {/* <StructStatsTable data={data} /> */}
+      <h3 className='text-sm font-semibold '>1864 Atomic Structures</h3>
+      <p className='text-xs'>Number of PDB Depositions since 2000 </p>
+      <MethodsBarchart />
+      <div className="flex flex-row justify-between px-4 mb-2">
+        <p className='text-xs text-gray-700'>
+          Last Update: 2024.06.14
+        </p>
+        <div>
+          <p className='text-xs text-gray-700'>Added:
+            {
+              ["8V7X", "4AFX"].map(
+                (id, i) => {
+                  return (
+                    <>
+                      <Link key={i} href={``} className='ribxz-link'>
+                        {id}
+                      </Link>,
+                    </>
+                  )
+                }
+              )
+            }
+            ...
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: string[] }) {
   return (
@@ -49,7 +88,7 @@ function PolymerClassesHoverCard({ children, opens_to, class_names, table_label 
   )
 }
 
-const PolymersStatsTable = (props: { data: any }) => {
+const PolymersOverviewPanel = (props: { data: any }) => {
 
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
@@ -76,18 +115,12 @@ const PolymersStatsTable = (props: { data: any }) => {
     }
   }, [nomenclature_classes_backend])
 
-
   const { data: polymer_classes_stats, isLoading: polymer_classes_stats_L, isError: polymer_classes_stats_E } = useRoutersRouterStructPolymerClassesStatsQuery()
-
   return (
-
-    <>
+    <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
       <div className="space-y-1">
-        <h4 className=" font-medium text-sm leading-none hover:cursor-pointer hover:bg-muted p-1 mb-2">
-          {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats?.reduce((acc: number, curr: [string, number]) => acc + curr[1], 0)}  Protein/RNA subchains across {
-            polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length
-          } polymer classes
-        </h4>
+        <div className='flex flex-row justify-between'><h3 className='text-sm font-semibold  mt-2'> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(10231 chains total)</p></div>
+
       </div>
       <Table className='text-xs'>
         <TableHeader >
@@ -117,12 +150,12 @@ const PolymersStatsTable = (props: { data: any }) => {
           </TableRow>
         </TableBody>
       </Table>
-    </>
+    </div>
   )
 }
 
 
-const LigandsStatsTable = (props: { data: any }) => {
+const LigandsOverviewPanel = (props: { data: any }) => {
   const { data, isLoading, isError } = useRoutersRouterStructListLignadsQuery()
   const [lig_stat, setLigStat] = useState<{ bact: 0, euk: 0, arch: 0, drugbank: 0 }>()
   useEffect(() => {
@@ -145,23 +178,24 @@ const LigandsStatsTable = (props: { data: any }) => {
     setLigStat(acc)
   }, [data])
   return (
-    <>
-      <div>
-        {data?.length} Unique Ligands ({lig_stat?.drugbank} in Drugbank)
+    <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
+        <h3 className='text-sm font-semibold  mt-2'> {data?.length} Unique Ligands ({lig_stat?.drugbank} in Drugbank) </h3>
+      <div className='flex flex-row justify-between text-center mt-2'>
+        <p className='text-xs hover:bg-muted rounded-md w-full'> Archaea({lig_stat?.arch})</p>
+        <p className='text-xs hover:bg-muted rounded-md w-full'> Bacteria({lig_stat?.bact})</p>
+        <p className='text-xs hover:bg-muted rounded-md w-full'> Eukarya({lig_stat?.euk})</p>
       </div>
-      <div>
-        {lig_stat?.arch} in Archaea | {lig_stat?.bact} in Bacteria | {lig_stat?.euk} in Eukarya
-      </div>
-
-    </>
+    </div>
   )
 
 }
 
+
+
+
 const StructStatsTable = (props: { data: any }) => {
   const { data, isLoading, isError } = useRoutersRouterStructStructureCompositionStatsQuery()
   const { data: all_rcsb_ids, isLoading: all_ids_loading, isError: all_ids_isError } = useRoutersRouterStructAllRcsbIdsQuery()
-
   return (
     <>
       <div className="space-y-1">
@@ -262,7 +296,10 @@ export default function Home() {
                   Organized access to atomic structures of the ribosome.</p>
               </p>
               <p className="text-sm">
-                Why not just use PDB? We classify polymer chains of the ribosome and extra-ribosomal elements (ex. tRNA, ligands). Structural landmarks and tools for visualization, alignment are provided for the navigation of deposited models.
+                Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>PDB</Link>?
+                <p> - classify RNA/protein chains across models [citations]  </p>
+                <p> - provide structural landmarks : PTC, exit tunnel, ligands etc. </p>
+                <p> - integrated tools for visualization, structural alignment  </p>
               </p>
 
               <p className="text-sm">API is available at <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
@@ -275,44 +312,12 @@ export default function Home() {
         </div>
         <div className="flex flex-row items-start justify-end space-x-10 mt-10 w-3/6">
           <div className='w-3/6  relative  flex-col flex gap-2'>
-            <div className="w-full  rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
-              {/* <StructStatsTable data={data} /> */}
-              <h3 className='text-sm font-semibold px-4 mt-2'>1864 Atomic Structures</h3>
-              <p className='text-xs px-4 mt-2'>Number of PDB Depositions since 2000 </p>
-              <MethodsBarchart />
-              <div className="flex flex-row justify-between px-4 mb-2">
-                <p className='text-xs text-gray-700'>
-                  Last Update: 2024.06.14
-                </p>
-                <div>
-                  <p className='text-xs text-gray-700'>Added:
-                    {
-                      ["8V7X", "4AFX"].map(
-                        (id, i) => {
-                          return (
-                            <>
-                              <Link key={i} href={``} className='ribxz-link'>
-                                {id}
-                              </Link>,
-                            </>
-                          )
-                        }
-                      )
-                    }
-                    ...
-                  </p>
-                </div>
-              </div>
-            </div>
+
+            <StructuresOverviewPanel />
 
 
-            <div className=" p-4 rounded-md relative border border-gray-400">
-              <PolymersStatsTable data={{}} />
-
-            </div>
-            <div className=" p-4 rounded-md relative border border-gray-400">
-              <LigandsStatsTable data={{}} />
-            </div>
+            <PolymersOverviewPanel data={{}} />
+            <LigandsOverviewPanel data={{}} />
           </div>
 
           <div className="w-3/6 flex flex-col gap-4 justify-between  relative  ">
