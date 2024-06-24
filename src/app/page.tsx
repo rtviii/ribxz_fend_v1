@@ -10,15 +10,13 @@ import { Button } from "@/components/ui/button"
 import { SidebarMenu } from '@/components/ribxz/sidebar_menu';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
+import { HoverCard, HoverCardContent, HoverCardTrigger, } from "@/components/ui/hover-card"
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 import StructureCard from '@/components/ribxz/structure_card';
+import StackedBarChart from './radial_tree';
+import MainComponent from './radial_tree';
 
 
 function PolymerClassesHoverCard({ children, opens_to, class_names, table_label }: { table_label: string, children: React.ReactNode, opens_to: "right" | "left", class_names: string[] }) {
@@ -88,9 +86,9 @@ const PolymersStatsTable = (props: { data: any }) => {
     <>
       <div className="space-y-1">
         <h4 className=" font-medium text-sm leading-none hover:cursor-pointer hover:bg-muted p-1 mb-2">
-          {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats?.reduce((acc: number, curr: [string, number]) => acc + curr[1], 0)}  chains across {
+          {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats?.reduce((acc: number, curr: [string, number]) => acc + curr[1], 0)}  Protein/RNA subchains across {
             polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length
-          } classes
+          } polymer classes
         </h4>
       </div>
       <Table className='text-xs'>
@@ -126,29 +124,28 @@ const PolymersStatsTable = (props: { data: any }) => {
 }
 
 
-
 const LigandsStatsTable = (props: { data: any }) => {
-  const {data, isLoading, isError} = useRoutersRouterStructListLignadsQuery()
-  const [lig_stat, setLigStat]  =useState<{ bact:0,euk:0, arch:0, drugbank: 0}>()
-  useEffect(()=>{
-        const acc = data?.reduce((accumulator, current)=>{
-          if (current[0]['drugbank_id'] != null){
-            accumulator.drugbank +=1
-          }
-          for (var struct of current[1]){
-            switch(struct['tax_node']['ncbi_tax_id']){
-              case 2759:
-                accumulator.euk +=1
-              case 2157:
-                accumulator.arch +=1
-              case 2:
-                accumulator.bact +=1
-            }
-          }
-          return accumulator
-        },{ bact:0,euk:0, arch:0, drugbank: 0})
-        setLigStat(acc)
-  },[data])
+  const { data, isLoading, isError } = useRoutersRouterStructListLignadsQuery()
+  const [lig_stat, setLigStat] = useState<{ bact: 0, euk: 0, arch: 0, drugbank: 0 }>()
+  useEffect(() => {
+    const acc = data?.reduce((accumulator, current) => {
+      if (current[0]['drugbank_id'] != null) {
+        accumulator.drugbank += 1
+      }
+      for (var struct of current[1]) {
+        switch (struct['tax_node']['ncbi_tax_id']) {
+          case 2759:
+            accumulator.euk += 1
+          case 2157:
+            accumulator.arch += 1
+          case 2:
+            accumulator.bact += 1
+        }
+      }
+      return accumulator
+    }, { bact: 0, euk: 0, arch: 0, drugbank: 0 })
+    setLigStat(acc)
+  }, [data])
   return (
     <>
       <div>
@@ -241,6 +238,8 @@ const StructStatsTable = (props: { data: any }) => {
           </TableRow>
         </TableBody>
       </Table>
+      <MainComponent/>
+
     </>
   )
 }
@@ -312,17 +311,22 @@ export default function Home() {
 
             </div>
             <div className=" p-4 rounded-md relative border border-gray-400">
-              <LigandsStatsTable data={{}}/>
+              <LigandsStatsTable data={{}} />
             </div>
           </div>
 
           <div className="w-3/6 flex flex-col gap-4 justify-between  relative  ">
 
 
-            {/* <VisualizeRandom /> */}
-            {/* {random_profile ? <StructureCard _={random_profile} /> : null} */}
 
             <Citation />
+            <p>ubc logo</p>
+            <p>hmmer logo</p>
+            <p>rcsb logo</p>
+
+            <p>molstar logo or mention</p>
+            <p>muscle5 logo or mention</p>
+            <p>neo4j logo or mention</p>
           </div>
 
         </div>
