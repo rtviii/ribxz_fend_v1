@@ -14,8 +14,6 @@ import { HoverCard, HoverCardContent, HoverCardTrigger, } from "@/components/ui/
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
-import StructureCard from '@/components/ribxz/structure_card';
-import StackedBarChart from './radial_tree';
 import MainComponent from './radial_tree';
 
 
@@ -238,7 +236,6 @@ const StructStatsTable = (props: { data: any }) => {
           </TableRow>
         </TableBody>
       </Table>
-      <MainComponent/>
 
     </>
   )
@@ -278,9 +275,11 @@ export default function Home() {
         </div>
         <div className="flex flex-row items-start justify-end space-x-10 mt-10 w-3/6">
           <div className='w-3/6  relative  flex-col flex gap-2'>
-            <div className="w-full  p-4 rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
-              <StructStatsTable data={data} />
-              <div className="flex flex-row justify-between  mt-4">
+            <div className="w-full   rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
+              {/* <StructStatsTable data={data} /> */}
+              <MainComponent/>
+              <div className="flex flex-row justify-between   p-4">
+
                 <p className='text-xs text-gray-700'>
                   Last Update: 2024.06.14
                 </p>
@@ -319,14 +318,15 @@ export default function Home() {
 
 
 
-            <Citation />
+            <p className='font-bold'> Tools Links</p>
             <p>ubc logo</p>
             <p>hmmer logo</p>
             <p>rcsb logo</p>
 
             <p>molstar logo or mention</p>
             <p>muscle5 logo or mention</p>
-            <p>neo4j logo or mention</p>
+            <p>neo4j logo or mention</p>/
+            <Citation />
           </div>
 
         </div>
@@ -348,8 +348,8 @@ const citation = `@article{kushner2023riboxyz,
 }`
 function Citation() {
   return <div className=" p-2 rounded-md  relative border border-gray-400 h-50">
-    <div className="text-xs   p-2 mb-2"> Developed  by <Link className='text-blue-900 px-1' href={"https://rtviii.xyz"}>A. Kushner</Link> and
-      <Link className='text-accent1  pl-1' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  <p><Link className='text-blue-800 p1-2' href='https://academic.oup.com/nar/article/51/D1/D509/6777803'> NAR Publication. </Link> </p></div>
+    <div className="text-xs   p-2 mb-2 "> Developed  by <Link className='ribxz-link  px-1' href={"https://rtviii.xyz"}>A. Kushner</Link> and
+      <Link className='text-accent1  ribxz-link pl-1' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  </div>
 
     <div >
       <ScrollArea className='h-20 shadow-inner border rounded-sm'>

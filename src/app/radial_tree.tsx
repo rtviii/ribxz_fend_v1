@@ -3,9 +3,30 @@ import * as d3 from 'd3';
 
 // Sample data (replace with your actual data)
 const data = [
+
   { year: 2000, EM: 5, XRAY: 20 },
   { year: 2001, EM: 8, XRAY: 25 },
-  // ... add more years ...
+  { year: 2002, EM: 8, XRAY: 25 },
+  { year: 2003, EM: 8, XRAY: 25 },
+  { year: 2004, EM: 8, XRAY: 25 },
+  { year: 2005, EM: 8, XRAY: 25 },
+  { year: 2006, EM: 8, XRAY: 25 },
+  { year: 2007, EM: 8, XRAY: 25 },
+  { year: 2008, EM: 8, XRAY: 25 },
+  { year: 2009, EM: 8, XRAY: 25 },
+  { year: 2010, EM: 8, XRAY: 25 },
+  { year: 2011, EM: 8, XRAY: 25 },
+  { year: 2012, EM: 8, XRAY: 25 },
+  { year: 2013, EM: 8, XRAY: 25 },
+  { year: 2014, EM: 8, XRAY: 25 },
+  { year: 2015, EM: 150, XRAY: 100 },
+  { year: 2016, EM: 150, XRAY: 100 },
+  { year: 2017, EM: 150, XRAY: 100 },
+  { year: 2018, EM: 150, XRAY: 100 },
+  { year: 2019, EM: 150, XRAY: 100 },
+  { year: 2020, EM: 150, XRAY: 100 },
+  { year: 2021, EM: 150, XRAY: 100 },
+  { year: 2022, EM: 150, XRAY: 100 },
   { year: 2023, EM: 150, XRAY: 100 },
   { year: 2024, EM: 160, XRAY: 90 },
 ];
@@ -66,21 +87,27 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
       .domain([0, d3.max(series, d => d3.max(d, d => d[1])) || 0])
       .range([height, 0]);
 
-    const color = d3.scaleOrdinal()
-      .domain(['EM', 'XRAY'])
-      .range(['#4e79a7', '#f28e2c']);
+    // const color = d3.scaleOrdinal()
+    //   .domain(['EM', 'XRAY'])
+    //   .range(['black', 'white']);
 
     svg.selectAll('g')
       .data(series)
       .enter().append('g')
-        .attr('fill', d => color(d.key))
+        .attr('fill', d => { console.log(d);
+            return d.key == "XRAY" ? "white" : "blac"
+        })
+        .attr('stroke', d => { console.log(d);
+            return d.key == "XRAY" ? "black" : "black"
+        })
       .selectAll('rect')
       .data(d => d)
       .enter().append('rect')
         .attr('x', d => x(d.data.year.toString()) || 0)
         .attr('y', d => y(d[1]))
         .attr('height', d => y(d[0]) - y(d[1]))
-        .attr('width', x.bandwidth())
+        .attr('width', x.bandwidth()-4)
+
         .on('mouseover', (event, d) => {
           d3.select(event.currentTarget).attr('opacity', 0.8);
           onBarHover(d.data.year, d3.select(event.currentTarget.parentNode).datum().key, d[1] - d[0]);
@@ -113,7 +140,9 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
       .attr('x', width - 19)
       .attr('width', 19)
       .attr('height', 19)
-      .attr('fill', color);
+      .attr('fill', d=>{return "blue"});
+
+
 
     legend.append('text')
       .attr('x', width - 24)
@@ -126,7 +155,7 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
   return (
     <div ref={containerRef} className="w-full h-full">
       <svg ref={svgRef} className="w-full h-full"></svg>
-    </div>
+     </div>
   );
 };
 
@@ -143,12 +172,12 @@ const MainComponent = () => {
   };
 
   return (
-    <div className="w-full p-4 rounded-md relative border-gray-400 hover:shadow-lg transition-all">
-      <h3 className="text-lg font-semibold mb-2">Depositions by Year</h3>
-      <div className="h-64"> {/* Adjust height as needed */}
+    // <div className="w-full  rounded-md relative border-gray-400 hover:shadow-lg transition-all">
+    //   <h3 className="text-lg font-semibold mb-2">Depositions by Year</h3>
+      <div className="h-48"> {/* Adjust height as needed */}
         <StackedBarChart onBarClick={handleBarClick} onBarHover={handleBarHover} />
       </div>
-    </div>
+    // </div>
   );
 };
 
