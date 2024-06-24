@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 
 // Sample data (replace with your actual data)
 const data = [
-
   { year: 2000, EM: 5, XRAY: 20 },
   { year: 2001, EM: 8, XRAY: 25 },
   { year: 2002, EM: 8, XRAY: 25 },
@@ -37,8 +36,8 @@ interface StackedBarChartProps {
 }
 
 const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHover }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef                = useRef<HTMLDivElement>(null);
+  const svgRef                      = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -59,7 +58,7 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
   useEffect(() => {
     if (!svgRef.current || dimensions.width === 0 || dimensions.height === 0) return;
 
-    const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
     const width = dimensions.width - margin.left - margin.right;
     const height = dimensions.height - margin.top - margin.bottom;
 
@@ -83,7 +82,7 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
       .range([0, width])
       .padding(0.1);
 
-    const y = d3.scaleLinear()
+    const y = d3.scaleLinear() 
       .domain([0, d3.max(series, d => d3.max(d, d => d[1])) || 0])
       .range([height, 0]);
 
@@ -95,7 +94,7 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
       .data(series)
       .enter().append('g')
         .attr('fill', d => { console.log(d);
-            return d.key == "XRAY" ? "white" : "blac"
+            return d.key == "XRAY" ? "white" : "black"
         })
         .attr('stroke', d => { console.log(d);
             return d.key == "XRAY" ? "black" : "black"
@@ -129,6 +128,7 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
     // Add legend
     const legend = svg.append('g')
       .attr('font-family', 'sans-serif')
+      .attr('class', 'plot-legend')
       .attr('font-size', 10)
       .attr('text-anchor', 'end')
       .selectAll('g')
@@ -137,15 +137,15 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
         .attr('transform', (d, i) => `translate(0,${i * 20})`);
 
     legend.append('rect')
-      .attr('x', width - 19)
-      .attr('width', 19)
-      .attr('height', 19)
-      .attr('fill', d=>{return "blue"});
-
+      .attr('x',  45)
+      .attr('width', 15)
+      .attr('height', 15)
+      .attr('fill', d=>{return d === 'XRAY' ? "black": "white"  })
+      .attr('stroke', "black");
 
 
     legend.append('text')
-      .attr('x', width - 24)
+      .attr('x',  30)
       .attr('y', 9.5)
       .attr('dy', '0.32em')
       .text(d => d);
@@ -160,7 +160,7 @@ const StackedBarChart: React.FC<StackedBarChartProps> = ({ onBarClick, onBarHove
 };
 
 // Usage in your main component
-const MainComponent = () => {
+const MethodsBarchart = () => {
   const handleBarClick = (year: number, type: string, value: number) => {
     console.log(`Clicked: ${year}, ${type}, ${value}`);
     // Add your click logic here
@@ -181,4 +181,4 @@ const MainComponent = () => {
   );
 };
 
-export default MainComponent;
+export default MethodsBarchart;
