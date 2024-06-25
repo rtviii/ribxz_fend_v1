@@ -43,8 +43,9 @@ export default function Vis() {
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
-                            <p>- select structure widget (search bar + icon)</p>
-                            <p>- </p>
+                            <p> - select structure widget (search bar + icon)</p>
+                            <p> - chain selector </p>
+                            <p> - landmarks </p>
                         </CardHeader>
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
                                 <Filters />
