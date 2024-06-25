@@ -88,14 +88,15 @@ export function SidebarMenu() {
           </Link>
           {/* </div> */}
           <hr className="border-t my-4 border-gray-200" />
-
           {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
-
           <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superpose">
             <span>3D Superposition</span>
           </Link>
 
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/vis">
+            <span>Visualization</span>
+          </Link>
 
         </div>
         <div className="flex-col  h-full   align-bottom justify-end justify-items-end content-end  ">
