@@ -26,7 +26,7 @@ const StructuresOverviewPanel = () => {
 
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
       {/* <StructStatsTable data={data} /> */}
-      <h3 className='text-sm font-semibold '>1864 Atomic Structures</h3>
+      <h3 className='text-sm font-semibold underline'>1864 Atomic Structures</h3>
       <p className='text-xs'>Number of PDB Depositions since 2000 </p>
       <MethodsBarchart />
       <div className="flex flex-row justify-between px-4 mb-2">
@@ -119,8 +119,7 @@ const PolymersOverviewPanel = (props: { data: any }) => {
   return (
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
       <div className="space-y-1">
-        <div className='flex flex-row justify-between'><h3 className='text-sm font-semibold  mt-2'> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(10231 chains total)</p></div>
-
+        <div className='flex flex-row justify-between underline'><h3 className='text-sm font-semibold  mt-2'> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(12312 Proteins | 525 RNA )</p></div>
       </div>
       <Table className='text-xs'>
         <TableHeader >
@@ -179,7 +178,7 @@ const LigandsOverviewPanel = (props: { data: any }) => {
   }, [data])
   return (
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
-      <h3 className='text-sm font-semibold  mt-2'> {data?.length} Unique Ligands ({lig_stat?.drugbank} in Drugbank) </h3>
+      <div className='flex flex-row justify-between underline'><h3 className='text-sm font-semibold  mt-2'> {data?.length} Unique Ligands  </h3> <p className='text-xs mt-2'>({lig_stat?.drugbank} in Drugbank)</p></div>
       <div className='flex flex-row justify-between text-center mt-2'>
         <p className='text-xs hover:bg-muted rounded-md w-full'> Archaea({lig_stat?.arch})</p>
         <p className='text-xs hover:bg-muted rounded-md w-full'> Bacteria({lig_stat?.bact})</p>
@@ -191,8 +190,6 @@ const LigandsOverviewPanel = (props: { data: any }) => {
 }
 
 
-
-
 const StructStatsTable = (props: { data: any }) => {
   const { data, isLoading, isError } = useRoutersRouterStructStructureCompositionStatsQuery()
   const { data: all_rcsb_ids, isLoading: all_ids_loading, isError: all_ids_isError } = useRoutersRouterStructAllRcsbIdsQuery()
@@ -201,6 +198,7 @@ const StructStatsTable = (props: { data: any }) => {
       <div className="space-y-1">
         <h4 className=" font-medium text-sm leading-none hover:cursor-pointer hover:bg-muted p-1 mb-2">{all_rcsb_ids?.length} Atomic Structures</h4>
       </div>
+
       <Table className='text-xs'>
         <TableHeader >
           <TableRow >
@@ -327,8 +325,9 @@ export default function Home() {
             <Image src={"/logo_rcsb.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_molstar.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_neo4j.png"} alt='ubclogo' width={40} height={40} />
+            <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} />
 
-            <p>muscle5 logo or mention</p>
+            <p>Acknowledge muscle5, Biopython </p>
             <Citation />
           </div>
 
@@ -354,11 +353,11 @@ function Citation() {
     <div >
       <div className='grid grid-cols-7'>
 
-      <div className="text-xs   p-2 mb-2  col-span-6"> Developed  by <Link className='ribxz-link  px-1' href={"https://rtviii.xyz"}>A. Kushner</Link> and <Link className='text-accent1  ribxz-link pl-1' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  </div>
-      <div >
-        <Image src={"/logo_ubc.png"} alt='ubclogo' width={40} height={40} />
+        <div className="text-xs   p-2 mb-2  col-span-6"> Developed  by <Link className='ribxz-link  px-1' href={"https://rtviii.xyz"}>A. Kushner</Link> and <Link className='text-accent1  ribxz-link pl-1' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  </div>
+        <div >
+          <Image src={"/logo_ubc.png"} alt='ubclogo' width={40} height={40} />
+        </div>
       </div>
-</div>
       <ScrollArea className='h-20 shadow-inner border rounded-sm'>
         <pre>
           <code className='text-xs p-2'>{citation}</code>
