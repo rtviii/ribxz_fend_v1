@@ -30,6 +30,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
 
 
 
@@ -59,7 +66,7 @@ export function SidebarMenu() {
         <SheetHeader>
           <SheetTitle>
 
-            <Link className="flex items-center space-x-2 text-gray-800 hover:text-gray-600 hover:bg-slate-200 rounded-sm" href="/">
+            <Link className="flex items-center space-x-2 text-gray-800 hover:text-gray-600 hover:bg-muted rounded-sm" href="/">
               <HomeIcon className="h-5 w-5" />
               <span>Home</span>
             </Link>
@@ -74,11 +81,11 @@ export function SidebarMenu() {
 
           <h2 className="text-sm  uppercase text-gray-400 ">Available Data</h2>
 
-          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/structures">
+          <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-muted rounded-sm" href="/structures">
             Structures
           </Link>
 
-          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-slate-200 rounded-sm" href="/polymers">
+          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-muted rounded-sm" href="/polymers">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
               <span>{"Polymers (Proteins & RNA)"} </span>
               <DnaIcon className="h-5 w-5" />
@@ -86,89 +93,53 @@ export function SidebarMenu() {
           </Link>
 
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/ligands">
-            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
-              <span> Ligands/Binding Sites </span>
-            </div>
-          </Link>
 
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/nomenclature">
+          {/* <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/nomenclature">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
               <span>Nomenclature (WIP)</span>
               <NotebookIcon className="h-5 w-5" />
             </div>
-          </Link>
+          </Link> */}
           {/* </div> */}
           <hr className="border-t my-4 border-gray-200" />
           {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/vis">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/vis">
             <span>Visualization</span>
           </Link>
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superpose">
-            <span>Landmarks</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">Open</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    Profile
-                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Billing
-                    <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Settings
-                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Keyboard shortcuts
-                    <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>Team</DropdownMenuItem>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuSubContent>
-                        <DropdownMenuItem>Email</DropdownMenuItem>
-                        <DropdownMenuItem>Message</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>More...</DropdownMenuItem>
-                      </DropdownMenuSubContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuSub>
-                  <DropdownMenuItem>
-                    New Team
-                    <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>GitHub</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuItem disabled>API</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  Log out
-                  <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </Link>
-
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superpose">
+          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/superpose">
             <span>Polymer Superposition (3D)</span>
           </Link>
+
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1" className="w-full">
+              <AccordionTrigger className="p-0 m-0">
+                <span className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Landmarks</span>
+              </AccordionTrigger>
+
+
+              <AccordionContent className="w-full">
+                <Link href="/ligands" className="w-full ">
+                  <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md"> Ligands & Small Molecules </span>
+                </Link>
+
+              </AccordionContent>
+              <AccordionContent>
+                <Link href="/landmarks?type=ptc"  className="w-full">
+                  <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md">PTC</span>
+                </Link>
+
+              </AccordionContent>
+              <AccordionContent>
+                <Link href="/landmarks?type=exit_tunnel" className="w-full ">
+                  <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md">Exit Tunnel</span>
+                </Link>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
 
 
         </div>
