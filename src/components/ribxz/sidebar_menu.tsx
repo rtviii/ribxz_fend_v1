@@ -16,6 +16,21 @@ import { useAppDispatch, useAppSelector } from "@/store/store"
 import { GearIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { useEffect } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
 
 
 export function SidebarMenu() {
@@ -23,19 +38,19 @@ export function SidebarMenu() {
 
   const dispatch = useAppDispatch()
   const { data: taxdict_data, isLoading, isError } = useRoutersRouterStructTaxDictQuery()
-  useEffect(()=>{
+  useEffect(() => {
     console.log("Got taxdict data", taxdict_data);
-    
-    if (taxdict_data!==undefined) { dispatch(set_tax_dict(taxdict_data as any)) }
-  },[taxdict_data])
+
+    if (taxdict_data !== undefined) { dispatch(set_tax_dict(taxdict_data as any)) }
+  }, [taxdict_data])
 
   const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
   return (
     <Sheet>
       <SheetTrigger asChild>
         <div className="fixed bottom-16 left-16">
-          <Button  className="rounded-lg text-lg p-6 bg-transparent hover:bg-black  text-blackk  shadow-none transition-all hover:shadow-lg border border-gray-500 hover:text-white"    >
-            Menu <GearIcon className="ml-4 w-5 h-5"/>
+          <Button className="rounded-lg text-lg p-6 bg-transparent hover:bg-black  text-blackk  shadow-none transition-all hover:shadow-lg border border-gray-500 hover:text-white"    >
+            Menu <GearIcon className="ml-4 w-5 h-5" />
           </Button>
         </div>
       </SheetTrigger>
@@ -94,7 +109,63 @@ export function SidebarMenu() {
 
           <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superpose">
             <span>Landmarks</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">Open</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    Profile
+                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Billing
+                    <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Settings
+                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Keyboard shortcuts
+                    <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>Team</DropdownMenuItem>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+                    <DropdownMenuPortal>
+                      <DropdownMenuSubContent>
+                        <DropdownMenuItem>Email</DropdownMenuItem>
+                        <DropdownMenuItem>Message</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>More...</DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenuSub>
+                  <DropdownMenuItem>
+                    New Team
+                    <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>GitHub</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuItem disabled>API</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  Log out
+                  <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </Link>
+
           <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-slate-200 rounded-sm" href="/superpose">
             <span>Polymer Superposition (3D)</span>
           </Link>
@@ -118,7 +189,7 @@ export function SidebarMenu() {
   )
 }
 
-function DnaIcon(props:any) {
+function DnaIcon(props: any) {
   return (
     <svg
       {...props}
@@ -148,7 +219,7 @@ function DnaIcon(props:any) {
 }
 
 
-function GaugeIcon(props:any) {
+function GaugeIcon(props: any) {
   return (
     <svg
       {...props}
@@ -169,7 +240,7 @@ function GaugeIcon(props:any) {
 }
 
 
-function HomeIcon(props:any) {
+function HomeIcon(props: any) {
   return (
     <svg
       {...props}
@@ -190,7 +261,7 @@ function HomeIcon(props:any) {
 }
 
 
-function InfoIcon(props:any) {
+function InfoIcon(props: any) {
   return (
     <svg
       {...props}
@@ -212,7 +283,7 @@ function InfoIcon(props:any) {
 }
 
 
-function LigatureIcon(props:any) {
+function LigatureIcon(props: any) {
   return (
     <svg
       {...props}
@@ -236,7 +307,7 @@ function LigatureIcon(props:any) {
 }
 
 
-function NotebookIcon(props:any) {
+function NotebookIcon(props: any) {
   return (
     <svg
       {...props}
@@ -261,7 +332,7 @@ function NotebookIcon(props:any) {
 }
 
 
-function Rotate3dIcon(props:any) {
+function Rotate3dIcon(props: any) {
   return (
     <svg
       {...props}
@@ -283,7 +354,7 @@ function Rotate3dIcon(props:any) {
 }
 
 
-function ViewIcon(props:any) {
+function ViewIcon(props: any) {
   return (
     <svg
       {...props}
