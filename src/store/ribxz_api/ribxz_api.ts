@@ -1,6 +1,18 @@
 import { empty_api as api } from "./template";
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
+    routersRouterStructAllRcsbIds: build.query<
+      RoutersRouterStructAllRcsbIdsApiResponse,
+      RoutersRouterStructAllRcsbIdsApiArg
+    >({
+      query: () => ({ url: `/structures/all_rcsb_ids` }),
+    }),
+    routersRouterStructPolymerClassesStats: build.query<
+      RoutersRouterStructPolymerClassesStatsApiResponse,
+      RoutersRouterStructPolymerClassesStatsApiArg
+    >({
+      query: () => ({ url: `/structures/polymer_classes_stats` }),
+    }),
     routersRouterStructTaxDict: build.query<
       RoutersRouterStructTaxDictApiResponse,
       RoutersRouterStructTaxDictApiArg
@@ -156,6 +168,12 @@ const injectedRtkApi = api.injectEndpoints({
   overrideExisting: false,
 });
 export { injectedRtkApi as ribxz_api };
+export type RoutersRouterStructAllRcsbIdsApiResponse =
+  /** status 200 OK */ string[];
+export type RoutersRouterStructAllRcsbIdsApiArg = void;
+export type RoutersRouterStructPolymerClassesStatsApiResponse =
+  /** status 200 OK */ [string, number][];
+export type RoutersRouterStructPolymerClassesStatsApiArg = void;
 export type RoutersRouterStructTaxDictApiResponse = /** status 200 OK */ object;
 export type RoutersRouterStructTaxDictApiArg = void;
 export type RoutersRouterStructPolymerClassificationReportApiResponse = unknown;
@@ -463,7 +481,10 @@ export type RoutersRouterStructStructurePtcApiResponse =
 export type RoutersRouterStructStructurePtcApiArg = {
   rcsbId: string;
 };
-export type RoutersRouterStructListLignadsApiResponse = unknown;
+export type RoutersRouterStructListLignadsApiResponse = /** status 200 OK */ [
+  object,
+  object[]
+][];
 export type RoutersRouterStructListLignadsApiArg = void;
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
@@ -1198,6 +1219,7 @@ export type RibosomeStructure = {
   host_organism_names: string[];
   assembly_map?: AssemblyInstancesMap[] | null;
   mitochondrial: boolean;
+  subunit_presence?: ("ssu" | "lsu")[] | null;
   proteins: Protein[];
   rnas: Rna[];
   other_polymers: Polymer[];
@@ -1223,6 +1245,8 @@ export type NomenclatureSet = {
   tRNAClass: string[];
 };
 export const {
+  useRoutersRouterStructAllRcsbIdsQuery,
+  useRoutersRouterStructPolymerClassesStatsQuery,
   useRoutersRouterStructTaxDictQuery,
   useRoutersRouterStructPolymerClassificationReportQuery,
   useRoutersRouterStructStructureCompositionStatsQuery,

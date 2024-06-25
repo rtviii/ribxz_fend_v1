@@ -35,19 +35,12 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     </div>
 
 }
-
-// export async function generateStaticParams(){
-//     return [{rcsb_id: "3J7Z"}, {rcsb_id:"3J7Y"}]
-
-// }
-
 export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+    const { rcsb_id }  = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
-    const ptc = searchParams.get('ptc')
-    // const ptc          = "True"
+    const ptc          = searchParams.get('ptc')
 
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
