@@ -149,6 +149,7 @@ export default function Ligands() {
     const { data: ligands_data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
     const chemical_structure_link = (ligand_id: string) => { var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/{ligand_id[0]}/{ligand_id}.svg` }
 
+
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
