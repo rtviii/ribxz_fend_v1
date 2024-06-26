@@ -110,13 +110,10 @@ interface LigandAssociatedStructure {
     src_organism_names: string[],
     superkingdom: number
 }
-type LigandAssociatedTaxa = Array<[string, number]>
 
-
-type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
-
-
-const LigandTableRow = (props: LigandRowProps) => {
+type  LigandAssociatedTaxa = Array<[string, number]>
+type  LigandRowProps       = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
+const LigandTableRow       = (props: LigandRowProps) => {
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
     console.log("row got props:", props);
 
@@ -187,7 +184,6 @@ export default function Ligands() {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
-        console.log("Page mounted. Initializing Molstar Plugin UI Context");
         (async () => {
             const x = new MolstarRibxz
             await x.init(molstarNodeRef.current!)
@@ -195,10 +191,10 @@ export default function Ligands() {
         })()
     }, [])
 
-    useEffect(() => {
-        console.log("Gotligands data")
-        console.log(lig_state.data);
-    }, [lig_state.data])
+    // useEffect(() => {
+    //     console.log("Gotligands data")
+    //     console.log(lig_state.data);
+    // }, [lig_state.data])
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className=" ">
@@ -218,6 +214,7 @@ export default function Ligands() {
                                 showCheckedStrategy="SHOW_CHILD"
                                 filterTreeNode={(input, treenode)=>{ return ( treenode.search_aggregator as string ).includes(input.toLowerCase())}}
                                     
+                onChange={(value, labellist) => {console.log(value, labellist)}}
                             />
                             <Card className="p-4 space-y-2">
                                 <div className="flex justify-between">

@@ -25,18 +25,13 @@ export function contract_taxname(name: string) {
   }
 }
 
-
 export function capitalize_only_first_letter_w(_: string): string {
-
   var s = ""
   for (var word of _.split(" ")) {
     if (s != "") {
       s += " "
     }
-    console.log(word.slice(0, 1).toUpperCase() + word.slice(1))
     s += word.slice(0, 1).toUpperCase() + word.slice(1).toLowerCase()
   }
-  console.log("REturning s", s)
   return s
-
 }
