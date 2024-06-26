@@ -69,9 +69,9 @@ function LigandStructuresDropdown(props: { count: number, structures: LigandAsso
                 {props.structures.toSorted((s1, s2) => Number(s1.src_organism_names[0] > s2.src_organism_names[0])).map((struct, i) =>
                     <DropdownMenuItem key={i} >
                         <Link href={{
-                                pathname: `/structures/${struct.parent_structure}`,
-                                query   : { ligand: props.info.chemicalId },
-                            }}>
+                            pathname: `/structures/${struct.parent_structure}`,
+                            query: { ligand: props.info.chemicalId },
+                        }}>
                             <Badge className="w-60 flex justify-between items-center cursor-pointer">
                                 {struct.parent_structure}
                                 <div className="italic text-white flex gap-2 flex-row">
@@ -114,9 +114,9 @@ type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociated
 
 
 const LigandTableRow = (props: LigandRowProps) => {
-    const ctx        = useAppSelector(state => state.molstar.ui_plugin)
+    const ctx = useAppSelector(state => state.molstar.ui_plugin)
     console.log("row got props:", props);
-    
+
     // const info       = props[0]
     // const structures = props[1]
     // const taxa       = props[2]
@@ -147,8 +147,8 @@ const LigandTableRow = (props: LigandRowProps) => {
 export default function Ligands() {
 
     const { data: ligands_data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
-    const chemical_structure_link = (ligand_id:string) =>{  var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/{ligand_id[0]}/{ligand_id}.svg` }
-    
+    const chemical_structure_link = (ligand_id: string) => { var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/{ligand_id[0]}/{ligand_id}.svg` }
+
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
@@ -166,55 +166,54 @@ export default function Ligands() {
     }, [ligands_data])
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal" className=" ">
-                <ResizablePanel defaultSize={25} >
-
-                        <MolstarContext.Provider value={ctx}>
- <div className="border-r">
-        <div className="p-4 space-y-4">
-          <Input type="search" placeholder="Search" className="w-full mb-4" />
-          <Card className="p-4 space-y-2">
-            <div className="flex justify-between">
-              <span>ISOLEUCINE</span>
-              <span>ILE</span>
-            </div>
-            <div>
-              <p>formula_weight: 0.131</p>
-              <p>number_of_Instances: 2</p>
-              <img src="/placeholder.svg" alt="Ligand" className="w-12 h-12" />
-              <p>drugbank_id: "DB00167"</p>
-              <p>
-                drugbank_description: "An essential branched-chain aliphatic\n amino acid found in many proteins. It is
-                an isomer of leucine.\n It is important in hemoglobin synthesis and regulation of blood\n sugar and
-                energy levels."
-              </p>
-            </div>
-          </Card>
-          <Card className="p-4 space-y-2">
-            <p>ILE interface in in [3J7Z E. coli]</p>
-            <p>μL4, uL22, uL13, 23S rRNA</p>
-          </Card>
-          <Card className="p-4 space-y-2">
-            <p>Also Present In :</p>
-          </Card>
-        </div>
-      </div>
-                        </MolstarContext.Provider>
-
-
-                </ResizablePanel>
-
-                <ResizableHandle />
-
-                <ResizablePanel defaultSize={75}>
-                    <div className="flex flex-col gap-4">
-                        <MolstarNode ref={molstarNodeRef} />
+        <ResizablePanelGroup direction="horizontal" className=" ">
+            <ResizablePanel defaultSize={25} >
+                <MolstarContext.Provider value={ctx}>
+                    <div className="border-r">
+                        <div className="p-4 space-y-4">
+                            <Input type="search" placeholder="Search" className="w-full mb-4" />
+                            <Card className="p-4 space-y-2">
+                                <div className="flex justify-between">
+                                    <span>ISOLEUCINE</span>
+                                    <span>ILE</span>
+                                </div>
+                                <div>
+                                    <p>formula_weight: 0.131</p>
+                                    <p>number_of_Instances: 2</p>
+                                    <img src="/placeholder.svg" alt="Ligand" className="w-12 h-12" />
+                                    <p>drugbank_id: "DB00167"</p>
+                                    <p>
+                                        drugbank_description: "An essential branched-chain aliphatic\n amino acid found in many proteins. It is
+                                        an isomer of leucine.\n It is important in hemoglobin synthesis and regulation of blood\n sugar and
+                                        energy levels."
+                                    </p>
+                                </div>
+                            </Card>
+                            <Card className="p-4 space-y-2">
+                                <p>ILE interface in in [3J7Z E. coli]</p>
+                                <p>μL4, uL22, uL13, 23S rRNA</p>
+                            </Card>
+                            <Card className="p-4 space-y-2">
+                                <p>Also Present In :</p>
+                            </Card>
+                        </div>
                     </div>
-                </ResizablePanel>
+                </MolstarContext.Provider>
+
+
+            </ResizablePanel>
+
+            <ResizableHandle />
+
+            <ResizablePanel defaultSize={75}>
+                <div className="flex flex-col gap-4">
+                    <MolstarNode ref={molstarNodeRef} />
+                </div>
+            </ResizablePanel>
 
 
 
-            </ResizablePanelGroup>
-            <SidebarMenu />
-        </div>
+        </ResizablePanelGroup>
+        <SidebarMenu />
+    </div>
 }

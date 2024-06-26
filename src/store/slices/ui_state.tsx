@@ -5,12 +5,12 @@ import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiati
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
 export interface FiltersState {
-    search         : string | null
-    year           : [number | null, number | null]
-    resolution     : [number | null, number | null]
+    search: string | null
+    year: [number | null, number | null]
+    resolution: [number | null, number | null]
     polymer_classes: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
-    source_taxa    : number[]
-    host_taxa      : number[]
+    source_taxa: number[]
+    host_taxa: number[]
 }
 
 export interface PaginationState {
@@ -20,34 +20,79 @@ export interface PaginationState {
     current_structures_page: number
     total_structures_pages: number | null
 }
+// array of tuples [{ ligand info }, all structs in which it is present : [ {rcsb id, taxnodeinfo} ]]
+type LigandInstances = Array<[{
+    chemicalId          : string
+    chemicalName        : string
+    drugbank_description: string
+    drugbank_id         : string
+    pdbx_description    : string
+    formula_weight      : number
+    number_of_instances : number
+
+}, Array<{
+    rcsb_id: string
+    tax_node: {
+        rank: string, scientific_name: string, ncbi_tax_id: number
+    }
+}>]>
+
+type LigandInstance = {
+    ligand: {
+        chemicalId: string
+        chemicalName: string
+        drugbank_description: string
+        drugbank_id: string
+        pdbx_description: string
+        formula_weight: number
+        number_of_instances: number
+
+    }, parent_structure: {
+        rcsb_id: string
+        tax_node: {
+            rank: string, scientific_name: string, ncbi_tax_id: number
+        }
+    }
+}
 
 export interface UIState {
-    taxid_dict : Record<number, [ string, "Bacteria" | "Eukaryota" | "Archaea" ]>,
+    taxid_dict: Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>,
+    ligands_page: {
+        data          : LigandInstances,
+        filtered_data : LigandInstances
+        current_ligand: LigandInstance | null
+    },
     data: {
-        current_structures    : RibosomeStructure[],
-        current_polymers      : Array<Polymer | Rna | Protein>,
+        current_structures: RibosomeStructure[],
+        current_polymers: Array<Polymer | Rna | Protein>,
+
         total_structures_count: number | null,
-        total_polymers_count  : number | null
+        total_polymers_count: number | null
     },
     polymers: {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
     }
+
     filters: FiltersState,
     pagination: PaginationState
 }
 
 const initialState: UIState = {
-    taxid_dict : {},
+    taxid_dict: {},
+    ligands_page: {
+        data: [],
+        current_ligand:  null,
+        filtered_data: []
+    },
     data: {
         current_structures: [],
         current_polymers: [],
         total_structures_count: null,
         total_polymers_count: null
     },
-    polymers: {
+    polymers: { // polymers_page
         current_polymer_class: null
     },
-
     filters: {
         search: '',
         year: [null, null],
@@ -82,7 +127,19 @@ export const uiSlice = createSlice({
     name: 'ui',
     initialState,
     reducers: {
-        set_tax_dict(state, action: PayloadAction<Record<number, [ string, "Bacteria" | "Eukaryota" | "Archaea" ]>>) {
+        set_ligands_data(state, action: PayloadAction<LigandInstances>) {
+            state.ligands_page.data = action.payload
+        },
+        set_ligands_data_filtered(state, action: PayloadAction<LigandInstances>) {
+            state.ligands_page.filtered_data = action.payload
+        },
+
+        set_current_ligand(state, action: PayloadAction<LigandInstance>) {
+            state.ligands_page.current_ligand = action.payload
+        },
+
+
+        set_tax_dict(state, action: PayloadAction<Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>>) {
             state.taxid_dict = action.payload
         },
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
