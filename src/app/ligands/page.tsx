@@ -187,10 +187,18 @@ export default function Ligands() {
     }, [])
 
 
+
+    useEffect(()=>{
+        if (current_ligand === undefined){return}
+        ctx?.download_struct(current_ligand?.parent_structure.rcsb_id, true)
+            .then((ctx) => {
+                    ctx.create_ligand(current_ligand?.ligand.chemicalId)
+            })
+
+    },[current_ligand])
+
     useEffect(() => {
         console.log(lig_state);
-
-
     }, [])
 
 
@@ -246,20 +254,23 @@ export default function Ligands() {
                                 </div>
                                 <div>
 
-                                    <Accordion type="single" collapsible  defaultValue="item" disabled={current_ligand === null}>
+                                    <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
                                             <AccordionTrigger
-                                                
+
                                                 className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
                                             <AccordionContent>
                                                 <img src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png" className="w-50 h-50" />
-
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
                                     <Accordion type="single" collapsible disabled={current_ligand === undefined || lig_state.current_ligand?.ligand.drugbank_id === undefined}>
                                         <AccordionItem value="item-1">
-                                            <AccordionTrigger className="text-xs underline">Drugbank Description</AccordionTrigger>
+                                            <AccordionTrigger className={ `text-xs underline ${
+                                                 lig_state.current_ligand?.ligand.drugbank_id === undefined ? "text-gray-300"  : ""
+
+
+                                            }` }>Drugbank Description</AccordionTrigger>
                                             <AccordionContent>
                                                 <p className="text-xs">
 
@@ -272,10 +283,10 @@ export default function Ligands() {
                                     </Accordion>
 
                                 </div>
-                                <Separator />
-                                <p>ILE interface in in [3J7Z E. coli]</p>
+                                {/* <Separator /> */}
+                                {/* <p>ILE interface in in [3J7Z E. coli]</p>
                                 <p>μL4, uL22, uL13, 23S rRNA</p>
-                                <p>Also Present In :</p>
+                                <p>Also Present In :</p> */}
                             </ScrollArea>
                             {/* </Card> */}
 
