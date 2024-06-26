@@ -25,7 +25,10 @@ export function contract_taxname(name: string) {
   }
 }
 
-export function capitalize_only_first_letter_w(_: string): string {
+export function capitalize_only_first_letter_w(_: string |undefined): string {
+  if (_===undefined){
+    return ""
+  }
   var s = ""
   for (var word of _.split(" ")) {
     if (s != "") {

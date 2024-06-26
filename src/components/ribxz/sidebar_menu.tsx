@@ -16,20 +16,6 @@ import { useAppDispatch, useAppSelector } from "@/store/store"
 import { GearIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { useEffect } from "react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import Image from 'next/image'
 import {
   Accordion,
@@ -38,13 +24,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 
-
-
-
 export function SidebarMenu() {
-
-
-  const dispatch = useAppDispatch()
+  const dispatch                                   = useAppDispatch()
   const { data: taxdict_data, isLoading, isError } = useRoutersRouterStructTaxDictQuery()
   useEffect(() => {
     if (taxdict_data !== undefined) { dispatch(set_tax_dict(taxdict_data as any)) }
