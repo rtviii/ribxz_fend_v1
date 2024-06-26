@@ -170,6 +170,7 @@ export default function Ligands() {
 
     const lig_state = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
+
     const chemical_structure_link = (ligand_id: string | undefined) => {
         if (ligand_id === undefined) { return null };
         var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id[0]}/${ligand_id}.svg`
@@ -201,9 +202,10 @@ export default function Ligands() {
                         <div className="p-4 space-y-4">
                             {/* <Input type="search" placeholder="Search" className="w-full mb-4" /> */}
                             <TreeSelect
+                                status={current_ligand === null ? "warning" : undefined}
                                 showSearch={true}
                                 treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
-                                placeholder="Search.."
+                                placeholder="Select ligand-structure pair..."
                                 variant="outlined"
                                 treeData={lig_data_to_tree(lig_state.data)}
                                 className="w-full"
@@ -226,7 +228,12 @@ export default function Ligands() {
                             {/* <Card className="p-4 space-y-2"> */}
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar">
                                 <div className="flex flex-row justify-between">
-                                    <p className="col-span-2 text-sm ">{lig_state.current_ligand?.ligand.chemicalId}<span className=" text-xs text-gray-800">({capitalize_only_first_letter_w(lig_state.current_ligand?.ligand.chemicalName)})</span></p>
+                                    {current_ligand === null ? null :
+
+                                        <p className="col-span-2 text-sm ">{lig_state.current_ligand?.ligand.chemicalId}<span className=" text-xs text-gray-800">({capitalize_only_first_letter_w(lig_state.current_ligand?.ligand.chemicalName)})</span></p>
+
+                                    }
+
                                     {
                                         lig_state.current_ligand?.ligand.drugbank_id ?
                                             <Link href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
@@ -239,37 +246,30 @@ export default function Ligands() {
                                 </div>
                                 <div>
 
-                                    <Accordion type="single" collapsible defaultValue="item-1">
-
-
-                                        <AccordionItem value="item-1">
+                                    <Accordion type="single" collapsible  defaultValue="item" disabled={current_ligand === null}>
+                                        <AccordionItem value="item">
                                             <AccordionTrigger
+                                                
                                                 className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
                                             <AccordionContent>
-                                                <img src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand" className="w-50 h-50" />
+                                                <img src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png" className="w-50 h-50" />
 
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
-                                    {
-                                        lig_state.current_ligand?.ligand.drugbank_id ?
-                                            <Accordion type="single" collapsible>
-                                                <AccordionItem value="item-1">
-                                                    <AccordionTrigger className="text-xs underline">Drugbank Description</AccordionTrigger>
-                                                    <AccordionContent>
-                                                        <p className="text-xs">
+                                    <Accordion type="single" collapsible disabled={current_ligand === undefined || lig_state.current_ligand?.ligand.drugbank_id === undefined}>
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger className="text-xs underline">Drugbank Description</AccordionTrigger>
+                                            <AccordionContent>
+                                                <p className="text-xs">
 
-                                                            {lig_state.current_ligand?.ligand.drugbank_description}
+                                                    {lig_state.current_ligand?.ligand.drugbank_description}
 
-                                                        </p>
+                                                </p>
 
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            </Accordion>
-
-
-                                            : null
-                                    }
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
 
                                 </div>
                                 <Separator />
