@@ -30,6 +30,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Image from 'next/image'
 import {
   Accordion,
   AccordionContent,
@@ -92,16 +93,15 @@ export function SidebarMenu() {
             </div>
           </Link>
 
-
-
-
-          {/* <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/nomenclature">
-            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600" >
-              <span>Nomenclature (WIP)</span>
-              <NotebookIcon className="h-5 w-5" />
+          <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-muted rounded-sm" href="/ligands">
+            <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
+              <span>{" Ligands & Small Molecules"} </span>
+              {/* <DnaIcon className="h-5 w-5" /> */}
+              <Image src={"/ligand_icon.svg"}  width={20} height={20}  alt="ligands"/> 
             </div>
-          </Link> */}
-          {/* </div> */}
+          </Link>
+
+
           <hr className="border-t my-4 border-gray-200" />
           {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
@@ -119,15 +119,8 @@ export function SidebarMenu() {
                 <span className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Landmarks</span>
               </AccordionTrigger>
 
-
-              <AccordionContent className="w-full">
-                <Link href="/ligands" className="w-full ">
-                  <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md"> Ligands & Small Molecules </span>
-                </Link>
-
-              </AccordionContent>
               <AccordionContent>
-                <Link href="/landmarks?type=ptc"  className="w-full">
+                <Link href="/landmarks?type=ptc" className="w-full">
                   <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md">PTC</span>
                 </Link>
 
