@@ -21,7 +21,7 @@ export interface PaginationState {
     total_structures_pages: number | null
 }
 // array of tuples [{ ligand info }, all structs in which it is present : [ {rcsb id, taxnodeinfo} ]]
-type LigandInstances = Array<[{
+export type LigandInstances = Array<[{
     chemicalId          : string
     chemicalName        : string
     drugbank_description: string
@@ -37,7 +37,7 @@ type LigandInstances = Array<[{
     }
 }>]>
 
-type LigandInstance = {
+export type LigandInstance = {
     ligand: {
         chemicalId: string
         chemicalName: string

@@ -33,6 +33,8 @@ import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
+import { TreeSelect } from "antd"
+import { LigandInstances } from "@/store/slices/ui_state"
 
 
 interface TaxaDropdownProps {
@@ -144,12 +146,34 @@ const LigandTableRow = (props: LigandRowProps) => {
     </TableRow>
 }
 
+
+const lig_data_to_tree = (lig_data: LigandInstances) => {
+    return lig_data.map(([lig, structs]) => ({
+        key       : lig.chemicalId,
+        value     : lig.chemicalId,                              // Changed from chemicalName to chemicalId
+        title     : `${lig.chemicalId} (${lig.chemicalName})`,
+        selectable: false,                                       // Make the parent node not selectable
+
+        // search_front: structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '').toLowerCase(),
+        children: structs.map((struct, index) => ({
+            key       : `${lig.chemicalId}_${struct.rcsb_id}`,
+            value     : `${lig.chemicalId}_${struct.rcsb_id}`,
+            // title     : `${struct.rcsb_id} - ${struct.tax_node.scientific_name}`,
+title:(
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    <span>{struct.rcsb_id}</span>
+                    <span style={{ fontStyle: 'italic' }}>{struct.tax_node.scientific_name}</span>
+                </div>
+            ),
+            selectable: true                                                       // Make the child nodes selectable
+        }))
+    }));
+}
+
 export default function Ligands() {
 
-    // const { data: ligands_data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
-    const lig_state= useAppSelector(state=>state.ui.ligands_page)
+    const lig_state               = useAppSelector(state => state.ui.ligands_page)
     const chemical_structure_link = (ligand_id: string) => { var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/{ligand_id[0]}/{ligand_id}.svg` }
-
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
@@ -173,7 +197,17 @@ export default function Ligands() {
                 <MolstarContext.Provider value={ctx}>
                     <div className="border-r">
                         <div className="p-4 space-y-4">
-                            <Input type="search" placeholder="Search" className="w-full mb-4" />
+                            {/* <Input type="search" placeholder="Search" className="w-full mb-4" /> */}
+                            <TreeSelect
+
+                                showSearch={true}
+                                treeNodeFilterProp='title'  // Changed from 'search_front' to 'title'
+                                placeholder="Search.."
+                                variant="outlined"
+                                treeData={lig_data_to_tree(lig_state.data)}
+                                className="w-full"
+                                treeExpandAction="click"
+                            />
                             <Card className="p-4 space-y-2">
                                 <div className="flex justify-between">
                                     <span>ISOLEUCINE</span>
