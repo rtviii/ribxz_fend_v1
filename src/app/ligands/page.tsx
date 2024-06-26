@@ -35,6 +35,7 @@ import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { TreeSelect } from "antd"
 import { LigandInstances } from "@/store/slices/ui_state"
+import { capitalize_only_first_letter_w } from "@/my_utils"
 
 
 interface TaxaDropdownProps {
@@ -151,7 +152,7 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
     return lig_data.map(([lig, structs]) => ({
         key       : lig.chemicalId,
         value     : lig.chemicalId,                              // Changed from chemicalName to chemicalId
-        title     : `${lig.chemicalId} (${lig.chemicalName})`,
+        title     : `${lig.chemicalId} (${capitalize_only_first_letter_w(lig.chemicalName)})`,
         selectable: false,                                       // Make the parent node not selectable
 
         // search_front: structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '').toLowerCase(),
