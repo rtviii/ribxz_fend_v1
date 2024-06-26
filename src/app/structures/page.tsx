@@ -61,7 +61,7 @@ export default function StructureCatalogue() {
           </div>
           <div className="col-span-9 scrollbar-hidden">
             <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
-              <div className=" gap-4 flex  flex-wrap  p-1 scrollbar-hidden"  >
+              <div className=" gap-4 flex  flex-wrap   scrollbar-hidden"  >
                 {current_structures.map((struct: RibosomeStructure) => <StructureCard _={struct} key={struct.rcsb_id} />)}
               </div>
             </ScrollArea>

@@ -180,7 +180,10 @@ export class MolstarRibxz {
 
   }
 
-  async download_struct(rcsb_id: string): Promise<MolstarRibxz> {
+  async download_struct(rcsb_id: string, clear?:boolean): Promise<MolstarRibxz> {
+    if (clear){
+      await this.ctx.clear()
+    }
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");

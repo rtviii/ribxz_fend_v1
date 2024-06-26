@@ -53,7 +53,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
-        console.log("Page mounted. Initializing Molstar Plugin UI Context");
         (async () => {
             const x = new MolstarRibxz
             await x.init(molstarNodeRef.current!)

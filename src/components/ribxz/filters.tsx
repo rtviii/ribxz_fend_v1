@@ -202,10 +202,10 @@ export function Filters(props: FiltersProps) {
             </label>
             <div className="text-sm font-medium" >
               <TreeSelect
-                showSearch={true}
                 style={{ width: '100%' }}
                 value={filters.source_taxa}
                 dropdownStyle={{ maxHeight: 600, maxWidth: 600, overflow: 'auto' }}
+                showSearch={true}
                 treeNodeFilterProp='title'
                 placeholder="Search.."
                 allowClear={false}

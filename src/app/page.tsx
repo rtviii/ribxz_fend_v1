@@ -3,7 +3,7 @@ import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
-import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLignadsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
+import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
 import { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button"
@@ -155,7 +155,7 @@ const PolymersOverviewPanel = (props: { data: any }) => {
 
 
 const LigandsOverviewPanel = (props: { data: any }) => {
-  const { data, isLoading, isError } = useRoutersRouterStructListLignadsQuery()
+  const { data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
   const [lig_stat, setLigStat] = useState<{ bact: 0, euk: 0, arch: 0, drugbank: 0 }>()
   useEffect(() => {
     const acc = data?.reduce((accumulator, current) => {
@@ -289,9 +289,8 @@ export default function Home() {
             <Image src="/ribxz_logo_black.png" alt="Ribosome structure" className="w-60" width={60} height={120} />
             <div className="space-y-4">
               <p className="flex font-medium">
-                <p className='mr-2'>
-                  {/* <code className='border ribxz-link font-medium border-gray-200 bg-gray-100 rounded-sm my-2'>ribosome.xyz</code> provides  */}
-                  Organized access to atomic structures of the ribosome.</p>
+                <span className='mr-2'>
+                  Organized access to atomic structures of the ribosome.</span>
               </p>
               <p className="text-sm">
                 Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>PDB</Link>?

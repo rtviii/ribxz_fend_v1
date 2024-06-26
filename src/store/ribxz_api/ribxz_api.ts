@@ -75,9 +75,9 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
-    routersRouterStructListLignads: build.query<
-      RoutersRouterStructListLignadsApiResponse,
-      RoutersRouterStructListLignadsApiArg
+    routersRouterStructListLigands: build.query<
+      RoutersRouterStructListLigandsApiResponse,
+      RoutersRouterStructListLigandsApiArg
     >({
       query: () => ({ url: `/structures/list_ligands` }),
     }),
@@ -481,11 +481,11 @@ export type RoutersRouterStructStructurePtcApiResponse =
 export type RoutersRouterStructStructurePtcApiArg = {
   rcsbId: string;
 };
-export type RoutersRouterStructListLignadsApiResponse = /** status 200 OK */ [
+export type RoutersRouterStructListLigandsApiResponse = /** status 200 OK */ [
   object,
   object[]
 ][];
-export type RoutersRouterStructListLignadsApiArg = void;
+export type RoutersRouterStructListLigandsApiArg = void;
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
 export type RoutersRouterStructFilterListApiArg = {
@@ -1254,7 +1254,9 @@ export const {
   useRoutersRouterStructPolymersByPolymerClassQuery,
   useRoutersRouterStructPolymersByStructureQuery,
   useRoutersRouterStructStructurePtcQuery,
-  useRoutersRouterStructListLignadsQuery,
+
+  useRoutersRouterStructListLigandsQuery,
+
   useRoutersRouterStructFilterListQuery,
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructChainsByStructQuery,
