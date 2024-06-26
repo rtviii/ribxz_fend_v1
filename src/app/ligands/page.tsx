@@ -146,7 +146,8 @@ const LigandTableRow = (props: LigandRowProps) => {
 
 export default function Ligands() {
 
-    const { data: ligands_data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
+    // const { data: ligands_data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
+    const lig_state= useAppSelector(state=>state.ui.ligands_page)
     const chemical_structure_link = (ligand_id: string) => { var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/{ligand_id[0]}/{ligand_id}.svg` }
 
 
@@ -163,8 +164,8 @@ export default function Ligands() {
 
     useEffect(() => {
         console.log("Gotligands data")
-        console.log(ligands_data);
-    }, [ligands_data])
+        console.log(lig_state.data);
+    }, [lig_state.data])
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className=" ">

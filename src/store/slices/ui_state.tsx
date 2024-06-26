@@ -233,6 +233,12 @@ export const uiSlice = createSlice({
 
 
 export const {
+
+    set_ligands_data,
+    set_ligands_data_filtered,
+    set_current_ligand,
+
+
     set_tax_dict,
     set_current_polymers,
     set_current_polymer_class,
@@ -243,3 +249,15 @@ export const {
     pagination_prev_page
 } = uiSlice.actions
 export default uiSlice.reducer
+
+
+
+
+export const prefetchLigandsData = createAsyncThunk( 'ui/fetchAndSetLigandsData',
+  async (_, { dispatch }) => {
+    const result = await dispatch(ribxz_api.endpoints.routersRouterStructListLigands.initiate());
+    if ('data' in result) {
+      dispatch(set_ligands_data(result.data));
+    }
+  }
+);

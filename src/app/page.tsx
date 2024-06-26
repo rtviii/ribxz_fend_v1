@@ -290,7 +290,6 @@ export default function Home() {
             <div className="space-y-4">
               <p className="flex font-medium">
                 <span className='mr-2'>
-                  {/* <code className='border ribxz-link font-medium border-gray-200 bg-gray-100 rounded-sm my-2'>ribosome.xyz</code> provides  */}
                   Organized access to atomic structures of the ribosome.</span>
               </p>
               <p className="text-sm">

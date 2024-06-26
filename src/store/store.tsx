@@ -1,14 +1,14 @@
 "use client"
-import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit'
+import { configureStore, createAsyncThunk, createListenerMiddleware } from '@reduxjs/toolkit'
 import { ribxz_api } from './ribxz_api/ribxz_api'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'
 import { molstarListenerMiddleware, molstarSlice } from './slices/molstar_state'
-import { uiSlice } from './slices/ui_state'
+import { prefetchLigandsData, uiSlice } from './slices/ui_state'
 
 
 
 export const makeStore = () => {
-  return configureStore({
+  const store=  configureStore({
     reducer: {
       [ribxz_api.reducerPath]: ribxz_api.reducer,
       molstar                : molstarSlice.reducer,
@@ -18,6 +18,11 @@ export const makeStore = () => {
     .prepend(molstarListenerMiddleware.middleware)
     .concat(ribxz_api.middleware),
   })
+
+  //* All prefetching can happen here via thunks.
+  store.dispatch(prefetchLigandsData())
+  //* All prefetching can happen here via thunks.
+  return store
 }
 
 export type AppStore    = ReturnType<typeof makeStore>
