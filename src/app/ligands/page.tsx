@@ -150,17 +150,25 @@ const LigandTableRow = (props: LigandRowProps) => {
 
 const lig_data_to_tree = (lig_data: LigandInstances) => {
     return lig_data.map(([lig, structs]) => ({
-        key       : lig.chemicalId,
-        value     : lig.chemicalId,                              // Changed from chemicalName to chemicalId
-        title     : `${lig.chemicalId} (${capitalize_only_first_letter_w(lig.chemicalName)})`,
-        selectable: false,                                       // Make the parent node not selectable
-
-        // search_front: structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '').toLowerCase(),
-        children: structs.map((struct, index) => ({
-            key       : `${lig.chemicalId}_${struct.rcsb_id}`,
-            value     : `${lig.chemicalId}_${struct.rcsb_id}`,
+        key              : lig.chemicalId,
+        value            : lig.chemicalId,                                                                                                // Changed from chemicalName to chemicalId ()
+        title            : (
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                    <span className="font-semibold">{lig.chemicalId}</span>
+                    <span style={{ fontStyle: 'italic' }}>({lig.chemicalName.length > 30 ?  capitalize_only_first_letter_w(lig.chemicalName).slice(0,40)+"..." : capitalize_only_first_letter_w(lig.chemicalName)})</span>
+                </div>
+            ),
+         
+        
+        // `${lig.chemicalId} (${lig.chemicalName.length > 30 ?  capitalize_only_first_letter_w(lig.chemicalName).slice(0,30)+"..." : capitalize_only_first_letter_w(lig.chemicalName) })`,
+        selectable       : false,                                                                                                         // Make the parent node not selectable
+        search_aggregator: (lig.chemicalName + lig.chemicalId + structs.reduce((acc: string, next) =>  acc + next.rcsb_id + next.tax_node.scientific_name, '')).toLowerCase(),
+        children         : structs.map((struct, index) => ({
+            search_aggregator: ( lig.chemicalName + lig.chemicalId +  struct.rcsb_id + struct.tax_node.scientific_name ).toLowerCase(),
+            key: `${lig.chemicalId}_${struct.rcsb_id}`,
+            value: `${lig.chemicalId}_${struct.rcsb_id}`,
             // title     : `${struct.rcsb_id} - ${struct.tax_node.scientific_name}`,
-title:(
+            title: (
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <span>{struct.rcsb_id}</span>
                     <span style={{ fontStyle: 'italic' }}>{struct.tax_node.scientific_name}</span>
@@ -173,7 +181,7 @@ title:(
 
 export default function Ligands() {
 
-    const lig_state               = useAppSelector(state => state.ui.ligands_page)
+    const lig_state = useAppSelector(state => state.ui.ligands_page)
     const chemical_structure_link = (ligand_id: string) => { var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/{ligand_id[0]}/{ligand_id}.svg` }
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
@@ -200,14 +208,16 @@ export default function Ligands() {
                         <div className="p-4 space-y-4">
                             {/* <Input type="search" placeholder="Search" className="w-full mb-4" /> */}
                             <TreeSelect
-
                                 showSearch={true}
-                                treeNodeFilterProp='title'  // Changed from 'search_front' to 'title'
+                                treeNodeFilterProp='search_aggregator'  // Changed from 'search_front' to 'title'
                                 placeholder="Search.."
                                 variant="outlined"
                                 treeData={lig_data_to_tree(lig_state.data)}
                                 className="w-full"
                                 treeExpandAction="click"
+                                showCheckedStrategy="SHOW_CHILD"
+                                filterTreeNode={(input, treenode)=>{ return ( treenode.search_aggregator as string ).includes(input.toLowerCase())}}
+                                    
                             />
                             <Card className="p-4 space-y-2">
                                 <div className="flex justify-between">
