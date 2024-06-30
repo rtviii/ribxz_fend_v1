@@ -172,7 +172,7 @@ export default function Ligands() {
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
     const chemical_structure_link = (ligand_id: string | undefined) => {
-        if (ligand_id === undefined) { return null };
+        if (ligand_id === undefined) { return '' };
         var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id[0]}/${ligand_id}.svg`
     }
 
@@ -191,15 +191,17 @@ export default function Ligands() {
     useEffect(() => {
         if (current_ligand === undefined) { return }
         ctx?.download_struct(current_ligand?.parent_structure.rcsb_id, true)
-            .then((ctx)=> ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId) )
-            .then((ctx)=> ctx.get_selection_constituents(current_ligand?.ligand.chemicalId) )
-            // .then((ctx)=> ctx.create_ligand(current_ligand?.ligand.chemicalId) )
+            .then((ctx) => ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId))
+            .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
+        // .then((ctx)=> ctx.create_ligand(current_ligand?.ligand.chemicalId) )
 
     }, [current_ligand])
 
     useEffect(() => {
         console.log(lig_state);
     }, [])
+
+    const [hoveredPath, setHoveredPath] = useState(null);
 
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -253,14 +255,16 @@ export default function Ligands() {
 
                                 </div>
                                 <div>
-
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
                                             <AccordionTrigger
 
                                                 className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
-                                            <AccordionContent>
-                                                <img src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png" className="w-50 h-50" />
+                                            <AccordionContent className="hover:stroke-red-500">
+                                                <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
+                                                    width={400} height={400} className="hover:stroke-red-600 hover:cursor-pointer"
+
+                                                />
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
@@ -283,7 +287,7 @@ export default function Ligands() {
 
 
 
-<Button onClick={()=>{ctx?.log_ligand_info()}}> Log info</Button>
+                                    <Button onClick={() => { ctx?.log_ligand_info() }}> Log info</Button>
 
 
 

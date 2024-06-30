@@ -131,3 +131,15 @@
   outline: 1px solid slateblue;
   padding: 10px;
 } */
+
+
+.highlight-path {
+  stroke      : black;          /* Original outline color */
+  stroke-width: 1;              /* Original outline width */
+  transition  : all 0.3s ease;  /* Smooth transition */
+}
+
+.highlight-path:hover {
+  stroke      : red;  /* Highlight color */
+  stroke-width: 2;    /* Increased width on hover */
+}

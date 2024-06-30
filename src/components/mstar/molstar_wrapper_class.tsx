@@ -328,41 +328,36 @@ export class MolstarRibxz {
     const resdueList = [];
 
 
-
-    StructureElement.Loci.forEachLocation(loci,
-      (loc) => {
-        resdueList.push({
-          _: StructureProperties.unit.model_entry_id(loc),
-          s: StructureProperties.residue.chem_comp_type(loc),
-          label_seq_id : StructureProperties.residue.label_seq_id(loc),
-          label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          chain_id     : StructureProperties.chain.auth_asym_id(loc),
-          // stat,
-          // label_comp_id: StructureProperties.residue.label_comp_id(loc),
-        });
-
-      })
-
-
-
-    // Structure.eachAtomicHierarchyElement(structure, {
-    //   // chain: (loc) => {
-    //   //   chains.push(StructureProperties.chain.auth_asym_id(loc));
-    //   // },
-    //   // atom: (loc) => {
-    //   //   console.log('conformation', loc);
-    //   // },
-    //   residue: (loc) => {
-    //     // const stat = StructureElement.Stats.ofLoci(loc);
+const struct_Element = StructureElement.Loci.toStructure(loci)
+    // StructureElement.Loci.forEachLocation(loci,
+    //   (loc) => {
     //     resdueList.push({
-    //       label_seq_id: StructureProperties.residue.label_seq_id(loc),
+    //       _: StructureProperties.unit.model_entry_id(loc),
+    //       s: StructureProperties.residue.chem_comp_type(loc),
+    //       label_seq_id : StructureProperties.residue.label_seq_id(loc),
     //       label_comp_id: StructureProperties.atom.label_comp_id(loc),
-    //       chain_id: StructureProperties.chain.auth_asym_id(loc),
+    //       chain_id     : StructureProperties.chain.auth_asym_id(loc),
     //       // stat,
     //       // label_comp_id: StructureProperties.residue.label_comp_id(loc),
     //     });
-    //   },
-    // });
+
+    //   })
+
+
+
+    Structure.eachAtomicHierarchyElement(struct_Element, {
+      residue: (loc) => {
+        // const stat = StructureElement.Stats.ofLoci(loc);
+        resdueList.push({
+          label_seq_id : StructureProperties.residue.label_seq_id(loc),
+          label_comp_id: StructureProperties.atom.label_comp_id(loc),
+          chain_id     : StructureProperties.chain.auth_asym_id(loc),
+          struct_id : StructureProperties.unit.model_entry_id(loc),
+          // stat,
+          // label_comp_id: StructureProperties.residue.label_comp_id(loc),
+        });
+      },
+    });
     console.log(resdueList);
 
 
