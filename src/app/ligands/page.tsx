@@ -167,15 +167,6 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 
 export default function Ligands() {
     const dispatch = useAppDispatch();
-
-    const lig_state = useAppSelector(state => state.ui.ligands_page)
-    const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
-
-    const chemical_structure_link = (ligand_id: string | undefined) => {
-        if (ligand_id === undefined) { return '' };
-        var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id[0]}/${ligand_id}.svg`
-    }
-
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
@@ -187,13 +178,30 @@ export default function Ligands() {
     }, [])
 
 
+    const lig_state = useAppSelector(state => state.ui.ligands_page)
+    const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
+
+    const [surroundingResidues, setSurroundingResidues] = useState<{
+        label_seq_id: number,
+        label_comp_id: string,
+        chain_id: string,
+        rcsb_id: string,
+    }[]>([])
+
+    const chemical_structure_link = (ligand_id: string | undefined) => {
+        if (ligand_id === undefined) { return '' };
+        var ligand_id = ligand_id.toUpperCase(); return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id[0]}/${ligand_id}.svg`
+    }
+
+
+
 
     useEffect(() => {
         if (current_ligand === undefined) { return }
         ctx?.download_struct(current_ligand?.parent_structure.rcsb_id, true)
             .then((ctx) => ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId))
-            // .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
-
+            .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
+            .then(residues => { setSurroundingResidues(residues) })
     }, [current_ligand])
 
     useEffect(() => {
