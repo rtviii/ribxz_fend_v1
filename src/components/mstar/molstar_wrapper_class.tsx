@@ -325,7 +325,7 @@ export class MolstarRibxz {
   async get_selection_constituents(chemicalId: string | undefined): Promise<{
     label_seq_id: number,
     label_comp_id: string,
-    chain_id: string,
+    auth_asym_id: string,
     rcsb_id: string,
 
   }[]> {

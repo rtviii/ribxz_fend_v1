@@ -166,6 +166,10 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 
 export default function Ligands() {
     const dispatch = useAppDispatch();
+
+    const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
+
+
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
@@ -183,9 +187,11 @@ export default function Ligands() {
     const [surroundingResidues, setSurroundingResidues] = useState<{
         label_seq_id: number,
         label_comp_id: string,
-        chain_id: string,
+        auth_asym_id: string,
         rcsb_id: string,
+        polymer_class?: string
     }[]>([])
+    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
 
     const chemical_structure_link = (ligand_id: string | undefined) => {
         if (ligand_id === undefined) { return '' };
@@ -195,10 +201,40 @@ export default function Ligands() {
 
     useEffect(() => {
         if (current_ligand === undefined) { return }
-        ctx?.download_struct(current_ligand?.parent_structure.rcsb_id, true)
+        const fetchData = async () => {
+            try {
+                const result = await refetchParentStruct({
+                    rcsbId: current_ligand?.parent_structure.rcsb_id!
+                }).unwrap();
+                setParentStructProfile(result);
+            } catch (error) {
+                console.error('Error fetching parent struct:', error);
+            }
+        };
+
+        fetchData();
+
+
+    }, [current_ligand])
+
+
+
+    useEffect(() => {
+        if (current_ligand === undefined) { return }
+        ctx?.download_struct(current_ligand?.parent_structure.rcsb_id!, true)
             .then((ctx) => ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId))
             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
-            .then(residues => { setSurroundingResidues(residues) })
+            .then(residues => {
+                setSurroundingResidues(residues)
+               
+                var chain_ids = []
+                for (let residue of residues) {
+                    chain_ids.push(residue.auth_asym_id)
+                }
+                
+
+
+            })
     }, [current_ligand])
 
 
@@ -249,39 +285,39 @@ export default function Ligands() {
                                                     onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                                     onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}>
-                                                    <span className="font-bold"><span className="font-bold">{current_ligand?.parent_structure.rcsb_id}</span>.{current_ligand?.ligand.chemicalId} </span> 5Å Pocket 
+                                                    <span className="font-bold"><span className="font-bold">{current_ligand?.parent_structure.rcsb_id}</span>.{current_ligand?.ligand.chemicalId} </span> 5Å Pocket
 
                                                 </div>
                                                 <div className="space-y-1 text-xs">
 
-                                                {surroundingResidues.length === 0 ? <p>Loading...</p> :
-                                                    surroundingResidues.map((residue, i) => {
-                                                        return (
-                                                             <div
+                                                    {surroundingResidues.length === 0 ? <p>Loading...</p> :
+                                                        surroundingResidues.map((residue, i) => {
+                                                            return (
+                                                                <div
 
-                                                                onClick={() => {
-                                                                    ctx?.select_residueCluster([{
-                                                                        res_seq_id: residue.label_seq_id,
-                                                                        auth_asym_id: residue.chain_id
-                                                                    }])
-                                                                }}
-                                                                onMouseEnter={() => {
-                                                                    ctx?.highlightResidueCluster([{
-                                                                        res_seq_id: residue.label_seq_id,
-                                                                        auth_asym_id: residue.chain_id
-                                                                    }])
-                                                                }}
+                                                                    onClick={() => {
+                                                                        ctx?.select_residueCluster([{
+                                                                            res_seq_id: residue.label_seq_id,
+                                                                            auth_asym_id: residue.auth_asym_id
+                                                                        }])
+                                                                    }}
+                                                                    onMouseEnter={() => {
+                                                                        ctx?.highlightResidueCluster([{
+                                                                            res_seq_id: residue.label_seq_id,
+                                                                            auth_asym_id: residue.auth_asym_id
+                                                                        }])
+                                                                    }}
 
-                                                                onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                                key={i} className="ml-8 flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm p-1">
-                                                                {"*"}<span>{residue.label_comp_id} {residue.label_seq_id}</span>
-                                                                <span>{residue.chain_id}</span>
-                                                                <span>{residue.rcsb_id}</span>
-                                                            </div>
-                                                        )
-                                                    })
+                                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
+                                                                    key={i} className="ml-8 flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm p-1">
+                                                                    {"*"}<span>{residue.label_comp_id} {residue.label_seq_id}</span>
+                                                                    <span>{residue.auth_asym_id}</span>
+                                                                    <span>{residue.rcsb_id}</span>
+                                                                </div>
+                                                            )
+                                                        })
 
-                                                }
+                                                    }
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>
