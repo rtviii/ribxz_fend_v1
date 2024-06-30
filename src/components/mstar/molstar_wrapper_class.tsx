@@ -305,19 +305,46 @@ export class MolstarRibxz {
         })
       ]);
 
-      const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
-      const group2 = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
 
-      const surroundingsSel = group2.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundings }, { ref: 'surroundingsSel' });
+
+
+
+      const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
+
+      // create a selection that excluded the ligand itself from "surroundings"
+
+      const surroundingsWithoutLigand = MS.struct.modifier.exceptBy(
+        {
+          0: surroundings,
+          by: ligand
+        }
+      );
+
+
+
+
+
+      const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` },
+       { ref: 'surroundings' });
+
+      const surroundingsSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand },
+       { ref: 'surroundingsSel' });
+
       surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
       surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
 
       await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
-      const compiled2  = compile<StructureSelection>(surroundings);
+      const compiled2  = compile<StructureSelection>(surroundingsWithoutLigand);
       const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
-      let   loci2      = StructureSelection.toLociWithSourceUnits(selection2);
-      this.ctx.managers.camera.focusLoci(loci2);
+      StructureSelection.toLociWithSourceUnits(selection2);
+
+
+
+
+
+
+      // this.ctx.managers.camera.focusLoci(loci2);
   }
 
 
