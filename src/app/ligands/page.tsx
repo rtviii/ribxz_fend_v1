@@ -319,7 +319,7 @@ export default function Ligands() {
 
 
 
-                                    <Button onClick={() => { ctx?.log_ligand_info() }}> Log info</Button>
+                                    <Button onClick={() => { ctx?.toggle_visibility() }}> Log info</Button>
 
 
 

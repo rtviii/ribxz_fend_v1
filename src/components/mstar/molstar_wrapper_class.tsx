@@ -116,17 +116,17 @@ export class MolstarRibxz {
 
     const expr = this.selectionResidueClusterExpression(chain_residues_tuples)
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    const sel  = Script.getStructureSelection(expr, data);
-    let   loci = StructureSelection.toLociWithSourceUnits(sel);
+    const sel = Script.getStructureSelection(expr, data);
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
 
     this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
   }
 
   highlightResidueCluster = _.memoize(_highlightResidueCluster =>
-    _.debounce((chain_residues_tuples:{
-    auth_asym_id: string,
-    res_seq_id: number,
-  }[]) => {
+    _.debounce((chain_residues_tuples: {
+      auth_asym_id: string,
+      res_seq_id: number,
+    }[]) => {
       _highlightResidueCluster(chain_residues_tuples)
     }, 50, { "leading": true, "trailing": true })
   )(this._highlightResidueCluster);
@@ -215,6 +215,26 @@ export class MolstarRibxz {
 
   }
 
+  async toggle_visibility() {
+    
+    var sought_ref = ""
+    for (const s of this.ctx.managers.structure.hierarchy.currentComponentGroups) {
+      for (var component of s) {
+        console.log(component.structure.cell.obj?.data.label)
+        console.log(component.cell.obj?.label)
+        if (component.cell.obj?.label == "Polymer"){
+          sought_ref = component.cell.sourceRef
+        }
+        console.log(component.cell.sourceRef)
+      }
+
+
+    }
+
+    await PluginCommands.State.ToggleVisibility(this.ctx, { state: this.ctx.state.data, ref: sought_ref });
+
+  }
+
   async download_struct(rcsb_id: string, clear?: boolean): Promise<MolstarRibxz> {
 
     if (clear) {
@@ -223,8 +243,12 @@ export class MolstarRibxz {
 
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
+    const structRef = `structure-${rcsb_id}`;
 
-    await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    console.log("created ref", structRef);
+
+    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+
 
     this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
 
