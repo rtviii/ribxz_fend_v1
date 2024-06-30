@@ -309,11 +309,8 @@ export class MolstarRibxz {
     const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
     const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: ligand });
 
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` },
-      { ref: 'surroundings' });
-
-    const surroundingsSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand },
-      { ref: 'surroundingsSel' });
+    const group           = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
+    const surroundingsSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand }, { ref: 'surroundingsSel' });
 
     surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
     surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
@@ -327,40 +324,21 @@ export class MolstarRibxz {
     const structure = struct.structureRef.cell.obj?.data!;
     const resdueList = [];
 
-
-const struct_Element = StructureElement.Loci.toStructure(loci)
-    // StructureElement.Loci.forEachLocation(loci,
-    //   (loc) => {
-    //     resdueList.push({
-    //       _: StructureProperties.unit.model_entry_id(loc),
-    //       s: StructureProperties.residue.chem_comp_type(loc),
-    //       label_seq_id : StructureProperties.residue.label_seq_id(loc),
-    //       label_comp_id: StructureProperties.atom.label_comp_id(loc),
-    //       chain_id     : StructureProperties.chain.auth_asym_id(loc),
-    //       // stat,
-    //       // label_comp_id: StructureProperties.residue.label_comp_id(loc),
-    //     });
-
-    //   })
-
-
-
+    const struct_Element = StructureElement.Loci.toStructure(loci)
     Structure.eachAtomicHierarchyElement(struct_Element, {
       residue: (loc) => {
         // const stat = StructureElement.Stats.ofLoci(loc);
         resdueList.push({
-          label_seq_id : StructureProperties.residue.label_seq_id(loc),
+          label_seq_id: StructureProperties.residue.label_seq_id(loc),
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          chain_id     : StructureProperties.chain.auth_asym_id(loc),
-          struct_id : StructureProperties.unit.model_entry_id(loc),
+          chain_id: StructureProperties.chain.auth_asym_id(loc),
+          struct_id: StructureProperties.unit.model_entry_id(loc),
           // stat,
           // label_comp_id: StructureProperties.residue.label_comp_id(loc),
         });
       },
     });
-    console.log(resdueList);
-
-
+    return resdueList
   }
 
 
@@ -383,38 +361,38 @@ const struct_Element = StructureElement.Loci.toStructure(loci)
       const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
 
 
-      const surroundingsWithoutLigand = MS.struct.modifier.exceptBy([
-        surroundings,
-        ligand
-      ]);
+      const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 
+        0:surroundings,
+        by:ligand
+       });
 
       // Create a group for both ligand and surroundings
       const group1 = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Ligand Group` }, { ref: 'ligand' });
-      const group2 = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
 
       // Create ligand selection and representations
       const ligandSel = group1.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Ligand`, expression: ligand }, { ref: 'ligandSel' });
       ligandSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'ligandBallAndStick' });
 
-      // Create surroundings selection and representations
-      const surroundingsSel = group2.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundings }, { ref: 'surroundingsSel' });
-      surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
-      surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
-
       await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
-      // Focus camera on ligand
-      const compiled = compile<StructureSelection>(ligand);
-      const compiled2 = compile<StructureSelection>(surroundings);
-      const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
-      const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
-      let loci = StructureSelection.toLociWithSourceUnits(selection);
-      let loci2 = StructureSelection.toLociWithSourceUnits(selection2);
+      const update2 = this.ctx.build();
+      const group2 = update2.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
+      // Create surroundings selection and representations
+      const surroundingsSel = group2.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand }, { ref: 'surroundingsSel' });
+      surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
+      surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
+      await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update2 });
+
+
+      const compiled   = compile<StructureSelection>(ligand);
+      const selection  = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
+      // const compiled2  = compile<StructureSelection>(surroundingsWithoutLigand);
+      // const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
+      // StructureSelection.toLociWithSourceUnits(selection2);
+      let   loci       = StructureSelection.toLociWithSourceUnits(selection);
+
       this.ctx.managers.camera.focusLoci(loci);
 
-      //  this.ctx.managers.interactivity.
-      // this.ctx.layouts.state.expandToRoot(ligandGroup.ref);
-      // this.ctx.layouts.state.expandToRoot(surroundingsGroup.ref);
     })
     return this
   }

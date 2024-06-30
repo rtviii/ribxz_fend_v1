@@ -192,8 +192,7 @@ export default function Ligands() {
         if (current_ligand === undefined) { return }
         ctx?.download_struct(current_ligand?.parent_structure.rcsb_id, true)
             .then((ctx) => ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId))
-            .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
-        // .then((ctx)=> ctx.create_ligand(current_ligand?.ligand.chemicalId) )
+            // .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
 
     }, [current_ligand])
 
