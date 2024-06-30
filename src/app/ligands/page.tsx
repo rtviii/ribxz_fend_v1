@@ -188,14 +188,14 @@ export default function Ligands() {
 
 
 
-    useEffect(()=>{
-        if (current_ligand === undefined){return}
+    useEffect(() => {
+        if (current_ligand === undefined) { return }
         ctx?.download_struct(current_ligand?.parent_structure.rcsb_id, true)
-            .then((ctx) => {
-                    ctx.create_ligand(current_ligand?.ligand.chemicalId)
-            })
+            .then((ctx)=> ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId) )
+            .then((ctx)=> ctx.get_selection_constituents(current_ligand?.ligand.chemicalId) )
+            // .then((ctx)=> ctx.create_ligand(current_ligand?.ligand.chemicalId) )
 
-    },[current_ligand])
+    }, [current_ligand])
 
     useEffect(() => {
         console.log(lig_state);
@@ -266,11 +266,8 @@ export default function Ligands() {
                                     </Accordion>
                                     <Accordion type="single" collapsible disabled={current_ligand === undefined || lig_state.current_ligand?.ligand.drugbank_id === undefined}>
                                         <AccordionItem value="item-1">
-                                            <AccordionTrigger className={ `text-xs underline ${
-                                                 lig_state.current_ligand?.ligand.drugbank_id === undefined ? "text-gray-300"  : ""
-
-
-                                            }` }>Drugbank Description</AccordionTrigger>
+                                            <AccordionTrigger className={`text-xs underline ${lig_state.current_ligand?.ligand.drugbank_id === undefined ? "text-gray-300" : ""
+                                                }`}>Drugbank Description</AccordionTrigger>
                                             <AccordionContent>
                                                 <p className="text-xs">
 
@@ -282,6 +279,14 @@ export default function Ligands() {
                                         </AccordionItem>
                                     </Accordion>
 
+
+
+
+
+<Button onClick={()=>{ctx?.log_ligand_info()}}> Log info</Button>
+
+
+
                                 </div>
                                 {/* <Separator /> */}
                                 {/* <p>ILE interface in in [3J7Z E. coli]</p>
@@ -289,6 +294,7 @@ export default function Ligands() {
                                 <p>Also Present In :</p> */}
                             </ScrollArea>
                             {/* </Card> */}
+
 
 
 

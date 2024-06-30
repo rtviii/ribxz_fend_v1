@@ -127,7 +127,8 @@ export const MySpec: PluginUISpec = {
   layout: {
     initial: {
       controlsDisplay: 'portrait',
-      showControls: false, },
+      showControls: true, 
+    },
 
 
   },
