@@ -59,9 +59,22 @@ export class MolstarRibxz {
 
   }
 
+  select_residueCluster = (chain_residue_tuples: {
+    auth_asym_id: string,
+    res_seq_id: number,
+  }[]) => {
+
+    const expr = this.selectionResidueClusterExpression(chain_residue_tuples)
+    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const sel = Script.getStructureSelection(expr, data);
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    this.ctx.managers.structure.selection.clear();
+    this.ctx.managers.structure.selection.fromLoci('add', loci);
+    this.ctx.managers.camera.focusLoci(loci);
+
+  }
 
   select_chain = (auth_asym_id: string) => {
-
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
     const sel = Script.getStructureSelection(
@@ -128,7 +141,7 @@ export class MolstarRibxz {
       res_seq_id: number,
     }[]) => {
       _highlightResidueCluster(chain_residues_tuples)
-    }, 50, { "leading": true, "trailing": true })
+    }, 250, { "leading": true, "trailing": true })
   )(this._highlightResidueCluster);
 
 
@@ -216,13 +229,13 @@ export class MolstarRibxz {
   }
 
   async toggle_visibility() {
-    
+
     var sought_ref = ""
     for (const s of this.ctx.managers.structure.hierarchy.currentComponentGroups) {
       for (var component of s) {
         console.log(component.structure.cell.obj?.data.label)
         console.log(component.cell.obj?.label)
-        if (component.cell.obj?.label == "Polymer"){
+        if (component.cell.obj?.label == "Polymer") {
           sought_ref = component.cell.sourceRef
         }
         console.log(component.cell.sourceRef)
@@ -275,12 +288,38 @@ export class MolstarRibxz {
     return this
   }
 
-  logObjectStructure(obj: any, indent: string = '', maxDepth: number = 3, currentDepth: number = 0) {
-    for (let key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        console.log(obj[key])
-      }
+
+
+  async select_focus_ligand(chemicalId: string | undefined, focus_select: Array<'focus' | 'select' | 'highlight'>) {
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
+    if (chemicalId === undefined || !struct) {
+      return
     }
+    const ligand_sel = MS.struct.filter.first([
+      MS.struct.generator.atomGroups({
+        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
+        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
+      })
+    ]);
+    const compiled = compile<StructureSelection>(ligand_sel);
+    const ligand_selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
+    let loci = StructureSelection.toLociWithSourceUnits(ligand_selection);
+
+    if (focus_select.includes('focus')) {
+      this.ctx.managers.camera.focusLoci(loci);
+    }
+    if (focus_select.includes('select')) {
+      this.ctx.managers.structure.selection.clear();
+      this.ctx.managers.structure.selection.fromLoci('add', loci);
+    }
+    if (focus_select.includes('highlight')) {
+      this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
+    }
+    // this.ctx.managers.structure.selection.fromLoci('add', loci);
+    // this.ctx.managers.camera.focusLoci(loci);
+    // this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
+
   }
 
   async get_selection_constituents(chemicalId: string | undefined): Promise<{
@@ -372,6 +411,7 @@ export class MolstarRibxz {
       // Create ligand selection and representations
       const ligandSel = group1.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Ligand`, expression: ligand }, { ref: 'ligandSel' });
       ligandSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'ligandBallAndStick' });
+      ligandSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'ligandLabel' });
 
       await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
@@ -380,55 +420,51 @@ export class MolstarRibxz {
       // Create surroundings selection and representations
       const surroundingsSel = group2.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand }, { ref: 'surroundingsSel' });
       surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
-      surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
+      // surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
       await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update2 });
 
-      const compiled = compile<StructureSelection>(ligand);
-      const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
-      let loci = StructureSelection.toLociWithSourceUnits(selection);
+      const ligand_selection = compile<StructureSelection>(ligand)(new QueryContext(struct.structureRef.cell.obj?.data!));
+      let loci = StructureSelection.toLociWithSourceUnits(ligand_selection);
+      this.ctx.managers.structure.selection.fromLoci('add', loci);
       this.ctx.managers.camera.focusLoci(loci);
     })
     return this
   }
 
+  async select_focus_ligand_surroundings(chemicalId: string | undefined, focus_select: Array<'focus' | 'select' | 'highlight'>) {
+    const RADIUS = 5
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
+    if (!chemicalId || !struct) {
+      return this
+    }
 
-  // async create_ligand_surroundings(chemicalId: string) {
-  //   await this.ctx.dataTransaction(async () => {
-  //     const RADIUS = 5
+    const ligand = MS.struct.filter.first([
+      MS.struct.generator.atomGroups({
+        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
+        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
+      })
+    ]);
+    const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
+    const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: ligand });
 
-  //     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-  //     const struct = structures[0];
-  //     const update = this.ctx.build();
+    const surr_selection = compile<StructureSelection>(surroundingsWithoutLigand)(new QueryContext(struct.structureRef.cell.obj?.data!));
+    let loci = StructureSelection.toLociWithSourceUnits(surr_selection);
 
-  //     const ligand = MS.struct.filter.first([
-  //       MS.struct.generator.atomGroups({
-  //         'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
-  //         'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
-  //       })
-  //     ]);
+    if (focus_select.includes('focus')) {
+      this.ctx.managers.camera.focusLoci(loci);
+    }
+    if (focus_select.includes('select')) {
+      this.ctx.managers.structure.selection.clear();
+      this.ctx.managers.structure.selection.fromLoci('add', loci);
+    }
+    if (focus_select.includes('highlight')) {
+      this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
+    }
 
-  //     const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
-  //     const group = update.to(
-  //       struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup,
-  //         { label: 'group' }, { ref: StateElements.HetGroupFocusGroup }
-  //       );
-  //     const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Neighborhood (${RADIUS} Å)`, expression: surroundings }, { ref: StateElements.HetGroupFocus });
+  }
 
-  //     coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
-  //     coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
 
-  //     await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
-
-  //     const compiled = compile<StructureSelection>(surroundings);
-  //     const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
-  //     let loci = StructureSelection.toLociWithSourceUnits(selection);
-
-  //     this.ctx.managers.structure.selection.clear();
-  //     this.ctx.managers.structure.selection.fromLoci('add', loci);
-  //     this.ctx.managers.camera.focusLoci(loci);
-  //   })
-  //   return this
-  // }
 
   async create_ligand(chemicalId: string) {
     await this.ctx.dataTransaction(async () => {

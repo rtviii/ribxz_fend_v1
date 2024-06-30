@@ -142,7 +142,7 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
         title: (
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <span className="font-semibold">{lig.chemicalId}</span>
-                <span style={{  }}>{lig.chemicalName.length > 30 ? capitalize_only_first_letter_w(lig.chemicalName).slice(0, 40) + "..." : capitalize_only_first_letter_w(lig.chemicalName)}</span>
+                <span style={{}}>{lig.chemicalName.length > 30 ? capitalize_only_first_letter_w(lig.chemicalName).slice(0, 40) + "..." : capitalize_only_first_letter_w(lig.chemicalName)}</span>
             </div>
         ),
 
@@ -151,11 +151,11 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
         search_aggregator: (lig.chemicalName + lig.chemicalId + structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '')).toLowerCase(),
         children: structs.map((struct, index) => ({
             search_aggregator: (lig.chemicalName + lig.chemicalId + struct.rcsb_id + struct.tax_node.scientific_name).toLowerCase(),
-            key              : `${lig.chemicalId}_${struct.rcsb_id}`,
-            value            : `${lig.chemicalId}_${struct.rcsb_id}`,
-            title            : (
+            key: `${lig.chemicalId}_${struct.rcsb_id}`,
+            value: `${lig.chemicalId}_${struct.rcsb_id}`,
+            title: (
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <span><span style={{fontWeight:"bold"}}>{lig.chemicalId}</span> in <span style={{fontWeight:"bold"}}>{struct.rcsb_id}</span></span>
+                    <span><span style={{ fontWeight: "bold" }}>{lig.chemicalId}</span> in <span style={{ fontWeight: "bold" }}>{struct.rcsb_id}</span></span>
                     <span style={{ fontStyle: 'italic' }}>{struct.tax_node.scientific_name}</span>
                 </div>
             ),
@@ -209,17 +209,17 @@ export default function Ligands() {
                     <div className="border-r">
                         <div className="p-4 space-y-4">
                             <TreeSelect
-                                status              = {current_ligand === null ? "warning" : undefined}
-                                showSearch          = {true}
-                                treeNodeFilterProp  = 'search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
-                                placeholder         = "Select ligand-structure pair..."
-                                variant             = "outlined"
-                                treeData            = {lig_data_to_tree(lig_state.data)}
-                                className           = "w-full"
-                                treeExpandAction    = "click"
-                                showCheckedStrategy = "SHOW_CHILD"
-                                filterTreeNode      = {(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
-                                onChange            = {(value: string, _) => {
+                                status={current_ligand === null ? "warning" : undefined}
+                                showSearch={true}
+                                treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
+                                placeholder="Select ligand-structure pair..."
+                                variant="outlined"
+                                treeData={lig_data_to_tree(lig_state.data)}
+                                className="w-full"
+                                treeExpandAction="click"
+                                showCheckedStrategy="SHOW_CHILD"
+                                filterTreeNode={(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
+                                onChange={(value: string, _) => {
                                     var [chemId, rcsb_id_selected] = value.split("_")
                                     const lig_and_its_structs = lig_state.data.filter((kvp) => {
                                         var [lig, structs] = kvp;
@@ -235,20 +235,6 @@ export default function Ligands() {
                             {/* <Card className="p-4 space-y-2"> */}
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar">
                                 <div className="flex flex-row justify-between">
-                                    {current_ligand === null ? null :
-
-                                        <p className="col-span-2 text-sm ">{lig_state.current_ligand?.ligand.chemicalId}<span className=" text-xs text-gray-800">({capitalize_only_first_letter_w(lig_state.current_ligand?.ligand.chemicalName)})</span></p>
-
-                                    }
-
-                                    {
-                                        lig_state.current_ligand?.ligand.drugbank_id ?
-                                            <Link href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
-                                                <p className="col-span-2 text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p>
-                                            </Link> : null
-                                    }
-                                </div>
-                                <div className="flex flex-row justify-between">
 
                                 </div>
                                 <div>
@@ -258,27 +244,45 @@ export default function Ligands() {
 
                                                 className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
                                             <AccordionContent className="hover:stroke-red-500">
-                                                
-                                                Ligand Nbhd
-                                                {surroundingResidues.length === 0 ? <p>Loading...</p> : 
-                                                surroundingResidues.map((residue, i) => {
-                                                    return (
-                                                        <div 
-                                                        onMouseEnter={() => { ctx?.highlightResidueCluster([{
-                                                            res_seq_id: residue.label_seq_id,
-                                                            auth_asym_id: residue.chain_id
-                                                        }])}}
 
-                                                        onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                        key={i} className="flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm">
-                                                            <span>{residue.label_comp_id} {residue.label_seq_id}</span>
-                                                            <span>{residue.chain_id}</span>
-                                                            <span>{residue.rcsb_id}</span>
-                                                        </div>
-                                                    )
-                                                })
-                                                
+                                                <div className="flex flex-row justify-between border p-1 rounded-sm cursor-pointer italic mb-1 text-xs"
+                                                    onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
+                                                    onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}>
+                                                    <span className="font-bold"><span className="font-bold">{current_ligand?.parent_structure.rcsb_id}</span>.{current_ligand?.ligand.chemicalId} </span> 5Å Pocket 
+
+                                                </div>
+                                                <div className="space-y-1 text-xs">
+
+                                                {surroundingResidues.length === 0 ? <p>Loading...</p> :
+                                                    surroundingResidues.map((residue, i) => {
+                                                        return (
+                                                             <div
+
+                                                                onClick={() => {
+                                                                    ctx?.select_residueCluster([{
+                                                                        res_seq_id: residue.label_seq_id,
+                                                                        auth_asym_id: residue.chain_id
+                                                                    }])
+                                                                }}
+                                                                onMouseEnter={() => {
+                                                                    ctx?.highlightResidueCluster([{
+                                                                        res_seq_id: residue.label_seq_id,
+                                                                        auth_asym_id: residue.chain_id
+                                                                    }])
+                                                                }}
+
+                                                                onMouseLeave={() => { ctx?.removeHighlight() }}
+                                                                key={i} className="ml-8 flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm p-1">
+                                                                {"*"}<span>{residue.label_comp_id} {residue.label_seq_id}</span>
+                                                                <span>{residue.chain_id}</span>
+                                                                <span>{residue.rcsb_id}</span>
+                                                            </div>
+                                                        )
+                                                    })
+
                                                 }
+                                                </div>
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
@@ -288,9 +292,12 @@ export default function Ligands() {
                                             <AccordionTrigger
 
                                                 className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
-                                            <AccordionContent className="hover:stroke-red-500">
+                                            <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
                                                 <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
-                                                    width={400} height={400} className="hover:stroke-red-600 hover:cursor-pointer"
+                                                    width={400} height={400}
+                                                    onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
+                                                    onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
 
                                                 />
                                             </AccordionContent>
@@ -303,7 +310,14 @@ export default function Ligands() {
                                     <Accordion type="single" collapsible disabled={current_ligand === undefined || lig_state.current_ligand?.ligand.drugbank_id === undefined}>
                                         <AccordionItem value="item-1">
                                             <AccordionTrigger className={`text-xs underline ${lig_state.current_ligand?.ligand.drugbank_id === undefined ? "text-gray-300" : ""
-                                                }`}>Drugbank Description</AccordionTrigger>
+                                                }`}>
+
+                                                <div className="flex flex-row justify-between">
+                                                    {current_ligand === null ? null : <p className="col-span-2 text-sm ">{lig_state.current_ligand?.ligand.chemicalId}<span className=" text-xs text-gray-800">({capitalize_only_first_letter_w(lig_state.current_ligand?.ligand.chemicalName)})</span></p>}
+                                                    {lig_state.current_ligand?.ligand.drugbank_id ? <Link href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}> <p className="col-span-2 text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p> </Link> : null}
+                                                </div>
+
+                                            </AccordionTrigger>
                                             <AccordionContent>
                                                 <p className="text-xs">
 
@@ -319,7 +333,7 @@ export default function Ligands() {
 
 
 
-                                    <Button onClick={() => { ctx?.toggle_visibility() }}> Log info</Button>
+                                    {/* <Button onClick={() => { ctx?.toggle_visibility() }}> Log info</Button> */}
 
 
 
