@@ -46,6 +46,7 @@ import { TreeSelect } from "antd"
 import { LigandInstances, set_current_ligand } from "@/store/slices/ui_state"
 import { capitalize_only_first_letter_w } from "@/my_utils"
 import { HelpTooltip } from "@/components/ribxz/help_icon"
+import { residues } from "molstar/lib/mol-model/structure/query/queries/generators"
 
 
 interface TaxaDropdownProps {
@@ -170,6 +171,7 @@ export default function Ligands() {
     const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
 
 
+
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     useEffect(() => {
@@ -187,11 +189,12 @@ export default function Ligands() {
     const [surroundingResidues, setSurroundingResidues] = useState<{
         label_seq_id: number,
         label_comp_id: string,
-        auth_asym_id: string,
+        chain_id: string,
         rcsb_id: string,
-        polymer_class?: string
+        polymer_class?: string | undefined
     }[]>([])
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap] = useState<{ [key: string]: string | undefined }>({})
 
     const chemical_structure_link = (ligand_id: string | undefined) => {
         if (ligand_id === undefined) { return '' };
@@ -200,24 +203,48 @@ export default function Ligands() {
 
 
     useEffect(() => {
-        if (current_ligand === undefined) { return }
+        if (current_ligand?.parent_structure.rcsb_id === undefined) { return }
         const fetchData = async () => {
             try {
                 const result = await refetchParentStruct({
-                    rcsbId: current_ligand?.parent_structure.rcsb_id!
+                    rcsbId: current_ligand?.parent_structure.rcsb_id
                 }).unwrap();
+                console.log("Got structure", result);
+
                 setParentStructProfile(result);
             } catch (error) {
                 console.error('Error fetching parent struct:', error);
             }
         };
-
         fetchData();
-
-
     }, [current_ligand])
 
 
+    useEffect(() => {
+        if (parentStructProfile.rcsb_id === undefined) { return }
+        const residues = surroundingResidues
+        var chain_ids = []
+        for (let residue of residues) {
+            console.log(residue);
+            
+            chain_ids.push(residue.chain_id)
+        }
+
+            console.log("chain ids in surr", chain_ids);
+        var nom_map = {}
+
+        for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
+            // console.log("polymer", polymer);
+            
+            if (chain_ids.includes(polymer.auth_asym_id)) {
+                if (!Object.keys(nom_map).includes(polymer.auth_asym_id)) {
+                    nom_map[polymer.auth_asym_id] = polymer.nomenclature[0]
+                }
+            }
+        }
+        setNomenclatureMap(nom_map)
+        console.log("nom map",nom_map);
+    }, [surroundingResidues, parentStructProfile])
 
     useEffect(() => {
         if (current_ligand === undefined) { return }
@@ -226,12 +253,6 @@ export default function Ligands() {
             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
             .then(residues => {
                 setSurroundingResidues(residues)
-               
-                var chain_ids = []
-                for (let residue of residues) {
-                    chain_ids.push(residue.auth_asym_id)
-                }
-                
 
 
             })
@@ -298,20 +319,20 @@ export default function Ligands() {
                                                                     onClick={() => {
                                                                         ctx?.select_residueCluster([{
                                                                             res_seq_id: residue.label_seq_id,
-                                                                            auth_asym_id: residue.auth_asym_id
+                                                                            auth_asym_id: residue.chain_id
                                                                         }])
                                                                     }}
                                                                     onMouseEnter={() => {
                                                                         ctx?.highlightResidueCluster([{
                                                                             res_seq_id: residue.label_seq_id,
-                                                                            auth_asym_id: residue.auth_asym_id
+                                                                            auth_asym_id: residue.chain_id
                                                                         }])
                                                                     }}
 
                                                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                                                     key={i} className="ml-8 flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm p-1">
                                                                     {"*"}<span>{residue.label_comp_id} {residue.label_seq_id}</span>
-                                                                    <span>{residue.auth_asym_id}</span>
+                                                                    <span>{residue.chain_id}</span>
                                                                     <span>{residue.rcsb_id}</span>
                                                                 </div>
                                                             )
