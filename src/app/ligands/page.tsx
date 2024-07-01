@@ -193,6 +193,7 @@ export default function Ligands() {
         rcsb_id: string,
         polymer_class?: string | undefined
     }[]>([])
+
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
     const [nomenclatureMap, setNomenclatureMap] = useState<{ [key: string]: string | undefined }>({})
 
@@ -226,16 +227,16 @@ export default function Ligands() {
         var chain_ids = []
         for (let residue of residues) {
             console.log(residue);
-            
+
             chain_ids.push(residue.chain_id)
         }
 
-            console.log("chain ids in surr", chain_ids);
+        console.log("chain ids in surr", chain_ids);
         var nom_map = {}
 
         for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
             // console.log("polymer", polymer);
-            
+
             if (chain_ids.includes(polymer.auth_asym_id)) {
                 if (!Object.keys(nom_map).includes(polymer.auth_asym_id)) {
                     nom_map[polymer.auth_asym_id] = polymer.nomenclature[0]
@@ -243,18 +244,17 @@ export default function Ligands() {
             }
         }
         setNomenclatureMap(nom_map)
-        console.log("nom map",nom_map);
+        console.log("nom map", nom_map);
     }, [surroundingResidues, parentStructProfile])
 
     useEffect(() => {
         if (current_ligand === undefined) { return }
         ctx?.download_struct(current_ligand?.parent_structure.rcsb_id!, true)
             .then((ctx) => ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId))
+            .then((ctx) => ctx.toggleSpin())
             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
             .then(residues => {
                 setSurroundingResidues(residues)
-
-
             })
     }, [current_ligand])
 
@@ -289,7 +289,20 @@ export default function Ligands() {
                                     }))
                                 }}
                             />
-                            {/* <Card className="p-4 space-y-2"> */}
+                            <div className="rounded-md shadow-sm " >
+                                <button
+                                disabled={current_ligand === null}
+                                    type="button"
+                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
+                                    Ligand
+                                </button>
+                                <button
+                                disabled={current_ligand === null}
+                                    type="button"
+                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
+                                    Binding site 5 A
+                                </button>
+                            </div>
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar">
                                 <div className="flex flex-row justify-between">
 
@@ -297,11 +310,8 @@ export default function Ligands() {
                                 <div>
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
-                                            <AccordionTrigger
-
-                                                className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
-                                            <AccordionContent className="hover:stroke-red-500">
-
+                                            {lig_state.current_ligand === null ? null : <AccordionTrigger className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>}
+                                            <AccordionContent >
                                                 <div className="flex flex-row justify-between border p-1 rounded-sm cursor-pointer italic mb-1 text-xs"
                                                     onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                                     onMouseLeave={() => { ctx?.removeHighlight() }}

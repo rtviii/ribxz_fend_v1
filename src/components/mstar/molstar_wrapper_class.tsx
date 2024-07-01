@@ -59,6 +59,27 @@ export class MolstarRibxz {
 
   }
 
+  toggleSpin() {
+    if (!this.ctx.canvas3d) return this;
+
+    const trackball = this.ctx.canvas3d.props.trackball;
+    PluginCommands.Canvas3D.SetSettings(this.ctx, {
+      settings: {
+        trackball: {
+          ...trackball,
+          animate: trackball.animate.name === 'spin'
+            ? { name: 'off', params: {} }
+            : { name: 'spin', params: { speed: 1 } }
+        }
+      }
+    });
+    if (this.ctx.canvas3d.props.trackball.animate.name !== 'spin') {
+      PluginCommands.Camera.Reset(this.ctx, {});
+    }
+    return this
+  }
+
+
   select_residueCluster = (chain_residue_tuples: {
     auth_asym_id: string,
     res_seq_id: number,
@@ -319,6 +340,7 @@ export class MolstarRibxz {
     // this.ctx.managers.structure.selection.fromLoci('add', loci);
     // this.ctx.managers.camera.focusLoci(loci);
     // this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
+
 
   }
 
