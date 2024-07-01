@@ -31,6 +31,7 @@ import { Color } from 'molstar/lib/mol-util/color/color';
 import { QuickStyles } from 'molstar/lib/mol-plugin-ui/structure/quick-styles';
 import { components } from 'react-select';
 import { Loci } from 'molstar/lib/mol-model/structure/structure/element/element';
+import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
@@ -249,23 +250,26 @@ export class MolstarRibxz {
 
   }
 
-  async toggle_visibility() {
+  async toggle_visibility(ref: string, on_off:boolean) {
 
-    var sought_ref = ""
-    for (const s of this.ctx.managers.structure.hierarchy.currentComponentGroups) {
-      for (var component of s) {
-        console.log(component.structure.cell.obj?.data.label)
-        console.log(component.cell.obj?.label)
-        if (component.cell.obj?.label == "Polymer") {
-          sought_ref = component.cell.sourceRef
-        }
-        console.log(component.cell.sourceRef)
-      }
+    const state = this.ctx.state.data
+    setSubtreeVisibility(state, ref, true)
+
+    // var sought_ref = ""
+    // for (const s of this.ctx.managers.structure.hierarchy.currentComponentGroups) {
+    //   for (var component of s) {
+    //     console.log(component.structure.cell.obj?.data.label)
+    //     console.log(component.cell.obj?.label)
+    //     if (component.cell.obj?.label == "Polymer") {
+    //       sought_ref = component.cell.sourceRef
+    //     }
+    //     console.log(component.cell.sourceRef)
+    //   }
 
 
-    }
+    // }
 
-    await PluginCommands.State.ToggleVisibility(this.ctx, { state: this.ctx.state.data, ref: sought_ref });
+    // await PluginCommands.State.ToggleVisibility(this.ctx, { state: this.ctx.state.data, ref: sought_ref });
 
   }
 
@@ -276,12 +280,20 @@ export class MolstarRibxz {
     }
 
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
+
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
     const structRef = `structure-${rcsb_id}`;
 
     console.log("created ref", structRef);
 
     const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    window.model_ref_ = st?.model.ref
+    window.structure_ref_ = st?.structure.ref
+    window.representation = st?.representation
+
+    console.log(st);
+    
+
 
 
     this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });

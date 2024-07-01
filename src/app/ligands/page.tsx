@@ -223,20 +223,14 @@ export default function Ligands() {
 
     useEffect(() => {
         if (parentStructProfile.rcsb_id === undefined) { return }
-        const residues = surroundingResidues
-        var chain_ids = []
+        const residues  = surroundingResidues
+        var   chain_ids = []
         for (let residue of residues) {
-            console.log(residue);
-
             chain_ids.push(residue.chain_id)
         }
-
-        console.log("chain ids in surr", chain_ids);
         var nom_map = {}
-
         for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
             // console.log("polymer", polymer);
-
             if (chain_ids.includes(polymer.auth_asym_id)) {
                 if (!Object.keys(nom_map).includes(polymer.auth_asym_id)) {
                     nom_map[polymer.auth_asym_id] = polymer.nomenclature[0]
@@ -244,7 +238,6 @@ export default function Ligands() {
             }
         }
         setNomenclatureMap(nom_map)
-        console.log("nom map", nom_map);
     }, [surroundingResidues, parentStructProfile])
 
     useEffect(() => {
@@ -400,7 +393,10 @@ export default function Ligands() {
 
 
 
-                                    {/* <Button onClick={() => { ctx?.toggle_visibility() }}> Log info</Button> */}
+                                    <Button onClick={() => { ctx?.toggle_visibility(window.structure_ref_, true) }}> toggle struct</Button>
+                                    <Button onClick={() => { ctx?.toggle_visibility(window.model_ref_, true) }}> toggle model</Button>
+                                    <Button onClick={() => { ctx?.toggle_visibility(window.representation['representations']['polymer']['ref']) }}> toggle rep polymer</Button>
+                                    <Button onClick={() => { ctx?.toggle_visibility(window.representation['components']['polymer']['ref']) }}> toggle rep</Button>
 
 
 
