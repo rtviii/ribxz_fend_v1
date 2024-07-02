@@ -13,7 +13,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
-import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
+import { MolstarRibxz, ResidueList } from "@/components/mstar/molstar_wrapper_class"
 import { MolstarNode } from "@/components/mstar/lib"
 import { FaceIcon, ImageIcon, SunIcon } from '@radix-ui/react-icons'
 import { Separator } from "@/components/ui/separator"
@@ -186,16 +186,11 @@ export default function Ligands() {
     const lig_state = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues] = useState<{
-        label_seq_id: number,
-        label_comp_id: string,
-        chain_id: string,
-        rcsb_id: string,
-        polymer_class?: string | undefined
-    }[]>([])
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
 
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
     const [nomenclatureMap, setNomenclatureMap] = useState<{ [key: string]: string | undefined }>({})
+    const [structRepresentation, setStructRepresentation] = useState<any>({})
 
     const chemical_structure_link = (ligand_id: string | undefined) => {
         if (ligand_id === undefined) { return '' };
@@ -223,10 +218,10 @@ export default function Ligands() {
 
     useEffect(() => {
         if (parentStructProfile.rcsb_id === undefined) { return }
-        const residues  = surroundingResidues
-        var   chain_ids = []
+        const residues = surroundingResidues
+        var chain_ids = []
         for (let residue of residues) {
-            chain_ids.push(residue.chain_id)
+            chain_ids.push(residue.auth_asym_id)
         }
         var nom_map = {}
         for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
@@ -243,13 +238,21 @@ export default function Ligands() {
     useEffect(() => {
         if (current_ligand === undefined) { return }
         ctx?.download_struct(current_ligand?.parent_structure.rcsb_id!, true)
-            .then((ctx) => ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId))
+            .then(({
+                ctx: molstar,
+                struct_representation
+            }) => {
+                setStructRepresentation(struct_representation)
+                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId)
+            })
             .then((ctx) => ctx.toggleSpin())
             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
             .then(residues => {
                 setSurroundingResidues(residues)
             })
     }, [current_ligand])
+
+    const [structVisibility, setStructVisibility] = useState<boolean>(false)
 
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -284,13 +287,13 @@ export default function Ligands() {
                             />
                             <div className="rounded-md shadow-sm " >
                                 <button
-                                disabled={current_ligand === null}
+                                    disabled={current_ligand === null}
                                     type="button"
                                     className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
                                     Ligand
                                 </button>
                                 <button
-                                disabled={current_ligand === null}
+                                    disabled={current_ligand === null}
                                     type="button"
                                     className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
                                     Binding site 5 A
@@ -322,20 +325,20 @@ export default function Ligands() {
                                                                     onClick={() => {
                                                                         ctx?.select_residueCluster([{
                                                                             res_seq_id: residue.label_seq_id,
-                                                                            auth_asym_id: residue.chain_id
+                                                                            auth_asym_id: residue.auth_asym_id
                                                                         }])
                                                                     }}
                                                                     onMouseEnter={() => {
                                                                         ctx?.highlightResidueCluster([{
                                                                             res_seq_id: residue.label_seq_id,
-                                                                            auth_asym_id: residue.chain_id
+                                                                            auth_asym_id: residue.auth_asym_id
                                                                         }])
                                                                     }}
 
                                                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                                                     key={i} className="ml-8 flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm p-1">
                                                                     {"*"}<span>{residue.label_comp_id} {residue.label_seq_id}</span>
-                                                                    <span>{residue.chain_id}</span>
+                                                                    <span>{residue.auth_asym_id}</span>
                                                                     <span>{residue.rcsb_id}</span>
                                                                 </div>
                                                             )
@@ -391,12 +394,10 @@ export default function Ligands() {
 
 
 
-
-
-                                    <Button onClick={() => { ctx?.toggle_visibility(window.structure_ref_, true) }}> toggle struct</Button>
-                                    <Button onClick={() => { ctx?.toggle_visibility(window.model_ref_, true) }}> toggle model</Button>
-                                    <Button onClick={() => { ctx?.toggle_visibility(window.representation['representations']['polymer']['ref']) }}> toggle rep polymer</Button>
-                                    <Button onClick={() => { ctx?.toggle_visibility(window.representation['components']['polymer']['ref']) }}> toggle rep</Button>
+                                    <Button onClick={() => { 
+                                        ctx?.toggle_visibility_by_ref(structRepresentation['components']['polymer']['ref'], structVisibility) 
+                                        setStructVisibility(!structVisibility)
+                                        }}> toggle rep</Button>
 
 
 

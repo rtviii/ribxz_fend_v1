@@ -44,6 +44,13 @@ declare global {
 }
 
 
+export  type ResidueList = {
+    label_seq_id : number,
+    label_comp_id: string,
+    auth_asym_id : string,
+    rcsb_id      : string,
+
+  }[]
 //! - mapstate and mapdispatch listens to redux state
 export class MolstarRibxz {
 
@@ -250,30 +257,11 @@ export class MolstarRibxz {
 
   }
 
-  async toggle_visibility(ref: string, on_off:boolean) {
-
-    const state = this.ctx.state.data
-    setSubtreeVisibility(state, ref, true)
-
-    // var sought_ref = ""
-    // for (const s of this.ctx.managers.structure.hierarchy.currentComponentGroups) {
-    //   for (var component of s) {
-    //     console.log(component.structure.cell.obj?.data.label)
-    //     console.log(component.cell.obj?.label)
-    //     if (component.cell.obj?.label == "Polymer") {
-    //       sought_ref = component.cell.sourceRef
-    //     }
-    //     console.log(component.cell.sourceRef)
-    //   }
-
-
-    // }
-
-    // await PluginCommands.State.ToggleVisibility(this.ctx, { state: this.ctx.state.data, ref: sought_ref });
-
+  async toggle_visibility_by_ref(ref: string, on_off:boolean) {
+    setSubtreeVisibility(this.ctx.state.data, ref, on_off)
   }
 
-  async download_struct(rcsb_id: string, clear?: boolean): Promise<MolstarRibxz> {
+  async download_struct(rcsb_id: string, clear?: boolean): Promise<{ ctx:MolstarRibxz, struct_representation:any }> {
 
     if (clear) {
       await this.ctx.clear()
@@ -282,22 +270,8 @@ export class MolstarRibxz {
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
 
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    const structRef = `structure-${rcsb_id}`;
-
-    console.log("created ref", structRef);
-
-    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
-    window.model_ref_ = st?.model.ref
-    window.structure_ref_ = st?.structure.ref
-    window.representation = st?.representation
-
-    console.log(st);
-    
-
-
-
+    const st         = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
     this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
-
     if (this.ctx.canvas3d) {
       const pp = this.ctx.canvas3d.props.postprocessing;
       this.ctx.canvas3d.setProps({
@@ -318,7 +292,7 @@ export class MolstarRibxz {
       });
     }
 
-    return this
+    return { ctx:this, struct_representation:st?.representation }
   }
 
 
@@ -356,13 +330,7 @@ export class MolstarRibxz {
 
   }
 
-  async get_selection_constituents(chemicalId: string | undefined): Promise<{
-    label_seq_id: number,
-    label_comp_id: string,
-    auth_asym_id: string,
-    rcsb_id: string,
-
-  }[]> {
+  async get_selection_constituents(chemicalId: string | undefined): Promise<ResidueList> {
     if (!chemicalId) {
       return []
     }
@@ -391,27 +359,20 @@ export class MolstarRibxz {
 
     await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
-    const compiled2 = compile<StructureSelection>(surroundingsWithoutLigand);
+    const compiled2  = compile<StructureSelection>(surroundingsWithoutLigand);
     const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
-    const loci = StructureSelection.toLociWithSourceUnits(selection2);
-    // construct a separate `Structure` from  this loci:
-    const structure = struct.structureRef.cell.obj?.data!;
-    const residueList: {
-      label_seq_id: number,
-      label_comp_id: string,
-      chain_id: string,
-      rcsb_id: string,
+    const loci       = StructureSelection.toLociWithSourceUnits(selection2);
 
-    }[] = [];
+    const residueList: ResidueList = [];
 
     const struct_Element = StructureElement.Loci.toStructure(loci)
     Structure.eachAtomicHierarchyElement(struct_Element, {
       residue: (loc) => {
         residueList.push({
-          label_seq_id: StructureProperties.residue.label_seq_id(loc),
+          label_seq_id : StructureProperties.residue.label_seq_id(loc),
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          chain_id: StructureProperties.chain.auth_asym_id(loc),
-          rcsb_id: StructureProperties.unit.model_entry_id(loc),
+          auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
+          rcsb_id      : StructureProperties.unit.model_entry_id(loc),
         });
       },
     });
