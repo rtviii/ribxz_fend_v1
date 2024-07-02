@@ -12,15 +12,11 @@ import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureP
 import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { MolstarRibxz, ResidueList } from "@/components/mstar/molstar_wrapper_class"
 import { MolstarNode } from "@/components/mstar/lib"
-import { FaceIcon, ImageIcon, SunIcon } from '@radix-ui/react-icons'
-import { Separator } from "@/components/ui/separator"
 import Image from 'next/image'
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
-import { ExpMethodBadge } from "@/components/ribxz/exp_method_badge"
 import {
     Accordion,
     AccordionContent,
@@ -36,17 +32,14 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import StructureSelection from "@/components/ribxz/chain_picker"
 import { TaxonomyDot } from "@/components/ribxz/taxonomy"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Input } from "@/components/ui/input"
 import { TreeSelect } from "antd"
 import { LigandInstances, set_current_ligand } from "@/store/slices/ui_state"
 import { capitalize_only_first_letter_w } from "@/my_utils"
-import { HelpTooltip } from "@/components/ribxz/help_icon"
-import { residues } from "molstar/lib/mol-model/structure/query/queries/generators"
+import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff } from "@/components/ribxz/visibility_icon"
 
 
 interface TaxaDropdownProps {
@@ -187,10 +180,10 @@ export default function Ligands() {
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
     const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
-
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
     const [nomenclatureMap, setNomenclatureMap] = useState<{ [key: string]: string | undefined }>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
+    const [structVisibility, setStructVisibility] = useState<boolean>(true)
 
     const chemical_structure_link = (ligand_id: string | undefined) => {
         if (ligand_id === undefined) { return '' };
@@ -252,7 +245,6 @@ export default function Ligands() {
             })
     }, [current_ligand])
 
-    const [structVisibility, setStructVisibility] = useState<boolean>(false)
 
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -260,7 +252,7 @@ export default function Ligands() {
             <ResizablePanel defaultSize={25} >
                 <MolstarContext.Provider value={ctx}>
                     <div className="border-r">
-                        <div className="p-4 space-y-4">
+                        <div className="p-4 space-y-1">
                             <TreeSelect
                                 status={current_ligand === null ? "warning" : undefined}
                                 showSearch={true}
@@ -275,8 +267,7 @@ export default function Ligands() {
                                 onChange={(value: string, _) => {
                                     var [chemId, rcsb_id_selected] = value.split("_")
                                     const lig_and_its_structs = lig_state.data.filter((kvp) => {
-                                        var [lig, structs] = kvp;
-                                        return lig.chemicalId == chemId;
+                                        var [lig, structs] = kvp; return lig.chemicalId == chemId;
                                     })
                                     const struct = lig_and_its_structs[0][1].filter((s) => s.rcsb_id == rcsb_id_selected)[0]
                                     dispatch(set_current_ligand({
@@ -287,41 +278,56 @@ export default function Ligands() {
                             />
                             <div className="rounded-md shadow-sm " >
                                 <button
+
+                                    onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                    onMouseLeave={() => { ctx?.removeHighlight() }}
+                                    onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+
                                     disabled={current_ligand === null}
                                     type="button"
                                     className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
+
                                     Ligand
                                 </button>
                                 <button
+
+                                    onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                    onMouseLeave={() => { ctx?.removeHighlight() }}
+                                    onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                     disabled={current_ligand === null}
                                     type="button"
                                     className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
                                     Binding site 5 A
                                 </button>
                             </div>
-                            <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar">
-                                <div className="flex flex-row justify-between">
+                            <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer"
+                            onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} ><span>Toggle Structure Visibility</span> 
+                            { !structVisibility ? <IconVisibilityOff /> : <IconVisibilityOn   /> }
+                            </div>
+                            <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer" onClick={()=>{ctx?.toggleSpin()}}>
+                                <span>Toggle Spin</span>  
+                                <IconToggleSpin/>
+                            </div>
 
-                                </div>
+                            <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar">
                                 <div>
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
-                                            {lig_state.current_ligand === null ? null : <AccordionTrigger className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>}
+                                            {lig_state.current_ligand === null ?
+                                                <AccordionTrigger className="text-xs" disabled={lig_state.current_ligand === null}>[<span className="italic">Chemical ID</span>] in [<span className="italic">PDB ID</span>]</AccordionTrigger>
+                                                :
+                                                <AccordionTrigger className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
+                                            }
+
+
+
+
                                             <AccordionContent >
-                                                <div className="flex flex-row justify-between border p-1 rounded-sm cursor-pointer italic mb-1 text-xs"
-                                                    onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                    onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}>
-                                                    <span className="font-bold"><span className="font-bold">{current_ligand?.parent_structure.rcsb_id}</span>.{current_ligand?.ligand.chemicalId} </span> 5Å Pocket
-
-                                                </div>
                                                 <div className="space-y-1 text-xs">
-
-                                                    {surroundingResidues.length === 0 ? <p>Loading...</p> :
+                                                    {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return (
                                                                 <div
-
                                                                     onClick={() => {
                                                                         ctx?.select_residueCluster([{
                                                                             res_seq_id: residue.label_seq_id,
@@ -339,6 +345,7 @@ export default function Ligands() {
                                                                     key={i} className="ml-8 flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm p-1">
                                                                     {"*"}<span>{residue.label_comp_id} {residue.label_seq_id}</span>
                                                                     <span>{residue.auth_asym_id}</span>
+                                                                    <span>{nomenclatureMap[residue.auth_asym_id]}</span>
                                                                     <span>{residue.rcsb_id}</span>
                                                                 </div>
                                                             )
@@ -355,15 +362,22 @@ export default function Ligands() {
                                             <AccordionTrigger
 
                                                 className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
-                                            <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
-                                                <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
-                                                    width={400} height={400}
-                                                    onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                    onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                            {current_ligand ?
+                                                <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
 
-                                                />
-                                            </AccordionContent>
+
+                                                    <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
+                                                        width={400} height={400}
+                                                        onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                                        onMouseLeave={() => { ctx?.removeHighlight() }}
+                                                        onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                                    />
+
+                                                </AccordionContent>
+
+                                                :
+                                                null
+                                            }
                                         </AccordionItem>
                                     </Accordion>
 
@@ -393,11 +407,6 @@ export default function Ligands() {
                                     </Accordion>
 
 
-
-                                    <Button onClick={() => { 
-                                        ctx?.toggle_visibility_by_ref(structRepresentation['components']['polymer']['ref'], structVisibility) 
-                                        setStructVisibility(!structVisibility)
-                                        }}> toggle rep</Button>
 
 
 

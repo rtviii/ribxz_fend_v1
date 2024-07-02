@@ -44,13 +44,13 @@ declare global {
 }
 
 
-export  type ResidueList = {
-    label_seq_id : number,
-    label_comp_id: string,
-    auth_asym_id : string,
-    rcsb_id      : string,
+export type ResidueList = {
+  label_seq_id: number,
+  label_comp_id: string,
+  auth_asym_id: string,
+  rcsb_id: string,
 
-  }[]
+}[]
 //! - mapstate and mapdispatch listens to redux state
 export class MolstarRibxz {
 
@@ -81,9 +81,9 @@ export class MolstarRibxz {
         }
       }
     });
-    if (this.ctx.canvas3d.props.trackball.animate.name !== 'spin') {
-      PluginCommands.Camera.Reset(this.ctx, {});
-    }
+    // if (this.ctx.canvas3d.props.trackball.animate.name !== 'spin') {
+    //   PluginCommands.Camera.Reset(this.ctx, {});
+    // }
     return this
   }
 
@@ -170,7 +170,7 @@ export class MolstarRibxz {
       res_seq_id: number,
     }[]) => {
       _highlightResidueCluster(chain_residues_tuples)
-    }, 250, { "leading": true, "trailing": true })
+    }, 50, { "leading": true, "trailing": true })
   )(this._highlightResidueCluster);
 
 
@@ -257,11 +257,13 @@ export class MolstarRibxz {
 
   }
 
-  async toggle_visibility_by_ref(ref: string, on_off:boolean) {
-    setSubtreeVisibility(this.ctx.state.data, ref, on_off)
+  async toggle_visibility_by_ref(representation: any, on_off: boolean) {
+    // "representation" is saved on structure creation: const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    if (representation['components'] === undefined) { return }
+    setSubtreeVisibility(this.ctx.state.data, representation['components']['polymer']['ref'], on_off)
   }
 
-  async download_struct(rcsb_id: string, clear?: boolean): Promise<{ ctx:MolstarRibxz, struct_representation:any }> {
+  async download_struct(rcsb_id: string, clear?: boolean): Promise<{ ctx: MolstarRibxz, struct_representation: any }> {
 
     if (clear) {
       await this.ctx.clear()
@@ -270,7 +272,7 @@ export class MolstarRibxz {
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
 
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    const st         = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
     this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
     if (this.ctx.canvas3d) {
       const pp = this.ctx.canvas3d.props.postprocessing;
@@ -292,7 +294,7 @@ export class MolstarRibxz {
       });
     }
 
-    return { ctx:this, struct_representation:st?.representation }
+    return { ctx: this, struct_representation: st?.representation }
   }
 
 
@@ -359,9 +361,9 @@ export class MolstarRibxz {
 
     await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
-    const compiled2  = compile<StructureSelection>(surroundingsWithoutLigand);
+    const compiled2 = compile<StructureSelection>(surroundingsWithoutLigand);
     const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
-    const loci       = StructureSelection.toLociWithSourceUnits(selection2);
+    const loci = StructureSelection.toLociWithSourceUnits(selection2);
 
     const residueList: ResidueList = [];
 
@@ -369,10 +371,10 @@ export class MolstarRibxz {
     Structure.eachAtomicHierarchyElement(struct_Element, {
       residue: (loc) => {
         residueList.push({
-          label_seq_id : StructureProperties.residue.label_seq_id(loc),
+          label_seq_id: StructureProperties.residue.label_seq_id(loc),
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
-          rcsb_id      : StructureProperties.unit.model_entry_id(loc),
+          auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
+          rcsb_id: StructureProperties.unit.model_entry_id(loc),
         });
       },
     });
