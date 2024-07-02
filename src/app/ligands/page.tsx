@@ -307,60 +307,46 @@ export default function Ligands() {
                                 <IconToggleSpin />
                             </div>
 
-                            <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar">
-                                <div>
+                            <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
+
+                                {lig_state.current_ligand === null ? null :
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
-                                            {lig_state.current_ligand === null ?
-                                                <AccordionTrigger className="text-xs" disabled={lig_state.current_ligand === null}>[<span className="italic">Chemical ID</span>] in [<span className="italic">PDB ID</span>]</AccordionTrigger> : <AccordionTrigger className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
-                                            }
+                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
 
                                             <AccordionContent>
-                                                <Accordion type="multiple" className="w-full">
-                                                    <AccordionItem value="item-1">
-                                                        <AccordionTrigger className="text-xs">
-                                                            <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer text-blue-600" >
-                                                                uL4:A
-                                                            </Badge>
-                                                        </AccordionTrigger>
-                                                        <AccordionContent>
-                                                            Yes. It adheres to the WAI-ARIA design pattern.
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                    <AccordionItem value="item-2">
-                                                        <AccordionTrigger className="text-xs">Is it styled?</AccordionTrigger>
-                                                        <AccordionContent>
-                                                            Yes. It comes with default styles that matches the other
-                                                            components&apos; aesthetic.
-                                                        </AccordionContent>
-                                                    </AccordionItem>
-                                                </Accordion>
 
 
-                                                <div className="space-y-1 text-xs">
+                                                <div className="space-y-1 text-xs border p-4">
+
+                                                                <div
+                                                                    key={"template"}
+                                                                    className="flex flex-row justify-between border   rounded-sm p-1  border-dashed">
+
+                                                                    <Badge variant="outline" className="border-dashed  text-gray-600" >
+                                                                     <span className="text-gray-400 text-xs">ChainId</span>   :PolymerClass 
+                                                                    
+                                                                    </Badge>
+
+                                                                    <span className="italic">ResidueType SequenceId</span>
+                                                                </div>
                                                     {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return (
-                                                                <div
-                                                                    onClick={() => {
-                                                                        ctx?.select_residueCluster([{
-                                                                            res_seq_id: residue.label_seq_id,
-                                                                            auth_asym_id: residue.auth_asym_id
-                                                                        }])
-                                                                    }}
-                                                                    onMouseEnter={() => {
-                                                                        ctx?.highlightResidueCluster([{
-                                                                            res_seq_id: residue.label_seq_id,
-                                                                            auth_asym_id: residue.auth_asym_id
-                                                                        }])
-                                                                    }}
 
+                                                                <div
+                                                                    onClick={() => { ctx?.select_residueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
+                                                                    onMouseEnter={() => { ctx?.highlightResidueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
                                                                     onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                                    key={i} className="ml-8 flex flex-row justify-between border hover:cursor-pointer hover:bg-muted rounded-sm p-1">
-                                                                    {"*"}<span>{residue.label_comp_id} {residue.label_seq_id}</span>
-                                                                    <span>{residue.auth_asym_id}</span>
-                                                                    <span>{nomenclatureMap[residue.auth_asym_id]}</span>
-                                                                    <span>{residue.rcsb_id}</span>
+                                                                    key={i}
+                                                                    className="flex flex-row justify-between  hover:cursor-pointer hover:bg-muted rounded-sm p-1">
+
+                                                                    <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer text-blue-600" >
+                                                                     <span className="text-black text-xs">{residue.auth_asym_id}</span>   :{nomenclatureMap[residue.auth_asym_id]} 
+                                                                    
+                                                                    </Badge>
+
+                                                                    <span>{residue.label_comp_id} {residue.label_seq_id}</span>
                                                                 </div>
                                                             )
                                                         })
@@ -370,61 +356,60 @@ export default function Ligands() {
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
+                                }
 
-                                    <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
-                                        <AccordionItem value="item">
-                                            <AccordionTrigger
-
-                                                className="text-xs">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
-                                            {current_ligand ?
-                                                <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
-
-
-                                                    <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
-                                                        width={400} height={400}
-                                                        onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                                        onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                        onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
-                                                    />
-
-                                                </AccordionContent>
-
-                                                :
-                                                null
-                                            }
-                                        </AccordionItem>
-                                    </Accordion>
+                                <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
+                                    <AccordionItem value="item">
+                                        <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
+                                        {current_ligand ?
+                                            <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
 
 
-
-
-                                    <Accordion type="single" collapsible disabled={current_ligand === undefined || lig_state.current_ligand?.ligand.drugbank_id === undefined}>
-                                        <AccordionItem value="item-1">
-                                            <AccordionTrigger className={`text-xs underline ${lig_state.current_ligand?.ligand.drugbank_id === undefined ? "text-gray-300" : ""
-                                                }`}>
-
-                                                <div className="flex flex-row justify-between">
-                                                    {current_ligand === null ? null : <p className="col-span-2 text-sm ">{lig_state.current_ligand?.ligand.chemicalId}<span className=" text-xs text-gray-800">({capitalize_only_first_letter_w(lig_state.current_ligand?.ligand.chemicalName)})</span></p>}
-                                                    {lig_state.current_ligand?.ligand.drugbank_id ? <Link href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}> <p className="col-span-2 text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p> </Link> : null}
-                                                </div>
-
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                <p className="text-xs">
-
-                                                    {lig_state.current_ligand?.ligand.drugbank_description}
-
-                                                </p>
+                                                <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
+                                                    width={400} height={400}
+                                                    onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
+                                                    onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                                />
 
                                             </AccordionContent>
-                                        </AccordionItem>
-                                    </Accordion>
+
+                                            :
+                                            null
+                                        }
+                                    </AccordionItem>
+                                </Accordion>
+
+
+
+
+                                <Accordion type="single" collapsible defaultValue="item-1" disabled={current_ligand === undefined}>
+                                    <AccordionItem value="item-1">
+                                        <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">
+
+                                            <div className="flex flex-row justify-between">
+                                                <span className=" text-xs text-gray-800">Drugbank Info</span>
+                                                {lig_state.current_ligand?.ligand.drugbank_id ? <Link className="ml-8" href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}> <p className="col-span-2 text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p> </Link> : null}
+
+
+                                            </div>
+
+                                        </AccordionTrigger>
+                                        <AccordionContent>
+                                            <p className="text-xs">
+
+                                                {lig_state.current_ligand?.ligand.drugbank_description}
+
+                                            </p>
+
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
 
 
 
 
 
-                                </div>
                                 {/* <Separator /> */}
                                 {/* <p>ILE interface in in [3J7Z E. coli]</p>
                                 <p>μL4, uL22, uL13, 23S rRNA</p>
