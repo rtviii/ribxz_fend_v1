@@ -1,7 +1,6 @@
 "use client"
 import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
 import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
@@ -16,9 +15,30 @@ import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 import MethodsBarchart from './stacked_barchart_expmethod';
 import { IconVisibilityOn } from '@/components/ribxz/visibility_icon';
+import * as React from "react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
+interface CitationProps {
+  number: number
+  paper: string
+}
 
-
+export function InTextCitation({ number, paper }: CitationProps) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <sup className="text-xs font-medium text-blue-500 cursor-pointer">
+            {number}
+          </sup>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-sm">
+          <p className="text-sm">{paper}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
 
 const StructuresOverviewPanel = () => {
 
@@ -280,6 +300,9 @@ const ToolSection = () => {
 
 
 }
+
+
+
 export default function Home() {
 
   const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
@@ -301,7 +324,7 @@ export default function Home() {
               </p>
               <p className="text-sm">
                 Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>Protein Data Bank</Link>?
-                <p> - we classify polymer chains (RNA and proteins) across all structures.  </p>
+                <p> - we implement standard nomenclatures<InTextCitation number={1} paper={"blah blah"}/> <InTextCitation number={2} paper={"blah blah"}/> <InTextCitation number={3} paper={"blah blah"}/> for polymer chains (RNA and proteins)  across all structures.  </p>
                 <p> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </p>
                 <p> - provide integrated tools for visualization, structural alignment, ligand prediction.  </p>
               </p>
@@ -335,12 +358,15 @@ export default function Home() {
 
           <div className="w-3/6 flex flex-col gap-4 justify-between  relative  ">
             <p className='font-bold'> Tools Links</p>
+          <div className="w-full grid grid-cols-8 justify-between  relative  ">
+
             <Image src={"/logo_hmmer.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_rcsb.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_molstar.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_neo4j.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} />
 
+          </div>
             <p>Acknowledge muscle5, Biopython </p>
             <Citation />
           </div>
