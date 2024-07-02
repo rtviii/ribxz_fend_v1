@@ -63,8 +63,6 @@ function LigandTaxonomyDropdown(props: { count: number, species: LigandAssociate
     )
 }
 
-
-
 function LigandStructuresDropdown(props: { count: number, structures: LigandAssociatedStructure[], info: LigandInfo }) {
     const router = useRouter()
     return (
@@ -108,6 +106,7 @@ interface LigandInfo {
     drugbank_id?: string,
     drugbank_description?: string,
 }
+
 interface LigandAssociatedStructure {
     parent_structure: string,
     src_organism_ids: number[],
@@ -287,24 +286,27 @@ export default function Ligands() {
 
                                     Ligand
                                 </button>
-                                <button
 
+                                <button
                                     onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                     onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                     disabled={current_ligand === null}
                                     type="button"
                                     className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
-                                    Binding site 5 A
+                                    Binding site 5 Å
                                 </button>
+
                             </div>
                             <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer"
                                 onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} ><span>Toggle Structure Visibility</span>
-                                {!structVisibility ? <IconVisibilityOff /> : <IconVisibilityOn />}
+                                {!structVisibility ? <div>< IconVisibilityOff className="w-6 h-6" /></div> : <div ><IconVisibilityOn className="w-6 h-6" /></div>}
                             </div>
                             <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer" onClick={() => { ctx?.toggleSpin() }}>
                                 <span>Toggle Spin</span>
-                                <IconToggleSpin />
+                                <div >
+                                    <IconToggleSpin className="w-6 h-6" />
+                                </div>
                             </div>
 
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
@@ -313,23 +315,16 @@ export default function Ligands() {
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
-
                                             <AccordionContent>
-
-
                                                 <div className="space-y-1 text-xs border p-4">
-
-                                                                <div
-                                                                    key={"template"}
-                                                                    className="flex flex-row justify-between border   rounded-sm p-1  border-dashed">
-
-                                                                    <Badge variant="outline" className="border-dashed  text-gray-600" >
-                                                                     <span className="text-gray-400 text-xs">ChainId</span>   :PolymerClass 
-                                                                    
-                                                                    </Badge>
-
-                                                                    <span className="italic">ResidueType SequenceId</span>
-                                                                </div>
+                                                    <div
+                                                        key={"template"}
+                                                        className="flex flex-row justify-between border   rounded-sm p-1  border-dashed">
+                                                        <Badge variant="outline" className="border-dashed  text-gray-600" >
+                                                            <span className="text-gray-400 text-xs">ChainId</span>   :PolymerClass
+                                                        </Badge>
+                                                        <span className="italic">ResidueType SequenceId</span>
+                                                    </div>
                                                     {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return (
@@ -340,12 +335,9 @@ export default function Ligands() {
                                                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                                                     key={i}
                                                                     className="flex flex-row justify-between  hover:cursor-pointer hover:bg-muted rounded-sm p-1">
-
                                                                     <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer text-blue-600" >
-                                                                     <span className="text-black text-xs">{residue.auth_asym_id}</span>   :{nomenclatureMap[residue.auth_asym_id]} 
-                                                                    
+                                                                        <span className="text-black text-xs">{residue.auth_asym_id}</span>   :{nomenclatureMap[residue.auth_asym_id]}
                                                                     </Badge>
-
                                                                     <span>{residue.label_comp_id} {residue.label_seq_id}</span>
                                                                 </div>
                                                             )
@@ -382,7 +374,6 @@ export default function Ligands() {
 
 
 
-
                                 <Accordion type="single" collapsible defaultValue="item-1" disabled={current_ligand === undefined}>
                                     <AccordionItem value="item-1">
                                         <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">
@@ -406,16 +397,19 @@ export default function Ligands() {
                                     </AccordionItem>
                                 </Accordion>
 
+                                <Accordion type="single" collapsible defaultValue="item-1" disabled={true}>
+                                    <AccordionItem value="item-1">
+                                        <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
+
+                                            <span className=" text-xs text-gray-800">Ligand Prediction (Work In Progress)</span>
+                                        </AccordionTrigger>
+                                        <AccordionContent>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
 
 
-
-
-                                {/* <Separator /> */}
-                                {/* <p>ILE interface in in [3J7Z E. coli]</p>
-                                <p>μL4, uL22, uL13, 23S rRNA</p>
-                                <p>Also Present In :</p> */}
                             </ScrollArea>
-                            {/* </Card> */}
 
 
 

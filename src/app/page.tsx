@@ -1,7 +1,6 @@
 "use client"
 import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 import Image from 'next/image';
 import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
@@ -15,9 +14,31 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 import MethodsBarchart from './stacked_barchart_expmethod';
+import { IconVisibilityOn } from '@/components/ribxz/visibility_icon';
+import * as React from "react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
+interface CitationProps {
+  number: number
+  paper: string
+}
 
-
+export function InTextCitation({ number, paper }: CitationProps) {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <sup className="text-xs font-medium text-blue-500 cursor-pointer">
+            {number}
+          </sup>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-sm">
+          <p className="text-sm">{paper}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
 
 const StructuresOverviewPanel = () => {
 
@@ -27,9 +48,9 @@ const StructuresOverviewPanel = () => {
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
       {/* <StructStatsTable data={data} /> */}
       <h3 className='text-sm font-semibold underline'>1864 Atomic Structures</h3>
-      <p className='text-xs'>Number of PDB Depositions since 2000 </p>
-      <MethodsBarchart />
-      <div className="flex flex-row justify-between px-4 mb-2">
+      {/* <p className='text-xs'>Number of PDB Depositions since 2000 </p> */}
+      {/* <MethodsBarchart /> */}
+      <div className="flex flex-row justify-between  mb-2">
         <p className='text-xs text-gray-700'>
           Last Update: 2024.06.14
         </p>
@@ -121,7 +142,7 @@ const PolymersOverviewPanel = (props: { data: any }) => {
       <div className="space-y-1">
         <div className='flex flex-row justify-between underline'><h3 className='text-sm font-semibold  mt-2'> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(12312 Proteins | 525 RNA )</p></div>
       </div>
-      <Table className='text-xs'>
+      {/* <Table className='text-xs'>
         <TableHeader >
           <TableRow >
             <TableHead className='p-1 text-start align-middle justify-start'>Polypeptides</TableHead>
@@ -148,7 +169,7 @@ const PolymersOverviewPanel = (props: { data: any }) => {
             </TableCell>
           </TableRow>
         </TableBody>
-      </Table>
+      </Table> */}
     </div>
   )
 }
@@ -179,11 +200,11 @@ const LigandsOverviewPanel = (props: { data: any }) => {
   return (
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
       <div className='flex flex-row justify-between underline'><h3 className='text-sm font-semibold  mt-2'> {data?.length} Unique Ligands  </h3> <p className='text-xs mt-2'>({lig_stat?.drugbank} in Drugbank)</p></div>
-      <div className='flex flex-row justify-between text-center mt-2'>
+      {/* <div className='flex flex-row justify-between text-center mt-2'>
         <p className='text-xs hover:bg-muted rounded-md w-full'> Archaea({lig_stat?.arch})</p>
         <p className='text-xs hover:bg-muted rounded-md w-full'> Bacteria({lig_stat?.bact})</p>
         <p className='text-xs hover:bg-muted rounded-md w-full'> Eukarya({lig_stat?.euk})</p>
-      </div>
+      </div> */}
     </div>
   )
 
@@ -273,6 +294,15 @@ const StructStatsTable = (props: { data: any }) => {
   )
 }
 
+
+
+const ToolSection = () => {
+
+
+}
+
+
+
 export default function Home() {
 
   const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
@@ -293,10 +323,10 @@ export default function Home() {
                   Organized access to atomic structures of the ribosome.</span>
               </p>
               <p className="text-sm">
-                Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>PDB</Link>?
-                <p> - classify RNA/protein chains across models [citations]  </p>
-                <p> - provide structural landmarks : PTC, exit tunnel, ligands etc. </p>
-                <p> - integrated tools for visualization, structural alignment  </p>
+                Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>Protein Data Bank</Link>?
+                <p> - we implement standard nomenclatures<InTextCitation number={1} paper={"blah blah"}/> <InTextCitation number={2} paper={"blah blah"}/> <InTextCitation number={3} paper={"blah blah"}/> for polymer chains (RNA and proteins)  across all structures.  </p>
+                <p> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </p>
+                <p> - provide integrated tools for visualization, structural alignment, ligand prediction.  </p>
               </p>
 
               <p className="text-sm">API is available at <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
@@ -311,27 +341,37 @@ export default function Home() {
           <div className='w-3/6  relative  flex-col flex gap-2'>
 
             <StructuresOverviewPanel />
-
-
             <PolymersOverviewPanel data={{}} />
             <LigandsOverviewPanel data={{}} />
+            <div className='grid-cols-9 grid space-x-3 gap-1'>
+              <div className='border col-span-3'>Visualization </div>
+              <div className='border col-span-3'>3D Superposition</div>
+              <div className='border col-span-3'>Ligands & Small Molecules</div>
+              <div className='border col-span-3'>Landmarks
+
+              </div>
+
+
+            </div>
+
           </div>
 
           <div className="w-3/6 flex flex-col gap-4 justify-between  relative  ">
-
             <p className='font-bold'> Tools Links</p>
+          <div className="w-full grid grid-cols-8 justify-between  relative  ">
+
             <Image src={"/logo_hmmer.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_rcsb.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_molstar.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_neo4j.png"} alt='ubclogo' width={40} height={40} />
             <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} />
 
+          </div>
             <p>Acknowledge muscle5, Biopython </p>
             <Citation />
           </div>
 
         </div>
-
       </div>
     </StoreProvider>
   )
