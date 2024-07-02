@@ -14,9 +14,9 @@ import Link from "next/link"
 
 
 interface PolymerTableRowProps {
-    polymer: Polymer | Rna | Protein,
+    polymer                : Polymer | Rna | Protein,
     connect_to_molstar_ctx?: boolean,
-    classification_report?: []
+    classification_report ?: []
 }
 
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
@@ -48,23 +48,9 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
         </TableCell>
         <TableCell className="mt-1 text-xs text-center">{polymer.auth_asym_id}</TableCell>
         <TableCell className="mt-1 text-xs text-center">
-            <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer"
-            // onMouseEnter={() => { trigger({ authAsymId: polymer.auth_asym_id, rcsbId: polymer.parent_rcsb_id, }); }}
-            >
+            <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer" >
                 {polymer.nomenclature}
             </Badge>
-            {/* TODO: When classification reports are generated: plug them in here */}
-            {/* <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                    <TooltipTrigger  >
-
-                    </TooltipTrigger>
-
-                    <TooltipContent side="top">
-                        <p>E-value consensus sse</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider> */}
         </TableCell>
         <TableCell className="mt-1 text-xs whitespace-pre">{polymer.src_organism_ids.map((taxid) => {
 

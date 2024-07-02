@@ -71,6 +71,7 @@ export class MolstarRibxz {
     if (!this.ctx.canvas3d) return this;
 
     const trackball = this.ctx.canvas3d.props.trackball;
+
     PluginCommands.Canvas3D.SetSettings(this.ctx, {
       settings: {
         trackball: {
@@ -155,11 +156,11 @@ export class MolstarRibxz {
     auth_asym_id: string,
     res_seq_id: number,
   }[]) => {
-
-    const expr = this.selectionResidueClusterExpression(chain_residues_tuples)
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    const sel = Script.getStructureSelection(expr, data);
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    if (data === undefined) return;
+    const expr = this.selectionResidueClusterExpression(chain_residues_tuples)
+    const sel  = Script.getStructureSelection(expr, data);
+    let   loci = StructureSelection.toLociWithSourceUnits(sel);
 
     this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
   }

@@ -198,8 +198,6 @@ export default function Ligands() {
                 const result = await refetchParentStruct({
                     rcsbId: current_ligand?.parent_structure.rcsb_id
                 }).unwrap();
-                console.log("Got structure", result);
-
                 setParentStructProfile(result);
             } catch (error) {
                 console.error('Error fetching parent struct:', error);
@@ -301,12 +299,12 @@ export default function Ligands() {
                                 </button>
                             </div>
                             <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer"
-                            onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} ><span>Toggle Structure Visibility</span> 
-                            { !structVisibility ? <IconVisibilityOff /> : <IconVisibilityOn   /> }
+                                onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} ><span>Toggle Structure Visibility</span>
+                                {!structVisibility ? <IconVisibilityOff /> : <IconVisibilityOn />}
                             </div>
-                            <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer" onClick={()=>{ctx?.toggleSpin()}}>
-                                <span>Toggle Spin</span>  
-                                <IconToggleSpin/>
+                            <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer" onClick={() => { ctx?.toggleSpin() }}>
+                                <span>Toggle Spin</span>
+                                <IconToggleSpin />
                             </div>
 
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar">
@@ -314,15 +312,31 @@ export default function Ligands() {
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
                                             {lig_state.current_ligand === null ?
-                                                <AccordionTrigger className="text-xs" disabled={lig_state.current_ligand === null}>[<span className="italic">Chemical ID</span>] in [<span className="italic">PDB ID</span>]</AccordionTrigger>
-                                                :
-                                                <AccordionTrigger className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
+                                                <AccordionTrigger className="text-xs" disabled={lig_state.current_ligand === null}>[<span className="italic">Chemical ID</span>] in [<span className="italic">PDB ID</span>]</AccordionTrigger> : <AccordionTrigger className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
                                             }
 
+                                            <AccordionContent>
+                                                <Accordion type="multiple" className="w-full">
+                                                    <AccordionItem value="item-1">
+                                                        <AccordionTrigger className="text-xs">
+                                                            <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer text-blue-600" >
+                                                                uL4:A
+                                                            </Badge>
+                                                        </AccordionTrigger>
+                                                        <AccordionContent>
+                                                            Yes. It adheres to the WAI-ARIA design pattern.
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                    <AccordionItem value="item-2">
+                                                        <AccordionTrigger className="text-xs">Is it styled?</AccordionTrigger>
+                                                        <AccordionContent>
+                                                            Yes. It comes with default styles that matches the other
+                                                            components&apos; aesthetic.
+                                                        </AccordionContent>
+                                                    </AccordionItem>
+                                                </Accordion>
 
 
-
-                                            <AccordionContent >
                                                 <div className="space-y-1 text-xs">
                                                     {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
@@ -361,7 +375,7 @@ export default function Ligands() {
                                         <AccordionItem value="item">
                                             <AccordionTrigger
 
-                                                className="text-xs underline">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
+                                                className="text-xs">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
                                             {current_ligand ?
                                                 <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
 
