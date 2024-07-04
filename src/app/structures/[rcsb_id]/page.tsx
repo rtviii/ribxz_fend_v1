@@ -26,7 +26,7 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4 text-xs" onClick={
         () => {
             ctx?.create_ligand(data.chemicalId)
-            ctx?.create_ligand_surroundings(data.chemicalId)
+            ctx?.create_ligand_and_surroundings(data.chemicalId)
         }
     }>
         <div className="absolute top-4 right-4 text-sm  text-green-600">LIGAND</div>
@@ -62,7 +62,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
     useEffect(() => {
         ctx?.download_struct(rcsb_id)
-            .then((ctx) => {
+            .then(({ ctx, struct_representation }) => {
                 if (ligand_param != null) {
                     ctx.create_ligand(ligand_param!)
                 }

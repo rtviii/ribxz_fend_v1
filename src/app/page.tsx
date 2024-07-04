@@ -38,7 +38,7 @@ interface CitationProps {
   paper: string
 }
 
-export function InTextCitation({ number, paper }: CitationProps) {
+function InTextCitation({ number, paper }: CitationProps) {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={0}>
@@ -206,7 +206,7 @@ const LigandsOverviewPanel = (props: { data: any }) => {
   const { data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
   const [lig_stat, setLigStat] = useState<{ bact: 0, euk: 0, arch: 0, drugbank: 0 }>()
   useEffect(() => {
-    const acc = data?.reduce((accumulator, current) => {
+    const acc:any = data?.reduce((accumulator:any, current:any) => {
       if (current[0]['drugbank_id'] != null) {
         accumulator.drugbank += 1
       }

@@ -213,7 +213,7 @@ export default function Ligands() {
         for (let residue of residues) {
             chain_ids.push(residue.auth_asym_id)
         }
-        var nom_map = {}
+        var nom_map:any = {}
         for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
             // console.log("polymer", polymer);
             if (chain_ids.includes(polymer.auth_asym_id)) {
