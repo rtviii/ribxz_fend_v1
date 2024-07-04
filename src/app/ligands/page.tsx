@@ -235,7 +235,7 @@ export default function Ligands() {
                 setStructRepresentation(struct_representation)
                 return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId)
             })
-            .then((ctx) => ctx.toggleSpin())
+            // .then((ctx) => ctx.toggleSpin())
             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
             .then(residues => {
                 setSurroundingResidues(residues)
@@ -274,47 +274,61 @@ export default function Ligands() {
                                 }}
                             />
                             <div className="rounded-md shadow-sm " >
-                                <button
+                                <Button
 
                                     onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                     onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
 
+                                    variant={"default"}
                                     disabled={current_ligand === null}
-                                    type="button"
-                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
+                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
 
                                     Ligand
-                                </button>
+                                </Button>
 
-                                <button
+
+                                <Button
+
+                                    variant={"default"}
                                     onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                     onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                     disabled={current_ligand === null}
-                                    type="button"
-                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 rounded-r-md hover:bg-gray-100 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
-                                    Binding site 5 Å
-                                </button>
+                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
+                                    Binding Site (5 Å)
+                                </Button>
 
                             </div>
-                            <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer"
-                                onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} ><span>Toggle Structure Visibility</span>
-                                {!structVisibility ? <div>< IconVisibilityOff className="w-6 h-6" /></div> : <div ><IconVisibilityOn className="w-6 h-6" /></div>}
-                            </div>
-                            <div className="text-xs flex flex-row justify-between hover:bg-muted p-1 rounded-sm border hover:cursor-pointer" onClick={() => { ctx?.toggleSpin() }}>
-                                <span>Toggle Spin</span>
-                                <div >
-                                    <IconToggleSpin className="w-6 h-6" />
+                            <Button
+                                variant={"default"}
+                                className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 "
+                                onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} >
+                                <div className=" flex-row p-1 rounded-sm flex items-center content-center align-middle justify-center gap-2 ">
+                                    <span>Toggle Structure Visibility</span>
+                                    <div>
+                                        {!structVisibility ? <div> < IconVisibilityOff className="w-6 h-6" /></div> : <div ><IconVisibilityOn className="w-6 h-6" /></div>}
+                                    </div>
                                 </div>
-                            </div>
+
+                            </Button>
+                            <Button
+                                variant={"default"}
+                                className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 " onClick={() => { ctx?.toggleSpin() }}>
+                                <div className="flex items-center content-center align-middle  flex-row p-1 rounded-sm justify-between gap-2 ">
+                                    <span>Toggle Spin</span>
+                                    <div>
+                                        <IconToggleSpin className="w-6 h-6 flex items-center content-center align-middle justify-center" />
+                                    </div>
+                                </div>
+                            </Button>
 
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
 
                                 {lig_state.current_ligand === null ? null :
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
-                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}</AccordionTrigger>
+                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id} <span className="font-light">(Binding Pocket Details)</span></AccordionTrigger>
                                             <AccordionContent>
                                                 <div className="space-y-1 text-xs border p-4">
                                                     <div
@@ -376,14 +390,19 @@ export default function Ligands() {
 
                                 <Accordion type="single" collapsible defaultValue="item-1" disabled={current_ligand === undefined}>
                                     <AccordionItem value="item-1">
-                                        <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">
+                                        <AccordionTrigger className="text-xs rounded-sm flex flex-roww justify-between  hover:cursor-pointer hover:bg-muted border p-1">
 
-                                            <div className="flex flex-row justify-between">
-                                                <span className=" text-xs text-gray-800">Drugbank Info</span>
-                                                {lig_state.current_ligand?.ligand.drugbank_id ? <Link className="ml-8" href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}> <p className="col-span-2 text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p> </Link> : null}
+                                                <span className="text-xs text-gray-800">Drugbank Info</span>
+                                                <div>
+                                                    {lig_state.current_ligand?.ligand.drugbank_id ?
+                                                        <Link className="" href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
+                                                            <p className="text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p>
+                                                        </Link> :
+                                                        null
+                                                        }
+                                                </div>
 
 
-                                            </div>
 
                                         </AccordionTrigger>
                                         <AccordionContent>
@@ -401,7 +420,7 @@ export default function Ligands() {
                                     <AccordionItem value="item-1">
                                         <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
 
-                                            <span className=" text-xs text-gray-800">Ligand Prediction (Work In Progress)</span>
+                                            <span className=" text-xs text-gray-800">Ligand Prediction <span className="font-light">(Work In Progress)</span></span>
                                         </AccordionTrigger>
                                         <AccordionContent>
                                         </AccordionContent>

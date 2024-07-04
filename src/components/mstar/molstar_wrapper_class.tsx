@@ -271,9 +271,12 @@ export class MolstarRibxz {
     }
 
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
-
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
+    
     const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    st?.structure.ref
+    st?.model.ref
+
     this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
     if (this.ctx.canvas3d) {
       const pp = this.ctx.canvas3d.props.postprocessing;

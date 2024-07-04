@@ -18,6 +18,21 @@ import { IconVisibilityOn } from '@/components/ribxz/visibility_icon';
 import * as React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
+
+const ban_citation = `Nenad Ban, Roland Beckmann, Jamie HD Cate, Jonathan D Dinman, François Dragon, Steven R Ellis, Denis LJ Lafontaine, Lasse Lindahl, Anders Liljas, Jeffrey M Lipton, Michael A McAlear, Peter B Moore, Harry F Noller, Joaquin Ortega, Vikram Govind Panse, V Ramakrishnan, Christian MT Spahn, Thomas A Steitz, Marek Tchorzewski, David Tollervey, Alan J Warren, James R Williamson, Daniel Wilson, Ada Yonath, Marat Yusupov,
+A new system for naming ribosomal proteins,
+Current Opinion in Structural Biology,
+Volume 24,
+2014,
+Pages 165-169,
+ISSN 0959-440X,
+https://doi.org/10.1016/j.sbi.2014.01.002.
+(https://www.sciencedirect.com/science/article/pii/S0959440X14000037)
+Abstract: A system for naming ribosomal proteins is described that the authors intend to use in the future. They urge others to adopt it. The objective is to eliminate the confusion caused by the assignment of identical names to ribosomal proteins from different species that are unrelated in structure and function. In the system proposed here, homologous ribosomal proteins are assigned the same name, regardless of species. It is designed so that new names are similar enough to old names to be easily recognized, but are written in a format that unambiguously identifies them as ‘new system’ names.
+`
+
+
+
 interface CitationProps {
   number: number
   paper: string
@@ -28,12 +43,22 @@ export function InTextCitation({ number, paper }: CitationProps) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <sup className="text-xs font-medium text-blue-500 cursor-pointer">
+          <sup className="text-xs font-medium ribxz-link cursor-pointer">
             {number}
           </sup>
         </TooltipTrigger>
         <TooltipContent className="max-w-sm">
-          <p className="text-sm">{paper}</p>
+          <p className="text-sm">
+
+            <pre>
+              <code>
+
+                {paper}
+              </code>
+
+            </pre>
+
+          </p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -47,10 +72,10 @@ const StructuresOverviewPanel = () => {
 
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
       {/* <StructStatsTable data={data} /> */}
-      <h3 className='text-sm font-semibold underline'>1864 Atomic Structures</h3>
+      <h3 className='text-sm font-medium '>1864 Atomic Structures</h3>
       {/* <p className='text-xs'>Number of PDB Depositions since 2000 </p> */}
       {/* <MethodsBarchart /> */}
-      <div className="flex flex-row justify-between  mb-2">
+      <div className="flex flex-row justify-between  ">
         <p className='text-xs text-gray-700'>
           Last Update: 2024.06.14
         </p>
@@ -114,11 +139,11 @@ const PolymersOverviewPanel = (props: { data: any }) => {
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
   const [nom_classes, setClasses] = useState({
-    'CytosolicProteins': [],
+    'CytosolicProteins'    : [],
     'MitochondrialProteins': [],
-    'CytosolicRNA': [],
-    'MitochondrialRNA': [],
-    'E_I_Factors': [],
+    'CytosolicRNA'         : [],
+    'MitochondrialRNA'     : [],
+    'E_I_Factors'          : [],
   });
 
   useEffect(() => {
@@ -140,7 +165,7 @@ const PolymersOverviewPanel = (props: { data: any }) => {
   return (
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
       <div className="space-y-1">
-        <div className='flex flex-row justify-between underline'><h3 className='text-sm font-semibold  mt-2'> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(12312 Proteins | 525 RNA )</p></div>
+        <div className='flex flex-row justify-between '><h3 className='text-sm font-medium  '> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(12312 Proteins | 525 RNA )</p></div>
       </div>
       {/* <Table className='text-xs'>
         <TableHeader >
@@ -199,12 +224,9 @@ const LigandsOverviewPanel = (props: { data: any }) => {
   }, [data])
   return (
     <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
-      <div className='flex flex-row justify-between underline'><h3 className='text-sm font-semibold  mt-2'> {data?.length} Unique Ligands  </h3> <p className='text-xs mt-2'>({lig_stat?.drugbank} in Drugbank)</p></div>
-      {/* <div className='flex flex-row justify-between text-center mt-2'>
-        <p className='text-xs hover:bg-muted rounded-md w-full'> Archaea({lig_stat?.arch})</p>
-        <p className='text-xs hover:bg-muted rounded-md w-full'> Bacteria({lig_stat?.bact})</p>
-        <p className='text-xs hover:bg-muted rounded-md w-full'> Eukarya({lig_stat?.euk})</p>
-      </div> */}
+      <div className='flex flex-row justify-between '>
+        <h3 className='text-sm font-medium  '> {data?.length} Unique Ligands  </h3> <p className='text-xs mt-2'>({lig_stat?.drugbank} in Drugbank)</p>
+      </div>
     </div>
   )
 
@@ -301,6 +323,7 @@ const ToolSection = () => {
 
 }
 
+const
 
 
 export default function Home() {
@@ -324,14 +347,14 @@ export default function Home() {
               </p>
               <p className="text-sm">
                 Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>Protein Data Bank</Link>?
-                <p> - we implement standard nomenclatures<InTextCitation number={1} paper={"blah blah"}/> <InTextCitation number={2} paper={"blah blah"}/> <InTextCitation number={3} paper={"blah blah"}/> for polymer chains (RNA and proteins)  across all structures.  </p>
+                <p> - we implement standard nomenclatures<InTextCitation number={1} paper={ban_citation} /> <InTextCitation number={2} paper={"blah blah"} /> <InTextCitation number={3} paper={"blah blah"} /> for polymer chains (RNA and proteins)  across all structures.  </p>
                 <p> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </p>
                 <p> - provide integrated tools for visualization, structural alignment, ligand prediction.  </p>
               </p>
 
               <p className="text-sm">API is available at <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
               <div className='border rounded-md p-2 border-blue-800 hover:cursor-pointer   hover:shadow-lg'>
-                <p className="text-xs font-semibold">RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures</p>
+                <p className="text-xs font-medium">RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures</p>
                 <p className='text-xs italic'> Nucleic Acids Research, Volume 51, Issue D1, 6 January 2023</p>
               </div>
             </div>
@@ -340,16 +363,22 @@ export default function Home() {
         <div className="flex flex-row items-start justify-end space-x-10 mt-10 w-3/6">
           <div className='w-3/6  relative  flex-col flex gap-2'>
 
+
+            <p className='italic font-light text-lg'>Data</p>
+
             <StructuresOverviewPanel />
             <PolymersOverviewPanel data={{}} />
             <LigandsOverviewPanel data={{}} />
-            <div className='grid-cols-9 grid space-x-3 gap-1'>
-              <div className='border col-span-3'>Visualization </div>
-              <div className='border col-span-3'>3D Superposition</div>
-              <div className='border col-span-3'>Ligands & Small Molecules</div>
-              <div className='border col-span-3'>Landmarks
+            <p className='italic font-light text-lg'>Tools</p>
+            <div className='grid-cols-9 grid  gap-1'>
+              {["Visualization (WIP)", "3D Superposition (WIP)", "Ligands & Small Molecules", "Landmarks(WIP)"].map((tool, i) => {
+                return <div className={`border rounded-sm col-span-9 flex justify-around align-middle text-center p-2 hover:cursor-pointer    border-gray-400 ${tool === "Ligands & Small Molecules" ? "hover:shadow-lg" : `hover:cursor-default  bg-muted text-gray-500`}`}>
+                  <span className='align-middle text-center flex content-center justify-center items-center text-sm font-medium '>{tool}</span>
+                </div>
 
-              </div>
+              })}
+
+
 
 
             </div>
@@ -357,17 +386,34 @@ export default function Home() {
           </div>
 
           <div className="w-3/6 flex flex-col gap-4 justify-between  relative  ">
-            <p className='font-bold'> Tools Links</p>
-          <div className="w-full grid grid-cols-8 justify-between  relative  ">
+            <p className='italic font-light text-lg'>Acknowledgement</p>
+            <span className='text-xs'>We kindly thank the following platforms and packages for making their work freely available or supporting us otherwise.</span>
+            <div className='gap-1 flex flex-col justify-between relative '>
 
-            <Image src={"/logo_hmmer.png"} alt='ubclogo' width={40} height={40} />
-            <Image src={"/logo_rcsb.png"} alt='ubclogo' width={40} height={40} />
-            <Image src={"/logo_molstar.png"} alt='ubclogo' width={40} height={40} />
-            <Image src={"/logo_neo4j.png"} alt='ubclogo' width={40} height={40} />
-            <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} />
+              <div className="w-full flex flex-row justify-between  relative  ">
+                {
+                  [
 
-          </div>
-            <p>Acknowledge muscle5, Biopython </p>
+                    <Image src={"/logo_rcsb.png"} alt='ubclogo' width={120} height={120} />,
+                    <Image src={"/logo_hmmer.png"} alt='ubclogo' width={40} height={40} />,
+                    <Image src={"/logo_molstar.png"} alt='ubclogo' width={100} height={100} />,
+                    <Image src={"/logo_neo4j.png"} alt='ubclogo' width={100} height={100} />,
+                    <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} />,
+
+                  ].map(i => {
+                    return <div className='border p-1 rounded-sm'>{i}</div>
+                  })
+
+                }
+
+              </div>
+              {/* <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>muscle5</code>
+              <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>BioPython</code> */}
+              <div>
+
+
+              </div>
+            </div>
             <Citation />
           </div>
 
@@ -388,18 +434,18 @@ const citation = `@article{kushner2023riboxyz,
   publisher={Oxford University Press}
 }`
 function Citation() {
-  return <div className=" p-2 rounded-md  relative border border-gray-400 h-50">
+  return <div className=" p-1 rounded-sm  relative border border-gray-400 h-50">
     <div >
       <div className='grid grid-cols-7'>
 
-        <div className="text-xs   p-2 mb-2  col-span-6"> Developed  by <Link className='ribxz-link  px-1' href={"https://rtviii.xyz"}>A. Kushner</Link> and <Link className='text-accent1  ribxz-link pl-1' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  </div>
+        <div className="text-xs font-normal  p-2  col-span-6"> Developed  by <Link className='ribxz-link  ' href={"https://rtviii.xyz"}>A. Kushner</Link> and <Link className='text-accent1  ribxz-link ' href='https://kdaoduc.com/'>K. Dao Duc</Link> . Cite and reach out.  </div>
         <div >
           <Image src={"/logo_ubc.png"} alt='ubclogo' width={40} height={40} />
         </div>
       </div>
       <ScrollArea className='h-20 shadow-inner border rounded-sm'>
         <pre>
-          <code className='text-xs p-2'>{citation}</code>
+          <code className='text-xs font-extralight p-2 text-gray-600'>{citation}</code>
         </pre>
       </ScrollArea>
     </div>
