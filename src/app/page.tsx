@@ -356,7 +356,7 @@ export default function Home() {
                 <p> - provide integrated tools for visualization, structural alignment, ligand prediction.  </p>
               </p>
 
-              <p className="text-sm">API is available at <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
+              <p className="text-sm">API is available at <code className='border ribxz-link  bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
               <div className='border rounded-md p-2 border-blue-800 hover:cursor-pointer   hover:shadow-lg'>
                 <p className="text-xs font-medium">RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures</p>
                 <p className='text-xs italic'> Nucleic Acids Research, Volume 51, Issue D1, 6 January 2023</p>
@@ -376,8 +376,10 @@ export default function Home() {
             <p className='italic font-light text-lg'>Tools</p>
             <div className='grid-cols-9 grid  gap-1'>
               {["Visualization (WIP)", "3D Superposition (WIP)", "Ligands & Small Molecules", "Landmarks(WIP)"].map((tool, i) => {
-                return <div className={`border rounded-sm col-span-9 flex justify-around align-middle text-center p-2 hover:cursor-pointer    border-gray-400 ${tool === "Ligands & Small Molecules" ? "hover:shadow-lg" : `hover:cursor-default  bg-muted text-gray-500`}`}>
+                return <div className={`border rounded-sm col-span-9 flex justify-around align-middle text-center p-2 hover:cursor-pointer     ${tool === "Ligands & Small Molecules" ? "hover:shadow-lg hover:border-blue-600" : `hover:cursor-default  bg-gray-100 text-gray-300`}`}>
+                  <Link href={"/ligands"}>
                   <span className='align-middle text-center flex content-center justify-center items-center text-sm font-medium '>{tool}</span>
+                  </Link>
                 </div>
 
               })}
@@ -398,11 +400,11 @@ export default function Home() {
                 {
                   [
 
-                    <Link href={"https://www.rcsb.org/"             }> <Image src={"/logo_rcsb.png"    } alt='ubclogo' width={120} height={120} /> </Link>,
-                    <Link href={"http://hmmer.org/"                 }> <Image src={"/logo_hmmer.png"   } alt='hmmer'   width={40 } height={40 } /> </Link>,
-                    <Link href={"https://molstar.org/"              }> <Image src={"/logo_molstar.png" } alt='ubclogo' width={100} height={100} /> </Link>,
-                    <Link href={"https://neo4j.com/"                }> <Image src={"/logo_neo4j.png"   } alt='ubclogo' width={100} height={100} /> </Link>,
-                    <Link href={"https://www.cgl.ucsf.edu/chimerax/"}> <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40 } height={40 } /> </Link>,
+                    <Link href={"https://www.rcsb.org/"}> <Image src={"/logo_rcsb.png"} alt='ubclogo' width={120} height={120} /> </Link>,
+                    <Link href={"http://hmmer.org/"}> <Image src={"/logo_hmmer.png"} alt='hmmer' width={40} height={40} /> </Link>,
+                    <Link href={"https://molstar.org/"}> <Image src={"/logo_molstar.png"} alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link href={"https://neo4j.com/"}> <Image src={"/logo_neo4j.png"} alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link href={"https://www.cgl.ucsf.edu/chimerax/"}> <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} /> </Link>,
 
                   ].map(i => {
                     return <div className='border p-1 rounded-sm hover:border-blue-700 hover:shadow-lg '>{i}</div>
