@@ -94,10 +94,10 @@ export class MolstarRibxz {
     res_seq_id: number,
   }[]) => {
 
-    const expr = this.selectionResidueClusterExpression(chain_residue_tuples)
-    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    const sel = Script.getStructureSelection(expr, data);
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    const expr     = this.selectionResidueClusterExpression(chain_residue_tuples)
+    const data:any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const sel      = Script.getStructureSelection(expr, data);
+    let   loci     = StructureSelection.toLociWithSourceUnits(sel);
     this.ctx.managers.structure.selection.clear();
     this.ctx.managers.structure.selection.fromLoci('add', loci);
     this.ctx.managers.camera.focusLoci(loci);
@@ -123,7 +123,10 @@ export class MolstarRibxz {
   }
 
   _highlightChain = (auth_asym_id: string) => {
-    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const data:any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    if (data ===undefined){
+      return
+    }
     const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({ 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), }), data);
     let loci = StructureSelection.toLociWithSourceUnits(sel);
     this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
@@ -246,7 +249,7 @@ export class MolstarRibxz {
 
 
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (!data) return;
+    if (data===undefined) return;
 
     const sel = Script.getStructureSelection(expression, data);
     let loci = StructureSelection.toLociWithSourceUnits(sel);

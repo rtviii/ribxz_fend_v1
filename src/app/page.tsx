@@ -13,7 +13,6 @@ import { HoverCard, HoverCardContent, HoverCardTrigger, } from "@/components/ui/
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRouter } from 'next/navigation';
 import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
-import MethodsBarchart from './stacked_barchart_expmethod';
 import { IconVisibilityOn } from '@/components/ribxz/visibility_icon';
 import * as React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"

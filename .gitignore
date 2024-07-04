@@ -5,6 +5,10 @@
 /.pnp
 .pnp.js
 
+
+mesh_venv/**
+mesh_venv
+
 # testing
 /coverage
 

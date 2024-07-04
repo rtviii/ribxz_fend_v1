@@ -257,7 +257,7 @@ export const prefetchLigandsData = createAsyncThunk( 'ui/fetchAndSetLigandsData'
   async (_, { dispatch }) => {
     const result = await dispatch(ribxz_api.endpoints.routersRouterStructListLigands.initiate());
     if ('data' in result) {
-      dispatch(set_ligands_data(result.data));
+      dispatch(set_ligands_data(result.data as any));
     }
   }
 );
