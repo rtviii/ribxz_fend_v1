@@ -41,21 +41,19 @@ interface CitationProps {
 export function InTextCitation({ number, paper }: CitationProps) {
   return (
     <TooltipProvider>
-      <Tooltip>
+      <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
           <sup className="text-xs font-medium ribxz-link cursor-pointer">
             {number}
           </sup>
         </TooltipTrigger>
-        <TooltipContent className="max-w-sm">
+        <TooltipContent >
           <p className="text-sm">
 
-            <pre>
+            <pre className="whitespace-pre-wrap break-words" style={{ width: '80ch' }}>
               <code>
-
                 {paper}
               </code>
-
             </pre>
 
           </p>
@@ -70,7 +68,7 @@ const StructuresOverviewPanel = () => {
   return (
     // <div className="  rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
 
-    <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
+    <div className="px-4 py-2 rounded-md relative border hover:border-blue-600  hover:shadow-lg transition-all hover:cursor-pointer">
       {/* <StructStatsTable data={data} /> */}
       <h3 className='text-sm font-medium '>1864 Atomic Structures</h3>
       {/* <p className='text-xs'>Number of PDB Depositions since 2000 </p> */}
@@ -82,17 +80,19 @@ const StructuresOverviewPanel = () => {
         <div>
           <p className='text-xs text-gray-700'>Added:
             {
-              ["8V7X", "4AFX"].map(
-                (id, i) => {
-                  return (
-                    <>
-                      <Link key={i} href={``} className='ribxz-link'>
-                        {id}
-                      </Link>,
-                    </>
-                  )
-                }
-              )
+              ["8Y0U",
+                "8Y0W",
+                "8Y0X"].map(
+                  (id, i) => {
+                    return (
+                      <>
+                        <Link key={i} href={`/structures/${id}`} className='ribxz-link'>
+                          {id}
+                        </Link>,
+                      </>
+                    )
+                  }
+                )
             }
             ...
           </p>
@@ -139,11 +139,11 @@ const PolymersOverviewPanel = (props: { data: any }) => {
   const { data: nomenclature_classes_backend, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
   const [nom_classes, setClasses] = useState({
-    'CytosolicProteins'    : [],
+    'CytosolicProteins': [],
     'MitochondrialProteins': [],
-    'CytosolicRNA'         : [],
-    'MitochondrialRNA'     : [],
-    'E_I_Factors'          : [],
+    'CytosolicRNA': [],
+    'MitochondrialRNA': [],
+    'E_I_Factors': [],
   });
 
   useEffect(() => {
@@ -163,11 +163,12 @@ const PolymersOverviewPanel = (props: { data: any }) => {
 
   const { data: polymer_classes_stats, isLoading: polymer_classes_stats_L, isError: polymer_classes_stats_E } = useRoutersRouterStructPolymerClassesStatsQuery()
   return (
-    <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
-      <div className="space-y-1">
-        <div className='flex flex-row justify-between '><h3 className='text-sm font-medium  '> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(12312 Proteins | 525 RNA )</p></div>
-      </div>
-      {/* <Table className='text-xs'>
+    <Link href={"/polymers"}>
+      <div className="px-4 py-2 rounded-md relative border hover:border-blue-600 hover:shadow-lg transition-all hover:cursor-pointer">
+        <div className="space-y-1">
+          <div className='flex flex-row justify-between '><h3 className='text-sm font-medium  '> {polymer_classes_stats === undefined || polymer_classes_stats === null ? 0 : polymer_classes_stats.length} Polymer Classes </h3><p className='text-xs  mt-2'>(103058 Proteins | 9041 RNA)</p></div>
+        </div>
+        {/* <Table className='text-xs'>
         <TableHeader >
           <TableRow >
             <TableHead className='p-1 text-start align-middle justify-start'>Polypeptides</TableHead>
@@ -195,7 +196,8 @@ const PolymersOverviewPanel = (props: { data: any }) => {
           </TableRow>
         </TableBody>
       </Table> */}
-    </div>
+      </div>
+    </Link>
   )
 }
 
@@ -223,11 +225,13 @@ const LigandsOverviewPanel = (props: { data: any }) => {
     setLigStat(acc)
   }, [data])
   return (
-    <div className="px-4 py-2 rounded-md relative border border-gray-400 hover:shadow-lg transition-all hover:cursor-pointer">
-      <div className='flex flex-row justify-between '>
-        <h3 className='text-sm font-medium  '> {data?.length} Unique Ligands  </h3> <p className='text-xs mt-2'>({lig_stat?.drugbank} in Drugbank)</p>
+    <Link href={"/ligands"}>
+      <div className="px-4 py-2 rounded-md relative border hover:border-blue-600 hover:shadow-lg transition-all hover:cursor-pointer">
+        <div className='flex flex-row justify-between '>
+          <h3 className='text-sm font-medium  '> {data?.length} Unique Ligands  </h3> <p className='text-xs mt-2'>({lig_stat?.drugbank} in Drugbank)</p>
+        </div>
       </div>
-    </div>
+    </Link>
   )
 
 }
@@ -323,9 +327,9 @@ const ToolSection = () => {
 
 }
 
-const
-
-
+const citation1 = ` Xu B, Liu L, Song G. Functions and Regulation of Translation Elongation Factors. Front Mol Biosci. 2022 Jan 19;8:816398. doi: 10.3389/fmolb.2021.816398. PMID: 35127825; PMCID: PMC8807479.`
+const citation2 = `Schmitt E, Coureux PD, Kazan R, Bourgeois G, Lazennec-Schurdevin C, Mechulam Y. Recent advances in archaeal translation initiation. Frontiers in Microbiology. 2020 Sep 18;11:584152.`
+const citaiton3 = `Ban N, Beckmann R, Cate JH, Dinman JD, Dragon F, Ellis SR, Lafontaine DL, Lindahl L, Liljas A, Lipton JM, McAlear MA. A new system for naming ribosomal proteins. Current opinion in structural biology. 2014 Feb 1;24:165-9.`
 export default function Home() {
 
   const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
@@ -347,7 +351,7 @@ export default function Home() {
               </p>
               <p className="text-sm">
                 Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>Protein Data Bank</Link>?
-                <p> - we implement standard nomenclatures<InTextCitation number={1} paper={ban_citation} /> <InTextCitation number={2} paper={"blah blah"} /> <InTextCitation number={3} paper={"blah blah"} /> for polymer chains (RNA and proteins)  across all structures.  </p>
+                <p> - we implement standard nomenclatures<InTextCitation number={1} paper={citation1} /> <InTextCitation number={2} paper={citation2} /> <InTextCitation number={3} paper={citaiton3} /> for polymer chains (RNA and proteins)  across all structures.  </p>
                 <p> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </p>
                 <p> - provide integrated tools for visualization, structural alignment, ligand prediction.  </p>
               </p>
@@ -394,14 +398,14 @@ export default function Home() {
                 {
                   [
 
-                    <Image src={"/logo_rcsb.png"} alt='ubclogo' width={120} height={120} />,
-                    <Image src={"/logo_hmmer.png"} alt='ubclogo' width={40} height={40} />,
-                    <Image src={"/logo_molstar.png"} alt='ubclogo' width={100} height={100} />,
-                    <Image src={"/logo_neo4j.png"} alt='ubclogo' width={100} height={100} />,
-                    <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} />,
+                    <Link href={"https://www.rcsb.org/"             }> <Image src={"/logo_rcsb.png"    } alt='ubclogo' width={120} height={120} /> </Link>,
+                    <Link href={"http://hmmer.org/"                 }> <Image src={"/logo_hmmer.png"   } alt='hmmer'   width={40 } height={40 } /> </Link>,
+                    <Link href={"https://molstar.org/"              }> <Image src={"/logo_molstar.png" } alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link href={"https://neo4j.com/"                }> <Image src={"/logo_neo4j.png"   } alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link href={"https://www.cgl.ucsf.edu/chimerax/"}> <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40 } height={40 } /> </Link>,
 
                   ].map(i => {
-                    return <div className='border p-1 rounded-sm'>{i}</div>
+                    return <div className='border p-1 rounded-sm hover:border-blue-700 hover:shadow-lg '>{i}</div>
                   })
 
                 }
@@ -434,7 +438,7 @@ const citation = `@article{kushner2023riboxyz,
   publisher={Oxford University Press}
 }`
 function Citation() {
-  return <div className=" p-1 rounded-sm  relative border border-gray-400 h-50">
+  return <div className=" p-1 rounded-sm  relative border  h-50 hover:border-blue-600 hover:shadow-lg">
     <div >
       <div className='grid grid-cols-7'>
 
@@ -445,7 +449,7 @@ function Citation() {
       </div>
       <ScrollArea className='h-20 shadow-inner border rounded-sm'>
         <pre>
-          <code className='text-xs font-extralight p-2 text-gray-600'>{citation}</code>
+          <code className='text-xs font-extralight p-2 '>{citation}</code>
         </pre>
       </ScrollArea>
     </div>
