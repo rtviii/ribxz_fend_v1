@@ -69,7 +69,7 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 
 
 
-export default function StructureSelection({ children}: { children?: React.ReactNode}) {
+export default function ChainPicker({ children}: { children?: React.ReactNode}) {
 
     const dispatch           = useAppDispatch();
     const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!

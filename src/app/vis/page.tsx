@@ -3,15 +3,17 @@ import { CardHeader, CardContent, CardFooter, Card } from "@/components/ui/card"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { useEffect, useRef, useState } from "react";
 import { useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
-import { useAppDispatch } from "@/store/store"
-import { useParams } from 'next/navigation'
-import StructureSelection from "@/components/ribxz/chainPicker"
-import { Filters } from "@/components/ribxz/filters"
-import { Button } from "@/components/ui/button";
-import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
-import { MolstarNode } from "@/components/mstar/lib";
-import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
-import { MolstarContext } from "@/components/ribxz/molstar_context";
+import { useAppDispatch     } from "@/store/store"
+import { useParams          } from 'next/navigation'
+import   ChainPicker   from "@/components/ribxz/chainPicker"
+import { Filters            } from "@/components/ribxz/filters"
+import { Button             } from "@/components/ui/button"                  ;
+import { SidebarMenu        } from "@/components/ribxz/sidebar_menu"         ;
+import { MolstarNode        } from "@/components/mstar/lib"                  ;
+import { MolstarRibxz       } from "@/components/mstar/molstar_wrapper_class";
+import { MolstarContext     } from "@/components/ribxz/molstar_context"      ;
+import { Structure } from "molstar/lib/mol-model/structure";
+import StructureSelection from "@/components/ribxz/structure_selection";
 
 export default function Vis() {
 
@@ -40,6 +42,7 @@ export default function Vis() {
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
+                            <StructureSelection/>
                             <p> - select structure widget (search bar + icon)</p> (make it a simple search from filters, except finally create and hovercard for each structure row)
                             <p> - chain selector </p>
                             <p> - landmarks for that structure </p>
@@ -48,10 +51,10 @@ export default function Vis() {
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
                                 {/* <Filters /> */}
                             <MolstarContext.Provider value={ctx}>
-                                <StructureSelection>
+                                <ChainPicker>
                                     <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     </Button>
-                                </StructureSelection>
+                                </ChainPicker>
                             </MolstarContext.Provider>
                         </CardContent>
                         <CardFooter className="flex justify-between">
