@@ -68,6 +68,7 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 }
 
 
+
 export default function StructureSelection({ children}: { children?: React.ReactNode}) {
 
     const dispatch           = useAppDispatch();
@@ -85,10 +86,7 @@ export default function StructureSelection({ children}: { children?: React.React
                     <div className="flex items-center gap-2">
                         <Input placeholder="Search" value={filters.search!} onChange={(e) => { dispatch(set_filter({ filter_type: "search", value: e.target.value })) }} />
                     </div>
-                    {
-                        current_structures
-                            .map(S => <StructureComponentsSelection structure={S} key={S.rcsb_id} />)
-                    }
+                    { current_structures .map(S => <StructureComponentsSelection structure={S} key={S.rcsb_id} />) }
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>

@@ -70,8 +70,6 @@ export function Filters(props: FiltersProps) {
   const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
- 
-
 
   const [polymerClassOptions, setPolymerClassOptions]                              = useState<any>([]);
 
