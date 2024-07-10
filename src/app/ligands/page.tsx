@@ -213,7 +213,7 @@ export default function Ligands() {
         for (let residue of residues) {
             chain_ids.push(residue.auth_asym_id)
         }
-        var nom_map:any = {}
+        var nom_map: any = {}
         for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
             // console.log("polymer", polymer);
             if (chain_ids.includes(polymer.auth_asym_id)) {
@@ -274,6 +274,7 @@ export default function Ligands() {
                                 }}
                             />
                             <div className="rounded-md shadow-sm " >
+
                                 <Button
 
                                     onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
@@ -392,15 +393,15 @@ export default function Ligands() {
                                     <AccordionItem value="item-1">
                                         <AccordionTrigger className="text-xs rounded-sm flex flex-roww justify-between  hover:cursor-pointer hover:bg-muted border p-1">
 
-                                                <span className="text-xs text-gray-800">Drugbank Info</span>
-                                                <div>
-                                                    {lig_state.current_ligand?.ligand.drugbank_id ?
-                                                        <Link className="" href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
-                                                            <p className="text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p>
-                                                        </Link> :
-                                                        null
-                                                        }
-                                                </div>
+                                            <span className="text-xs text-gray-800">Drugbank Info</span>
+                                            <div>
+                                                {lig_state.current_ligand?.ligand.drugbank_id ?
+                                                    <Link className="" href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
+                                                        <p className="text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p>
+                                                    </Link> :
+                                                    null
+                                                }
+                                            </div>
 
 
 

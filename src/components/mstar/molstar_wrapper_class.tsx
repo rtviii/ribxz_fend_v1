@@ -32,6 +32,7 @@ import { QuickStyles } from 'molstar/lib/mol-plugin-ui/structure/quick-styles';
 import { components } from 'react-select';
 import { Loci } from 'molstar/lib/mol-model/structure/structure/element/element';
 import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
+import { ArbitrarySphereRepresentationProvider } from './sphere_drawing';
 const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
@@ -59,13 +60,30 @@ export class MolstarRibxz {
   constructor() { }
 
   async init(parent: HTMLElement) {
+
     this.ctx = await createPluginUI({
       target: parent,
       spec: MySpec,
       render: renderReact18
     });
 
+  this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
+
   }
+
+
+  async addSpheres( structure_ref:string, spheres: Partial<{ x: number, y: number, z: number, radius: number, color: Color}>[]) {
+      spheres.map((s) => {
+          this.ctx.builders.structure.representation.addRepresentation(
+              structure_ref, {
+                  type: 'arbitrary-sphere' as any, // Coerce TypeScript into accepting the representation name
+                  typeParams: s,
+                  colorParams: s.color ? { value:  s.color } : void 0,
+              },
+          );
+      });
+  }
+
 
   toggleSpin() {
     if (!this.ctx.canvas3d) return this;
