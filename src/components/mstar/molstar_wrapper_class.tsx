@@ -246,6 +246,7 @@ export class MolstarRibxz {
   async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }) {
     const myUrl = `${DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
+
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
   }
@@ -263,20 +264,17 @@ export class MolstarRibxz {
       }
     }
     this.ctx.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
-    var expression = MS.struct.combinator.merge(groups);
+    var   expression = MS.struct.combinator.merge(groups);
+    const data       = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
 
-
-    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (data===undefined) return;
 
-    const sel = Script.getStructureSelection(expression, data);
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    const sel  = Script.getStructureSelection(expression, data);
+    let   loci = StructureSelection.toLociWithSourceUnits(sel);
 
     this.ctx.managers.structure.selection.clear();
     this.ctx.managers.structure.selection.fromLoci('add', loci);
     this.ctx.managers.camera.focusLoci(loci);
-
-
   }
 
   async toggle_visibility_by_ref(representation: any, on_off: boolean) {
@@ -293,8 +291,8 @@ export class MolstarRibxz {
 
     const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    
     const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+
     st?.structure.ref
     st?.model.ref
 

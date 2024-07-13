@@ -463,8 +463,8 @@ function Citation() {
 }
 function VisualizeRandom() {
 
-  const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
   const router = useRouter()
+  const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
   const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
 
 
