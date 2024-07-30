@@ -46,6 +46,7 @@ interface TaxaDropdownProps {
     count: number
     species: string[]
 }
+
 function LigandTaxonomyDropdown(props: { count: number, species: LigandAssociatedTaxa }) {
     return (
         <DropdownMenu>
@@ -99,27 +100,27 @@ function LigandStructuresDropdown(props: { count: number, structures: LigandAsso
 }
 
 interface LigandInfo {
-    chemicalId: string,
-    chemicalName: string,
-    formula_weight: number,
-    pdbx_description: string,
-    drugbank_id?: string,
+    chemicalId           : string,
+    chemicalName         : string,
+    formula_weight       : number,
+    pdbx_description     : string,
+    drugbank_id         ?: string,
     drugbank_description?: string,
 }
 
 interface LigandAssociatedStructure {
-    parent_structure: string,
-    src_organism_ids: number[],
+    parent_structure  : string,
+    src_organism_ids  : number[],
     src_organism_names: string[],
-    superkingdom: number
+    superkingdom      : number
 }
 
-type LigandAssociatedTaxa = Array<[string, number]>
-type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
-const LigandTableRow = (props: LigandRowProps) => {
+type  LigandAssociatedTaxa = Array<[string, number]>
+type  LigandRowProps       = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
+const LigandTableRow       = (props: LigandRowProps) => {
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow
-        className="hover:bg-slate-100  "
+        className=" hover:bg-slate-100 " 
     // onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
     // onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
     // onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} 
@@ -140,19 +141,19 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
         ),
 
         // `${lig.chemicalId} (${lig.chemicalName.length > 30 ?  capitalize_only_first_letter_w(lig.chemicalName).slice(0,30)+"..." : capitalize_only_first_letter_w(lig.chemicalName) })`,
-        selectable: false,                                                                                                         // Make the parent node not selectable
+        selectable       : false,                                                                                                                                               // Make the parent node not selectable
         search_aggregator: (lig.chemicalName + lig.chemicalId + structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '')).toLowerCase(),
-        children: structs.map((struct, index) => ({
+        children         : structs.map((struct, index) => ({
             search_aggregator: (lig.chemicalName + lig.chemicalId + struct.rcsb_id + struct.tax_node.scientific_name).toLowerCase(),
-            key: `${lig.chemicalId}_${struct.rcsb_id}`,
-            value: `${lig.chemicalId}_${struct.rcsb_id}`,
-            title: (
+            key              : `${lig.chemicalId}_${struct.rcsb_id}`,
+            value            : `${lig.chemicalId}_${struct.rcsb_id}`,
+            title            : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <span><span style={{ fontWeight: "bold" }}>{lig.chemicalId}</span> in <span style={{ fontWeight: "bold" }}>{struct.rcsb_id}</span></span>
                     <span style={{ fontStyle: 'italic' }}>{struct.tax_node.scientific_name}</span>
                 </div>
             ),
-            selectable: true                                                       // Make the child nodes selectable
+            selectable: true // Make the child nodes selectable
         }))
     }));
 }
@@ -175,7 +176,7 @@ export default function Ligands() {
     }, [])
 
 
-    const lig_state = useAppSelector(state => state.ui.ligands_page)
+    const lig_state      = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
     const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
@@ -417,7 +418,7 @@ export default function Ligands() {
                                     </AccordionItem>
                                 </Accordion>
 
-                                <Accordion type="single" collapsible defaultValue="item-1" disabled={true}>
+                                <Accordion type="single" collapsible defaultValue="item-1" >
                                     <AccordionItem value="item-1">
                                         <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
 

@@ -1,25 +1,48 @@
 "use client"
-import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
+import { CardHeader, CardContent, CardFooter, Card } from "@/components/ui/card"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { createContext, createRef, useEffect, useRef, useState } from "react";
-import { ChainsByStruct, Polymer, PolymerByStruct, RibosomeStructure, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
+import { useEffect, useRef, useState } from "react";
+import { Polymer, RibosomeStructure, ribxz_api, useRoutersRouterStructOverviewQuery, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import StructureSelection from "@/components/ribxz/chain_picker"
+import ChainPicker from "@/components/ribxz/chainPicker"
 import { Filters } from "@/components/ribxz/filters"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
-import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
-import { Label } from "@/components/ui/label";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
 import { MolstarContext } from "@/components/ribxz/molstar_context";
-import { superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state";
+import { Structure } from "molstar/lib/mol-model/structure";
+import { Select } from "antd";
+
+
+const ChainSelection = ({ polymers }: { polymers: Polymer[] }) => {
+
+    const [selectedItems, setSelectedItems] = useState<Polymer[]>([]);
+    const filteredOptions:Polymer[] = polymers.filter((o) => !selectedItems.includes(o));
+
+    return (
+        <Select
+            mode        = "multiple"
+            placeholder = "Inserted are removed"
+            value       = {selectedItems}
+            onChange    = {setSelectedItems}
+            style       = {{ width: '100%' }}
+            options     = {filteredOptions.map((item) => ({
+                value: item.auth_asym_id,
+                label: item.auth_asym_id,
+            }))}
+        />
+    );
+}
+
+function StructureSelection() {
+    // TODO: Reset filters when you get here.
+}
 
 export default function Vis() {
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+    const { rcsb_id: rcsb_id_param } = useParams<{ rcsb_id: string; }>()
     const dispatch = useAppDispatch();
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
@@ -32,8 +55,37 @@ export default function Vis() {
         })()
     }, [])
 
-    const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-    const [test_active, test_active_set] = useState<boolean>(false)
+
+    const [rcsb_id, set_rcsb_id] = useState<string | null>(null)
+    useEffect(() => {
+        set_rcsb_id(rcsb_id_param)
+    }, [rcsb_id_param])
+
+
+
+    const [refetch_profile, _]                              = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
+    const [test_active, test_active_set]                    = useState<boolean>(false)
+    const [profile_data, setProfileData] = useState<RibosomeStructure|null>(null)
+
+
+    useEffect(() => {
+        if ( rcsb_id == null ) {return }
+        (async () => {
+            const data = await refetch_profile({ rcsbId: rcsb_id }).unwrap()
+            setProfileData(data)
+        })();
+
+
+    }, [rcsb_id])
+
+
+
+
+
+    const current_structures = useAppSelector(state => state.ui.data.current_structures)
+    const { data: structs_overview, isLoading: structs_overview_Loading, isError: structs_overview_Error } = useRoutersRouterStructOverviewQuery()
+
+
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -43,17 +95,37 @@ export default function Vis() {
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
-                            <p> - select structure widget (search bar + icon)</p>
+                            <Select
+                                showSearch
+                                placeholder="Select a person"
+                                filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+                                onChange={(value) => {
+                                    set_rcsb_id(value);
+                                }}
+                                options={
+                                    structs_overview && structs_overview.map((d: any) => ({
+                                        value: d['rcsb_id'],
+                                        label: d['rcsb_id'],
+                                    }))}
+                            />
+
+                            <ChainSelection polymers={profile_data ? [...profile_data?.proteins, ...profile_data?.rnas] as Polymer[] : []} />
+                            {/* Chain selection tray -- choose multiple elemnts by polymer rows -- fetch the structure from model server */}
+                            {/* create separate components for each selected chain */}
+
+                            <p>TODO:</p>
                             <p> - chain selector </p>
-                            <p> - landmarks </p>
+                            <p> - landmarks for that structure </p>
+                            <p> - "visualize" button </p>
+
                         </CardHeader>
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
-                                <Filters />
+                            {/* <Filters /> */}
                             <MolstarContext.Provider value={ctx}>
-                                <StructureSelection>
+                                <ChainPicker>
                                     <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     </Button>
-                                </StructureSelection>
+                                </ChainPicker>
                             </MolstarContext.Provider>
                         </CardContent>
                         <CardFooter className="flex justify-between">
