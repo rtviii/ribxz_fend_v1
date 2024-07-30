@@ -100,27 +100,35 @@ function LigandStructuresDropdown(props: { count: number, structures: LigandAsso
 }
 
 interface LigandInfo {
-    chemicalId           : string,
-    chemicalName         : string,
-    formula_weight       : number,
-    pdbx_description     : string,
-    drugbank_id         ?: string,
+    chemicalId: string,
+    chemicalName: string,
+    formula_weight: number,
+    pdbx_description: string,
+    drugbank_id?: string,
     drugbank_description?: string,
 }
 
 interface LigandAssociatedStructure {
-    parent_structure  : string,
-    src_organism_ids  : number[],
+    parent_structure: string,
+    src_organism_ids: number[],
     src_organism_names: string[],
-    superkingdom      : number
+    superkingdom: number
 }
 
-type  LigandAssociatedTaxa = Array<[string, number]>
-type  LigandRowProps       = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
-const LigandTableRow       = (props: LigandRowProps) => {
+
+/** This returns the link to the chemical structure image that rcsb stores. */
+const chemical_structure_link = (ligand_id: string | undefined) => {
+    if (ligand_id === undefined) { return '' };
+    return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id.toUpperCase()[0]}/${ligand_id.toUpperCase()}.svg`
+}
+
+
+type LigandAssociatedTaxa = Array<[string, number]>
+type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
+const LigandTableRow = (props: LigandRowProps) => {
     const ctx = useAppSelector(state => state.molstar.ui_plugin)
     return <TableRow
-        className=" hover:bg-slate-100 " 
+        className=" hover:bg-slate-100 "
     // onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
     // onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
     // onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined} 
@@ -141,13 +149,13 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
         ),
 
         // `${lig.chemicalId} (${lig.chemicalName.length > 30 ?  capitalize_only_first_letter_w(lig.chemicalName).slice(0,30)+"..." : capitalize_only_first_letter_w(lig.chemicalName) })`,
-        selectable       : false,                                                                                                                                               // Make the parent node not selectable
+        selectable: false,                                                                                                                                               // Make the parent node not selectable
         search_aggregator: (lig.chemicalName + lig.chemicalId + structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '')).toLowerCase(),
-        children         : structs.map((struct, index) => ({
+        children: structs.map((struct, index) => ({
             search_aggregator: (lig.chemicalName + lig.chemicalId + struct.rcsb_id + struct.tax_node.scientific_name).toLowerCase(),
-            key              : `${lig.chemicalId}_${struct.rcsb_id}`,
-            value            : `${lig.chemicalId}_${struct.rcsb_id}`,
-            title            : (
+            key: `${lig.chemicalId}_${struct.rcsb_id}`,
+            value: `${lig.chemicalId}_${struct.rcsb_id}`,
+            title: (
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <span><span style={{ fontWeight: "bold" }}>{lig.chemicalId}</span> in <span style={{ fontWeight: "bold" }}>{struct.rcsb_id}</span></span>
                     <span style={{ fontStyle: 'italic' }}>{struct.tax_node.scientific_name}</span>
@@ -176,19 +184,15 @@ export default function Ligands() {
     }, [])
 
 
-    const lig_state      = useAppSelector(state => state.ui.ligands_page)
+    const lig_state = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
-    const [nomenclatureMap, setNomenclatureMap] = useState<{ [key: string]: string | undefined }>({})
+    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueList>([])
+    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap]           = useState<{ [key: string]: string | undefined }>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
-    const [structVisibility, setStructVisibility] = useState<boolean>(true)
+    const [structVisibility, setStructVisibility]         = useState<boolean>(true)
 
-    const chemical_structure_link = (ligand_id: string | undefined) => {
-        if (ligand_id === undefined) { return '' };
-        return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id.toUpperCase()[0]}/${ligand_id.toUpperCase()}.svg`
-    }
 
 
     useEffect(() => {
@@ -209,8 +213,8 @@ export default function Ligands() {
 
     useEffect(() => {
         if (parentStructProfile.rcsb_id === undefined) { return }
-        const residues = surroundingResidues
-        var chain_ids = []
+        const residues  = surroundingResidues
+        var   chain_ids = []
         for (let residue of residues) {
             chain_ids.push(residue.auth_asym_id)
         }
@@ -330,21 +334,23 @@ export default function Ligands() {
                                 {lig_state.current_ligand === null ? null :
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
-                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">{lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id} <span className="font-light">(Binding Pocket Details)</span></AccordionTrigger>
+
+                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
+                                                {lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}
+                                                <span className="font-light">(Binding Pocket Details)</span>
+                                            </AccordionTrigger>
+
                                             <AccordionContent>
                                                 <div className="space-y-1 text-xs border p-4">
-                                                    <div
-                                                        key={"template"}
-                                                        className="flex flex-row justify-between border   rounded-sm p-1  border-dashed">
+                                                    <div key={"template"} className="flex flex-row justify-between border   rounded-sm p-1  border-dashed">
                                                         <Badge variant="outline" className="border-dashed  text-gray-600" >
-                                                            <span className="text-gray-400 text-xs">ChainId</span>   :PolymerClass
+                                                            <span className="text-gray-400 text-xs">ChainId </span>   :PolymerClass
                                                         </Badge>
                                                         <span className="italic">ResidueType SequenceId</span>
                                                     </div>
                                                     {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return (
-
                                                                 <div
                                                                     onClick={() => { ctx?.select_residueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
                                                                     onMouseEnter={() => { ctx?.highlightResidueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
@@ -418,13 +424,19 @@ export default function Ligands() {
                                     </AccordionItem>
                                 </Accordion>
 
+
                                 <Accordion type="single" collapsible defaultValue="item-1" >
                                     <AccordionItem value="item-1">
                                         <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
-
                                             <span className=" text-xs text-gray-800">Ligand Prediction <span className="font-light">(Work In Progress)</span></span>
                                         </AccordionTrigger>
+
+
+
                                         <AccordionContent>
+                                            - choose a structure
+                                            - make sure the ligand is already initiated
+                                            - this has to go through the backend i think
                                         </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>
