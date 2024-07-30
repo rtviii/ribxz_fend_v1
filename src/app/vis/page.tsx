@@ -2,7 +2,7 @@
 import { CardHeader, CardContent, CardFooter, Card } from "@/components/ui/card"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { useEffect, useRef, useState } from "react";
-import { Polymer, ribxz_api, useRoutersRouterStructOverviewQuery, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
+import { Polymer, RibosomeStructure, ribxz_api, useRoutersRouterStructOverviewQuery, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 import ChainPicker from "@/components/ribxz/chainPicker"
@@ -18,30 +18,22 @@ import { Select } from "antd";
 
 const ChainSelection = ({ polymers }: { polymers: Polymer[] }) => {
 
-    console.log(polymers);
-
-    const OPTIONS = ['Apples', 'Nails', 'Bananas', 'Helicopters'];
-    const [selectedItems, setSelectedItems] = useState<string[]>([]);
-    const filteredOptions = OPTIONS.filter((o) => !selectedItems.includes(o));
-
-    useEffect(() => {
-        console.log(polymers);
-    }, [polymers])
+    const [selectedItems, setSelectedItems] = useState<Polymer[]>([]);
+    const filteredOptions:Polymer[] = polymers.filter((o) => !selectedItems.includes(o));
 
     return (
         <Select
-            mode="multiple"
-            placeholder="Inserted are removed"
-            value={selectedItems}
-            onChange={setSelectedItems}
-            style={{ width: '100%' }}
-            options={filteredOptions.map((item) => ({
-                value: item,
-                label: item,
+            mode        = "multiple"
+            placeholder = "Inserted are removed"
+            value       = {selectedItems}
+            onChange    = {setSelectedItems}
+            style       = {{ width: '100%' }}
+            options     = {filteredOptions.map((item) => ({
+                value: item.auth_asym_id,
+                label: item.auth_asym_id,
             }))}
         />
     );
-
 }
 
 function StructureSelection() {
@@ -55,7 +47,6 @@ export default function Vis() {
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
-
     useEffect(() => {
         (async () => {
             const x = new MolstarRibxz
@@ -70,9 +61,25 @@ export default function Vis() {
         set_rcsb_id(rcsb_id_param)
     }, [rcsb_id_param])
 
-    const { data, error, isLoading: isLoading_struct_data } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id_param })
-    const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
-    const [test_active, test_active_set] = useState<boolean>(false)
+
+
+    const [refetch_profile, _]                              = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
+    const [test_active, test_active_set]                    = useState<boolean>(false)
+    const [profile_data, setProfileData] = useState<RibosomeStructure|null>(null)
+
+
+    useEffect(() => {
+        if ( rcsb_id == null ) {return }
+        (async () => {
+            const data = await refetch_profile({ rcsbId: rcsb_id }).unwrap()
+            setProfileData(data)
+        })();
+
+
+    }, [rcsb_id])
+
+
+
 
 
     const current_structures = useAppSelector(state => state.ui.data.current_structures)
@@ -92,21 +99,25 @@ export default function Vis() {
                                 showSearch
                                 placeholder="Select a person"
                                 filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                                onChange={(value) => { set_rcsb_id(value['rcsb_id']); refetch_profile({ rcsbId: value['rcsb_id'] }) }}
-                                options={structs_overview && structs_overview.map((d: any) => ({
-                                    value: d['rcsb_id'],
-                                    label: d['rcsb_id'],
-                                }))}
+                                onChange={(value) => {
+                                    set_rcsb_id(value);
+                                }}
+                                options={
+                                    structs_overview && structs_overview.map((d: any) => ({
+                                        value: d['rcsb_id'],
+                                        label: d['rcsb_id'],
+                                    }))}
                             />
-                            <ChainSelection polymers={data ? [...data?.proteins, ...data?.rnas] as Polymer[] : []} />
+
+                            <ChainSelection polymers={profile_data ? [...profile_data?.proteins, ...profile_data?.rnas] as Polymer[] : []} />
                             {/* Chain selection tray -- choose multiple elemnts by polymer rows -- fetch the structure from model server */}
                             {/* create separate components for each selected chain */}
-
 
                             <p>TODO:</p>
                             <p> - chain selector </p>
                             <p> - landmarks for that structure </p>
                             <p> - "visualize" button </p>
+
                         </CardHeader>
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
                             {/* <Filters /> */}

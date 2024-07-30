@@ -197,12 +197,11 @@ const PolymersOverviewPanel = (props: { data: any }) => {
   )
 }
 
-
 const LigandsOverviewPanel = (props: { data: any }) => {
   const { data, isLoading, isError } = useRoutersRouterStructListLigandsQuery()
   const [lig_stat, setLigStat] = useState<{ bact: 0, euk: 0, arch: 0, drugbank: 0 }>()
   useEffect(() => {
-    const acc:any = data?.reduce((accumulator:any, current:any) => {
+    const acc: any = data?.reduce((accumulator: any, current: any) => {
       if (current[0]['drugbank_id'] != null) {
         accumulator.drugbank += 1
       }
@@ -231,7 +230,6 @@ const LigandsOverviewPanel = (props: { data: any }) => {
   )
 
 }
-
 
 const StructStatsTable = (props: { data: any }) => {
   const { data, isLoading, isError } = useRoutersRouterStructStructureCompositionStatsQuery()
@@ -311,7 +309,6 @@ const StructStatsTable = (props: { data: any }) => {
           </TableRow>
         </TableBody>
       </Table>
-
     </>
   )
 }
@@ -325,6 +322,7 @@ const ToolSection = () => {
 const citation1 = `Xu B, Liu L, Song G. Functions and Regulation of Translation Elongation Factors. Front Mol Biosci. 2022 Jan 19;8:816398. doi: 10.3389/fmolb.2021.816398. PMID: 35127825; PMCID: PMC8807479.`
 const citation2 = `Schmitt E, Coureux PD, Kazan R, Bourgeois G, Lazennec-Schurdevin C, Mechulam Y. Recent advances in archaeal translation initiation. Frontiers in Microbiology. 2020 Sep 18;11:584152.`
 const citaiton3 = `Ban N, Beckmann R, Cate JH, Dinman JD, Dragon F, Ellis SR, Lafontaine DL, Lindahl L, Liljas A, Lipton JM, McAlear MA. A new system for naming ribosomal proteins. Current opinion in structural biology. 2014 Feb 1;24:165-9.`
+
 export default function Home() {
 
   const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
@@ -361,10 +359,7 @@ export default function Home() {
         </div>
         <div className="flex flex-row items-start justify-end space-x-10 mt-10 w-3/6">
           <div className='w-3/6  relative  flex-col flex gap-2'>
-
-
             <p className='italic font-light text-lg'>Data</p>
-
             <StructuresOverviewPanel />
             <PolymersOverviewPanel data={{}} />
             <LigandsOverviewPanel data={{}} />
@@ -373,15 +368,10 @@ export default function Home() {
               {["Visualization (WIP)", "3D Superposition (WIP)", "Ligands & Small Molecules", "Landmarks(WIP)"].map((tool, i) => {
                 return <div className={`border rounded-sm col-span-9 flex justify-around align-middle text-center p-2 hover:cursor-pointer     ${tool === "Ligands & Small Molecules" ? "hover:shadow-lg hover:border-blue-600" : `hover:cursor-default  bg-gray-100 text-gray-300`}`}>
                   <Link href={"/ligands"}>
-                  <span className='align-middle text-center flex content-center justify-center items-center text-sm font-medium '>{tool}</span>
+                    <span className='align-middle text-center flex content-center justify-center items-center text-sm font-medium '>{tool}</span>
                   </Link>
                 </div>
-
               })}
-
-
-
-
             </div>
 
           </div>
@@ -458,9 +448,9 @@ function Citation() {
       onClick={() => { navigator.clipboard.writeText(citation) }} >
       Copy
     </Button>
-
   </div>
 }
+
 function VisualizeRandom() {
 
   const router = useRouter()
