@@ -12,7 +12,7 @@ import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureP
 import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
-import { MolstarRibxz, ResidueList } from "@/components/mstar/molstar_wrapper_class"
+import { MolstarRibxz, Residue, ResidueList } from "@/components/mstar/molstar_wrapper_class"
 import { MolstarNode } from "@/components/mstar/lib"
 import Image from 'next/image'
 import { MolstarContext } from "@/components/ribxz/molstar_context"
@@ -123,6 +123,9 @@ const chemical_structure_link = (ligand_id: string | undefined) => {
 }
 
 
+
+
+
 type LigandAssociatedTaxa = Array<[string, number]>
 type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
 const LigandTableRow = (props: LigandRowProps) => {
@@ -166,6 +169,63 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
     }));
 }
 
+
+// ----------------------------------------------------------------------------------------
+// Shapely Color Table for Amino Acids
+// name                 color              RGB Values          Hexadecimal
+const AminoAcidColorTable = {
+    "ASP": { "color_name": "bright red", "rgb": [230, 10, 10], "hex": "E60A0A" },
+    "GLU": { "color_name": "bright red", "rgb": [230, 10, 10], "hex": "E60A0A" },
+    "MET": { "color_name": "yellow", "rgb": [230, 230, 0], "hex": "E6E600" },
+    "CYS": { "color_name": "yellow", "rgb": [230, 230, 0], "hex": "E6E600" },
+    "LYS": { "color_name": "blue", "rgb": [20, 90, 255], "hex": "145AFF" },
+    "ARG": { "color_name": "blue", "rgb": [20, 90, 255], "hex": "145AFF" },
+    "SER": { "color_name": "orange", "rgb": [250, 150, 0], "hex": "FA9600" },
+    "THR": { "color_name": "orange", "rgb": [250, 150, 0], "hex": "FA9600" },
+    "TYR": { "color_name": "mid blue", "rgb": [50, 50, 170], "hex": "3232AA" },
+    "PHE": { "color_name": "mid blue", "rgb": [50, 50, 170], "hex": "3232AA" },
+    "ASN": { "color_name": "cyan", "rgb": [0, 220, 220], "hex": "00DCDC" },
+    "GLN": { "color_name": "cyan", "rgb": [0, 220, 220], "hex": "00DCDC" },
+    "GLY": { "color_name": "light grey", "rgb": [235, 235, 235], "hex": "EBEBEB" },
+    "ILE": { "color_name": "green", "rgb": [15, 130, 15], "hex": "0F820F" },
+    "VAL": { "color_name": "green", "rgb": [15, 130, 15], "hex": "0F820F" },
+    "LEU": { "color_name": "green", "rgb": [15, 130, 15], "hex": "0F820F" },
+    "ALA": { "color_name": "dark grey", "rgb": [200, 200, 200], "hex": "C8C8C8" },
+    "TRP": { "color_name": "pink", "rgb": [180, 90, 180], "hex": "B45AB4" },
+    "HIS": { "color_name": "pale blue", "rgb": [130, 130, 210], "hex": "8282D2" },
+    "PRO": { "color_name": "flesh", "rgb": [220, 150, 130], "hex": "DC9682" },
+}
+
+// Shapely Color Table for Nucleosides in DNA & RNA Nucleoside 	Color Name 	RGB Values 	Hexadecimal
+const NucleotidesColorTable = {
+    "A": { "color_name": "light blue", "rgb": [160, 160, 255], "hex": "A0A0FF" },
+    "C": { "color_name": "orange", "rgb": [255, 140, 75], "hex": "FF8C4B" },
+    "G": { "color_name": "light red", "rgb": [255, 112, 112], "hex": "FF7070" },
+    "T": { "color_name": "light green", "rgb": [160, 255, 160], "hex": "A0FFA0" },
+    "U": { "color_name": "dark grey", "rgb": [184, 184, 184], "hex": "B8B8B8" },
+}
+
+
+
+
+
+export const ResidueBadge = ({ residue, molstar_ctx, key }: { residue: Residue, molstar_ctx: MolstarRibxz | null, key?: string | number }) => {
+
+    return <div
+
+        onClick={() => { molstar_ctx?.select_residueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
+        onMouseEnter={() => { molstar_ctx?.highlightResidueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
+        onMouseLeave={() => { molstar_ctx?.removeHighlight() }}
+        key={key}
+        className="flex flex-row justify-between  hover:cursor-pointer hover:bg-muted rounded-sm p-1">
+        <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer text-blue-600" >
+            <span className="text-black text-xs">{residue.auth_asym_id}</span>:{residue.polymer_class}
+        </Badge>
+        <span>{residue.label_comp_id} {residue.label_seq_id}</span>
+    </div>
+
+}
+
 export default function Ligands() {
     const dispatch = useAppDispatch();
 
@@ -187,11 +247,11 @@ export default function Ligands() {
     const lig_state = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueList>([])
-    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure)
-    const [nomenclatureMap, setNomenclatureMap]           = useState<{ [key: string]: string | undefined }>({})
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
+    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap] = useState<{ [key: string]: string | undefined }>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
-    const [structVisibility, setStructVisibility]         = useState<boolean>(true)
+    const [structVisibility, setStructVisibility] = useState<boolean>(true)
 
 
 
@@ -213,8 +273,8 @@ export default function Ligands() {
 
     useEffect(() => {
         if (parentStructProfile.rcsb_id === undefined) { return }
-        const residues  = surroundingResidues
-        var   chain_ids = []
+        const residues = surroundingResidues
+        var chain_ids = []
         for (let residue of residues) {
             chain_ids.push(residue.auth_asym_id)
         }
@@ -332,41 +392,29 @@ export default function Ligands() {
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
 
                                 {lig_state.current_ligand === null ? null :
-                                    <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
+                                    <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null} className="border p-1">
                                         <AccordionItem value="item">
 
-                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
+                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  p-1 ">
                                                 {lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}
                                                 <span className="font-light">(Binding Pocket Details)</span>
                                             </AccordionTrigger>
 
                                             <AccordionContent>
-                                                <div className="space-y-1 text-xs border p-4">
-                                                    <div key={"template"} className="flex flex-row justify-between border   rounded-sm p-1  border-dashed">
-                                                        <Badge variant="outline" className="border-dashed  text-gray-600" >
-                                                            <span className="text-gray-400 text-xs">ChainId </span>   :PolymerClass
-                                                        </Badge>
-                                                        <span className="italic">ResidueType SequenceId</span>
-                                                    </div>
-                                                    {surroundingResidues.length === 0 ? null :
-                                                        surroundingResidues.map((residue, i) => {
-                                                            return (
-                                                                <div
-                                                                    onClick={() => { ctx?.select_residueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
-                                                                    onMouseEnter={() => { ctx?.highlightResidueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
-                                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                                    key={i}
-                                                                    className="flex flex-row justify-between  hover:cursor-pointer hover:bg-muted rounded-sm p-1">
-                                                                    <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer text-blue-600" >
-                                                                        <span className="text-black text-xs">{residue.auth_asym_id}</span>   :{nomenclatureMap[residue.auth_asym_id]}
-                                                                    </Badge>
-                                                                    <span>{residue.label_comp_id} {residue.label_seq_id}</span>
-                                                                </div>
-                                                            )
-                                                        })
 
-                                                    }
+                                                <div key={"template"} className="flex flex-row justify-between border   rounded-sm p-1  border-dashed">
+                                                    <Badge variant="outline" className="border-dashed  text-gray-600" >
+                                                        <span className="text-gray-400 text-xs">ChainId </span>:PolymerClass
+                                                    </Badge>
+                                                    <span className="italic">ResidueType Sequence Id</span>
                                                 </div>
+
+                                                {surroundingResidues.length === 0 ? null :
+                                                    surroundingResidues.map((residue, i) => {
+                                                        return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class:nomenclatureMap[residue.auth_asym_id] }} key={i} />
+                                                    })
+
+                                                }
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>

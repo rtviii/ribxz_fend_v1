@@ -44,14 +44,15 @@ declare global {
   }
 }
 
-
-export type ResidueList = {
-  label_seq_id: number,
+export type Residue = {
+  label_seq_id : number,
   label_comp_id: string,
-  auth_asym_id: string,
-  rcsb_id: string,
+  auth_asym_id : string,
+  rcsb_id      : string,
+  polymer_class?: string,
+}
 
-}[]
+export type ResidueList = Residue[]
 //! - mapstate and mapdispatch listens to redux state
 export class MolstarRibxz {
 
