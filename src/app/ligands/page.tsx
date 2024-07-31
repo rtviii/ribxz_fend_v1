@@ -336,35 +336,35 @@ export default function Ligands() {
             })
     }, [current_ligand])
 
-    const [checked, setChecked]               = useState(false)
+    const [checked, setChecked] = useState(false)
 
 
-  const [showLowerPanel, setShowLowerPanel] = useState(false)
-  const lowerPanelRef = React.useRef<ImperativePanelHandle>(null)
-  const upperPanelRef = React.useRef<ImperativePanelHandle>(null)
-  useEffect(() => {
-    // Collapse the lower panel on initial render
-    if (lowerPanelRef.current) {
-      lowerPanelRef.current.collapse()
+    const [showLowerPanel, setShowLowerPanel] = useState(false)
+    const lowerPanelRef = React.useRef<ImperativePanelHandle>(null)
+    const upperPanelRef = React.useRef<ImperativePanelHandle>(null)
+    useEffect(() => {
+        // Collapse the lower panel on initial render
+        if (lowerPanelRef.current) {
+            lowerPanelRef.current.collapse()
+        }
+        // Expand the upper panel to 100% on initial render
+        if (upperPanelRef.current) {
+            upperPanelRef.current.resize(100)
+        }
+    }, [])
+    const toggleLowerPanel = () => {
+        setShowLowerPanel(prev => !prev)
+        if (lowerPanelRef.current && upperPanelRef.current) {
+            if (showLowerPanel) {
+                lowerPanelRef.current.collapse()
+                upperPanelRef.current.resize(100)
+            } else {
+                lowerPanelRef.current.expand()
+                upperPanelRef.current.resize(50)
+                lowerPanelRef.current.resize(50)
+            }
+        }
     }
-    // Expand the upper panel to 100% on initial render
-    if (upperPanelRef.current) {
-      upperPanelRef.current.resize(100)
-    }
-  }, [])
-  const toggleLowerPanel = () => {
-    setShowLowerPanel(prev => !prev)
-    if (lowerPanelRef.current && upperPanelRef.current) {
-      if (showLowerPanel) {
-        lowerPanelRef.current.collapse()
-        upperPanelRef.current.resize(100)
-      } else {
-        lowerPanelRef.current.expand()
-        upperPanelRef.current.resize(50)
-        lowerPanelRef.current.resize(50)
-      }
-    }
-  }
 
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -582,31 +582,17 @@ export default function Ligands() {
 
                 <ResizablePanelGroup direction="vertical" >
 
-                    <ResizablePanel
-                        defaultSize={50}
-                        minSize={20}
+                    <ResizablePanel defaultSize={50} minSize={20} ref={upperPanelRef} >
 
-              ref={upperPanelRef}
-                    >
-
-                        <div className="h-full bg-background p-4 bg-red-400">
+                        <div className="h-full bg-background p-2 ">
                             <MolstarNode ref={molstarNodeRef} />
                         </div>
 
                     </ResizablePanel>
                     <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
+                    <ResizablePanel ref={lowerPanelRef} defaultSize={50} minSize={0} collapsible onCollapse={() => setShowLowerPanel(false)} onExpand={() => setShowLowerPanel(true)} >
 
-
-                    <ResizablePanel
-                        ref={lowerPanelRef}
-                        defaultSize={50}
-                        minSize={0}
-                        collapsible
-                        onCollapse={() => setShowLowerPanel(false)}
-                        onExpand={() => setShowLowerPanel(true)}
-
-                    >
-                        <div className="h-full bg-muted p-4 bg-slate-200">
+                        <div className="h-full bg-muted p-2">
                             <MolstarNode_secondary ref={molstarNodeRef_secondary} />
                         </div>
                     </ResizablePanel>
