@@ -25,6 +25,11 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import React from 'react';
+
+interface DownloadDropdownProps {
+  data: any[][];
+}
 
 
 import {
@@ -41,7 +46,8 @@ import { useRouter } from "next/navigation"
 import { TreeSelect } from "antd"
 import { LigandInstances, set_current_ligand } from "@/store/slices/ui_state"
 import { capitalize_only_first_letter_w } from "@/my_utils"
-import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff } from "@/components/ribxz/visibility_icon"
+import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
+import { ResidueBadge } from "@/components/ribxz/residue_badge"
 
 
 interface TaxaDropdownProps {
@@ -172,103 +178,49 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 }
 
 
-// ----------------------------------------------------------------------------------------
-// Shapely Color Table for Amino Acids
-// name                 color              RGB Values          Hexadecimal
-const AminoAcidColorTable: Record<string, { "color_name": string, "rgb": number[], "hex": string }> = {
+const DownloadDropdown= ({ residues,disabled }:{residues:Residue[], disabled:boolean}) => {
+  const handleDownloadCSV = () => {
 
-    "ASP": { "color_name": "bright red", "rgb": [230, 10, 10], "hex": "#e60a0a" },
-    "GLU": { "color_name": "bright red", "rgb": [230, 10, 10], "hex": "#e60a0a" },
-    "MET": { "color_name": "yellow", "rgb": [230, 230, 0], "hex": "#e6e600" },
-    "CYS": { "color_name": "yellow", "rgb": [230, 230, 0], "hex": "#e6e600" },
-    "LYS": { "color_name": "blue", "rgb": [20, 90, 255], "hex": "#145aff" },
-    "ARG": { "color_name": "blue", "rgb": [20, 90, 255], "hex": "#145aff" },
-    "SER": { "color_name": "orange", "rgb": [250, 150, 0], "hex": "#fa9600" },
-    "THR": { "color_name": "orange", "rgb": [250, 150, 0], "hex": "#fa9600" },
-    "TYR": { "color_name": "mid blue", "rgb": [50, 50, 170], "hex": "#3232aa" },
-    "PHE": { "color_name": "mid blue", "rgb": [50, 50, 170], "hex": "#3232aa" },
-    "ASN": { "color_name": "cyan", "rgb": [0, 220, 220], "hex": "#00dcdc" },
-    "GLN": { "color_name": "cyan", "rgb": [0, 220, 220], "hex": "#00dcdc" },
-    "GLY": { "color_name": "light grey", "rgb": [235, 235, 235], "hex": "#ebebeb" },
-    "ILE": { "color_name": "green", "rgb": [15, 130, 15], "hex": "#0f820f" },
-    "VAL": { "color_name": "green", "rgb": [15, 130, 15], "hex": "#0f820f" },
-    "LEU": { "color_name": "green", "rgb": [15, 130, 15], "hex": "#0f820f" },
-    "ALA": { "color_name": "dark grey", "rgb": [200, 200, 200], "hex": "#c8c8c8" },
-    "TRP": { "color_name": "pink", "rgb": [180, 90, 180], "hex": "#b45ab4" },
-    "HIS": { "color_name": "pale blue", "rgb": [130, 130, 210], "hex": "#8282d2" },
-    "PRO": { "color_name": "flesh", "rgb": [220, 150, 130], "hex": "#dc9682" },
-
-}
-
-// Shapely Color Table for Nucleosides in DNA & RNA Nucleoside 	Color Name 	RGB Values 	Hexadecimal
-const NucleotidesColorTable: Record<string, { "color_name": string, "rgb": number[], "hex": string }> = {
-
-
-    "A": { "color_name": "light blue", "rgb": [160, 160, 255], "hex": "#a0a0ff" },
-    "C": { "color_name": "orange", "rgb": [255, 140, 75], "hex": "#ff8c4b" },
-    "G": { "color_name": "light red", "rgb": [255, 112, 112], "hex": "#ff7070" },
-    "T": { "color_name": "light green", "rgb": [160, 255, 160], "hex": "#a0ffa0" },
-    "U": { "color_name": "dark grey", "rgb": [184, 184, 184], "hex": "#b8b8b8" },
-}
-
-
-
-
-
-export const ResidueBadge = ({ residue, molstar_ctx, key, show_parent_chain }:
-    { residue: Residue, molstar_ctx: MolstarRibxz | null, key?: string | number, show_parent_chain?: boolean }) => {
-    const residue_color_border = () => {
-        console.log(Object.keys(NucleotidesColorTable))
-        console.log(residue.label_comp_id);
-
-
-
-        if (Object.keys(NucleotidesColorTable).includes(residue.label_comp_id)) {
-            return [ NucleotidesColorTable[residue.label_comp_id].hex, 'border' ]
-        }
-        else if (Object.keys(AminoAcidColorTable).includes(residue.label_comp_id)) {
-            return [ AminoAcidColorTable[residue.label_comp_id].hex, 'border-dashed' ]
-        }
-        else {
-            return [ "#0c0a09", 'border' ]
-        }
-
+    var   data       = residues.map((residue) => { return [ residue.label_seq_id, residue.label_comp_id,residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
+    const csvContent = data.map(row => row.join(',')).join('\n');
+    
+    // Create a Blob with the CSV content
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Create a download link
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'data.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-    var [color, border] = residue_color_border()
+  };
 
-    return <div
-        onClick={() => { molstar_ctx?.select_residueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
-        onMouseEnter={() => { molstar_ctx?.highlightResidueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
-        onMouseLeave={() => { molstar_ctx?.removeHighlight() }}
-        key={key}
+  return (
+    <DropdownMenu >
+      <DropdownMenuTrigger asChild >
+        <Button variant="outline" size="sm" disabled={disabled}>
+          <DownloadIcon className="mr-2 h-4 w-4" />
+          Download
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={handleDownloadCSV}>
+          CSV
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
-        className="flex flex-col  w-fit hover:cursor-pointer hover:bg-muted rounded-sm p-1">
-
-        <Badge variant="outline" className={`hover:bg-muted hover:cursor-pointer  ${border}  border-2`}  >
-
-            <div className="flex flex-row justify-between w-fit ">
-
-                <span className="text-xs font-bold w-fit px-1 text-center" style={{ color: color }}>{residue.label_comp_id}</span>
-                <span className="text-xs font-light w-fit px-1 text-center text-black">{residue.label_seq_id}</span>
-            </div>
-            {
-                show_parent_chain ? <div className="flex flex-row justify-between w-fit border-l-2 ">
-                    <span className="text-xs w-fit font-medium px-1 text-black">{residue.polymer_class}</span>
-                    <span className="text-xs w-fit font-light px-1 text-black">{residue.auth_asym_id}</span>
-                </div> : null
-            }
-
-        </Badge>
-    </div>
-
-}
 
 export default function Ligands() {
     const dispatch = useAppDispatch();
 
     const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
-
-
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
@@ -281,16 +233,14 @@ export default function Ligands() {
     }, [])
 
 
-    const lig_state = useAppSelector(state => state.ui.ligands_page)
-    const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
+    const lig_state                                       = useAppSelector(state => state.ui.ligands_page)
+    const current_ligand                                  = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
-    const [nomenclatureMap, setNomenclatureMap] = useState<{ [key: string]: string | undefined }>({})
+    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueList>([])
+    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap]           = useState<{ [key: string]: string | undefined }>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
-    const [structVisibility, setStructVisibility] = useState<boolean>(true)
-
-
+    const [structVisibility, setStructVisibility]         = useState<boolean>(true)
 
     useEffect(() => {
         if (current_ligand?.parent_structure.rcsb_id === undefined) { return }
@@ -353,18 +303,19 @@ export default function Ligands() {
                 <MolstarContext.Provider value={ctx}>
                     <div className="border-r">
                         <div className="p-4 space-y-1">
+
                             <TreeSelect
-                                status={current_ligand === null ? "warning" : undefined}
-                                showSearch={true}
-                                treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
-                                placeholder="Select ligand-structure pair..."
-                                variant="outlined"
-                                treeData={lig_data_to_tree(lig_state.data)}
-                                className="w-full"
-                                treeExpandAction="click"
-                                showCheckedStrategy="SHOW_CHILD"
-                                filterTreeNode={(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
-                                onChange={(value: string, _) => {
+                                status              = {current_ligand === null ? "warning" : undefined}
+                                showSearch          = {true}
+                                treeNodeFilterProp  = 'search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
+                                placeholder         = "Select ligand-structure pair..."
+                                variant             = "outlined"
+                                treeData            = {lig_data_to_tree(lig_state.data)}
+                                className           = "w-full"
+                                treeExpandAction    = "click"
+                                showCheckedStrategy = "SHOW_CHILD"
+                                filterTreeNode      = {(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
+                                onChange            = {(value: string, _) => {
                                     var [chemId, rcsb_id_selected] = value.split("_")
                                     const lig_and_its_structs = lig_state.data.filter((kvp) => {
                                         var [lig, structs] = kvp; return lig.chemicalId == chemId;
@@ -376,34 +327,30 @@ export default function Ligands() {
                                     }))
                                 }}
                             />
+
                             <div className="rounded-md shadow-sm " >
-
                                 <Button
-
                                     onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                     onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
-
                                     variant={"default"}
                                     disabled={current_ligand === null}
                                     className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
-
                                     Ligand
                                 </Button>
 
-
                                 <Button
-
-                                    variant={"default"}
-                                    onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                    onMouseLeave={() => { ctx?.removeHighlight() }}
-                                    onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
-                                    disabled={current_ligand === null}
-                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
+                                    variant      = {"default"}
+                                    onMouseEnter = {() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                    onMouseLeave = {() => { ctx?.removeHighlight() }}
+                                    onClick      = {() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                    disabled     = {current_ligand === null}
+                                    className    = "px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
                                     Binding Site (5 Å)
                                 </Button>
 
                             </div>
+
                             <Button
                                 variant={"default"}
                                 className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 "
@@ -426,37 +373,25 @@ export default function Ligands() {
                                     </div>
                                 </div>
                             </Button>
-
                             <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
-
                                 {lig_state.current_ligand === null ? null :
                                     <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null} className="border p-1">
                                         <AccordionItem value="item">
-
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  p-1 ">
                                                 {lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}
                                                 <span className="font-light">(Binding Pocket Details)</span>
                                             </AccordionTrigger>
                                             <AccordionContent>
-
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-                                                    <Checkbox
-                                                        id="show-polymer-class"
-                                                        checked={checked}
-                                                        onCheckedChange={() => setChecked(!checked)}
-
-                                                    />
+                                                    <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
                                                     <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
+                                                    <DownloadDropdown residues={surroundingResidues} disabled={!(surroundingResidues.length > 0)}/>
                                                 </div>
-
-
                                                 <div className="flex flex-wrap ">
                                                     {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
                                                         })
-
-
                                                     }
                                                 </div>
                                             </AccordionContent>
@@ -464,7 +399,6 @@ export default function Ligands() {
 
                                     </Accordion>
                                 }
-
                                 <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                     <AccordionItem value="item">
                                         <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
@@ -478,11 +412,7 @@ export default function Ligands() {
                                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                                     onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                                 />
-
-                                            </AccordionContent>
-
-                                            :
-                                            null
+                                            </AccordionContent>:null
                                         }
                                     </AccordionItem>
                                 </Accordion>
