@@ -128,9 +128,8 @@ export const MySpec: PluginUISpec = {
     initial: {
       controlsDisplay: 'portrait',
       showControls: false, 
+      isExpanded: false,
     },
-
-
   },
 
   components: {
@@ -171,25 +170,21 @@ export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: str
   await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default' );
 }
 
-export async function createPlugin({parent_element, initiate_with_structure}:{ parent_element: HTMLElement, initiate_with_structure?: string }):Promise<PluginUIContext> {
-    const ctx = await createPluginUI({ 
-        target: parent_element, 
-        spec  : MySpec, 
-        render: renderReact18 });
-    window.molstar = ctx;
-    if ( initiate_with_structure !== undefined){
-      const data       = await ctx.builders.data.download({ url: `https://files.rcsb.org/download/${initiate_with_structure}.cif` }, { state: { isGhost: true } });
-      const trajectory = await ctx.builders.structure.parseTrajectory(data, "mmcif");
-      await ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
-    }
-    return ctx;
-}
+// export async function createPlugin({parent_element, initiate_with_structure}:{ parent_element: HTMLElement, initiate_with_structure?: string }):Promise<PluginUIContext> {
+//     const ctx = await createPluginUI({ 
+//         target: parent_element, 
+//         spec  : MySpec, 
+//         render: renderReact18 });
 
-// export async function on_hover_chain(parent: HTMLElement):Promise<PluginUIContext> {
-//     const plugin = await createPluginUI({ target: parent, spec  : MySpec, render: renderReact18 });
-//     window.molstar = plugin;
-//     return plugin;
+//     window.molstar = ctx;
+//     if ( initiate_with_structure !== undefined){
+//       const data       = await ctx.builders.data.download({ url: `https://files.rcsb.org/download/${initiate_with_structure}.cif` }, { state: { isGhost: true } });
+//       const trajectory = await ctx.builders.structure.parseTrajectory(data, "mmcif");
+//       await ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+//     }
+//     return ctx;
 // }
+
 
 export type QueryParam = {
 
@@ -321,4 +316,5 @@ export namespace QueryHelper {
 }
 export type LoadParams = { url: string, format?: BuiltInTrajectoryFormat, assemblyId?: string, isHetView?: boolean, isBinary?: boolean }
 
-export const MolstarNode = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' className="min-h-screen" /> })
+export const MolstarNode           = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' className="w-400 h-400" /> })
+export const MolstarNode_secondary = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper-secondary' className="w-200 h-200" /> })

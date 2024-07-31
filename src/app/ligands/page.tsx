@@ -15,7 +15,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { MolstarRibxz, Residue, ResidueList } from "@/components/mstar/molstar_wrapper_class"
-import { MolstarNode } from "@/components/mstar/lib"
+import { MolstarNode, MolstarNode_secondary } from "@/components/mstar/lib"
 import Image from 'next/image'
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
@@ -176,7 +176,7 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 }
 
 
-const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[], disabled: boolean, filename:string }) => {
+const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[], disabled: boolean, filename: string }) => {
     const handleDownloadCSV = () => {
 
         var data = residues.map((residue) => { return [residue.label_seq_id, residue.label_comp_id, residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
@@ -222,12 +222,24 @@ export default function Ligands() {
     const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
+
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
+    const [ctx_secondary, setCtx_secondary] = useState<MolstarRibxz | null>(null)
+
     useEffect(() => {
         (async () => {
-            const x = new MolstarRibxz
+            const x = new MolstarRibxz();
             await x.init(molstarNodeRef.current!)
             setCtx(x)
+        })()
+    }, [])
+
+    useEffect(() => {
+        (async () => {
+            const y = new MolstarRibxz()
+            await y.init(molstarNodeRef_secondary.current!)
+            setCtx_secondary(y)
         })()
     }, [])
 
@@ -286,10 +298,21 @@ export default function Ligands() {
 
 
     useEffect(() => {
+        if (current_ligand === undefined) { return }
+
+        ctx_secondary?.
+            download_struct(current_ligand?.parent_structure.rcsb_id!, true)
+            .then(({ ctx: molstar, struct_representation }) => {
+                setStructRepresentation(struct_representation)
+                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId)
+            })
+            // .then((ctx) => ctx.toggleSpin())
+            .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
+            .then(residues => { setSurroundingResidues(residues) })
+    }, [current_ligand])
 
 
-    }, [])
-
+    // -------------------------------------
     useEffect(() => {
         if (current_ligand === undefined) { return }
         ctx?.download_struct(current_ligand?.parent_structure.rcsb_id!, true)
@@ -398,12 +421,12 @@ export default function Ligands() {
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
                                                     <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
-                                                    <DownloadDropdown 
-                                                    residues={surroundingResidues.map(r => ( { ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
-                                                     disabled={!(surroundingResidues.length > 0)} 
-                                                     filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
-                                                     
-                                                     />
+                                                    <DownloadDropdown
+                                                        residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
+                                                        disabled={!(surroundingResidues.length > 0)}
+                                                        filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
+
+                                                    />
                                                 </div>
                                                 <div className="flex flex-wrap ">
                                                     {surroundingResidues.length === 0 ? null :
@@ -497,14 +520,27 @@ export default function Ligands() {
 
             </ResizablePanel>
 
+
             <ResizableHandle />
 
-            <ResizablePanel defaultSize={75}>
-                <div className="flex flex-col gap-4">
-                    <MolstarNode ref={molstarNodeRef} />
-                </div>
+            <ResizablePanel defaultSize={30}>
+                <div ref={molstarNodeRef} id='molstar-wrapper' style={{ width: "400px", height: "400px" }} className=" border-2  p-4" />
+                <div ref={molstarNodeRef_secondary} id='molstar-wrapper-secondary' style={{ width: "400px", height: "400px" }} className=" border-2  p-4" />
+                {/* <MolstarNode_secondary ref={} />
+                    <MolstarNode ref={molstarNodeRef} /> */}
+                {/* <div className="flex flex-col gap-4">
+                </div> */}
             </ResizablePanel>
 
+
+
+
+{/* 
+
+            <ResizablePanel defaultSize={40}>
+                <div ref={molstarNodeRef_secondary} id='molstar-wrapper-secondary' style={{ width: "400px", height: "400px" }} className="w-400 h-400 border-2 p-4" />
+            </ResizablePanel>
+ */}
 
 
         </ResizablePanelGroup>

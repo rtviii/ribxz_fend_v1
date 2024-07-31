@@ -4,6 +4,12 @@
     position: relative;
 }
 
+#molstar-wrapper-secondary {
+    width   : 100%;
+    height  : 100%;
+    position: relative;
+}
+
 
 .msp-sequence-wrapper-non-empty{
     background: black;

@@ -40,7 +40,8 @@ _.memoize.Cache = WeakMap;
 
 declare global {
   interface Window {
-    molstar?: PluginUIContext;
+    // molstar?: PluginUIContext;
+    // molstar_secondary?: PluginUIContext;
   }
 }
 
@@ -53,7 +54,7 @@ export type Residue = {
 }
 
 export type ResidueList = Residue[]
-//! - mapstate and mapdispatch listens to redux state
+
 export class MolstarRibxz {
 
   //@ts-ignore
@@ -64,7 +65,7 @@ export class MolstarRibxz {
 
     this.ctx = await createPluginUI({
       target: parent,
-      spec: MySpec,
+      spec  : MySpec,
       render: renderReact18
     });
 
@@ -290,9 +291,9 @@ export class MolstarRibxz {
       await this.ctx.clear()
     }
 
-    const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
+    const data       = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    const st         = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
 
     st?.structure.ref
     st?.model.ref
@@ -501,7 +502,6 @@ export class MolstarRibxz {
         })
       ]);
 
-      console.log("Got ligand residues:", ligand);
 
       const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'ligand_group' }, { ref: `ligand_${chemicalId}` });
       const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression,
@@ -525,3 +525,5 @@ export class MolstarRibxz {
     return this
   }
 }
+
+// (window as any).MolstarRibxz = new MolstarRibxz();
