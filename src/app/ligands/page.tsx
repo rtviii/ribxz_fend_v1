@@ -19,6 +19,7 @@ import { MolstarNode, MolstarNode_secondary } from "@/components/mstar/lib"
 import Image from 'next/image'
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
+import { Switch } from "@/components/ui/switch"
 import {
     Accordion,
     AccordionContent,
@@ -48,6 +49,7 @@ import { LigandInstances, set_current_ligand } from "@/store/slices/ui_state"
 import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "@/my_utils"
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
+import { ImperativePanelHandle } from "react-resizable-panels"
 
 
 interface TaxaDropdownProps {
@@ -227,6 +229,10 @@ export default function Ligands() {
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
     const [ctx_secondary, setCtx_secondary] = useState<MolstarRibxz | null>(null)
 
+
+    const [predictionMode, setPredictionMode] = useState(false)
+
+
     useEffect(() => {
         (async () => {
             const x = new MolstarRibxz();
@@ -330,220 +336,284 @@ export default function Ligands() {
             })
     }, [current_ligand])
 
-    const [checked, setChecked] = useState(false)
+    const [checked, setChecked]               = useState(false)
+
+
+  const [showLowerPanel, setShowLowerPanel] = useState(false)
+  const lowerPanelRef = React.useRef<ImperativePanelHandle>(null)
+  const upperPanelRef = React.useRef<ImperativePanelHandle>(null)
+  useEffect(() => {
+    // Collapse the lower panel on initial render
+    if (lowerPanelRef.current) {
+      lowerPanelRef.current.collapse()
+    }
+    // Expand the upper panel to 100% on initial render
+    if (upperPanelRef.current) {
+      upperPanelRef.current.resize(100)
+    }
+  }, [])
+  const toggleLowerPanel = () => {
+    setShowLowerPanel(prev => !prev)
+    if (lowerPanelRef.current && upperPanelRef.current) {
+      if (showLowerPanel) {
+        lowerPanelRef.current.collapse()
+        upperPanelRef.current.resize(100)
+      } else {
+        lowerPanelRef.current.expand()
+        upperPanelRef.current.resize(50)
+        lowerPanelRef.current.resize(50)
+      }
+    }
+  }
 
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className=" ">
-            <ResizablePanel defaultSize={25} >
-                <MolstarContext.Provider value={ctx}>
-                    <div className="border-r">
-                        <div className="p-4 space-y-1">
 
-                            <TreeSelect
-                                status={current_ligand === null ? "warning" : undefined}
-                                showSearch={true}
-                                treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
-                                placeholder="Select ligand-structure pair..."
-                                variant="outlined"
-                                treeData={lig_data_to_tree(lig_state.data)}
-                                className="w-full"
-                                treeExpandAction="click"
-                                showCheckedStrategy="SHOW_CHILD"
-                                filterTreeNode={(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
-                                onChange={(value: string, _) => {
-                                    var [chemId, rcsb_id_selected] = value.split("_")
-                                    const lig_and_its_structs = lig_state.data.filter((kvp) => {
-                                        var [lig, structs] = kvp; return lig.chemicalId == chemId;
-                                    })
-                                    const struct = lig_and_its_structs[0][1].filter((s) => s.rcsb_id == rcsb_id_selected)[0]
-                                    dispatch(set_current_ligand({
-                                        ligand: lig_and_its_structs[0][0],
-                                        parent_structure: struct
-                                    }))
-                                }}
-                            />
 
-                            <div className="rounded-md shadow-sm " >
-                                <Button
-                                    onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                    onMouseLeave={() => { ctx?.removeHighlight() }}
-                                    onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
-                                    variant={"default"}
-                                    disabled={current_ligand === null}
-                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
-                                    Ligand
-                                </Button>
 
-                                <Button
-                                    variant={"default"}
-                                    onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                    onMouseLeave={() => { ctx?.removeHighlight() }}
-                                    onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
-                                    disabled={current_ligand === null}
-                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
-                                    Binding Site (5 Å)
-                                </Button>
 
-                            </div>
 
-                            <Button
-                                variant={"default"}
-                                className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 "
-                                onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} >
-                                <div className=" flex-row p-1 rounded-sm flex items-center content-center align-middle justify-center gap-2 ">
-                                    <span>Toggle Structure Visibility</span>
-                                    <div>
-                                        {!structVisibility ? <div> < IconVisibilityOff className="w-6 h-6" /></div> : <div ><IconVisibilityOn className="w-6 h-6" /></div>}
-                                    </div>
+
+        <ResizablePanelGroup direction="horizontal">
+            <ResizablePanel defaultSize={30} minSize={20}>
+                <div className="h-full bg-muted p-4">
+
+
+
+
+
+                    <MolstarContext.Provider value={ctx}>
+                        <div className="border-r">
+                            <div className="p-4 space-y-1">
+
+                                <TreeSelect
+                                    status={current_ligand === null ? "warning" : undefined}
+                                    showSearch={true}
+                                    treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
+                                    placeholder="Select ligand-structure pair..."
+                                    variant="outlined"
+                                    treeData={lig_data_to_tree(lig_state.data)}
+                                    className="w-full"
+                                    treeExpandAction="click"
+                                    showCheckedStrategy="SHOW_CHILD"
+                                    filterTreeNode={(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
+                                    onChange={(value: string, _) => {
+                                        var [chemId, rcsb_id_selected] = value.split("_")
+                                        const lig_and_its_structs = lig_state.data.filter((kvp) => {
+                                            var [lig, structs] = kvp; return lig.chemicalId == chemId;
+                                        })
+                                        const struct = lig_and_its_structs[0][1].filter((s) => s.rcsb_id == rcsb_id_selected)[0]
+                                        dispatch(set_current_ligand({
+                                            ligand: lig_and_its_structs[0][0],
+                                            parent_structure: struct
+                                        }))
+                                    }}
+                                />
+
+                                <div className="rounded-md shadow-sm " >
+                                    <Button
+                                        onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                        onMouseLeave={() => { ctx?.removeHighlight() }}
+                                        onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                        variant={"default"}
+                                        disabled={current_ligand === null}
+                                        className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
+                                        Ligand
+                                    </Button>
+
+                                    <Button
+                                        variant={"default"}
+                                        onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                        onMouseLeave={() => { ctx?.removeHighlight() }}
+                                        onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                        disabled={current_ligand === null}
+                                        className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
+                                        Binding Site (5 Å)
+                                    </Button>
+
                                 </div>
 
-                            </Button>
-                            <Button
-                                variant={"default"}
-                                className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 " onClick={() => { ctx?.toggleSpin() }}>
-                                <div className="flex items-center content-center align-middle  flex-row p-1 rounded-sm justify-between gap-2 ">
-                                    <span>Toggle Spin</span>
-                                    <div>
-                                        <IconToggleSpin className="w-6 h-6 flex items-center content-center align-middle justify-center" />
+                                <Button
+                                    variant={"default"}
+                                    className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 "
+                                    onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} >
+                                    <div className=" flex-row p-1 rounded-sm flex items-center content-center align-middle justify-center gap-2 ">
+                                        <span>Toggle Structure Visibility</span>
+                                        <div>
+                                            {!structVisibility ? <div> < IconVisibilityOff className="w-6 h-6" /></div> : <div ><IconVisibilityOn className="w-6 h-6" /></div>}
+                                        </div>
                                     </div>
-                                </div>
-                            </Button>
-                            <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
-                                {lig_state.current_ligand === null ? null :
-                                    <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null} className="border p-1">
+
+                                </Button>
+                                <Button
+                                    variant={"default"}
+                                    className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 " onClick={() => { ctx?.toggleSpin() }}>
+                                    <div className="flex items-center content-center align-middle  flex-row p-1 rounded-sm justify-between gap-2 ">
+                                        <span>Toggle Spin</span>
+                                        <div>
+                                            <IconToggleSpin className="w-6 h-6 flex items-center content-center align-middle justify-center" />
+                                        </div>
+                                    </div>
+                                </Button>
+                                <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
+                                    {lig_state.current_ligand === null ? null :
+                                        <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null} className="border p-1">
+                                            <AccordionItem value="item">
+                                                <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  p-1 ">
+                                                    {lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}
+                                                    <span className="font-light">(Binding Pocket Details)</span>
+                                                </AccordionTrigger>
+                                                <AccordionContent>
+                                                    <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
+                                                        <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
+                                                        <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
+                                                        <DownloadDropdown
+                                                            residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
+                                                            disabled={!(surroundingResidues.length > 0)}
+                                                            filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
+
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-wrap ">
+                                                        {surroundingResidues.length === 0 ? null :
+                                                            surroundingResidues.map((residue, i) => {
+                                                                return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
+                                                            })
+                                                        }
+                                                    </div>
+                                                </AccordionContent>
+                                            </AccordionItem>
+
+                                        </Accordion>
+                                    }
+                                    <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
-                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  p-1 ">
-                                                {lig_state.current_ligand?.ligand.chemicalId} in {lig_state.current_ligand?.parent_structure.rcsb_id}
-                                                <span className="font-light">(Binding Pocket Details)</span>
-                                            </AccordionTrigger>
-                                            <AccordionContent>
-                                                <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-                                                    <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
-                                                    <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
-                                                    <DownloadDropdown
-                                                        residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
-                                                        disabled={!(surroundingResidues.length > 0)}
-                                                        filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
+                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
+                                            {current_ligand ?
+                                                <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
 
+
+                                                    <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
+                                                        width={400} height={400}
+                                                        onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                                        onMouseLeave={() => { ctx?.removeHighlight() }}
+                                                        onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                                     />
-                                                </div>
-                                                <div className="flex flex-wrap ">
-                                                    {surroundingResidues.length === 0 ? null :
-                                                        surroundingResidues.map((residue, i) => {
-                                                            return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
-                                                        })
+                                                </AccordionContent> : null
+                                            }
+                                        </AccordionItem>
+                                    </Accordion>
+
+
+
+                                    <Accordion type="single" collapsible defaultValue="item-1" disabled={current_ligand === undefined}>
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger className="text-xs rounded-sm flex flex-roww justify-between  hover:cursor-pointer hover:bg-muted border p-1">
+
+                                                <span className="text-xs text-gray-800">Drugbank Info</span>
+                                                <div>
+                                                    {lig_state.current_ligand?.ligand.drugbank_id ?
+                                                        <Link className="" href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
+                                                            <p className="text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p>
+                                                        </Link> :
+                                                        null
                                                     }
                                                 </div>
+
+
+
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                <p className="text-xs">
+                                                    {lig_state.current_ligand?.ligand.drugbank_description}
+                                                </p>
+
                                             </AccordionContent>
                                         </AccordionItem>
-
                                     </Accordion>
-                                }
-                                <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null}>
-                                    <AccordionItem value="item">
-                                        <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
-                                        {current_ligand ?
-                                            <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
 
 
-                                                <Image src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)} alt="ligand_chemical_structure.png"
-                                                    width={400} height={400}
-                                                    onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                                    onMouseLeave={() => { ctx?.removeHighlight() }}
-                                                    onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                    <Accordion type="single" collapsible defaultValue="item-1" >
+                                        <AccordionItem value="item-1">
+                                            <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
+                                                <span className=" text-xs text-gray-800">Ligand Prediction <span className="font-light">(Work In Progress)</span></span>
+                                            </AccordionTrigger>
+
+
+                                            <div className="flex items-center space-x-2 bg-background p-2 rounded-md shadow-md">
+                                                <Switch
+                                                    id="show-lower-panel"
+
+                                                    checked={predictionMode}
+                                                    onCheckedChange={() => { toggleLowerPanel(); setPredictionMode(!predictionMode) }}
                                                 />
-                                            </AccordionContent> : null
-                                        }
-                                    </AccordionItem>
-                                </Accordion>
-
-
-
-                                <Accordion type="single" collapsible defaultValue="item-1" disabled={current_ligand === undefined}>
-                                    <AccordionItem value="item-1">
-                                        <AccordionTrigger className="text-xs rounded-sm flex flex-roww justify-between  hover:cursor-pointer hover:bg-muted border p-1">
-
-                                            <span className="text-xs text-gray-800">Drugbank Info</span>
-                                            <div>
-                                                {lig_state.current_ligand?.ligand.drugbank_id ?
-                                                    <Link className="" href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
-                                                        <p className="text-sm   hover:underline ribxz-link">{lig_state.current_ligand?.ligand.drugbank_id}</p>
-                                                    </Link> :
-                                                    null
-                                                }
+                                                <Label htmlFor="show-lower-panel">Prediction</Label>
                                             </div>
 
 
-
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <p className="text-xs">
-
-                                                {lig_state.current_ligand?.ligand.drugbank_description}
-
-                                            </p>
-
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
+                                            <AccordionContent>
+                                                - choose a structure
+                                                - make sure the ligand is already initiated
+                                                - this has to go through the backend i think
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    </Accordion>
 
 
-                                <Accordion type="single" collapsible defaultValue="item-1" >
-                                    <AccordionItem value="item-1">
-                                        <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1 ">
-                                            <span className=" text-xs text-gray-800">Ligand Prediction <span className="font-light">(Work In Progress)</span></span>
-                                        </AccordionTrigger>
-
-
-
-                                        <AccordionContent>
-                                            - choose a structure
-                                            - make sure the ligand is already initiated
-                                            - this has to go through the backend i think
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
-
-
-                            </ScrollArea>
+                                </ScrollArea>
 
 
 
 
 
 
+                            </div>
                         </div>
-                    </div>
-                </MolstarContext.Provider>
+                    </MolstarContext.Provider>
 
 
+
+
+                    Left Panel Content
+                </div>
             </ResizablePanel>
-
-
             <ResizableHandle />
+            <ResizablePanel defaultSize={50} minSize={30}>
 
-            <ResizablePanel defaultSize={30}>
-                <div ref={molstarNodeRef} id='molstar-wrapper' style={{ width: "400px", height: "400px" }} className=" border-2  p-4" />
-                <div ref={molstarNodeRef_secondary} id='molstar-wrapper-secondary' style={{ width: "400px", height: "400px" }} className=" border-2  p-4" />
-                {/* <MolstarNode_secondary ref={} />
-                    <MolstarNode ref={molstarNodeRef} /> */}
-                {/* <div className="flex flex-col gap-4">
-                </div> */}
+                <ResizablePanelGroup direction="vertical" >
+
+                    <ResizablePanel
+                        defaultSize={50}
+                        minSize={20}
+
+              ref={upperPanelRef}
+                    >
+
+                        <div className="h-full bg-background p-4 bg-red-400">
+                            <MolstarNode ref={molstarNodeRef} />
+                        </div>
+
+                    </ResizablePanel>
+                    <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
+
+
+                    <ResizablePanel
+                        ref={lowerPanelRef}
+                        defaultSize={50}
+                        minSize={0}
+                        collapsible
+                        onCollapse={() => setShowLowerPanel(false)}
+                        onExpand={() => setShowLowerPanel(true)}
+
+                    >
+                        <div className="h-full bg-muted p-4 bg-slate-200">
+                            <MolstarNode_secondary ref={molstarNodeRef_secondary} />
+                        </div>
+                    </ResizablePanel>
+                </ResizablePanelGroup>
             </ResizablePanel>
-
-
-
-
-{/* 
-
-            <ResizablePanel defaultSize={40}>
-                <div ref={molstarNodeRef_secondary} id='molstar-wrapper-secondary' style={{ width: "400px", height: "400px" }} className="w-400 h-400 border-2 p-4" />
-            </ResizablePanel>
- */}
-
-
         </ResizablePanelGroup>
+
         <SidebarMenu />
     </div>
 }

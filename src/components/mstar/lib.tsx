@@ -316,5 +316,5 @@ export namespace QueryHelper {
 }
 export type LoadParams = { url: string, format?: BuiltInTrajectoryFormat, assemblyId?: string, isHetView?: boolean, isBinary?: boolean }
 
-export const MolstarNode           = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' className="w-400 h-400" /> })
-export const MolstarNode_secondary = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper-secondary' className="w-200 h-200" /> })
+export const MolstarNode           = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' /> })
+export const MolstarNode_secondary = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper-secondary'/> })
