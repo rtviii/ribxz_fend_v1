@@ -176,10 +176,11 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 }
 
 
-const DownloadDropdown = ({ residues, disabled }: { residues: Residue[], disabled: boolean }) => {
+const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[], disabled: boolean, filename:string }) => {
     const handleDownloadCSV = () => {
 
         var data = residues.map((residue) => { return [residue.label_seq_id, residue.label_comp_id, residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
+
         const csvContent = data.map(row => row.join(',')).join('\n');
 
         // Create a Blob with the CSV content
@@ -189,7 +190,7 @@ const DownloadDropdown = ({ residues, disabled }: { residues: Residue[], disable
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'data.csv');
+            link.setAttribute('download', `${filename}`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -397,10 +398,12 @@ export default function Ligands() {
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
                                                     <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
-                                                    <DownloadDropdown residues={surroundingResidues.map(r => (
-
-
-                                                        { ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))} disabled={!(surroundingResidues.length > 0)} />
+                                                    <DownloadDropdown 
+                                                    residues={surroundingResidues.map(r => ( { ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
+                                                     disabled={!(surroundingResidues.length > 0)} 
+                                                     filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
+                                                     
+                                                     />
                                                 </div>
                                                 <div className="flex flex-wrap ">
                                                     {surroundingResidues.length === 0 ? null :
