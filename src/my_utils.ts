@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { RibosomeStructure } from "./store/ribxz_api/ribxz_api";
 
 export function useDebouncePagination(value: number, delay: number): number {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -25,8 +26,8 @@ export function contract_taxname(name: string) {
   }
 }
 
-export function capitalize_only_first_letter_w(_: string |undefined): string {
-  if (_===undefined){
+export function capitalize_only_first_letter_w(_: string | undefined): string {
+  if (_ === undefined) {
     return ""
   }
   var s = ""
@@ -37,4 +38,15 @@ export function capitalize_only_first_letter_w(_: string |undefined): string {
     s += word.slice(0, 1).toUpperCase() + word.slice(1).toLowerCase()
   }
   return s
+}
+
+export function yield_nomenclature_map_profile(profile: RibosomeStructure):Record< string, string | undefined > {
+  var _: Record<string, string | undefined> = {}
+  for (let polymer of [...profile.rnas, ...profile.proteins, ...profile.other_polymers]) {
+    if (!Object.keys(_).includes(polymer.auth_asym_id)) {
+      _[polymer.auth_asym_id] = polymer.nomenclature.length > 0 ? polymer.nomenclature[0]  : undefined 
+    }
+  }
+  return _
+
 }

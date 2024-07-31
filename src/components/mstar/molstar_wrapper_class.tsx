@@ -45,10 +45,10 @@ declare global {
 }
 
 export type Residue = {
-  label_seq_id : number,
-  label_comp_id: string,
-  auth_asym_id : string,
-  rcsb_id      : string,
+  label_seq_id  : number,
+  label_comp_id : string,
+  auth_asym_id  : string,
+  rcsb_id       : string,
   polymer_class?: string,
 }
 

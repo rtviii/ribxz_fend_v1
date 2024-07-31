@@ -28,7 +28,7 @@ import {
 import React from 'react';
 
 interface DownloadDropdownProps {
-  data: any[][];
+    data: any[][];
 }
 
 
@@ -45,7 +45,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { TreeSelect } from "antd"
 import { LigandInstances, set_current_ligand } from "@/store/slices/ui_state"
-import { capitalize_only_first_letter_w } from "@/my_utils"
+import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "@/my_utils"
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
 
@@ -132,8 +132,6 @@ const chemical_structure_link = (ligand_id: string | undefined) => {
 
 
 
-
-
 type LigandAssociatedTaxa = Array<[string, number]>
 type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
 const LigandTableRow = (props: LigandRowProps) => {
@@ -178,42 +176,42 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 }
 
 
-const DownloadDropdown= ({ residues,disabled }:{residues:Residue[], disabled:boolean}) => {
-  const handleDownloadCSV = () => {
+const DownloadDropdown = ({ residues, disabled }: { residues: Residue[], disabled: boolean }) => {
+    const handleDownloadCSV = () => {
 
-    var   data       = residues.map((residue) => { return [ residue.label_seq_id, residue.label_comp_id,residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
-    const csvContent = data.map(row => row.join(',')).join('\n');
-    
-    // Create a Blob with the CSV content
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    // Create a download link
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'data.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+        var data = residues.map((residue) => { return [residue.label_seq_id, residue.label_comp_id, residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
+        const csvContent = data.map(row => row.join(',')).join('\n');
 
-  return (
-    <DropdownMenu >
-      <DropdownMenuTrigger asChild >
-        <Button variant="outline" size="sm" disabled={disabled}>
-          <DownloadIcon className="mr-2 h-4 w-4" />
-          Download
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleDownloadCSV}>
-          CSV
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+        // Create a Blob with the CSV content
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        // Create a download link
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
+    return (
+        <DropdownMenu >
+            <DropdownMenuTrigger asChild >
+                <Button variant="outline" size="sm" disabled={disabled}>
+                    <DownloadIcon className="mr-2 h-4 w-4" />
+                    Download
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleDownloadCSV}>
+                    CSV
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 };
 
 
@@ -233,14 +231,15 @@ export default function Ligands() {
     }, [])
 
 
-    const lig_state                                       = useAppSelector(state => state.ui.ligands_page)
-    const current_ligand                                  = useAppSelector(state => state.ui.ligands_page.current_ligand)
+    const lig_state = useAppSelector(state => state.ui.ligands_page)
+    const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueList>([])
-    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure)
-    const [nomenclatureMap, setNomenclatureMap]           = useState<{ [key: string]: string | undefined }>({})
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
+    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap] = useState<Record<string, string | undefined>>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
-    const [structVisibility, setStructVisibility]         = useState<boolean>(true)
+    const [structVisibility, setStructVisibility] = useState<boolean>(true)
+
 
     useEffect(() => {
         if (current_ligand?.parent_structure.rcsb_id === undefined) { return }
@@ -260,6 +259,12 @@ export default function Ligands() {
 
     useEffect(() => {
         if (parentStructProfile.rcsb_id === undefined) { return }
+        const nom_map = yield_nomenclature_map_profile(parentStructProfile)
+        setNomenclatureMap(nom_map)
+    }, [surroundingResidues, parentStructProfile])
+
+    useEffect(() => {
+        if (parentStructProfile.rcsb_id === undefined) { return }
         const residues = surroundingResidues
         var chain_ids = []
         for (let residue of residues) {
@@ -274,8 +279,15 @@ export default function Ligands() {
                 }
             }
         }
+
         setNomenclatureMap(nom_map)
     }, [surroundingResidues, parentStructProfile])
+
+
+    useEffect(() => {
+
+
+    }, [])
 
     useEffect(() => {
         if (current_ligand === undefined) { return }
@@ -305,17 +317,17 @@ export default function Ligands() {
                         <div className="p-4 space-y-1">
 
                             <TreeSelect
-                                status              = {current_ligand === null ? "warning" : undefined}
-                                showSearch          = {true}
-                                treeNodeFilterProp  = 'search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
-                                placeholder         = "Select ligand-structure pair..."
-                                variant             = "outlined"
-                                treeData            = {lig_data_to_tree(lig_state.data)}
-                                className           = "w-full"
-                                treeExpandAction    = "click"
-                                showCheckedStrategy = "SHOW_CHILD"
-                                filterTreeNode      = {(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
-                                onChange            = {(value: string, _) => {
+                                status={current_ligand === null ? "warning" : undefined}
+                                showSearch={true}
+                                treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
+                                placeholder="Select ligand-structure pair..."
+                                variant="outlined"
+                                treeData={lig_data_to_tree(lig_state.data)}
+                                className="w-full"
+                                treeExpandAction="click"
+                                showCheckedStrategy="SHOW_CHILD"
+                                filterTreeNode={(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
+                                onChange={(value: string, _) => {
                                     var [chemId, rcsb_id_selected] = value.split("_")
                                     const lig_and_its_structs = lig_state.data.filter((kvp) => {
                                         var [lig, structs] = kvp; return lig.chemicalId == chemId;
@@ -340,12 +352,12 @@ export default function Ligands() {
                                 </Button>
 
                                 <Button
-                                    variant      = {"default"}
-                                    onMouseEnter = {() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
-                                    onMouseLeave = {() => { ctx?.removeHighlight() }}
-                                    onClick      = {() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
-                                    disabled     = {current_ligand === null}
-                                    className    = "px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
+                                    variant={"default"}
+                                    onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                    onMouseLeave={() => { ctx?.removeHighlight() }}
+                                    onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                    disabled={current_ligand === null}
+                                    className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
                                     Binding Site (5 Å)
                                 </Button>
 
@@ -385,7 +397,10 @@ export default function Ligands() {
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
                                                     <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
-                                                    <DownloadDropdown residues={surroundingResidues} disabled={!(surroundingResidues.length > 0)}/>
+                                                    <DownloadDropdown residues={surroundingResidues.map(r => (
+
+
+                                                        { ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))} disabled={!(surroundingResidues.length > 0)} />
                                                 </div>
                                                 <div className="flex flex-wrap ">
                                                     {surroundingResidues.length === 0 ? null :
@@ -412,7 +427,7 @@ export default function Ligands() {
                                                     onMouseLeave={() => { ctx?.removeHighlight() }}
                                                     onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                                 />
-                                            </AccordionContent>:null
+                                            </AccordionContent> : null
                                         }
                                     </AccordionItem>
                                 </Accordion>
