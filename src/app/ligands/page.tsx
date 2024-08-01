@@ -152,8 +152,8 @@ const LigandTableRow = (props: LigandRowProps) => {
 
 const lig_data_to_tree = (lig_data: LigandInstances) => {
     return lig_data.map(([lig, structs]) => ({
-        key: lig.chemicalId,
-        value: lig.chemicalId,                                                                                                // Changed from chemicalName to chemicalId ()
+        key  : lig.chemicalId,
+        value: lig.chemicalId,   
         title: (
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <span className="font-semibold">{lig.chemicalId}</span>
@@ -247,10 +247,6 @@ export default function Ligands() {
         })()
     }, [])
 
-    useEffect(() => {
-        (async () => {
-        })()
-    }, [])
 
 
     const lig_state = useAppSelector(state => state.ui.ligands_page)
@@ -306,21 +302,6 @@ export default function Ligands() {
     }, [surroundingResidues, parentStructProfile])
 
 
-    useEffect(() => {
-        if (current_ligand === undefined) { return }
-
-        ctx_secondary?.
-            download_struct(current_ligand?.parent_structure.rcsb_id!, true)
-            .then(({ ctx: molstar, struct_representation }) => {
-                setStructRepresentation(struct_representation)
-                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId)
-            })
-            // .then((ctx) => ctx.toggleSpin())
-            .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
-            .then(residues => { setSurroundingResidues(residues) })
-    }, [current_ligand])
-
-
     // -------------------------------------
     useEffect(() => {
         if (current_ligand === undefined) { return }
@@ -369,13 +350,27 @@ export default function Ligands() {
         }
     }
 
-  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+    const [isAccordionOpen, setIsAccordionOpen] = useState(false);
 
-  useEffect(() => {
-    if (predictionMode) {
-      setIsAccordionOpen(true);
-    }
-  }, [predictionMode]);
+    useEffect(() => {
+        if (predictionMode) {
+            setIsAccordionOpen(true);
+        }
+    }, [predictionMode]);
+
+
+    const current_selected_target =useAppSelector(state => state.all_structures_overview.selected)
+
+    useEffect(() => {
+        if (current_selected_target !==null){
+            ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
+        }
+    }, [
+        current_selected_target
+    ])
+
+
+
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
 
@@ -458,10 +453,10 @@ export default function Ligands() {
                                 <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
 
 
-                                    <Accordion type="single" collapsible 
-                                    
-                                    
-                                    defaultValue="none" disabled={current_ligand === null}>
+                                    <Accordion type="single" collapsible
+
+
+                                        defaultValue="none" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
                                             {current_ligand ? <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
@@ -508,15 +503,12 @@ export default function Ligands() {
 
 
 
-                                    {/* {lig_state.current_ligand === null ? null : */}
 
-
-
-                                    <Accordion type="single" collapsible defaultValue="item"  className="border p-1 rounded-md">
+                                    <Accordion type="single" collapsible defaultValue="item" className="border p-1 rounded-md">
                                         <AccordionItem value="item">
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
                                                 <div className="flex flex-row justify-between w-full pr-4">
-                                                    <span> {lig_state.current_ligand === null ? <span className="font-light italic">Select Ligand...</span>: lig_state.current_ligand?.ligand.chemicalId + " in " + lig_state.current_ligand?.parent_structure.rcsb_id}</span>
+                                                    <span> {lig_state.current_ligand === null ? <span className="font-light italic">Select Ligand...</span> : lig_state.current_ligand?.ligand.chemicalId + " in " + lig_state.current_ligand?.parent_structure.rcsb_id}</span>
                                                     <span className="font-light">Binding Pocket Details</span>
                                                 </div>
                                             </AccordionTrigger>
@@ -549,11 +541,11 @@ export default function Ligands() {
                                         <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">Binding Pocket Prediction</Label>
                                     </div>
                                     <Accordion type="single" collapsible
-                                    
-      value={predictionMode ? "prediction" : undefined}
-      onValueChange={(value) => setIsAccordionOpen(value === "prediction")}
 
-                                     className="border p-1 rounded-md">
+                                        value={predictionMode ? "prediction" : undefined}
+                                        onValueChange={(value) => setIsAccordionOpen(value === "prediction")}
+
+                                        className="border p-1 rounded-md">
                                         <AccordionItem value="prediction" >
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
 
@@ -577,13 +569,13 @@ export default function Ligands() {
 
                                                     />
                                                 </div>
-                                                <div className="flex flex-wrap ">
+                                                {/* <div className="flex flex-wrap ">
                                                     {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
                                                         })
                                                     }
-                                                </div>
+                                                </div> */}
 
 
                                             </AccordionContent>

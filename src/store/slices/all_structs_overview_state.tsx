@@ -13,20 +13,25 @@ export interface StructureOverview {
   }
 
 export interface AllStructuresOverview {
-    structures: StructureOverview[]
+    structures: StructureOverview[],
+    selected: StructureOverview| null
 
 }
 
 const initialState: AllStructuresOverview = {
-    structures: []
+    structures: [],
+    selected: null
 }
 
 export const allStructuresOverviewSlice = createSlice({
   name: 'structures_overview',
   initialState,
   reducers: {
-    set_all_structures_overview(state, action: PayloadAction<AllStructuresOverview>) {
-        Object.assign(state, action.payload)
+    set_all_structures_overview(state, action: PayloadAction<StructureOverview[]>) {
+        Object.assign(state, { structures: action.payload })
+    },
+    select_structure(state, action: PayloadAction<StructureOverview>) {
+        Object.assign(state, {selected: action.payload})
     }
     // toggle_tools: state => { state.tools_expanded = !state.tools_expanded },
     // superimpose_set_chain_search(state, action: PayloadAction<string>) {
@@ -61,7 +66,8 @@ export const allStructuresOverviewSlice = createSlice({
 })
 
 export const {
-    set_all_structures_overview
+    set_all_structures_overview,
+    select_structure
 } = allStructuresOverviewSlice.actions
 export default allStructuresOverviewSlice.reducer
 
@@ -72,6 +78,6 @@ export const prefetchAllStructsOverview = createAsyncThunk( 'all_structs_overvie
   async (_, { dispatch }) => {
     const result = await dispatch(ribxz_api.endpoints.routersRouterStructOverview.initiate());
     console.log("got result from prefetch", result);
-    dispatch(set_all_structures_overview({structures: result.data as StructureOverview[]}));
+    dispatch(set_all_structures_overview( result.data as StructureOverview[]));
   }
 );
