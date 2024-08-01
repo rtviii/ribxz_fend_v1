@@ -370,8 +370,6 @@ export default function Ligands() {
     ])
 
 
-
-
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
 
         <ResizablePanelGroup direction="horizontal">
