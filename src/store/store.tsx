@@ -21,6 +21,10 @@ export const makeStore = () => {
 
   //* All prefetching can happen here via thunks.
   store.dispatch(prefetchLigandsData())
+
+
+
+
   //* All prefetching can happen here via thunks.
   return store
 }

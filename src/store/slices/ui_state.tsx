@@ -110,6 +110,7 @@ const initialState: UIState = {
     }
 }
 
+
 // OK there is the filter list endpoint
 // We want to :
 // -   prefetch the total number of structures on loadup
@@ -121,12 +122,11 @@ const initialState: UIState = {
 const UIUpdateListenerMiddelware = createListenerMiddleware()
 
 // const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-
-
 export const uiSlice = createSlice({
     name: 'ui',
     initialState,
     reducers: {
+
         set_ligands_data(state, action: PayloadAction<LigandInstances>) {
             state.ligands_page.data = action.payload
         },
@@ -137,7 +137,6 @@ export const uiSlice = createSlice({
         set_current_ligand(state, action: PayloadAction<LigandInstance>) {
             state.ligands_page.current_ligand = action.payload
         },
-
 
         set_tax_dict(state, action: PayloadAction<Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>>) {
             state.taxid_dict = action.payload
@@ -233,17 +232,16 @@ export const uiSlice = createSlice({
 
 
 export const {
-
     set_ligands_data,
     set_ligands_data_filtered,
     set_current_ligand,
-
 
     set_tax_dict,
     set_current_polymers,
     set_current_polymer_class,
     set_new_structs,
     set_filter,
+
     pagination_set_page,
     pagination_next_page,
     pagination_prev_page

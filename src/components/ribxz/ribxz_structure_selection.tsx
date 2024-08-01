@@ -50,13 +50,13 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
                         })
                         .map(p =>
                             <div key={p.auth_asym_id}
-                                onClick={() => { 
+                                onClick={() => {
                                     // dispatch(superimpose_add_chain({ polymer: p, rcsb_id: structure.rcsb_id }))
                                     ctx?.load_mmcif_chain({
                                         auth_asym_id: p.auth_asym_id,
                                         rcsb_id: structure.rcsb_id
                                     })
-                                 }}
+                                }}
                                 className="border rounded-sm p-0.5 px-2 text-sm flex justify-between hover:cursor-pointer hover:bg-slate-200">
                                 <span>{p.auth_asym_id}</span>
                                 <span>{p.nomenclature[0]}</span>
@@ -69,7 +69,7 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 
 
 
-export default function ChainPicker({ children}: { children?: React.ReactNode}) {
+export default function ChainPicker({ children }: { children?: React.ReactNode }) {
 
     const dispatch           = useAppDispatch();
     const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
@@ -86,7 +86,7 @@ export default function ChainPicker({ children}: { children?: React.ReactNode}) 
                     <div className="flex items-center gap-2">
                         <Input placeholder="Search" value={filters.search!} onChange={(e) => { dispatch(set_filter({ filter_type: "search", value: e.target.value })) }} />
                     </div>
-                    { current_structures .map(S => <StructureComponentsSelection structure={S} key={S.rcsb_id} />) }
+                    {current_structures.map(S => <StructureComponentsSelection structure={S} key={S.rcsb_id} />)}
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
@@ -100,5 +100,18 @@ export default function ChainPicker({ children}: { children?: React.ReactNode}) 
                 </div>
             </HoverCardContent>
         </HoverCard>
+    )
+}
+
+
+// It's an input field with its own state 
+// and that can be parametrized by filters but isn't by default
+export const GlobalStructureSelection = () =>{
+
+    const current_structures = useAppSelector(state => state.ui.data.current_structures)
+
+    return (
+        
+
     )
 }

@@ -7,7 +7,6 @@ import { ChainsByStruct, Polymer, PolymerByStruct, RibosomeStructure, useRouters
 // import { initiatePluginUIContext, download_struct, superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import StructureSelection from "@/components/ribxz/chain_picker"
 import { Filters } from "@/components/ribxz/filters"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,7 @@ function PlusIcon() {
     )
 }
 
-function XIcon({ props }:{props:any}) {
+function XIcon({ props }: { props: any }) {
     return (
         <svg
             {...props}
@@ -78,10 +77,10 @@ const SumperimposeCandidateChainRow = ({ polymer, rcsb_id }: { polymer: PolymerB
 
 export default function Superimpose() {
 
-    const { rcsb_id }               = useParams<{ rcsb_id: string; }>()
-    const dispatch                  = useAppDispatch();
+    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+    const dispatch = useAppDispatch();
     const active_superimpose_chains = useAppSelector(state => state.molstar.superimpose.active_chains)!
-    const pivot                     = useAppSelector(state => state.molstar.superimpose.pivot)!
+    const pivot = useAppSelector(state => state.molstar.superimpose.pivot)!
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
@@ -116,16 +115,14 @@ export default function Superimpose() {
                             </div>
 
                             <Separator className="my-4" />
-                            <p className="text-gray-500 p-1">Please select chains to superimpose from the { "+" } menu.</p>
-
-
+                            <p className="text-gray-500 p-1">Please select chains to superimpose from the {"+"} menu.</p>
                             <MolstarContext.Provider value={ctx}>
 
-                                <StructureSelection>
-                                    <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
-                                        <PlusIcon  />
-                                    </Button>
-                                </StructureSelection>
+                                {/* <StructureSelection> */}
+                                <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
+                                    <PlusIcon />
+                                </Button>
+                                {/* </StructureSelection> */}
                             </MolstarContext.Provider>
 
                             <div className="flex flex-col gap-2">
