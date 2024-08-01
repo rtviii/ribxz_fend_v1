@@ -369,6 +369,13 @@ export default function Ligands() {
         }
     }
 
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+
+  useEffect(() => {
+    if (predictionMode) {
+      setIsAccordionOpen(true);
+    }
+  }, [predictionMode]);
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
 
@@ -451,7 +458,10 @@ export default function Ligands() {
                                 <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
 
 
-                                    <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
+                                    <Accordion type="single" collapsible 
+                                    
+                                    
+                                    defaultValue="none" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
                                             {current_ligand ? <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
@@ -538,8 +548,13 @@ export default function Ligands() {
                                         <Switch id="show-lower-panel" checked={predictionMode} onCheckedChange={() => { toggleLowerPanel(); setPredictionMode(!predictionMode) }} />
                                         <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">Binding Pocket Prediction</Label>
                                     </div>
-                                    <Accordion type="single" collapsible defaultValue="prediction" className="border p-1 rounded-md">
-                                        <AccordionItem value="prediction">
+                                    <Accordion type="single" collapsible
+                                    
+      value={predictionMode ? "prediction" : undefined}
+      onValueChange={(value) => setIsAccordionOpen(value === "prediction")}
+
+                                     className="border p-1 rounded-md">
+                                        <AccordionItem value="prediction" >
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
 
                                                 <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
