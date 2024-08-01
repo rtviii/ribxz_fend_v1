@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Input } from "@/components/ui/input"
+
+import type { SelectProps } from 'antd';
+import { Select, Tag } from 'antd';
 import {
     Pagination,
     PaginationContent,
@@ -14,16 +17,16 @@ import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribx
 import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
 import { set_filter } from "@/store/slices/ui_state"
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState } from "react"
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 
 
 const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
 
-    const dispatch   = useAppDispatch();
+    const dispatch = useAppDispatch();
     const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
-    const polymers   = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
-    const ctx        = useContext(MolstarContext)
+    const polymers = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
+    const ctx = useContext(MolstarContext)
 
     return <div className="border rounded-lg p-1 max-h-64 overflow-y-auto scrollbar-hide flex items-center justify-between hover:bg-slate-200">
         <HoverCard openDelay={0} closeDelay={0}>
@@ -71,10 +74,10 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 
 export default function ChainPicker({ children }: { children?: React.ReactNode }) {
 
-    const dispatch           = useAppDispatch();
-    const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
+    const dispatch = useAppDispatch();
+    const search_val = useAppSelector(state => state.molstar.superimpose.struct_search)!
     const current_structures = useAppSelector(state => state.ui.data.current_structures)
-    const filters            = useAppSelector(state => state.ui.filters)
+    const filters = useAppSelector(state => state.ui.filters)
 
     return (
         <HoverCard openDelay={0} closeDelay={0}>
@@ -104,14 +107,53 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
 }
 
 
+
+
+
+type TagRender = SelectProps['tagRender'];
+
+const options: SelectProps['options'] = [
+    { value: 'gold' },
+    { value: 'lime' },
+    { value: 'green' },
+    { value: 'cyan' },
+];
+
+const tagRender: TagRender = (props) => {
+    const { label, value, closable, onClose } = props;
+    const onPreventMouseDown = (event: React.MouseEvent<HTMLSpanElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+    };
+    return (
+        <Tag
+            // color       = {value}
+            // onMouseDown = {onPreventMouseDown}
+            // closable    = {closable}
+            // onClose     = {onClose}
+            style       = {{ marginInlineEnd: 4 }}
+        >
+            {label}
+        </Tag>
+    );
+};
+
+
+
+
+//! Do "Coordinate" double dropdown for chains
 // It's an input field with its own state 
 // and that can be parametrized by filters but isn't by default
-export const GlobalStructureSelection = () =>{
-
-    const current_structures = useAppSelector(state => state.ui.data.current_structures)
-
-    return (
-        
-
-    )
+export const GlobalStructureSelection = ({props}:{props:any}) => {
+    const structs_overview = useAppSelector(state => state.all_structures_overview.structures)
+    const [val,setVal]     = useState(null)
+    return <Select
+    {...props}
+    placeholder = "Select a structure"
+    tagRender   = {tagRender}
+    onChange    = {(val) => setVal(val)}
+    value       = {val}
+    style       = {{ width: '100%' }}
+    options     = {structs_overview.map(S => ({ value: S.rcsb_id, label: S.rcsb_id }))}
+    />
 }

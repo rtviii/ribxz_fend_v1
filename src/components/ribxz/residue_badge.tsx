@@ -45,10 +45,6 @@ const NucleotidesColorTable: Record<string, { "color_name": string, "rgb": numbe
 export const ResidueBadge = ({ residue, molstar_ctx, key, show_parent_chain }:
     { residue: Residue, molstar_ctx: MolstarRibxz | null, key?: string | number, show_parent_chain?: boolean }) => {
     const residue_color_border = () => {
-        console.log(Object.keys(NucleotidesColorTable))
-        console.log(residue.label_comp_id);
-
-
 
         if (Object.keys(NucleotidesColorTable).includes(residue.label_comp_id)) {
             return [ NucleotidesColorTable[residue.label_comp_id].hex, 'border' ]

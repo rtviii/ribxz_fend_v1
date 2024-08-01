@@ -50,7 +50,7 @@ import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
 import { ImperativePanelHandle } from "react-resizable-panels"
-import ChainPicker from "@/components/ribxz/ribxz_structure_selection"
+import ChainPicker, { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
 import { Input } from "@/components/ui/input"
 
 
@@ -374,10 +374,10 @@ export default function Ligands() {
 
         <ResizablePanelGroup direction="horizontal">
             <ResizablePanel defaultSize={30} minSize={20}>
-                <div className="h-full bg-muted p-4">
+                <div className="h-full p-4">
                     <MolstarContext.Provider value={ctx}>
                         <div className="border-r">
-                            <div className="p-4 space-y-1">
+                            <div className="p-4 space-y-2">
                                 <TreeSelect
                                     status={current_ligand === null ? "warning" : undefined}
                                     showSearch={true}
@@ -448,11 +448,7 @@ export default function Ligands() {
                                     </div>
                                 </Button>
 
-                                <div className="flex items-center space-x-2 bg-background p-2 rounded-md shadow-md">
-                                    <Switch id="show-lower-panel" checked={predictionMode} onCheckedChange={() => { toggleLowerPanel(); setPredictionMode(!predictionMode) }} />
-                                    <Label htmlFor="show-lower-panel">Binding Pocket Prediction</Label>
-                                </div>
-                                <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-1">
+                                <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
 
 
                                     <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
@@ -506,11 +502,11 @@ export default function Ligands() {
 
 
 
-                                    <Accordion type="single" collapsible defaultValue="item" disabled={current_ligand === null} className="border p-1 rounded-md">
+                                    <Accordion type="single" collapsible defaultValue="item"  className="border p-1 rounded-md">
                                         <AccordionItem value="item">
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
                                                 <div className="flex flex-row justify-between w-full pr-4">
-                                                    <span> {lig_state.current_ligand === null ? "Select Ligand" : lig_state.current_ligand?.ligand.chemicalId + " in " + lig_state.current_ligand?.parent_structure.rcsb_id}</span>
+                                                    <span> {lig_state.current_ligand === null ? <span className="font-light italic">Select Ligand...</span>: lig_state.current_ligand?.ligand.chemicalId + " in " + lig_state.current_ligand?.parent_structure.rcsb_id}</span>
                                                     <span className="font-light">Binding Pocket Details</span>
                                                 </div>
                                             </AccordionTrigger>
@@ -537,7 +533,12 @@ export default function Ligands() {
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
-                                    <Accordion type="single" collapsible defaultValue="prediction" disabled={current_ligand === null} className="border p-1 rounded-md">
+
+                                    <div className="flex items-center space-x-2 p-2 rounded-md border ">
+                                        <Switch id="show-lower-panel" checked={predictionMode} onCheckedChange={() => { toggleLowerPanel(); setPredictionMode(!predictionMode) }} />
+                                        <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">Binding Pocket Prediction</Label>
+                                    </div>
+                                    <Accordion type="single" collapsible defaultValue="prediction" className="border p-1 rounded-md">
                                         <AccordionItem value="prediction">
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
 
@@ -545,13 +546,12 @@ export default function Ligands() {
                                                     <span className="text-center">
                                                         Prediction Target
                                                     </span>
-                                                    <div className="flex items-center gap-2">
-                                                        <Input placeholder="Search" value={'hi'} onChange={(e) => { }} />
-                                                    </div>
 
                                                 </div>
                                             </AccordionTrigger>
                                             <AccordionContent>
+
+                                                <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
                                                     <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
@@ -562,12 +562,7 @@ export default function Ligands() {
 
                                                     />
                                                 </div>
-
-
-
-
                                                 <div className="flex flex-wrap ">
-
                                                     {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
@@ -591,7 +586,6 @@ export default function Ligands() {
                             </div>
                         </div>
                     </MolstarContext.Provider>
-                    Left Panel Content
                 </div>
             </ResizablePanel>
             <ResizableHandle />
