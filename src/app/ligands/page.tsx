@@ -361,19 +361,29 @@ export default function Ligands() {
 
     const current_selected_target = useAppSelector(state => state.all_structures_overview.selected)
 
-    const [triggerLigandTransposeRefetch] = ribxz_api.endpoints.routersRouterLigLigTranspose.useLazyQuery()
+    // const [triggerLigandTransposeRefetch] = ribxz_api.endpoints.routersRouterLigLigTranspose.useLazyQuery()
+
+    const { data, error, isLoading, refetch } = ribxz_api.useRoutersRouterLigLigTransposeQuery(
+        {
+            chemicalId: current_ligand!.ligand.chemicalId,
+            sourceStructure: current_ligand!.parent_structure.rcsb_id,
+            targetStructure: current_selected_target!.rcsb_id
+        },
+        {
+            skip: !current_selected_target || !current_ligand,
+            refetchOnMountOrArgChange: true
+        }
+    );
+
     useEffect(() => {
         if (current_selected_target !== null) {
             ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
-            triggerLigandTransposeRefetch({
-                chemicalId     : current_ligand!.ligand.chemicalId,
-                sourceStructure: current_ligand!.parent_structure.rcsb_id,
-                targetStructure: current_selected_target.rcsb_id
-
-            })
+            refetch()
         }
-    }, [current_selected_target])
+    }, [current_selected_target, refetch])
 
+
+    const ligands_state = useAppSelector(state => state.ui.ligands_page)
 
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -539,23 +549,29 @@ export default function Ligands() {
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
-
                                     <div className="flex items-center space-x-2 p-2 rounded-md border ">
                                         <Switch id="show-lower-panel" checked={predictionMode} onCheckedChange={() => { toggleLowerPanel(); setPredictionMode(!predictionMode) }} disabled={current_ligand === null} />
                                         <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">
                                             <div className="flex flex-row justify-between">
-
                                                 Binding Pocket Prediction
-
                                                 {current_ligand !== null ?
                                                     <span className="font-light text-xs italic">
                                                         Using <span className="font-semibold">{current_ligand.parent_structure.rcsb_id}/{current_ligand.ligand.chemicalId}</span> as source.
                                                     </span> : null
                                                 }
                                             </div>
-
                                         </Label>
                                     </div>
+                                    <Button onClick={() => { console.log(ligands_state.prediction_data); }}> see prediction {ligands_state.prediction_pending ? "pending" : "not"}</Button>
+                                    <span>
+
+                                        {isLoading ? "spinner" : "done"}
+                                    </span>
+                                    <span>
+
+                                        {!error ? "error" : "no error"}
+                                    </span>
+
                                     <Accordion type="single" collapsible
 
                                         value={predictionMode ? "prediction" : undefined}

@@ -1,6 +1,6 @@
 'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, LigandPrediction, Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
@@ -60,7 +60,10 @@ export interface UIState {
     ligands_page: {
         data          : LigandInstances,
         filtered_data : LigandInstances
-        current_ligand: LigandInstance | null
+        current_ligand: LigandInstance | null,
+        prediction_data: LigandPrediction
+        prediction_pending: boolean
+
     },
     data: {
         current_structures: RibosomeStructure[],
@@ -80,9 +83,12 @@ export interface UIState {
 const initialState: UIState = {
     taxid_dict: {},
     ligands_page: {
-        data: [],
-        current_ligand:  null,
-        filtered_data: []
+        data          : [],
+        current_ligand: null,
+        filtered_data : [],
+        prediction_data:{},
+        prediction_pending:false
+
     },
     data: {
         current_structures: [],
@@ -136,9 +142,6 @@ export const uiSlice = createSlice({
         },
         set_current_ligand(state, action: PayloadAction<LigandInstance>) {
             state.ligands_page.current_ligand = action.payload
-        },
-        set_ligand_prediction_target(state, action: PayloadAction<LigandInstances>) {
-            // TODO...
         },
         set_ligand_prediction_data(state, action: PayloadAction<LigandInstances>) {
             // TODO...
@@ -204,13 +207,16 @@ export const uiSlice = createSlice({
     },
     extraReducers: (builder) => {
 
-        builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchFulfilled, (state, action) => {
-            // TODO
-            console.log("Dispatch fetch ligand transpose matchFulfilled");
-            console.log(action.payload);
-            
-
-        });
+            builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchFulfilled, (state, action) => {
+                state.ligands_page.prediction_data = action.payload
+                state.ligands_page.prediction_pending = false
+            });
+            builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchPending, (state, action) => {
+                state.ligands_page.prediction_pending = true
+            });
+            builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchRejected, (state, action) => {
+                state.ligands_page.prediction_pending = false
+            });
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
 
             // @ts-ignore
@@ -223,7 +229,6 @@ export const uiSlice = createSlice({
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
             console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");
-
             // @ts-ignore
             state.data.current_polymers = action.payload.polymers
             // @ts-ignore
