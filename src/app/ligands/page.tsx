@@ -152,8 +152,8 @@ const LigandTableRow = (props: LigandRowProps) => {
 
 const lig_data_to_tree = (lig_data: LigandInstances) => {
     return lig_data.map(([lig, structs]) => ({
-        key  : lig.chemicalId,
-        value: lig.chemicalId,   
+        key: lig.chemicalId,
+        value: lig.chemicalId,
         title: (
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                 <span className="font-semibold">{lig.chemicalId}</span>
@@ -359,15 +359,21 @@ export default function Ligands() {
     }, [predictionMode]);
 
 
-    const current_selected_target =useAppSelector(state => state.all_structures_overview.selected)
+    const current_selected_target = useAppSelector(state => state.all_structures_overview.selected)
 
+    const [triggerLigandTransposeRefetch] = ribxz_api.endpoints.routersRouterLigLigTranspose.useLazyQuery()
     useEffect(() => {
-        if (current_selected_target !==null){
+        if (current_selected_target !== null) {
             ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
+            triggerLigandTransposeRefetch({
+                chemicalId     : current_ligand!.ligand.chemicalId,
+                sourceStructure: current_ligand!.parent_structure.rcsb_id,
+                targetStructure: current_selected_target.rcsb_id
+
+            })
         }
-    }, [
-        current_selected_target
-    ])
+    }, [current_selected_target])
+
 
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -535,8 +541,20 @@ export default function Ligands() {
                                     </Accordion>
 
                                     <div className="flex items-center space-x-2 p-2 rounded-md border ">
-                                        <Switch id="show-lower-panel" checked={predictionMode} onCheckedChange={() => { toggleLowerPanel(); setPredictionMode(!predictionMode) }} />
-                                        <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">Binding Pocket Prediction</Label>
+                                        <Switch id="show-lower-panel" checked={predictionMode} onCheckedChange={() => { toggleLowerPanel(); setPredictionMode(!predictionMode) }} disabled={current_ligand === null} />
+                                        <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">
+                                            <div className="flex flex-row justify-between">
+
+                                                Binding Pocket Prediction
+
+                                                {current_ligand !== null ?
+                                                    <span className="font-light text-xs italic">
+                                                        Using <span className="font-semibold">{current_ligand.parent_structure.rcsb_id}/{current_ligand.ligand.chemicalId}</span> as source.
+                                                    </span> : null
+                                                }
+                                            </div>
+
+                                        </Label>
                                     </div>
                                     <Accordion type="single" collapsible
 
@@ -567,15 +585,6 @@ export default function Ligands() {
 
                                                     />
                                                 </div>
-                                                {/* <div className="flex flex-wrap ">
-                                                    {surroundingResidues.length === 0 ? null :
-                                                        surroundingResidues.map((residue, i) => {
-                                                            return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
-                                                        })
-                                                    }
-                                                </div> */}
-
-
                                             </AccordionContent>
                                         </AccordionItem>
 

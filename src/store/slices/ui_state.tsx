@@ -127,30 +127,38 @@ export const uiSlice = createSlice({
     initialState,
     reducers: {
 
+        // !---------------- Ligands
         set_ligands_data(state, action: PayloadAction<LigandInstances>) {
             state.ligands_page.data = action.payload
         },
         set_ligands_data_filtered(state, action: PayloadAction<LigandInstances>) {
             state.ligands_page.filtered_data = action.payload
         },
-
         set_current_ligand(state, action: PayloadAction<LigandInstance>) {
             state.ligands_page.current_ligand = action.payload
         },
+        set_ligand_prediction_target(state, action: PayloadAction<LigandInstances>) {
+            // TODO...
+        },
+        set_ligand_prediction_data(state, action: PayloadAction<LigandInstances>) {
+            // TODO...
+        },
 
+        // !---------------- Ligands
         set_tax_dict(state, action: PayloadAction<Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>>) {
             state.taxid_dict = action.payload
         },
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
+
         set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
             state.data.current_polymers = action.payload
         },
-
         set_current_polymer_class(state, action: PayloadAction<string>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
         },
+
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
@@ -195,6 +203,14 @@ export const uiSlice = createSlice({
 
     },
     extraReducers: (builder) => {
+
+        builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchFulfilled, (state, action) => {
+            // TODO
+            console.log("Dispatch fetch ligand transpose matchFulfilled");
+            console.log(action.payload);
+            
+
+        });
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
 
             // @ts-ignore

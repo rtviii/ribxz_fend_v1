@@ -24,10 +24,10 @@ import { StructureOverview, select_structure } from "@/store/slices/all_structs_
 
 const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
 
-    const dispatch = useAppDispatch();
+    const dispatch   = useAppDispatch();
     const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
-    const polymers = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
-    const ctx = useContext(MolstarContext)
+    const polymers   = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
+    const ctx        = useContext(MolstarContext)
 
     return <div className="border rounded-lg p-1 max-h-64 overflow-y-auto scrollbar-hide flex items-center justify-between hover:bg-slate-200">
         <HoverCard openDelay={0} closeDelay={0}>
@@ -111,17 +111,18 @@ export default function ChainPicker({ children }: { children?: React.ReactNode }
 //! Do "Coordinate" double dropdown for chains
 // It's an input field with its own state 
 // and that can be parametrized by filters but isn't by default
-export const GlobalStructureSelection = ({props}:{props:any}) => {
+export const GlobalStructureSelection = ({ props }: { props: any }) => {
     const structs_overview = useAppSelector(state => state.all_structures_overview.structures)
     const selected = useAppSelector(state => state.all_structures_overview.selected)
-    const dispatch         = useAppDispatch();
+    const dispatch = useAppDispatch();
 
     return <Select
-    {...props}
-    placeholder = "Select a structure"
-    onChange    = {(val, struct) => {console.log(val,struct.S); dispatch(select_structure(struct.S as StructureOverview)) }}
-    value       = {selected?.rcsb_id}
-    style       = {{ width: '100%' }}
-    options     = {structs_overview.map(S => ({ value: S.rcsb_id, label: S.rcsb_id, S }))}
+        {...props}
+        showSearch={true}
+        placeholder="Select a structure"
+        onChange={(val, struct) => { console.log(val, struct.S); dispatch(select_structure(struct.S as StructureOverview)) }}
+        value={selected?.rcsb_id}
+        style={{ width: '100%' }}
+        options={structs_overview.map(S => ({ value: S.rcsb_id, label: S.rcsb_id, S }))}
     />
 }

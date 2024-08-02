@@ -170,6 +170,33 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId, auth_asym_id: queryArg.authAsymId },
       }),
     }),
+    routersRouterLigLigNbhd: build.query<
+      RoutersRouterLigLigNbhdApiResponse,
+      RoutersRouterLigLigNbhdApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/ligand/binding_pocket`,
+        params: {
+          source_structure: queryArg.sourceStructure,
+          chemical_id: queryArg.chemicalId,
+          radius: queryArg.radius,
+        },
+      }),
+    }),
+    routersRouterLigLigTranspose: build.query<
+      RoutersRouterLigLigTransposeApiResponse,
+      RoutersRouterLigLigTransposeApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/ligand/transpose`,
+        params: {
+          source_structure: queryArg.sourceStructure,
+          target_structure: queryArg.targetStructure,
+          chemical_id: queryArg.chemicalId,
+          radius: queryArg.radius,
+        },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -1076,6 +1103,21 @@ export type RoutersRouterMmcifPolymerApiArg = {
   rcsbId: string;
   authAsymId: string;
 };
+export type RoutersRouterLigLigNbhdApiResponse =
+  /** status 200 OK */ BindingSite;
+export type RoutersRouterLigLigNbhdApiArg = {
+  sourceStructure: string;
+  chemicalId: string;
+  radius?: number;
+};
+export type RoutersRouterLigLigTransposeApiResponse =
+  /** status 200 OK */ BindingSite;
+export type RoutersRouterLigLigTransposeApiArg = {
+  sourceStructure: string;
+  targetStructure: string;
+  chemicalId: string;
+  radius?: number;
+};
 export type CompositionStats = {
   lsu_only: number;
   ssu_only: number;
@@ -1515,6 +1557,34 @@ export type NomenclatureSet = {
   MitochondrialRNAClass: string[];
   tRNAClass: string[];
 };
+export type ResidueSummary = {
+  full_id: [string, number, string, [string, number, string]];
+  resname: string;
+  seqid: number;
+  parent_auth_asym_id: string;
+};
+export type BindingSiteChain = {
+  assembly_id: number;
+  asym_ids: string[];
+  auth_asym_id: string;
+  parent_rcsb_id: string;
+  src_organism_names: string[];
+  host_organism_names: string[];
+  src_organism_ids: number[];
+  host_organism_ids: number[];
+  rcsb_pdbx_description?: string | null;
+  entity_poly_strand_id: string;
+  entity_poly_seq_one_letter_code: string;
+  entity_poly_seq_one_letter_code_can: string;
+  entity_poly_seq_length: number;
+  entity_poly_polymer_type: string;
+  entity_poly_entity_type: string;
+  nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
+  residues: ResidueSummary[];
+};
+export type BindingSite = {
+  [key: string]: BindingSiteChain;
+};
 export const {
   useRoutersRouterStructAllRcsbIdsQuery,
   useRoutersRouterStructPolymerClassesStatsQuery,
@@ -1536,4 +1606,6 @@ export const {
   useRoutersRouterClassesPolypeptideClassQuery,
   useRoutersRouterClassesLifecycleFactorClassQuery,
   useRoutersRouterMmcifPolymerQuery,
+  useRoutersRouterLigLigNbhdQuery,
+  useRoutersRouterLigLigTransposeQuery,
 } = injectedRtkApi;
