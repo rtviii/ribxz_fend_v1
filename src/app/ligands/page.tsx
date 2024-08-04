@@ -251,14 +251,14 @@ export default function Ligands() {
 
 
 
-    const lig_state = useAppSelector(state => state.ui.ligands_page)
+    const lig_state      = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
-    const [nomenclatureMap, setNomenclatureMap] = useState<Record<string, string | undefined>>({})
+    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueList>([])
+    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap]           = useState<Record<string, string | undefined>>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
-    const [structVisibility, setStructVisibility] = useState<boolean>(true)
+    const [structVisibility, setStructVisibility]         = useState<boolean>(true)
 
 
     useEffect(() => {
@@ -313,10 +313,10 @@ export default function Ligands() {
                 struct_representation
             }) => {
                 setStructRepresentation(struct_representation)
-                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId)
+                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId,lig_state.radius)
             })
             // .then((ctx) => ctx.toggleSpin())
-            .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId))
+            .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
             .then(residues => {
                 setSurroundingResidues(residues)
             })
@@ -417,7 +417,7 @@ export default function Ligands() {
                                         }))
                                     }}
                                 />
-                                 <InputNumber addonAfter="Å" className="w-[30%]" max={20}  min={2} placeholder="Radius" value={ligands_state.radius} onChange={v=>{dispatch(set_ligands_radius(v))}}/>
+                                 <InputNumber addonAfter="Å" className="w-[30%]" max={20}  min={2} placeholder="Radius" value={ligands_state.radius} onChange={v=>{if ( v === null ){return}dispatch(set_ligands_radius(v))}}/>
                                 </div>
 
                                 <div className="flex flex-row w-full justify-between">
@@ -433,9 +433,9 @@ export default function Ligands() {
 
                                     <Button
                                         variant={"default"}
-                                        onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['highlight']) }}
+                                        onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius,['highlight']) }}
                                         onMouseLeave={() => { ctx?.removeHighlight() }}
-                                        onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
+                                        onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId,lig_state.radius, ['select', 'focus']) }}
                                         disabled={current_ligand === null}
                                         className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 " >
                                         Binding Site 

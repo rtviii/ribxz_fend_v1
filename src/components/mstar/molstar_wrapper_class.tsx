@@ -355,12 +355,12 @@ export class MolstarRibxz {
 
   }
 
-  async get_selection_constituents(chemicalId: string | undefined): Promise<ResidueList> {
+  async get_selection_constituents(chemicalId: string | undefined, radius:number): Promise<ResidueList> {
     if (!chemicalId) {
       return []
     }
 
-    const RADIUS = 5
+    const RADIUS = radius
 
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
@@ -404,12 +404,12 @@ export class MolstarRibxz {
     return residueList
   }
 
-  async create_ligand_and_surroundings(chemicalId: string | undefined) {
+  async create_ligand_and_surroundings(chemicalId: string | undefined, radius:number) {
     if (!chemicalId) {
       return this
     }
     await this.ctx.dataTransaction(async () => {
-      const RADIUS = 5
+      const RADIUS = radius
 
       let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
       const struct = structures[0];
@@ -421,7 +421,7 @@ export class MolstarRibxz {
           'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
         })
       ]);
-      const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
+      const surroundings              = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: radius, 'as-whole-residues': true });
       const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: ligand });
 
       // Create a group for both ligand and surroundings
@@ -450,8 +450,8 @@ export class MolstarRibxz {
     return this
   }
 
-  async select_focus_ligand_surroundings(chemicalId: string | undefined, focus_select: Array<'focus' | 'select' | 'highlight'>) {
-    const RADIUS = 5
+  async select_focus_ligand_surroundings(chemicalId: string | undefined,radius:number, focus_select: Array<'focus' | 'select' | 'highlight'>) {
+    const RADIUS = radius
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
     if (!chemicalId || !struct) {
