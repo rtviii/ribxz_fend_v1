@@ -1,6 +1,6 @@
 'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, LigandPrediction, Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum,  LigandTransposition,  Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
@@ -63,7 +63,7 @@ export interface UIState {
         current_ligand    : LigandInstance | null,
         radius            : number,
 
-        prediction_data   : LigandPrediction
+        prediction_data   : LigandTransposition | null
         prediction_pending: boolean
 
     },
@@ -89,7 +89,7 @@ const initialState: UIState = {
         radius            : 10,
         current_ligand    : null,
         filtered_data     : [],
-        prediction_data   : {},
+        prediction_data   : null,
         prediction_pending: false
 
     },
@@ -149,8 +149,8 @@ export const uiSlice = createSlice({
         set_current_ligand(state, action: PayloadAction<LigandInstance>) {
             state.ligands_page.current_ligand = action.payload
         },
-        set_ligand_prediction_data(state, action: PayloadAction<LigandInstances>) {
-            // TODO...
+        set_ligand_prediction_data(state, action: PayloadAction<LigandTransposition>) {
+            state.ligands_page.prediction_data = action.payload
         },
 
         // !---------------- Ligands
@@ -263,6 +263,7 @@ export const {
     set_ligands_data_filtered,
     set_current_ligand,
     set_ligands_radius,
+    set_ligand_prediction_data,
 
     set_tax_dict,
     set_current_polymers,

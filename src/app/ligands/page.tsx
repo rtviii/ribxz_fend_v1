@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import {  LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
+import { LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -38,7 +38,7 @@ import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Input, InputNumber, TreeSelect } from "antd"
-import { LigandInstances, set_current_ligand, set_ligands_radius } from "@/store/slices/ui_state"
+import { LigandInstances, set_current_ligand, set_ligand_prediction_data, set_ligands_radius } from "@/store/slices/ui_state"
 import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "@/my_utils"
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
@@ -251,14 +251,14 @@ export default function Ligands() {
 
 
 
-    const lig_state      = useAppSelector(state => state.ui.ligands_page)
+    const lig_state = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueList>([])
-    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure)
-    const [nomenclatureMap, setNomenclatureMap]           = useState<Record<string, string | undefined>>({})
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
+    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap] = useState<Record<string, string | undefined>>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
-    const [structVisibility, setStructVisibility]         = useState<boolean>(true)
+    const [structVisibility, setStructVisibility] = useState<boolean>(true)
 
 
     useEffect(() => {
@@ -313,13 +313,10 @@ export default function Ligands() {
                 struct_representation
             }) => {
                 setStructRepresentation(struct_representation)
-                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId,lig_state.radius)
+                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius)
             })
-            // .then((ctx) => ctx.toggleSpin())
             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
-            .then(residues => {
-                setSurroundingResidues(residues)
-            })
+            .then(residues => { setSurroundingResidues(residues) })
     }, [current_ligand])
 
     const [checked, setChecked] = useState(false)
@@ -366,23 +363,27 @@ export default function Ligands() {
         {
             chemicalId: current_ligand?.ligand.chemicalId,
             sourceStructure: current_ligand?.parent_structure.rcsb_id,
-            targetStructure: current_selected_target?.rcsb_id
+            targetStructure: current_selected_target?.rcsb_id,
+            radius : lig_state.radius
         },
-        {
-            skip: current_ligand === null,
-            refetchOnMountOrArgChange: true,
-
+        { skip: current_ligand === null || current_selected_target === null, refetchOnMountOrArgChange: true,
         }
     );
     useEffect(() => {
         if (current_selected_target !== null) {
             ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
         }
+        dispatch(set_ligand_prediction_data(null))
     }, [current_selected_target, prediction_refetch])
 
+    useEffect(() => {
+        if (prediction_data === undefined) { return}
+        dispatch(set_ligand_prediction_data(prediction_data))
+    }, [prediction_data])
 
     const ligands_state = useAppSelector(state => state.ui.ligands_page)
 
+    const [radChanged, setRadChanged] = useState(false);
 
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
 
@@ -394,55 +395,70 @@ export default function Ligands() {
                             <div className="p-4 space-y-2">
                                 <div className="flex flex-row space-x-4">
 
-                                <TreeSelect
-                                    status={current_ligand === null ? "warning" : undefined}
-                                    showSearch={true}
-                                    treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
-                                    placeholder="Select ligand-structure pair..."
-                                    variant="outlined"
-                                    treeData={lig_data_to_tree(lig_state.data)}
-                                    className="w-full"
-                                    treeExpandAction="click"
-                                    showCheckedStrategy="SHOW_CHILD"
-                                    filterTreeNode={(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
-                                    onChange={(value: string, _) => {
-                                        var [chemId, rcsb_id_selected] = value.split("_")
-                                        const lig_and_its_structs = lig_state.data.filter((kvp) => {
-                                            var [lig, structs] = kvp; return lig.chemicalId == chemId;
-                                        })
-                                        const struct = lig_and_its_structs[0][1].filter((s) => s.rcsb_id == rcsb_id_selected)[0]
-                                        dispatch(set_current_ligand({
-                                            ligand: lig_and_its_structs[0][0],
-                                            parent_structure: struct
-                                        }))
-                                    }}
-                                />
-                                 <InputNumber addonAfter="Å" className="w-[30%]" max={20}  min={2} placeholder="Radius" value={ligands_state.radius} onChange={v=>{if ( v === null ){return}dispatch(set_ligands_radius(v))}}/>
+                                    <TreeSelect
+                                        status={current_ligand === null ? "warning" : undefined}
+                                        showSearch={true}
+                                        treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
+                                        placeholder="Select ligand-structure pair..."
+                                        variant="outlined"
+                                        treeData={lig_data_to_tree(lig_state.data)}
+                                        className="w-full"
+                                        treeExpandAction="click"
+                                        showCheckedStrategy="SHOW_CHILD"
+                                        filterTreeNode={(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()) }}
+                                        onChange={(value: string, _) => {
+                                            var [chemId, rcsb_id_selected] = value.split("_")
+                                            const lig_and_its_structs = lig_state.data.filter((kvp) => {
+                                                var [lig, structs] = kvp; return lig.chemicalId == chemId;
+                                            })
+                                            const struct = lig_and_its_structs[0][1].filter((s) => s.rcsb_id == rcsb_id_selected)[0]
+                                            dispatch(set_current_ligand({
+                                                ligand: lig_and_its_structs[0][0],
+                                                parent_structure: struct
+                                            }))
+                                        }}
+                                    />
+                                    <InputNumber addonAfter="Å" className={ `w-[30%] ${radChanged ? " outline-green-200 shadow-md shadow-green-400   rounded-md transition-all duration-200" : null }` } max={20} min={2} placeholder="Radius" value={ligands_state.radius} onChange={v => { if (v === null) { return } { dispatch(set_ligands_radius(v)); setRadChanged(true) } }} />
                                 </div>
 
                                 <div className="flex flex-row w-full justify-between">
+
+                                    <Button
+                                        onClick={() => {
+                                            setRadChanged(false)
+                                            if (current_ligand === null || ctx === null) { return }
+                                            ctx.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius)
+                                                .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
+                                                .then(residues => { setSurroundingResidues(residues) })
+                                        }}
+                                        
+                                        variant={"outline"}
+                                        disabled={current_ligand === null}
+                                        className={ ` px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 ${radChanged ? " outline-green-200 shadow-md shadow-green-400 rounded-sm   transition-all duration-200" : null }  ` } >
+                                        Render
+                                    </Button>
                                     <Button
                                         onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                         onMouseLeave={() => { ctx?.removeHighlight() }}
                                         onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
-                                        variant={"default"}
+                                        variant={"secondary"}
                                         disabled={current_ligand === null}
                                         className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 " >
                                         Ligand
                                     </Button>
 
                                     <Button
-                                        variant={"default"}
-                                        onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius,['highlight']) }}
+                                        variant={"secondary"}
+                                        onMouseEnter={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius, ['highlight']) }}
                                         onMouseLeave={() => { ctx?.removeHighlight() }}
-                                        onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId,lig_state.radius, ['select', 'focus']) }}
+                                        onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius, ['select', 'focus']) }}
                                         disabled={current_ligand === null}
                                         className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 " >
-                                        Binding Site 
+                                        Binding Site
                                     </Button>
 
                                     <Button
-                                        variant={"default"}
+                                        variant={"secondary"}
                                         className="text-xs  text-gray-900 bg-white border  hover:bg-gray-100 "
                                         onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} >
                                         <div className=" flex-row p-1 rounded-sm flex items-center content-center align-middle justify-center gap-2 ">
@@ -454,7 +470,7 @@ export default function Ligands() {
 
                                     </Button>
                                     <Button
-                                        variant={"default"}
+                                        variant={"secondary"}
                                         className="text-xs   text-gray-900 bg-white border  hover:bg-gray-100 " onClick={() => { ctx?.toggleSpin() }}>
                                         <div className="flex items-center content-center align-middle  flex-row p-1 rounded-sm justify-between gap-2 ">
                                             <span>Toggle Spin</span>
