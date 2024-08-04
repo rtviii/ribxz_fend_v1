@@ -149,7 +149,7 @@ export const uiSlice = createSlice({
         set_current_ligand(state, action: PayloadAction<LigandInstance>) {
             state.ligands_page.current_ligand = action.payload
         },
-        set_ligand_prediction_data(state, action: PayloadAction<LigandTransposition>) {
+        set_ligand_prediction_data(state, action: PayloadAction<LigandTransposition|null>) {
             state.ligands_page.prediction_data = action.payload
         },
 
@@ -285,6 +285,25 @@ export const prefetchLigandsData = createAsyncThunk( 'ui/fetchAndSetLigandsData'
     const result = await dispatch(ribxz_api.endpoints.routersRouterStructListLigands.initiate());
     if ('data' in result) {
       dispatch(set_ligands_data(result.data as any));
+    }
+  }
+);
+
+export const fetchPredictionData = createAsyncThunk( 'ui/fetchPredictionData',
+  async (params:{
+    chemid: string,
+    src   : string,
+    tgt   : string,
+    radius: number
+  }, { dispatch }) => {
+    const result = await dispatch(ribxz_api.endpoints.routersRouterLigLigTranspose.initiate({
+        chemicalId     : params.chemid,
+        sourceStructure: params.src,
+        targetStructure: params.tgt,
+        radius         : params.radius
+    }));
+    if ('data' in result) {
+      dispatch(set_ligand_prediction_data(result.data as any));
     }
   }
 );

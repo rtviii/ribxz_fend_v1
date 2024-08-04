@@ -3,7 +3,7 @@ import { configureStore, createAsyncThunk, createListenerMiddleware } from '@red
 import { ribxz_api } from './ribxz_api/ribxz_api'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'
 import { molstarListenerMiddleware, molstarSlice } from './slices/molstar_state'
-import { prefetchLigandsData, uiSlice } from './slices/ui_state'
+import { fetchPredictionData, prefetchLigandsData, uiSlice } from './slices/ui_state'
 import { allStructuresOverviewSlice, prefetchAllStructsOverview } from './slices/all_structs_overview_state'
 
 

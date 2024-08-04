@@ -38,7 +38,7 @@ import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Input, InputNumber, TreeSelect } from "antd"
-import { LigandInstances, set_current_ligand, set_ligand_prediction_data, set_ligands_radius } from "@/store/slices/ui_state"
+import { LigandInstances, fetchPredictionData, set_current_ligand, set_ligand_prediction_data, set_ligands_radius } from "@/store/slices/ui_state"
 import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "@/my_utils"
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
@@ -265,9 +265,7 @@ export default function Ligands() {
         if (current_ligand?.parent_structure.rcsb_id === undefined) { return }
         const fetchData = async () => {
             try {
-                const result = await refetchParentStruct({
-                    rcsbId: current_ligand?.parent_structure.rcsb_id
-                }).unwrap();
+                const result = await refetchParentStruct({ rcsbId: current_ligand?.parent_structure.rcsb_id }).unwrap();
                 setParentStructProfile(result);
             } catch (error) {
                 console.error('Error fetching parent struct:', error);
@@ -358,28 +356,34 @@ export default function Ligands() {
     }, [predictionMode]);
 
 
+    // const { data: prediction_data, error: prediction_error, isLoading: prediction_isloading, refetch: prediction_refetch } = ribxz_api.useRoutersRouterLigLigTransposeQuery(
+    //     {
+    //         chemicalId: current_ligand?.ligand.chemicalId,
+    //         sourceStructure: current_ligand?.parent_structure.rcsb_id,
+    //         targetStructure: current_selected_target?.rcsb_id,
+    //         radius : lig_state.radius
+    //     },
+    //     { skip: current_ligand === null || current_selected_target === null, refetchOnMountOrArgChange: true,
+    //     }
+    // );
     const current_selected_target = useAppSelector(state => state.all_structures_overview.selected)
-    const { data: prediction_data, error: prediction_error, isLoading: prediction_isloading, refetch: prediction_refetch } = ribxz_api.useRoutersRouterLigLigTransposeQuery(
-        {
-            chemicalId: current_ligand?.ligand.chemicalId,
-            sourceStructure: current_ligand?.parent_structure.rcsb_id,
-            targetStructure: current_selected_target?.rcsb_id,
-            radius : lig_state.radius
-        },
-        { skip: current_ligand === null || current_selected_target === null, refetchOnMountOrArgChange: true,
-        }
-    );
     useEffect(() => {
         if (current_selected_target !== null) {
             ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
+            dispatch(fetchPredictionData(
+                {
+                    chemid: current_ligand?.ligand.chemicalId,
+                    src   : current_ligand?.parent_structure.rcsb_id,
+                    tgt   : current_selected_target?.rcsb_id,
+                    radius: lig_state.radius
+                }
+            ))
+
         }
         dispatch(set_ligand_prediction_data(null))
-    }, [current_selected_target, prediction_refetch])
+    }, [current_selected_target])
 
-    useEffect(() => {
-        if (prediction_data === undefined) { return}
-        dispatch(set_ligand_prediction_data(prediction_data))
-    }, [prediction_data])
+    // useEffect(() => {}, [prediction_data])
 
     const ligands_state = useAppSelector(state => state.ui.ligands_page)
 
@@ -418,7 +422,7 @@ export default function Ligands() {
                                             }))
                                         }}
                                     />
-                                    <InputNumber addonAfter="Å" className={ `w-[30%] ${radChanged ? " outline-green-200 shadow-md shadow-green-400   rounded-md transition-all duration-200" : null }` } max={20} min={2} placeholder="Radius" value={ligands_state.radius} onChange={v => { if (v === null) { return } { dispatch(set_ligands_radius(v)); setRadChanged(true) } }} />
+                                    <InputNumber addonAfter="Å" className={`w-[30%] ${radChanged ? " outline-green-200 shadow-md shadow-green-400   rounded-md transition-all duration-200" : null}`} max={20} min={2} placeholder="Radius" value={ligands_state.radius} onChange={v => { if (v === null) { return } { dispatch(set_ligands_radius(v)); setRadChanged(true) } }} />
                                 </div>
 
                                 <div className="flex flex-row w-full justify-between">
@@ -431,10 +435,10 @@ export default function Ligands() {
                                                 .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
                                                 .then(residues => { setSurroundingResidues(residues) })
                                         }}
-                                        
+
                                         variant={"outline"}
                                         disabled={current_ligand === null}
-                                        className={ ` px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 ${radChanged ? " outline-green-200 shadow-md shadow-green-400 rounded-sm   transition-all duration-200" : null }  ` } >
+                                        className={` px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 ${radChanged ? " outline-green-200 shadow-md shadow-green-400 rounded-sm   transition-all duration-200" : null}  `} >
                                         Render
                                     </Button>
                                     <Button
@@ -602,10 +606,10 @@ export default function Ligands() {
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
 
-                                                    <Button variant={"outline"} disabled={prediction_data === undefined || _.isEmpty(prediction_data)} onClick={() => {
+                                                    <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
                                                         console.log(ligands_state.prediction_data);
-                                                        ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(prediction_data))
-                                                        ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(prediction_data))
+                                                        ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
+                                                        ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                     }}> Display Prediction</Button>
 
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
@@ -621,11 +625,11 @@ export default function Ligands() {
                                                 </div>
 
                                                 <div className="flex flex-wrap ">
-                                                    {prediction_data === undefined ? null :
+                                                    {/* {prediction_data === undefined ? null :
                                                         LigandPredictionNucleotides(prediction_data).map((residue, i) => {
                                                             return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
                                                         })
-                                                    }
+                                                    } */}
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>

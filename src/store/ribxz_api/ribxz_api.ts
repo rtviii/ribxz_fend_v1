@@ -1355,9 +1355,9 @@ export type NomenclatureSet = {
   tRNAClass: string[];
 };
 export type ResidueSummary = {
-  full_id            : [string, number, string, [string, number, string]] | null;
-  resname            : string;
-  seqid              : number;
+  full_id: [string, number, string, [string, number, string]] | null;
+  resname: string;
+  seqid: number;
   parent_auth_asym_id: string;
 };
 export type BindingSiteChain = {
