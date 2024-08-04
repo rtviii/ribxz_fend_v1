@@ -58,11 +58,12 @@ export type LigandInstance = {
 export interface UIState {
     taxid_dict: Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>,
     ligands_page: {
-        data          : LigandInstances,
-        filtered_data : LigandInstances
-        current_ligand: LigandInstance | null,
+        data              : LigandInstances,
+        filtered_data     : LigandInstances
+        current_ligand    : LigandInstance | null,
+        radius            : number,
 
-        prediction_data: LigandPrediction
+        prediction_data   : LigandPrediction
         prediction_pending: boolean
 
     },
@@ -84,11 +85,12 @@ export interface UIState {
 const initialState: UIState = {
     taxid_dict: {},
     ligands_page: {
-        data          : [],
-        current_ligand: null,
-        filtered_data : [],
-        prediction_data:{},
-        prediction_pending:false
+        data              : [],
+        radius            : 10,
+        current_ligand    : null,
+        filtered_data     : [],
+        prediction_data   : {},
+        prediction_pending: false
 
     },
     data: {
@@ -137,6 +139,9 @@ export const uiSlice = createSlice({
         // !---------------- Ligands
         set_ligands_data(state, action: PayloadAction<LigandInstances>) {
             state.ligands_page.data = action.payload
+        },
+        set_ligands_radius(state, action: PayloadAction<number>) {
+            state.ligands_page.radius = action.payload
         },
         set_ligands_data_filtered(state, action: PayloadAction<LigandInstances>) {
             state.ligands_page.filtered_data = action.payload
@@ -257,6 +262,7 @@ export const {
     set_ligands_data,
     set_ligands_data_filtered,
     set_current_ligand,
+    set_ligands_radius,
 
     set_tax_dict,
     set_current_polymers,

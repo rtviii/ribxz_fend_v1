@@ -37,8 +37,8 @@ import { TaxonomyDot } from "@/components/ribxz/taxonomy"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { TreeSelect } from "antd"
-import { LigandInstances, set_current_ligand } from "@/store/slices/ui_state"
+import { Input, InputNumber, TreeSelect } from "antd"
+import { LigandInstances, set_current_ligand, set_ligands_radius } from "@/store/slices/ui_state"
 import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "@/my_utils"
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
@@ -392,6 +392,8 @@ export default function Ligands() {
                     <MolstarContext.Provider value={ctx}>
                         <div className="border-r">
                             <div className="p-4 space-y-2">
+                                <div className="flex flex-row space-x-4">
+
                                 <TreeSelect
                                     status={current_ligand === null ? "warning" : undefined}
                                     showSearch={true}
@@ -415,6 +417,8 @@ export default function Ligands() {
                                         }))
                                     }}
                                 />
+                                 <InputNumber addonAfter="Å" className="w-[30%]" max={20}  min={2} placeholder="Radius" value={ligands_state.radius} onChange={v=>{dispatch(set_ligands_radius(v))}}/>
+                                </div>
 
                                 <div className="flex flex-row w-full justify-between">
                                     <Button
@@ -433,8 +437,8 @@ export default function Ligands() {
                                         onMouseLeave={() => { ctx?.removeHighlight() }}
                                         onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                         disabled={current_ligand === null}
-                                        className=" px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 " >
-                                        Binding Site (5 Å)
+                                        className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 " >
+                                        Binding Site 
                                     </Button>
 
                                     <Button
