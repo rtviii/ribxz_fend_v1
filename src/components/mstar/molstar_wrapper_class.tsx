@@ -322,8 +322,6 @@ export class MolstarRibxz {
     return { ctx: this, struct_representation: st?.representation }
   }
 
-
-
   async select_focus_ligand(chemicalId: string | undefined, focus_select: Array<'focus' | 'select' | 'highlight'>) {
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
@@ -405,7 +403,6 @@ export class MolstarRibxz {
     });
     return residueList
   }
-
 
   async create_ligand_and_surroundings(chemicalId: string | undefined) {
     if (!chemicalId) {

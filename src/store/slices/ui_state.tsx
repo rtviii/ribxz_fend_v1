@@ -61,6 +61,7 @@ export interface UIState {
         data          : LigandInstances,
         filtered_data : LigandInstances
         current_ligand: LigandInstance | null,
+
         prediction_data: LigandPrediction
         prediction_pending: boolean
 

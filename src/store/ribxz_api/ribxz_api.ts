@@ -908,7 +908,7 @@ export type RoutersRouterLigLigNbhdApiArg = {
   radius?: number;
 };
 export type RoutersRouterLigLigTransposeApiResponse =
-  /** status 200 OK */ LigandPrediction;
+  /** status 200 OK */ LigandTransposition;
 export type RoutersRouterLigLigTransposeApiArg = {
   sourceStructure: string;
   targetStructure: string;
@@ -1355,9 +1355,9 @@ export type NomenclatureSet = {
   tRNAClass: string[];
 };
 export type ResidueSummary = {
-  full_id: [string, number, string, [string, number, string]];
-  resname: string;
-  seqid: number;
+  full_id            : [string, number, string, [string, number, string]] | null;
+  resname            : string;
+  seqid              : number;
   parent_auth_asym_id: string;
 };
 export type BindingSiteChain = {
@@ -1377,33 +1377,40 @@ export type BindingSiteChain = {
   entity_poly_polymer_type: string;
   entity_poly_entity_type: string;
   nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
-  residues: ResidueSummary[];
+  bound_residues: ResidueSummary[];
 };
 export type BindingSite = {
-  [key: string]: BindingSiteChain;
+  source: string;
+  ligand: string;
+  radius: number;
+  chains: BindingSiteChain[];
 };
 export type PredictionSource = {
-  src: string;
-  src_ids: number[];
+  source_seq: string;
+  source_bound_residues: ResidueSummary[];
   auth_asym_id: string;
 };
 export type PredictionTarget = {
-  tgt: string;
-  tgt_ids: number[];
+  target_seq: string;
+  target_bound_residues: ResidueSummary[];
   auth_asym_id: string;
 };
 export type PredictionAlignments = {
-  aln_ids: number[];
-  src_aln: string;
-  tgt_aln: string;
+  aligned_ids: number[];
+  source_seq_aligned: string;
+  target_seq_aligned: string;
 };
 export type PredictedResiduesPolymer = {
+  polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum;
   source: PredictionSource;
   target: PredictionTarget;
   alignment: PredictionAlignments;
 };
-export type LigandPrediction = {
-  [key: string]: PredictedResiduesPolymer;
+export type LigandTransposition = {
+  source: string;
+  target: string;
+  constituent_chains: PredictedResiduesPolymer[];
+  purported_binding_site: BindingSite;
 };
 export const {
   useRoutersRouterStructAllRcsbIdsQuery,

@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
+import {  LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -11,8 +11,7 @@ import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription }
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
-import { useParams, useSearchParams } from 'next/navigation'
-import PolymersTable from "@/components/ribxz/polymer_table"
+import _ from 'lodash'
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 import { MolstarRibxz, Residue, ResidueList } from "@/components/mstar/molstar_wrapper_class"
 import { MolstarNode, MolstarNode_secondary } from "@/components/mstar/lib"
@@ -27,12 +26,6 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import React from 'react';
-
-interface DownloadDropdownProps {
-    data: any[][];
-}
-
-
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,7 +44,6 @@ import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } fro
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
 import { ImperativePanelHandle } from "react-resizable-panels"
 import ChainPicker, { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
-import { Input } from "@/components/ui/input"
 
 
 interface TaxaDropdownProps {
@@ -127,14 +119,11 @@ interface LigandAssociatedStructure {
     superkingdom: number
 }
 
-
 /** This returns the link to the chemical structure image that rcsb stores. */
 const chemical_structure_link = (ligand_id: string | undefined) => {
     if (ligand_id === undefined) { return '' };
     return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id.toUpperCase()[0]}/${ligand_id.toUpperCase()}.svg`
 }
-
-
 
 type LigandAssociatedTaxa = Array<[string, number]>
 type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa]
@@ -151,6 +140,7 @@ const LigandTableRow = (props: LigandRowProps) => {
 }
 
 const lig_data_to_tree = (lig_data: LigandInstances) => {
+
     return lig_data.map(([lig, structs]) => ({
         key: lig.chemicalId,
         value: lig.chemicalId,
@@ -218,6 +208,18 @@ const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[
         </DropdownMenu>
     );
 };
+
+
+
+const LigandPredictionNucleotides = (lp: LigandTransposition): any[] => {
+    var chain_residue_tuples = []
+    for (var chain of lp.constituent_chains) {
+        for (let res of chain.target.target_bound_residues) {
+            chain_residue_tuples.push({ auth_asym_id: chain.target.auth_asym_id, res_seq_id: res.seqid })
+        }
+    }
+    return chain_residue_tuples
+}
 
 
 export default function Ligands() {
@@ -360,27 +362,23 @@ export default function Ligands() {
 
 
     const current_selected_target = useAppSelector(state => state.all_structures_overview.selected)
-
-    // const [triggerLigandTransposeRefetch] = ribxz_api.endpoints.routersRouterLigLigTranspose.useLazyQuery()
-
-    const { data, error, isLoading, refetch } = ribxz_api.useRoutersRouterLigLigTransposeQuery(
+    const { data: prediction_data, error: prediction_error, isLoading: prediction_isloading, refetch: prediction_refetch } = ribxz_api.useRoutersRouterLigLigTransposeQuery(
         {
-            chemicalId: current_ligand!.ligand.chemicalId,
-            sourceStructure: current_ligand!.parent_structure.rcsb_id,
-            targetStructure: current_selected_target!.rcsb_id
+            chemicalId: current_ligand?.ligand.chemicalId,
+            sourceStructure: current_ligand?.parent_structure.rcsb_id,
+            targetStructure: current_selected_target?.rcsb_id
         },
         {
-            skip: !current_selected_target || !current_ligand,
-            refetchOnMountOrArgChange: true
+            skip: current_ligand === null,
+            refetchOnMountOrArgChange: true,
+
         }
     );
-
     useEffect(() => {
         if (current_selected_target !== null) {
             ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
-            refetch()
         }
-    }, [current_selected_target, refetch])
+    }, [current_selected_target, prediction_refetch])
 
 
     const ligands_state = useAppSelector(state => state.ui.ligands_page)
@@ -418,14 +416,14 @@ export default function Ligands() {
                                     }}
                                 />
 
-                                <div className="rounded-md shadow-sm " >
+                                <div className="flex flex-row w-full justify-between">
                                     <Button
                                         onMouseEnter={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']) }}
                                         onMouseLeave={() => { ctx?.removeHighlight() }}
                                         onClick={() => { ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                         variant={"default"}
                                         disabled={current_ligand === null}
-                                        className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[40%]" >
+                                        className="px-4 py-2 text-sm font-medium text-gray-900 bg-white border  hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 " >
                                         Ligand
                                     </Button>
 
@@ -435,34 +433,33 @@ export default function Ligands() {
                                         onMouseLeave={() => { ctx?.removeHighlight() }}
                                         onClick={() => { ctx?.select_focus_ligand_surroundings(current_ligand?.ligand.chemicalId, ['select', 'focus']) }}
                                         disabled={current_ligand === null}
-                                        className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 w-[60%]" >
+                                        className=" px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 " >
                                         Binding Site (5 Å)
                                     </Button>
 
+                                    <Button
+                                        variant={"default"}
+                                        className="text-xs  text-gray-900 bg-white border  hover:bg-gray-100 "
+                                        onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} >
+                                        <div className=" flex-row p-1 rounded-sm flex items-center content-center align-middle justify-center gap-2 ">
+                                            <span>Toggle Structure Visibility</span>
+                                            <div>
+                                                {!structVisibility ? <div> < IconVisibilityOff className="w-6 h-6" /></div> : <div ><IconVisibilityOn className="w-6 h-6" /></div>}
+                                            </div>
+                                        </div>
+
+                                    </Button>
+                                    <Button
+                                        variant={"default"}
+                                        className="text-xs   text-gray-900 bg-white border  hover:bg-gray-100 " onClick={() => { ctx?.toggleSpin() }}>
+                                        <div className="flex items-center content-center align-middle  flex-row p-1 rounded-sm justify-between gap-2 ">
+                                            <span>Toggle Spin</span>
+                                            <div>
+                                                <IconToggleSpin className="w-6 h-6 flex items-center content-center align-middle justify-center" />
+                                            </div>
+                                        </div>
+                                    </Button>
                                 </div>
-
-                                <Button
-                                    variant={"default"}
-                                    className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 "
-                                    onClick={() => { ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility); setStructVisibility(!structVisibility) }} >
-                                    <div className=" flex-row p-1 rounded-sm flex items-center content-center align-middle justify-center gap-2 ">
-                                        <span>Toggle Structure Visibility</span>
-                                        <div>
-                                            {!structVisibility ? <div> < IconVisibilityOff className="w-6 h-6" /></div> : <div ><IconVisibilityOn className="w-6 h-6" /></div>}
-                                        </div>
-                                    </div>
-
-                                </Button>
-                                <Button
-                                    variant={"default"}
-                                    className="text-xs  w-full text-gray-900 bg-white border  hover:bg-gray-100 " onClick={() => { ctx?.toggleSpin() }}>
-                                    <div className="flex items-center content-center align-middle  flex-row p-1 rounded-sm justify-between gap-2 ">
-                                        <span>Toggle Spin</span>
-                                        <div>
-                                            <IconToggleSpin className="w-6 h-6 flex items-center content-center align-middle justify-center" />
-                                        </div>
-                                    </div>
-                                </Button>
 
                                 <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
 
@@ -562,16 +559,6 @@ export default function Ligands() {
                                             </div>
                                         </Label>
                                     </div>
-                                    <Button onClick={() => { console.log(ligands_state.prediction_data); }}> see prediction {ligands_state.prediction_pending ? "pending" : "not"}</Button>
-                                    <span>
-
-                                        {isLoading ? "spinner" : "done"}
-                                    </span>
-                                    <span>
-
-                                        {!error ? "error" : "no error"}
-                                    </span>
-
                                     <Accordion type="single" collapsible
 
                                         value={predictionMode ? "prediction" : undefined}
@@ -584,15 +571,25 @@ export default function Ligands() {
                                                 <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
                                                     <span className="text-center">
                                                         Prediction Target
+
                                                     </span>
 
                                                 </div>
                                             </AccordionTrigger>
                                             <AccordionContent>
 
+
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
+
+                                                    <Button variant={"outline"} disabled={prediction_data === undefined || _.isEmpty(prediction_data)} onClick={() => {
+                                                        console.log(ligands_state.prediction_data);
+                                                        ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(prediction_data))
+                                                        ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(prediction_data))
+                                                    }}> Display Prediction</Button>
+
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
+
                                                     <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
                                                     <DownloadDropdown
                                                         residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
@@ -600,6 +597,15 @@ export default function Ligands() {
                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
 
                                                     />
+
+                                                </div>
+
+                                                <div className="flex flex-wrap ">
+                                                    {prediction_data === undefined ? null :
+                                                        LigandPredictionNucleotides(prediction_data).map((residue, i) => {
+                                                            return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
+                                                        })
+                                                    }
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>
@@ -607,11 +613,6 @@ export default function Ligands() {
                                     </Accordion>
 
                                 </ScrollArea>
-
-
-
-
-
 
                             </div>
                         </div>

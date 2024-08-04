@@ -77,7 +77,6 @@ export default allStructuresOverviewSlice.reducer
 export const prefetchAllStructsOverview = createAsyncThunk( 'all_structs_overview/prefetchAllStructsOverview',
   async (_, { dispatch }) => {
     const result = await dispatch(ribxz_api.endpoints.routersRouterStructOverview.initiate());
-    console.log("got result from prefetch", result);
     dispatch(set_all_structures_overview( result.data as StructureOverview[]));
   }
 );
