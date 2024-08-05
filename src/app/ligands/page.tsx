@@ -212,6 +212,7 @@ const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[
 
 
 const LigandPredictionNucleotides = (lp: LigandTransposition): any[] => {
+    if ( lp  === null) { return []}
     var chain_residue_tuples = []
     for (var chain of lp.constituent_chains) {
         for (let res of chain.target.target_bound_residues) {
@@ -609,7 +610,7 @@ export default function Ligands() {
                                                     <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
                                                         console.log(ligands_state.prediction_data);
                                                         ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
-                                                        ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
+                                                        ctx_secondary?.select_residueCluster  (LigandPredictionNucleotides(ligands_state.prediction_data))
                                                     }}> Display Prediction</Button>
 
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
@@ -625,11 +626,11 @@ export default function Ligands() {
                                                 </div>
 
                                                 <div className="flex flex-wrap ">
-                                                    {/* {prediction_data === undefined ? null :
-                                                        LigandPredictionNucleotides(prediction_data).map((residue, i) => {
+                                                    {ligands_state.prediction_data === undefined ? null :
+                                                        LigandPredictionNucleotides(ligands_state.prediction_data).map((residue, i) => {
                                                             return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
                                                         })
-                                                    } */}
+                                                    }
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>

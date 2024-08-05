@@ -48,6 +48,7 @@ declare global {
 export type Residue = {
   label_seq_id  : number,
   label_comp_id : string,
+  auth_seq_id: number,
   auth_asym_id  : string,
   rcsb_id       : string,
   polymer_class?: string,
@@ -111,7 +112,7 @@ export class MolstarRibxz {
 
   select_residueCluster = (chain_residue_tuples: {
     auth_asym_id: string,
-    res_seq_id: number,
+    auth_seq_id: number,
   }[]) => {
 
     const expr     = this.selectionResidueClusterExpression(chain_residue_tuples)
@@ -161,13 +162,13 @@ export class MolstarRibxz {
 
   selectionResidueClusterExpression = (chain_residues_tuples_tuples: {
     auth_asym_id: string,
-    res_seq_id: number,
+    auth_seq_id: number,
   }[]): Expression => {
     const groups: Expression[] = [];
     for (var chain_residue_tuple of chain_residues_tuples_tuples) {
       groups.push(MS.struct.generator.atomGroups({
         "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple.auth_asym_id]),
-        "residue-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain_residue_tuple.res_seq_id]),
+        "residue-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_seq_id(), chain_residue_tuple.auth_seq_id]),
       }));
     }
     var expression = MS.struct.combinator.merge(groups);
@@ -177,7 +178,7 @@ export class MolstarRibxz {
 
   _highlightResidueCluster = (chain_residues_tuples: {
     auth_asym_id: string,
-    res_seq_id: number,
+    auth_seq_id: number,
   }[]) => {
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (data === undefined) return;
@@ -191,7 +192,7 @@ export class MolstarRibxz {
   highlightResidueCluster = _.memoize(_highlightResidueCluster =>
     _.debounce((chain_residues_tuples: {
       auth_asym_id: string,
-      res_seq_id: number,
+      auth_seq_id: number,
     }[]) => {
       _highlightResidueCluster(chain_residues_tuples)
     }, 50, { "leading": true, "trailing": true })
@@ -394,10 +395,11 @@ export class MolstarRibxz {
     Structure.eachAtomicHierarchyElement(struct_Element, {
       residue: (loc) => {
         residueList.push({
-          label_seq_id: StructureProperties.residue.label_seq_id(loc),
+          label_seq_id : StructureProperties.residue.label_seq_id(loc),
+          auth_seq_id  : StructureProperties.residue.auth_seq_id(loc),
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
-          rcsb_id: StructureProperties.unit.model_entry_id(loc),
+          auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
+          rcsb_id      : StructureProperties.unit.model_entry_id(loc),
         });
       },
     });

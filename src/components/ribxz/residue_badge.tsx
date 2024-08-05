@@ -60,8 +60,8 @@ export const ResidueBadge = ({ residue, molstar_ctx,  show_parent_chain }:
     var [color, border] = residue_color_border()
 
     return <div
-        onClick={() => { molstar_ctx?.select_residueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
-        onMouseEnter={() => { molstar_ctx?.highlightResidueCluster([{ res_seq_id: residue.label_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
+        onClick={() => { molstar_ctx?.select_residueCluster([{ auth_seq_id: residue.auth_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
+        onMouseEnter={() => { molstar_ctx?.highlightResidueCluster([{ auth_seq_id: residue.auth_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
         onMouseLeave={() => { molstar_ctx?.removeHighlight() }}
 
         className="flex flex-col  w-fit hover:cursor-pointer hover:bg-muted rounded-sm p-1">
@@ -71,7 +71,7 @@ export const ResidueBadge = ({ residue, molstar_ctx,  show_parent_chain }:
             <div className="flex flex-row justify-between w-fit ">
 
                 <span className="text-xs font-bold w-fit px-1 text-center" style={{ color: color }}>{residue.label_comp_id}</span>
-                <span className="text-xs font-light w-fit px-1 text-center text-black">{residue.label_seq_id}</span>
+                <span className="text-xs font-light w-fit px-1 text-center text-black">{residue.auth_seq_id}</span>
             </div>
             {
                 show_parent_chain ? <div className="flex flex-row justify-between w-fit border-l-2 ">
