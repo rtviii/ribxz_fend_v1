@@ -72,6 +72,7 @@ export const ResidueBadge = ({ residue, molstar_ctx,  show_parent_chain }:
 
                 <span className="text-xs font-bold w-fit px-1 text-center" style={{ color: color }}>{residue.label_comp_id}</span>
                 <span className="text-xs font-light w-fit px-1 text-center text-black">{residue.auth_seq_id}</span>
+                {/* <span className="text-xs font-light w-fit px-1 text-center text-black">{residue.label_seq_id}</span> */}
             </div>
             {
                 show_parent_chain ? <div className="flex flex-row justify-between w-fit border-l-2 ">

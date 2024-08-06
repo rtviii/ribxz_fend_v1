@@ -397,6 +397,7 @@ export class MolstarRibxz {
         residueList.push({
           label_seq_id : StructureProperties.residue.label_seq_id(loc),
           auth_seq_id  : StructureProperties.residue.auth_seq_id(loc),
+
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
           auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
           rcsb_id      : StructureProperties.unit.model_entry_id(loc),
