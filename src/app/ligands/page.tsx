@@ -44,6 +44,8 @@ import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } fro
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
 import { ImperativePanelHandle } from "react-resizable-panels"
 import ChainPicker, { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
+import { Spinner } from "@/components/ui/spinner"
+
 
 
 interface TaxaDropdownProps {
@@ -219,8 +221,7 @@ const LigandPredictionNucleotides = (lp: LigandTransposition): any[] => {
             chain_residue_tuples.push({ auth_asym_id: chain.target.auth_asym_id, auth_seq_id: res.auth_seq_id })
         }
     }
-    console.log("returning for hl}:", chain_residue_tuples);
-    
+
     return chain_residue_tuples
 }
 
@@ -596,14 +597,10 @@ export default function Ligands() {
                                                 </div>
                                             </AccordionTrigger>
                                             <AccordionContent>
-
-
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-
                                                     <Button variant={"outline"} onClick={() => {
                                                         if (current_selected_target === null || current_ligand === null) { return }
-
                                                         dispatch(fetchPredictionData(
                                                             {
                                                                 chemid: current_ligand?.ligand.chemicalId,
@@ -612,7 +609,7 @@ export default function Ligands() {
                                                                 radius: lig_state.radius
                                                             }
                                                         ))
-                                                    }}> Render Prediction</Button>
+                                                    }}> {ligands_state.prediction_pending ? <Spinner/> : "Render Prediction"}</Button>
 
                                                     <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
                                                         if (ligands_state.prediction_data === undefined || ligands_state.prediction_data === null) { return }
@@ -629,7 +626,6 @@ export default function Ligands() {
                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
 
                                                     />
-
                                                 </div>
 
                                                 <div className="flex flex-wrap ">
@@ -642,8 +638,6 @@ export default function Ligands() {
                                                                 show_parent_chain={checked} key={i} />
                                                         })
                                                     }
-
-
 
                                                 </div>
                                             </AccordionContent>
