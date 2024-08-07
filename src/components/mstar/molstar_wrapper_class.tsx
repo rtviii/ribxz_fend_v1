@@ -48,7 +48,7 @@ declare global {
 export type Residue = {
   label_seq_id  : number,
   label_comp_id : string,
-  auth_seq_id: number,
+  auth_seq_id   : number,
   auth_asym_id  : string,
   rcsb_id       : string,
   polymer_class?: string,
@@ -63,7 +63,6 @@ export class MolstarRibxz {
   constructor() { }
 
   async init(parent: HTMLElement) {
-
     this.ctx = await createPluginUI({
       target: parent,
       spec  : MySpec,
@@ -167,7 +166,7 @@ export class MolstarRibxz {
     const groups: Expression[] = [];
     for (var chain_residue_tuple of chain_residues_tuples_tuples) {
       groups.push(MS.struct.generator.atomGroups({
-        "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple.auth_asym_id]),
+        "chain-test"  : MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple.auth_asym_id]),
         "residue-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_seq_id(), chain_residue_tuple.auth_seq_id]),
       }));
     }

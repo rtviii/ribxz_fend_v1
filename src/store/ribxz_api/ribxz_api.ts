@@ -913,7 +913,7 @@ export type RoutersRouterLigLigTransposeApiArg = {
   sourceStructure: string;
   targetStructure: string;
   chemicalId: string;
-  radius?: number;
+  radius: number;
 };
 export type CompositionStats = {
   lsu_only: number;
@@ -1355,11 +1355,12 @@ export type NomenclatureSet = {
   tRNAClass: string[];
 };
 export type ResidueSummary = {
-  full_id: [string, number, string, [string, number, string]] | null;
-  resname?: string | null;
-  auth_seq_id: number;
   label_seq_id?: number | null;
-  parent_auth_asym_id: string;
+  label_comp_id?: string | null;
+  auth_asym_id: string;
+  auth_seq_id: number;
+  rcsb_id: string;
+  full_id: [string, number, string, [string, number, string]] | null;
 };
 export type BindingSiteChain = {
   assembly_id: number;

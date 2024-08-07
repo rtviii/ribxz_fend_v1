@@ -216,9 +216,11 @@ const LigandPredictionNucleotides = (lp: LigandTransposition): any[] => {
     var chain_residue_tuples = []
     for (var chain of lp.constituent_chains) {
         for (let res of chain.target.target_bound_residues) {
-            chain_residue_tuples.push({ auth_asym_id: chain.target.auth_asym_id, res_seq_id: res.auth_seq_id })
+            chain_residue_tuples.push({ auth_asym_id: chain.target.auth_asym_id, auth_seq_id: res.auth_seq_id })
         }
     }
+    console.log("returning for hl}:", chain_residue_tuples);
+    
     return chain_residue_tuples
 }
 
