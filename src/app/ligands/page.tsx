@@ -599,21 +599,21 @@ export default function Ligands() {
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
 
-                                                    <Button variant={"outline"}  onClick={() => {
+                                                    <Button variant={"outline"} onClick={() => {
                                                         if (current_selected_target === null || current_ligand === null) { return }
 
-                                                            dispatch(fetchPredictionData(
-                                                                {
-                                                                    chemid: current_ligand?.ligand.chemicalId,
-                                                                    src   : current_ligand?.parent_structure.rcsb_id,
-                                                                    tgt   : current_selected_target?.rcsb_id,
-                                                                    radius: lig_state.radius
-                                                                }
-                                                            ))
+                                                        dispatch(fetchPredictionData(
+                                                            {
+                                                                chemid: current_ligand?.ligand.chemicalId,
+                                                                src   : current_ligand?.parent_structure.rcsb_id,
+                                                                tgt   : current_selected_target?.rcsb_id,
+                                                                radius: lig_state.radius
+                                                            }
+                                                        ))
                                                     }}> Render Prediction</Button>
 
                                                     <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
-                                                        console.log(ligands_state.prediction_data);
+                                                        if (ligands_state.prediction_data === undefined || ligands_state.prediction_data === null) { return }
                                                         ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                         ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                     }}> Display Prediction</Button>
@@ -632,12 +632,12 @@ export default function Ligands() {
 
                                                 <div className="flex flex-wrap ">
                                                     {ligands_state.prediction_data === undefined ? null :
-                                                        ligands_state.prediction_data?.purported_binding_site.chains.reduce((acc:any[], next:BindingSiteChain) => {
+                                                        ligands_state.prediction_data?.purported_binding_site.chains.reduce((acc: any[], next: BindingSiteChain) => {
                                                             return acc.concat(next.bound_residues)
-                                                        },[]).map((residue, i) => {
-                                                             return <ResidueBadge 
-                                                             molstar_ctx={ctx_secondary} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }}
-                                                              show_parent_chain={checked} key={i} /> 
+                                                        }, []).map((residue, i) => {
+                                                            return <ResidueBadge
+                                                                molstar_ctx={ctx_secondary} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }}
+                                                                show_parent_chain={checked} key={i} />
                                                         })
                                                     }
 

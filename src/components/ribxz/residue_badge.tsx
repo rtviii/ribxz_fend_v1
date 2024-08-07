@@ -43,21 +43,14 @@ const NucleotidesColorTable: Record<string, { "color_name": string, "rgb": numbe
 
 
 export const ResidueBadge = ({ residue, molstar_ctx,  show_parent_chain }:
-    { residue: {
-  auth_seq_id        : number,
-  full_id            : null,
-  label_seq_id       : number | null,
-  parent_auth_asym_id: string,
-  resname            : string,
-  polymer_class            : string,
-}, molstar_ctx       : MolstarRibxz | null, show_parent_chain?: boolean }) => {
+    { residue: Residue, molstar_ctx: MolstarRibxz | null,  show_parent_chain?: boolean }) => {
     const residue_color_border = () => {
 
-        if (Object.keys(NucleotidesColorTable).includes(residue.resname)) {
-            return [ NucleotidesColorTable[residue.resname].hex, 'border' ]
+        if (Object.keys(NucleotidesColorTable).includes(residue.label_comp_id)) {
+            return [ NucleotidesColorTable[residue.label_comp_id].hex, 'border' ]
         }
-        else if (Object.keys(AminoAcidColorTable).includes(residue.resname)) {
-            return [ AminoAcidColorTable[residue.resname].hex, 'border-dashed' ]
+        else if (Object.keys(AminoAcidColorTable).includes(residue.label_comp_id)) {
+            return [ AminoAcidColorTable[residue.label_comp_id].hex, 'border-dashed' ]
         }
         else {
             return [ "#0c0a09", 'border' ]
@@ -67,8 +60,8 @@ export const ResidueBadge = ({ residue, molstar_ctx,  show_parent_chain }:
     var [color, border] = residue_color_border()
 
     return <div
-        onClick={() => { molstar_ctx?.select_residueCluster([{ auth_seq_id: residue.auth_seq_id, auth_asym_id: residue.parent_auth_asym_id }]) }}
-        onMouseEnter={() => { molstar_ctx?.highlightResidueCluster([{ auth_seq_id: residue.auth_seq_id, auth_asym_id: residue.parent_auth_asym_id }]) }}
+        onClick={() => { molstar_ctx?.select_residueCluster([{ auth_seq_id: residue.auth_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
+        onMouseEnter={() => { molstar_ctx?.highlightResidueCluster([{ auth_seq_id: residue.auth_seq_id, auth_asym_id: residue.auth_asym_id }]) }}
         onMouseLeave={() => { molstar_ctx?.removeHighlight() }}
 
         className="flex flex-col  w-fit hover:cursor-pointer hover:bg-muted rounded-sm p-1">
@@ -77,14 +70,14 @@ export const ResidueBadge = ({ residue, molstar_ctx,  show_parent_chain }:
 
             <div className="flex flex-row justify-between w-fit ">
 
-                <span className="text-xs font-bold w-fit px-1 text-center" style={{ color: color }}>{residue.resname}</span>
+                <span className="text-xs font-bold w-fit px-1 text-center" style={{ color: color }}>{residue.label_comp_id}</span>
                 <span className="text-xs font-light w-fit px-1 text-center text-black">{residue.auth_seq_id}</span>
                 {/* <span className="text-xs font-light w-fit px-1 text-center text-black">{residue.label_seq_id}</span> */}
             </div>
             {
                 show_parent_chain ? <div className="flex flex-row justify-between w-fit border-l-2 ">
                     <span className="text-xs w-fit font-medium px-1 text-black">{residue.polymer_class}</span>
-                    <span className="text-xs w-fit font-light px-1 text-black">{residue.parent_auth_asym_id}</span>
+                    <span className="text-xs w-fit font-light px-1 text-black">{residue.auth_asym_id}</span>
                 </div> : null
             }
 

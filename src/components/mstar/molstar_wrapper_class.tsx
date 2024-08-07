@@ -112,7 +112,7 @@ export class MolstarRibxz {
 
   select_residueCluster = (chain_residue_tuples: {
     auth_asym_id: string,
-    auth_seq_id: number,
+    auth_seq_id : number,
   }[]) => {
 
     const expr     = this.selectionResidueClusterExpression(chain_residue_tuples)
