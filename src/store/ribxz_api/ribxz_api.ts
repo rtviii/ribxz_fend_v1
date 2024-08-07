@@ -1356,8 +1356,9 @@ export type NomenclatureSet = {
 };
 export type ResidueSummary = {
   full_id: [string, number, string, [string, number, string]] | null;
-  resname: string;
-  seqid: number;
+  resname?: string | null;
+  auth_seq_id: number;
+  label_seq_id?: number | null;
   parent_auth_asym_id: string;
 };
 export type BindingSiteChain = {
@@ -1395,16 +1396,10 @@ export type PredictionTarget = {
   target_bound_residues: ResidueSummary[];
   auth_asym_id: string;
 };
-export type PredictionAlignments = {
-  aligned_ids: number[];
-  source_seq_aligned: string;
-  target_seq_aligned: string;
-};
 export type PredictedResiduesPolymer = {
   polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum;
   source: PredictionSource;
   target: PredictionTarget;
-  alignment: PredictionAlignments;
 };
 export type LigandTransposition = {
   source: string;

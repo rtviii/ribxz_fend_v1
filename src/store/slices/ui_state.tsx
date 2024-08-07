@@ -301,9 +301,13 @@ export const fetchPredictionData = createAsyncThunk( 'ui/fetchPredictionData',
         sourceStructure: params.src,
         targetStructure: params.tgt,
         radius         : params.radius
-    }));
+    })).then((res) => {console.log("hit endpoint"); return res;
+    });
     if ('data' in result) {
       dispatch(set_ligand_prediction_data(result.data as any));
+      console.log("Dispatched prediction data:");
+      console.log(result.data);
+      
     }
   }
 );

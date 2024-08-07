@@ -212,7 +212,7 @@ const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[
 
 
 const LigandPredictionNucleotides = (lp: LigandTransposition): any[] => {
-    if ( lp  === null) { return []}
+    if (lp === null) { return [] }
     var chain_residue_tuples = []
     for (var chain of lp.constituent_chains) {
         for (let res of chain.target.target_bound_residues) {
@@ -371,14 +371,6 @@ export default function Ligands() {
     useEffect(() => {
         if (current_selected_target !== null) {
             ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
-            dispatch(fetchPredictionData(
-                {
-                    chemid: current_ligand?.ligand.chemicalId,
-                    src   : current_ligand?.parent_structure.rcsb_id,
-                    tgt   : current_selected_target?.rcsb_id,
-                    radius: lig_state.radius
-                }
-            ))
 
         }
         dispatch(set_ligand_prediction_data(null))
@@ -607,10 +599,23 @@ export default function Ligands() {
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
 
+                                                    <Button variant={"outline"}  onClick={() => {
+                                                        if (current_selected_target === null || current_ligand === null) { return }
+                                                        
+                                                            dispatch(fetchPredictionData(
+                                                                {
+                                                                    chemid: current_ligand?.ligand.chemicalId,
+                                                                    src   : current_ligand?.parent_structure.rcsb_id,
+                                                                    tgt   : current_selected_target?.rcsb_id,
+                                                                    radius: lig_state.radius
+                                                                }
+                                                            ))
+                                                    }}> Render Prediction</Button>
+
                                                     <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
                                                         console.log(ligands_state.prediction_data);
                                                         ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
-                                                        ctx_secondary?.select_residueCluster  (LigandPredictionNucleotides(ligands_state.prediction_data))
+                                                        ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                     }}> Display Prediction</Button>
 
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
