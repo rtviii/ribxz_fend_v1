@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
+import { BindingSiteChain, LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -216,7 +216,7 @@ const LigandPredictionNucleotides = (lp: LigandTransposition): any[] => {
     var chain_residue_tuples = []
     for (var chain of lp.constituent_chains) {
         for (let res of chain.target.target_bound_residues) {
-            chain_residue_tuples.push({ auth_asym_id: chain.target.auth_asym_id, res_seq_id: res.seqid })
+            chain_residue_tuples.push({ auth_asym_id: chain.target.auth_asym_id, res_seq_id: res.auth_seq_id })
         }
     }
     return chain_residue_tuples
@@ -601,7 +601,7 @@ export default function Ligands() {
 
                                                     <Button variant={"outline"}  onClick={() => {
                                                         if (current_selected_target === null || current_ligand === null) { return }
-                                                        
+
                                                             dispatch(fetchPredictionData(
                                                                 {
                                                                     chemid: current_ligand?.ligand.chemicalId,
@@ -632,10 +632,17 @@ export default function Ligands() {
 
                                                 <div className="flex flex-wrap ">
                                                     {ligands_state.prediction_data === undefined ? null :
-                                                        LigandPredictionNucleotides(ligands_state.prediction_data).map((residue, i) => {
-                                                            return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
+                                                        ligands_state.prediction_data?.purported_binding_site.chains.reduce((acc:any[], next:BindingSiteChain) => {
+                                                            return acc.concat(next.bound_residues)
+                                                        },[]).map((residue, i) => {
+                                                             return <ResidueBadge 
+                                                             molstar_ctx={ctx_secondary} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }}
+                                                              show_parent_chain={checked} key={i} /> 
                                                         })
                                                     }
+
+
+
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>
