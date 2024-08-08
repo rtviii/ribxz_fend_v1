@@ -557,10 +557,50 @@ export default function Ligands() {
                                                     />
                                                 </div>
                                                 <div className="flex flex-wrap ">
-                                                    {surroundingResidues.length === 0 ? null :
+                                                    {/* {surroundingResidues.length === 0 ? null :
                                                         surroundingResidues.map((residue, i) => {
                                                             return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
                                                         })
+                                                    } */}
+
+
+                                                    {surroundingResidues.length === 0 ? null :
+                                                        Object.entries(surroundingResidues.reduce((acc: Record<string, Residue[]>, next: Residue) => {
+
+
+
+                                                            if (Object.keys(acc).includes(next.auth_asym_id)) {
+                                                                acc[next.auth_asym_id].push(next)
+                                                            }
+                                                            else {
+                                                                acc[next.auth_asym_id] = [next]
+                                                            }
+                                                            return acc
+
+                                                        }, {})).map(entry =>
+                                                            <Accordion type="single" collapsible className="border p-1 rounded-md w-full ">
+                                                                <AccordionItem value={"other"}>
+                                                                    <AccordionTrigger>{entry[0]}{nomenclatureMap[entry[0]]}</AccordionTrigger>
+                                                                    <AccordionContent className="flex flex-wrap">
+                                                                        {entry[1].map((residue, i) => {
+                                                                            return <ResidueBadge
+                                                                                molstar_ctx={ctx} residue={{
+                                                                                    auth_asym_id: entry[0],
+                                                                                    auth_seq_id: residue.auth_seq_id,
+                                                                                    label_comp_id: residue?.label_comp_id,
+                                                                                    label_seq_id: residue?.label_seq_id,
+                                                                                    rcsb_id: residue.rcsb_id,
+                                                                                    polymer_class: nomenclatureMap[entry[0]]
+                                                                                }}
+                                                                                show_parent_chain={checked} key={i} />
+                                                                        })}
+                                                                    </AccordionContent>
+                                                                </AccordionItem>
+
+
+                                                            </Accordion>
+                                                        )
+
                                                     }
                                                 </div>
 
@@ -624,12 +664,9 @@ export default function Ligands() {
                                                     />
                                                 </div>
 
-                                                {/* <div className="flex flex-wrap "> */}
                                                 {ligands_state.prediction_data === undefined ? null :
-
-
                                                     ligands_state.prediction_data?.constituent_chains.map((chain, i) =>
-                                                        <Accordion type="single" collapsible  className="border p-1 rounded-md w-full ">
+                                                        <Accordion type="single" collapsible className="border p-1 rounded-md w-full ">
                                                             <AccordionItem value={"other"}>
                                                                 <AccordionTrigger>{chain.target.auth_asym_id}</AccordionTrigger>
                                                                 <AccordionContent className="flex flex-wrap">
@@ -652,13 +689,6 @@ export default function Ligands() {
                                                         </Accordion>
                                                     )
 
-                                                    // ligands_state.prediction_data?.purported_binding_site.chains.reduce((acc: any[], next: BindingSiteChain) => {
-                                                    //     return acc.concat(next.bound_residues)
-                                                    // }, []).map((residue, i) => {
-                                                    //     return <ResidueBadge
-                                                    //         molstar_ctx={ctx_secondary} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }}
-                                                    //         show_parent_chain={checked} key={i} />
-                                                    // })
                                                 }
 
 
