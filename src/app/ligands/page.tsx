@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { BindingSiteChain, LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
+import { BindingSite, BindingSiteChain, LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -385,6 +385,8 @@ export default function Ligands() {
 
     const [radChanged, setRadChanged] = useState(false);
 
+
+
     return <div className="flex flex-col h-screen w-screen overflow-hidden">
 
         <ResizablePanelGroup direction="horizontal">
@@ -579,12 +581,8 @@ export default function Ligands() {
                                             </div>
                                         </Label>
                                     </div>
-                                    <Accordion type="single" collapsible
+                                    <Accordion type="single" collapsible value={predictionMode ? "prediction" : undefined} onValueChange={(value) => setIsAccordionOpen(value === "prediction")} className="border p-1 rounded-md">
 
-                                        value={predictionMode ? "prediction" : undefined}
-                                        onValueChange={(value) => setIsAccordionOpen(value === "prediction")}
-
-                                        className="border p-1 rounded-md">
                                         <AccordionItem value="prediction" >
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
 
@@ -604,21 +602,19 @@ export default function Ligands() {
                                                         dispatch(fetchPredictionData(
                                                             {
                                                                 chemid: current_ligand?.ligand.chemicalId,
-                                                                src   : current_ligand?.parent_structure.rcsb_id,
-                                                                tgt   : current_selected_target?.rcsb_id,
+                                                                src: current_ligand?.parent_structure.rcsb_id,
+                                                                tgt: current_selected_target?.rcsb_id,
                                                                 radius: lig_state.radius
                                                             }
                                                         ))
-                                                    }}> {ligands_state.prediction_pending ? <Spinner/> : "Render Prediction"}</Button>
+                                                    }}> {ligands_state.prediction_pending ? <Spinner /> : "Render Prediction"}</Button>
 
                                                     <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
                                                         if (ligands_state.prediction_data === undefined || ligands_state.prediction_data === null) { return }
                                                         ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                         ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                     }}> Display Prediction</Button>
-
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
-
                                                     <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
                                                     <DownloadDropdown
                                                         residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
@@ -628,18 +624,47 @@ export default function Ligands() {
                                                     />
                                                 </div>
 
-                                                <div className="flex flex-wrap ">
-                                                    {ligands_state.prediction_data === undefined ? null :
-                                                        ligands_state.prediction_data?.purported_binding_site.chains.reduce((acc: any[], next: BindingSiteChain) => {
-                                                            return acc.concat(next.bound_residues)
-                                                        }, []).map((residue, i) => {
-                                                            return <ResidueBadge
-                                                                molstar_ctx={ctx_secondary} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }}
-                                                                show_parent_chain={checked} key={i} />
-                                                        })
-                                                    }
+                                                {/* <div className="flex flex-wrap "> */}
+                                                {ligands_state.prediction_data === undefined ? null :
 
-                                                </div>
+
+                                                    ligands_state.prediction_data?.constituent_chains.map((chain, i) =>
+                                                        <Accordion type="single" collapsible  className="border p-1 rounded-md w-full ">
+                                                            <AccordionItem value={"other"}>
+                                                                <AccordionTrigger>{chain.target.auth_asym_id}</AccordionTrigger>
+                                                                <AccordionContent className="flex flex-wrap">
+                                                                    {chain.target.target_bound_residues.map((residue, i) => {
+                                                                        return <ResidueBadge
+                                                                            molstar_ctx={ctx_secondary} residue={{
+                                                                                auth_asym_id: chain.target.auth_asym_id,
+                                                                                auth_seq_id: residue.auth_seq_id,
+                                                                                label_comp_id: residue?.label_comp_id,
+                                                                                label_seq_id: residue?.label_seq_id,
+                                                                                rcsb_id: residue.rcsb_id,
+                                                                                polymer_class: nomenclatureMap[chain.target.auth_asym_id]
+                                                                            }}
+                                                                            show_parent_chain={checked} key={i} />
+                                                                    })}
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+
+
+                                                        </Accordion>
+                                                    )
+
+                                                    // ligands_state.prediction_data?.purported_binding_site.chains.reduce((acc: any[], next: BindingSiteChain) => {
+                                                    //     return acc.concat(next.bound_residues)
+                                                    // }, []).map((residue, i) => {
+                                                    //     return <ResidueBadge
+                                                    //         molstar_ctx={ctx_secondary} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }}
+                                                    //         show_parent_chain={checked} key={i} />
+                                                    // })
+                                                }
+
+
+
+
+                                                {/* </div> */}
                                             </AccordionContent>
                                         </AccordionItem>
 
@@ -651,7 +676,7 @@ export default function Ligands() {
                         </div>
                     </MolstarContext.Provider>
                 </div>
-            </ResizablePanel>
+            </ResizablePanel >
             <ResizableHandle />
             <ResizablePanel defaultSize={50} minSize={30}>
                 <ResizablePanelGroup direction="vertical" >
@@ -668,8 +693,8 @@ export default function Ligands() {
                     </ResizablePanel>
                 </ResizablePanelGroup>
             </ResizablePanel>
-        </ResizablePanelGroup>
+        </ResizablePanelGroup >
 
         <SidebarMenu />
-    </div>
+    </div >
 }
