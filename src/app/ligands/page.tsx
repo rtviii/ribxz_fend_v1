@@ -578,9 +578,27 @@ export default function Ligands() {
                                                             return acc
 
                                                         }, {})).map(entry =>
-                                                            <Accordion type="single" collapsible className="border p-1 rounded-md w-full ">
+                                                            <Accordion type="single" collapsible className="border p-1 rounded-md w-full h-fit my-1">
                                                                 <AccordionItem value={"other"}>
-                                                                    <AccordionTrigger>{entry[0]}{nomenclatureMap[entry[0]]}</AccordionTrigger>
+
+
+                                                                    <AccordionTrigger >
+
+                                                                        <div className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300"
+                                                                            onMouseEnter={() => ctx?.highlightChain(entry[0])}
+                                                                            onMouseLeave={() => ctx?.removeHighlight()}
+
+
+                                                                            onClick={e => {
+                                                                                e.stopPropagation()
+                                                                                ctx?.select_chain(entry[0])
+                                                                            }
+
+
+                                                                            }>
+                                                                            <span className="font-light w-8">{entry[0]}</span>{" "}<span className="px-4">{nomenclatureMap[entry[0]]}</span>
+                                                                        </div>
+                                                                    </AccordionTrigger>
                                                                     <AccordionContent className="flex flex-wrap">
                                                                         {entry[1].map((residue, i) => {
                                                                             return <ResidueBadge
@@ -666,9 +684,26 @@ export default function Ligands() {
 
                                                 {ligands_state.prediction_data === undefined ? null :
                                                     ligands_state.prediction_data?.constituent_chains.map((chain, i) =>
-                                                        <Accordion type="single" collapsible className="border p-1 rounded-md w-full ">
+                                                        <Accordion type="single" collapsible className="border p-1 rounded-md w-full my-2">
                                                             <AccordionItem value={"other"}>
-                                                                <AccordionTrigger>{chain.target.auth_asym_id}</AccordionTrigger>
+
+                                                                <AccordionTrigger >
+                                                                    <div className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300"
+                                                                        onMouseEnter={() => ctx_secondary?.highlightChain(chain.target.auth_asym_id)}
+                                                                        onMouseLeave={() => ctx_secondary?.removeHighlight()}
+
+
+                                                                        onClick={e => {
+                                                                            e.stopPropagation()
+                                                                            ctx_secondary?.select_chain(chain.target.auth_asym_id)
+                                                                        }
+
+
+                                                                        }>
+                                                                        <span className="font-light w-8">{chain.target.auth_asym_id}</span>{" "}<span className="px-4">{chain.polymer_class}</span>
+                                                                    </div>
+
+                                                                </AccordionTrigger>
                                                                 <AccordionContent className="flex flex-wrap">
                                                                     {chain.target.target_bound_residues.map((residue, i) => {
                                                                         return <ResidueBadge
