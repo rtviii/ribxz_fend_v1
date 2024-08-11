@@ -171,45 +171,11 @@ export function Filters(props: FiltersProps) {
               <Input disabled={props.disabled_whole} className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
             </div>
           </div>
-          <div className="space-y-2">
-            <label className={`text-sm font-medium my-4  ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="proteinsPresent">
-              Polymer Classes
-              <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild >
-                    <abbr
-                      className="ml-1 text-lg font-semibold text-red-500 hover:text-red-700 hover:cursor-pointer"
-                      style={{
-                        textDecoration: "none"
-                      }}>
-                      *
-                    </abbr>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Experimental feature. A small number of false positives is expected.</p>
-                    <p>Find out more about how we classify polymers</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </label>
-            <Select
-              defaultValue={[]}
-              // @ts-ignore
-              onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
-              placeholder="Chains Present in Structure"
-              instanceId={"polymer_class"}
-              options={polymerClassOptions}
-              components={{ Group }}
-              // @ts-ignore
-              isMulti={true}
-              isDisabled={props.disabled_whole}
-              isSearchable={true}
-            />
-          </div>
 
-          <div className="space-y-2">
+<div className="flex flex-row space-x-2">
 
-            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="SourceOrganism">
+          <div className="w-full h-full">
+            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="Subunit">
               Subunit
             </label>
             <Select
@@ -220,10 +186,12 @@ export function Filters(props: FiltersProps) {
                 dispatch(set_filter(
                   {
                     filter_type: "subunit_presence",
-                    value: option.value
+                    value      : option ? option.value: null
                   }
                 ))
               }}
+  
+    isClearable={true} 
               instanceId={"polymer_class"}
               options={[{ value: "SSU+LSU", id: "SSU+LSU", label: "SSU+LSU", color: 'red' }, { value: "SSU", id: "SSU", label: "SSU", color: 'red' }, { value: "LSU", id: "LSU", label: "LSU", color: 'red' }]}
               // components={{ Group }}
@@ -233,6 +201,27 @@ export function Filters(props: FiltersProps) {
             // isSearchable={true}
             />
           </div>
+
+          <div className="w-full h-full">
+            <label className={`text-sm font-medium my-4  ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="proteinsPresent">
+              Polymer Classes
+            </label>
+            <Select
+              defaultValue={[]}
+              // @ts-ignore
+              onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
+              placeholder="Present Chains"
+              instanceId={"polymer_class"}
+              options={polymerClassOptions}
+              components={{ Group }}
+              // @ts-ignore
+              isMulti={true}
+              isDisabled={props.disabled_whole}
+              isSearchable={true}
+            />
+          </div>
+  
+   </div>
           <div className="space-y-2">
             <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="SourceOrganism">
               Source Organism
