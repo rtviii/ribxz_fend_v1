@@ -21,15 +21,6 @@ import {
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
-import {
-  Select as shadcnSelect,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 
 const groupStyles = {
   borderRadius: '5px',
@@ -172,56 +163,56 @@ export function Filters(props: FiltersProps) {
             </div>
           </div>
 
-<div className="flex flex-row space-x-2">
+          <div className="flex flex-row space-x-2">
 
-          <div className="w-full h-full">
-            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="Subunit">
-              Subunit
-            </label>
-            <Select
-              defaultValue={[]}
-              // @ts-ignore
-              placeholder="Subunit"
-              onChange={(option) => {
-                dispatch(set_filter(
-                  {
-                    filter_type: "subunit_presence",
-                    value      : option ? option.value: null
-                  }
-                ))
-              }}
-  
-    isClearable={true} 
-              instanceId={"polymer_class"}
-              options={[{ value: "SSU+LSU", id: "SSU+LSU", label: "SSU+LSU", color: 'red' }, { value: "SSU", id: "SSU", label: "SSU", color: 'red' }, { value: "LSU", id: "LSU", label: "LSU", color: 'red' }]}
-              // components={{ Group }}
-              // @ts-ignore
-              // isMulti={true}
-              isDisabled={props.disabled_whole}
-            // isSearchable={true}
-            />
-          </div>
+            <div className="w-full h-full">
+              <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="Subunit">
+                Subunit
+              </label>
+              <Select
+                defaultValue={[]}
+                // @ts-ignore
+                placeholder="Subunit"
+                onChange={(option) => {
+                  dispatch(set_filter(
+                    {
+                      filter_type: "subunit_presence",
+                      value: option ? option.value : null
+                    }
+                  ))
+                }}
 
-          <div className="w-full h-full">
-            <label className={`text-sm font-medium my-4  ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="proteinsPresent">
-              Polymer Classes
-            </label>
-            <Select
-              defaultValue={[]}
-              // @ts-ignore
-              onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
-              placeholder="Present Chains"
-              instanceId={"polymer_class"}
-              options={polymerClassOptions}
-              components={{ Group }}
-              // @ts-ignore
-              isMulti={true}
-              isDisabled={props.disabled_whole}
-              isSearchable={true}
-            />
+                isClearable={true}
+                instanceId={"polymer_class"}
+                options={[{ value: "SSU+LSU", id: "SSU+LSU", label: "SSU+LSU", color: 'red' }, { value: "SSU", id: "SSU", label: "SSU", color: 'red' }, { value: "LSU", id: "LSU", label: "LSU", color: 'red' }]}
+                // components={{ Group }}
+                // @ts-ignore
+                // isMulti={true}
+                isDisabled={props.disabled_whole}
+              // isSearchable={true}
+              />
+            </div>
+
+            <div className="w-full h-full">
+              <label className={`text-sm font-medium my-4  ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="proteinsPresent">
+                Polymer Classes
+              </label>
+              <Select
+                defaultValue={[]}
+                // @ts-ignore
+                onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
+                placeholder="Present Chains"
+                instanceId={"polymer_class"}
+                options={polymerClassOptions}
+                components={{ Group }}
+                // @ts-ignore
+                isMulti={true}
+                isDisabled={props.disabled_whole}
+                isSearchable={true}
+              />
+            </div>
+
           </div>
-  
-   </div>
           <div className="space-y-2">
             <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="SourceOrganism">
               Source Organism
