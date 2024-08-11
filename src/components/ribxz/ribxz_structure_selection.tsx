@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Input } from "@/components/ui/input"
+
+import type { SelectProps } from 'antd';
+import { Select, Space, Tag } from 'antd';
 import {
     Pagination,
     PaginationContent,
@@ -14,16 +17,17 @@ import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribx
 import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
 import { set_filter } from "@/store/slices/ui_state"
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState } from "react"
 import { MolstarContext } from "@/components/ribxz/molstar_context"
+import { StructureOverview, select_structure } from "@/store/slices/all_structs_overview_state"
 
 
 const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
 
-    const dispatch   = useAppDispatch();
+    const dispatch = useAppDispatch();
     const search_val = useAppSelector(state => state.molstar.superimpose.chain_search)!
-    const polymers   = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
-    const ctx        = useContext(MolstarContext)
+    const polymers = [...structure.proteins, ...structure.rnas, ...structure.other_polymers]
+    const ctx = useContext(MolstarContext)
 
     return <div className="border rounded-lg p-1 max-h-64 overflow-y-auto scrollbar-hide flex items-center justify-between hover:bg-slate-200">
         <HoverCard openDelay={0} closeDelay={0}>
@@ -50,13 +54,13 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
                         })
                         .map(p =>
                             <div key={p.auth_asym_id}
-                                onClick={() => { 
+                                onClick={() => {
                                     // dispatch(superimpose_add_chain({ polymer: p, rcsb_id: structure.rcsb_id }))
                                     ctx?.load_mmcif_chain({
                                         auth_asym_id: p.auth_asym_id,
                                         rcsb_id: structure.rcsb_id
                                     })
-                                 }}
+                                }}
                                 className="border rounded-sm p-0.5 px-2 text-sm flex justify-between hover:cursor-pointer hover:bg-slate-200">
                                 <span>{p.auth_asym_id}</span>
                                 <span>{p.nomenclature[0]}</span>
@@ -69,12 +73,12 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 
 
 
-export default function ChainPicker({ children}: { children?: React.ReactNode}) {
+export default function ChainPicker({ children }: { children?: React.ReactNode }) {
 
-    const dispatch           = useAppDispatch();
-    const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
+    const dispatch = useAppDispatch();
+    const search_val = useAppSelector(state => state.molstar.superimpose.struct_search)!
     const current_structures = useAppSelector(state => state.ui.data.current_structures)
-    const filters            = useAppSelector(state => state.ui.filters)
+    const filters = useAppSelector(state => state.ui.filters)
 
     return (
         <HoverCard openDelay={0} closeDelay={0}>
@@ -86,7 +90,7 @@ export default function ChainPicker({ children}: { children?: React.ReactNode}) 
                     <div className="flex items-center gap-2">
                         <Input placeholder="Search" value={filters.search!} onChange={(e) => { dispatch(set_filter({ filter_type: "search", value: e.target.value })) }} />
                     </div>
-                    { current_structures .map(S => <StructureComponentsSelection structure={S} key={S.rcsb_id} />) }
+                    {current_structures.map(S => <StructureComponentsSelection structure={S} key={S.rcsb_id} />)}
                     <Pagination>
                         <PaginationContent>
                             <PaginationItem>
@@ -101,4 +105,39 @@ export default function ChainPicker({ children}: { children?: React.ReactNode}) 
             </HoverCardContent>
         </HoverCard>
     )
+}
+
+
+//! Do "Coordinate" double dropdown for chains
+// It's an input field with its own state 
+// and that can be parametrized by filters but isn't by default
+export const GlobalStructureSelection = ({ props }: { props: any }) => {
+    const structs_overview = useAppSelector(state => state.all_structures_overview.structures)
+    const selected = useAppSelector(state => state.all_structures_overview.selected)
+    const dispatch = useAppDispatch();
+    const filterOption = (input: string, option: any) => {
+        const { S } = option;
+        return (
+            S.rcsb_id.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+            S.tax_name.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        );
+    };
+
+    return <Select
+        {...props}
+        showSearch={true}
+        placeholder="Select a structure"
+        onChange={(val, struct) => { console.log(val, struct.S); dispatch(select_structure(struct.S as StructureOverview)) }}
+        value={selected?.rcsb_id}
+        style={{ width: '100%' }}
+        filterOption={filterOption}
+        options={structs_overview.map(S => ({
+            value: S.rcsb_id, label: (
+                <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>{S.rcsb_id}</span>
+                    <span>{S.tax_name}</span>
+                </Space>
+            ), S
+        }))}
+    />
 }

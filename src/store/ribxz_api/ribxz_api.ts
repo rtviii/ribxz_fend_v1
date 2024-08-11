@@ -25,7 +25,7 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: (queryArg) => ({
         url: `/structures/polymer_classification_report`,
-        params: { rcsb_id: queryArg.rcsbId, auth_asym_id: queryArg.authAsymId },
+        params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
     routersRouterStructStructureCompositionStats: build.query<
@@ -170,6 +170,33 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId, auth_asym_id: queryArg.authAsymId },
       }),
     }),
+    routersRouterLigLigNbhd: build.query<
+      RoutersRouterLigLigNbhdApiResponse,
+      RoutersRouterLigLigNbhdApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/ligand/binding_pocket`,
+        params: {
+          source_structure: queryArg.sourceStructure,
+          chemical_id: queryArg.chemicalId,
+          radius: queryArg.radius,
+        },
+      }),
+    }),
+    routersRouterLigLigTranspose: build.query<
+      RoutersRouterLigLigTransposeApiResponse,
+      RoutersRouterLigLigTransposeApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/ligand/transpose`,
+        params: {
+          source_structure: queryArg.sourceStructure,
+          target_structure: queryArg.targetStructure,
+          chemical_id: queryArg.chemicalId,
+          radius: queryArg.radius,
+        },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -185,7 +212,6 @@ export type RoutersRouterStructTaxDictApiArg = void;
 export type RoutersRouterStructPolymerClassificationReportApiResponse = unknown;
 export type RoutersRouterStructPolymerClassificationReportApiArg = {
   rcsbId: string;
-  authAsymId: string;
 };
 export type RoutersRouterStructStructureCompositionStatsApiResponse =
   /** status 200 OK */ StructureCompositionStats;
@@ -535,7 +561,12 @@ export type RoutersRouterClassesPolynucleotideClassApiArg = {
     | "28SrRNA"
     | "mt12SrRNA"
     | "mt16SrRNA"
-    | "tRNA"
+    | "tRNA";
+};
+export type RoutersRouterClassesPolypeptideClassApiResponse =
+  /** status 200 OK */ Protein[];
+export type RoutersRouterClassesPolypeptideClassApiArg = {
+  proteinClass:
     | "eEF1A"
     | "eEF1B"
     | "eFSec"
@@ -596,213 +627,6 @@ export type RoutersRouterClassesPolynucleotideClassApiArg = {
     | "aIF2B_delta"
     | "aIF5A"
     | "aIF5B"
-    | "bS1"
-    | "eS1"
-    | "uS2"
-    | "uS3"
-    | "uS4"
-    | "eS4"
-    | "uS5"
-    | "bS6"
-    | "eS6"
-    | "uS7"
-    | "eS7"
-    | "uS8"
-    | "eS8"
-    | "uS9"
-    | "uS10"
-    | "eS10"
-    | "uS11"
-    | "uS12"
-    | "eS12"
-    | "uS13"
-    | "uS14"
-    | "uS15"
-    | "bS16"
-    | "uS17"
-    | "eS17"
-    | "bS18"
-    | "uS19"
-    | "eS19"
-    | "bS20"
-    | "bS21"
-    | "bTHX"
-    | "eS21"
-    | "eS24"
-    | "eS25"
-    | "eS26"
-    | "eS27"
-    | "eS28"
-    | "eS30"
-    | "eS31"
-    | "RACK1"
-    | "uL1"
-    | "uL2"
-    | "uL3"
-    | "uL4"
-    | "uL5"
-    | "uL6"
-    | "eL6"
-    | "eL8"
-    | "bL9"
-    | "uL10"
-    | "uL11"
-    | "bL12"
-    | "uL13"
-    | "eL13"
-    | "uL14"
-    | "eL14"
-    | "uL15"
-    | "eL15"
-    | "uL16"
-    | "bL17"
-    | "uL18"
-    | "eL18"
-    | "bL19"
-    | "eL19"
-    | "bL20"
-    | "eL20"
-    | "bL21"
-    | "eL21"
-    | "uL22"
-    | "eL22"
-    | "uL23"
-    | "uL24"
-    | "eL24"
-    | "bL25"
-    | "bL27"
-    | "eL27"
-    | "bL28"
-    | "eL28"
-    | "uL29"
-    | "eL29"
-    | "uL30"
-    | "eL30"
-    | "bL31"
-    | "eL31"
-    | "bL32"
-    | "eL32"
-    | "bL33"
-    | "eL33"
-    | "bL34"
-    | "eL34"
-    | "bL35"
-    | "bL36"
-    | "eL36"
-    | "eL37"
-    | "eL38"
-    | "eL39"
-    | "eL40"
-    | "eL41"
-    | "eL42"
-    | "eL43"
-    | "P1P2"
-    | "bS1m"
-    | "uS2m"
-    | "uS3m"
-    | "uS4m"
-    | "uS5m"
-    | "bS6m"
-    | "uS7m"
-    | "uS8m"
-    | "uS9m"
-    | "uS10m"
-    | "uS11m"
-    | "uS12m"
-    | "uS13m"
-    | "uS14m"
-    | "uS15m"
-    | "bS16m"
-    | "uS17m"
-    | "bS18m"
-    | "uS19m"
-    | "bS21m"
-    | "mS22"
-    | "mS23"
-    | "mS25"
-    | "mS26"
-    | "mS27"
-    | "mS29"
-    | "mS31"
-    | "mS33"
-    | "mS34"
-    | "mS35"
-    | "mS37"
-    | "mS38"
-    | "mS39"
-    | "mS40"
-    | "mS41"
-    | "mS42"
-    | "mS43"
-    | "mS44"
-    | "mS45"
-    | "mS46"
-    | "mS47"
-    | "uL1m"
-    | "uL2m"
-    | "uL3m"
-    | "uL4m"
-    | "uL5m"
-    | "uL6m"
-    | "bL9m"
-    | "uL10m"
-    | "uL11m"
-    | "bL12m"
-    | "uL13m"
-    | "uL14m"
-    | "uL15m"
-    | "uL16m"
-    | "bL17m"
-    | "uL18m"
-    | "bL19m"
-    | "bL20m"
-    | "bL21m"
-    | "uL22m"
-    | "uL23m"
-    | "uL24m"
-    | "bL27m"
-    | "bL28m"
-    | "uL29m"
-    | "uL30m"
-    | "bL31m"
-    | "bL32m"
-    | "bL33m"
-    | "bL34m"
-    | "bL35m"
-    | "bL36m"
-    | "mL37"
-    | "mL38"
-    | "mL39"
-    | "mL40"
-    | "mL41"
-    | "mL42"
-    | "mL43"
-    | "mL44"
-    | "mL45"
-    | "mL46"
-    | "mL48"
-    | "mL49"
-    | "mL50"
-    | "mL51"
-    | "mL52"
-    | "mL53"
-    | "mL54"
-    | "mL57"
-    | "mL58"
-    | "mL59"
-    | "mL60"
-    | "mL61"
-    | "mL62"
-    | "mL63"
-    | "mL64"
-    | "mL65"
-    | "mL66"
-    | "mL67";
-};
-export type RoutersRouterClassesPolypeptideClassApiResponse =
-  /** status 200 OK */ Protein[];
-export type RoutersRouterClassesPolypeptideClassApiArg = {
-  proteinClass:
     | "bS1"
     | "eS1"
     | "uS2"
@@ -1075,6 +899,21 @@ export type RoutersRouterMmcifPolymerApiResponse = unknown;
 export type RoutersRouterMmcifPolymerApiArg = {
   rcsbId: string;
   authAsymId: string;
+};
+export type RoutersRouterLigLigNbhdApiResponse =
+  /** status 200 OK */ BindingSite;
+export type RoutersRouterLigLigNbhdApiArg = {
+  sourceStructure: string;
+  chemicalId: string;
+  radius?: number;
+};
+export type RoutersRouterLigLigTransposeApiResponse =
+  /** status 200 OK */ LigandTransposition;
+export type RoutersRouterLigLigTransposeApiArg = {
+  sourceStructure: string;
+  targetStructure: string;
+  chemicalId: string;
+  radius: number;
 };
 export type CompositionStats = {
   lsu_only: number;
@@ -1515,6 +1354,60 @@ export type NomenclatureSet = {
   MitochondrialRNAClass: string[];
   tRNAClass: string[];
 };
+export type ResidueSummary = {
+  label_seq_id?: number | null;
+  label_comp_id?: string | null;
+  auth_asym_id: string;
+  auth_seq_id: number;
+  rcsb_id: string;
+  full_id: [string, number, string, [string, number, string]] | null;
+};
+export type BindingSiteChain = {
+  assembly_id: number;
+  asym_ids: string[];
+  auth_asym_id: string;
+  parent_rcsb_id: string;
+  src_organism_names: string[];
+  host_organism_names: string[];
+  src_organism_ids: number[];
+  host_organism_ids: number[];
+  rcsb_pdbx_description?: string | null;
+  entity_poly_strand_id: string;
+  entity_poly_seq_one_letter_code: string;
+  entity_poly_seq_one_letter_code_can: string;
+  entity_poly_seq_length: number;
+  entity_poly_polymer_type: string;
+  entity_poly_entity_type: string;
+  nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
+  bound_residues: ResidueSummary[];
+};
+export type BindingSite = {
+  source: string;
+  ligand: string;
+  radius: number;
+  chains: BindingSiteChain[];
+};
+export type PredictionSource = {
+  source_seq: string;
+  source_bound_residues: ResidueSummary[];
+  auth_asym_id: string;
+};
+export type PredictionTarget = {
+  target_seq: string;
+  target_bound_residues: ResidueSummary[];
+  auth_asym_id: string;
+};
+export type PredictedResiduesPolymer = {
+  polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum;
+  source: PredictionSource;
+  target: PredictionTarget;
+};
+export type LigandTransposition = {
+  source: string;
+  target: string;
+  constituent_chains: PredictedResiduesPolymer[];
+  purported_binding_site: BindingSite;
+};
 export const {
   useRoutersRouterStructAllRcsbIdsQuery,
   useRoutersRouterStructPolymerClassesStatsQuery,
@@ -1536,4 +1429,6 @@ export const {
   useRoutersRouterClassesPolypeptideClassQuery,
   useRoutersRouterClassesLifecycleFactorClassQuery,
   useRoutersRouterMmcifPolymerQuery,
+  useRoutersRouterLigLigNbhdQuery,
+  useRoutersRouterLigLigTransposeQuery,
 } = injectedRtkApi;

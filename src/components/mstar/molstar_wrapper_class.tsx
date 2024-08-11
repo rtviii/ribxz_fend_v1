@@ -40,20 +40,22 @@ _.memoize.Cache = WeakMap;
 
 declare global {
   interface Window {
-    molstar?: PluginUIContext;
+    // molstar?: PluginUIContext;
+    // molstar_secondary?: PluginUIContext;
   }
 }
 
 export type Residue = {
   label_seq_id  : number,
   label_comp_id : string,
+  auth_seq_id   : number,
   auth_asym_id  : string,
   rcsb_id       : string,
   polymer_class?: string,
 }
 
 export type ResidueList = Residue[]
-//! - mapstate and mapdispatch listens to redux state
+
 export class MolstarRibxz {
 
   //@ts-ignore
@@ -61,10 +63,9 @@ export class MolstarRibxz {
   constructor() { }
 
   async init(parent: HTMLElement) {
-
     this.ctx = await createPluginUI({
       target: parent,
-      spec: MySpec,
+      spec  : MySpec,
       render: renderReact18
     });
 
@@ -110,7 +111,7 @@ export class MolstarRibxz {
 
   select_residueCluster = (chain_residue_tuples: {
     auth_asym_id: string,
-    res_seq_id: number,
+    auth_seq_id : number,
   }[]) => {
 
     const expr     = this.selectionResidueClusterExpression(chain_residue_tuples)
@@ -160,13 +161,13 @@ export class MolstarRibxz {
 
   selectionResidueClusterExpression = (chain_residues_tuples_tuples: {
     auth_asym_id: string,
-    res_seq_id: number,
+    auth_seq_id: number,
   }[]): Expression => {
     const groups: Expression[] = [];
     for (var chain_residue_tuple of chain_residues_tuples_tuples) {
       groups.push(MS.struct.generator.atomGroups({
-        "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple.auth_asym_id]),
-        "residue-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain_residue_tuple.res_seq_id]),
+        "chain-test"  : MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple.auth_asym_id]),
+        "residue-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_seq_id(), chain_residue_tuple.auth_seq_id]),
       }));
     }
     var expression = MS.struct.combinator.merge(groups);
@@ -176,7 +177,7 @@ export class MolstarRibxz {
 
   _highlightResidueCluster = (chain_residues_tuples: {
     auth_asym_id: string,
-    res_seq_id: number,
+    auth_seq_id: number,
   }[]) => {
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (data === undefined) return;
@@ -190,7 +191,7 @@ export class MolstarRibxz {
   highlightResidueCluster = _.memoize(_highlightResidueCluster =>
     _.debounce((chain_residues_tuples: {
       auth_asym_id: string,
-      res_seq_id: number,
+      auth_seq_id: number,
     }[]) => {
       _highlightResidueCluster(chain_residues_tuples)
     }, 50, { "leading": true, "trailing": true })
@@ -290,9 +291,9 @@ export class MolstarRibxz {
       await this.ctx.clear()
     }
 
-    const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
+    const data       = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    const st         = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
 
     st?.structure.ref
     st?.model.ref
@@ -320,8 +321,6 @@ export class MolstarRibxz {
 
     return { ctx: this, struct_representation: st?.representation }
   }
-
-
 
   async select_focus_ligand(chemicalId: string | undefined, focus_select: Array<'focus' | 'select' | 'highlight'>) {
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
@@ -356,12 +355,12 @@ export class MolstarRibxz {
 
   }
 
-  async get_selection_constituents(chemicalId: string | undefined): Promise<ResidueList> {
+  async get_selection_constituents(chemicalId: string | undefined, radius:number): Promise<ResidueList> {
     if (!chemicalId) {
       return []
     }
 
-    const RADIUS = 5
+    const RADIUS = radius
 
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
@@ -395,23 +394,24 @@ export class MolstarRibxz {
     Structure.eachAtomicHierarchyElement(struct_Element, {
       residue: (loc) => {
         residueList.push({
-          label_seq_id: StructureProperties.residue.label_seq_id(loc),
+          label_seq_id : StructureProperties.residue.label_seq_id(loc),
+          auth_seq_id  : StructureProperties.residue.auth_seq_id(loc),
+
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
-          rcsb_id: StructureProperties.unit.model_entry_id(loc),
+          auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
+          rcsb_id      : StructureProperties.unit.model_entry_id(loc),
         });
       },
     });
     return residueList
   }
 
-
-  async create_ligand_and_surroundings(chemicalId: string | undefined) {
+  async create_ligand_and_surroundings(chemicalId: string | undefined, radius:number) {
     if (!chemicalId) {
       return this
     }
     await this.ctx.dataTransaction(async () => {
-      const RADIUS = 5
+      const RADIUS = radius
 
       let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
       const struct = structures[0];
@@ -423,7 +423,7 @@ export class MolstarRibxz {
           'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
         })
       ]);
-      const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
+      const surroundings              = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: radius, 'as-whole-residues': true });
       const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: ligand });
 
       // Create a group for both ligand and surroundings
@@ -452,8 +452,8 @@ export class MolstarRibxz {
     return this
   }
 
-  async select_focus_ligand_surroundings(chemicalId: string | undefined, focus_select: Array<'focus' | 'select' | 'highlight'>) {
-    const RADIUS = 5
+  async select_focus_ligand_surroundings(chemicalId: string | undefined,radius:number, focus_select: Array<'focus' | 'select' | 'highlight'>) {
+    const RADIUS = radius
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
     if (!chemicalId || !struct) {
@@ -501,7 +501,6 @@ export class MolstarRibxz {
         })
       ]);
 
-      console.log("Got ligand residues:", ligand);
 
       const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'ligand_group' }, { ref: `ligand_${chemicalId}` });
       const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression,
@@ -525,3 +524,5 @@ export class MolstarRibxz {
     return this
   }
 }
+
+// (window as any).MolstarRibxz = new MolstarRibxz();

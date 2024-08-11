@@ -1,6 +1,6 @@
 'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum,  LigandTransposition,  Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
 
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
@@ -58,9 +58,14 @@ export type LigandInstance = {
 export interface UIState {
     taxid_dict: Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>,
     ligands_page: {
-        data          : LigandInstances,
-        filtered_data : LigandInstances
-        current_ligand: LigandInstance | null
+        data              : LigandInstances,
+        filtered_data     : LigandInstances
+        current_ligand    : LigandInstance | null,
+        radius            : number,
+
+        prediction_data   : LigandTransposition | null
+        prediction_pending: boolean
+
     },
     data: {
         current_structures: RibosomeStructure[],
@@ -80,9 +85,13 @@ export interface UIState {
 const initialState: UIState = {
     taxid_dict: {},
     ligands_page: {
-        data: [],
-        current_ligand:  null,
-        filtered_data: []
+        data              : [],
+        radius            : 10,
+        current_ligand    : null,
+        filtered_data     : [],
+        prediction_data   : null,
+        prediction_pending: false
+
     },
     data: {
         current_structures: [],
@@ -110,6 +119,7 @@ const initialState: UIState = {
     }
 }
 
+
 // OK there is the filter list endpoint
 // We want to :
 // -   prefetch the total number of structures on loadup
@@ -121,37 +131,43 @@ const initialState: UIState = {
 const UIUpdateListenerMiddelware = createListenerMiddleware()
 
 // const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-
-
 export const uiSlice = createSlice({
     name: 'ui',
     initialState,
     reducers: {
+
+        // !---------------- Ligands
         set_ligands_data(state, action: PayloadAction<LigandInstances>) {
             state.ligands_page.data = action.payload
+        },
+        set_ligands_radius(state, action: PayloadAction<number>) {
+            state.ligands_page.radius = action.payload
         },
         set_ligands_data_filtered(state, action: PayloadAction<LigandInstances>) {
             state.ligands_page.filtered_data = action.payload
         },
-
         set_current_ligand(state, action: PayloadAction<LigandInstance>) {
             state.ligands_page.current_ligand = action.payload
         },
+        set_ligand_prediction_data(state, action: PayloadAction<LigandTransposition|null>) {
+            state.ligands_page.prediction_data = action.payload
+        },
 
-
+        // !---------------- Ligands
         set_tax_dict(state, action: PayloadAction<Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>>) {
             state.taxid_dict = action.payload
         },
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
+
         set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
             state.data.current_polymers = action.payload
         },
-
         set_current_polymer_class(state, action: PayloadAction<string>) {
             Object.assign(state.polymers, { current_polymer_class: action.payload })
         },
+
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
@@ -196,6 +212,17 @@ export const uiSlice = createSlice({
 
     },
     extraReducers: (builder) => {
+
+            builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchFulfilled, (state, action) => {
+                state.ligands_page.prediction_data = action.payload
+                state.ligands_page.prediction_pending = false
+            });
+            builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchPending, (state, action) => {
+                state.ligands_page.prediction_pending = true
+            });
+            builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchRejected, (state, action) => {
+                state.ligands_page.prediction_pending = false
+            });
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
 
             // @ts-ignore
@@ -208,7 +235,6 @@ export const uiSlice = createSlice({
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
             console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");
-
             // @ts-ignore
             state.data.current_polymers = action.payload.polymers
             // @ts-ignore
@@ -233,17 +259,18 @@ export const uiSlice = createSlice({
 
 
 export const {
-
     set_ligands_data,
     set_ligands_data_filtered,
     set_current_ligand,
-
+    set_ligands_radius,
+    set_ligand_prediction_data,
 
     set_tax_dict,
     set_current_polymers,
     set_current_polymer_class,
     set_new_structs,
     set_filter,
+
     pagination_set_page,
     pagination_next_page,
     pagination_prev_page
@@ -258,6 +285,29 @@ export const prefetchLigandsData = createAsyncThunk( 'ui/fetchAndSetLigandsData'
     const result = await dispatch(ribxz_api.endpoints.routersRouterStructListLigands.initiate());
     if ('data' in result) {
       dispatch(set_ligands_data(result.data as any));
+    }
+  }
+);
+
+export const fetchPredictionData = createAsyncThunk( 'ui/fetchPredictionData',
+  async (params:{
+    chemid: string,
+    src   : string,
+    tgt   : string,
+    radius: number
+  }, { dispatch }) => {
+    const result = await dispatch(ribxz_api.endpoints.routersRouterLigLigTranspose.initiate({
+        chemicalId     : params.chemid,
+        sourceStructure: params.src,
+        targetStructure: params.tgt,
+        radius         : params.radius
+    })).then((res) => {console.log("hit endpoint"); return res;
+    });
+    if ('data' in result) {
+      dispatch(set_ligand_prediction_data(result.data as any));
+      console.log("Dispatched prediction data:");
+      console.log(result.data);
+      
     }
   }
 );
