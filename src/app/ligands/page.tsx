@@ -484,11 +484,7 @@ export default function Ligands() {
                                 </div>
 
                                 <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
-
-
                                     <Accordion type="single" collapsible
-
-
                                         defaultValue="none" disabled={current_ligand === null}>
                                         <AccordionItem value="item">
                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">{lig_state.current_ligand?.ligand.chemicalId} Chemical Structure</AccordionTrigger>
@@ -557,18 +553,8 @@ export default function Ligands() {
                                                     />
                                                 </div>
                                                 <div className="flex flex-wrap ">
-                                                    {/* {surroundingResidues.length === 0 ? null :
-                                                        surroundingResidues.map((residue, i) => {
-                                                            return <ResidueBadge molstar_ctx={ctx} residue={{ ...residue, polymer_class: nomenclatureMap[residue.auth_asym_id] }} show_parent_chain={checked} key={i} />
-                                                        })
-                                                    } */}
-
-
                                                     {surroundingResidues.length === 0 ? null :
                                                         Object.entries(surroundingResidues.reduce((acc: Record<string, Residue[]>, next: Residue) => {
-
-
-
                                                             if (Object.keys(acc).includes(next.auth_asym_id)) {
                                                                 acc[next.auth_asym_id].push(next)
                                                             }
@@ -576,7 +562,6 @@ export default function Ligands() {
                                                                 acc[next.auth_asym_id] = [next]
                                                             }
                                                             return acc
-
                                                         }, {})).map(entry =>
                                                             <Accordion type="single" collapsible className="border p-1 rounded-md w-full h-fit my-1">
                                                                 <AccordionItem value={"other"}>
