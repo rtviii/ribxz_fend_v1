@@ -95,6 +95,7 @@ const injectedRtkApi = api.injectEndpoints({
           polymer_classes: queryArg.polymerClasses,
           source_taxa: queryArg.sourceTaxa,
           host_taxa: queryArg.hostTaxa,
+          subunit_presence: queryArg.subunitPresence,
         },
       }),
     }),
@@ -521,13 +522,14 @@ export type RoutersRouterStructListLigandsApiArg = void;
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
 export type RoutersRouterStructFilterListApiArg = {
-  page?: number;
-  search?: string;
-  year?: string;
-  resolution?: string;
-  polymerClasses?: string;
-  sourceTaxa?: string;
-  hostTaxa?: string;
+  page           ?: number;
+  search         ?: string;
+  year           ?: string;
+  resolution     ?: string;
+  polymerClasses ?: string;
+  sourceTaxa     ?: string;
+  hostTaxa       ?: string;
+  subunitPresence?: string;
 };
 export type RoutersRouterStructOverviewApiResponse =
   /** status 200 OK */ object[];

@@ -39,7 +39,8 @@ export default function StructureCatalogue() {
         hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
         sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
         polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-        search: filter_state.search === null ? '' : filter_state.search
+        search: filter_state.search === null ? '' : filter_state.search,
+
       }).unwrap()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

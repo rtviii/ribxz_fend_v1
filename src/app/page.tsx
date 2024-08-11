@@ -349,7 +349,7 @@ export default function Home() {
                 <span> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </span>
                 <span> - provide integrated tools for visualization, structural alignment, ligand prediction.  </span>
               </div>
-              <p className="text-sm">API is available at <code className='border ribxz-link  bg-gray-100 rounded-sm my-4'>api.ribosome.xyz</code> for programmatic access to the data.</p>
+              <p className="text-sm">API is available at <Link href={"https://api.ribosome.xyz"}><code className='border ribxz-link  bg-gray-100 rounded-sm my-4'>api.ribosome.xyz</code></Link> for programmatic access to the data.</p>
               <Link href={"https://academic.oup.com/nar/article/51/D1/D509/6777803"} className='my-2'>
                 <div className='border rounded-md p-2 border-blue-800 hover:cursor-pointer   hover:shadow-lg'>
                   <p className="text-xs font-medium">RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures</p>

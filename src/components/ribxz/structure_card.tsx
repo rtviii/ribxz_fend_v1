@@ -18,9 +18,9 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
     "4WRA.png", "5MMM.png", "6LQR.png", "6P5N.png", "7A1G.png", "7OYC.png", "7UVX.png", "8EUG.png", "8T8C.png"]
 
   const utf8Encode = new TextEncoder();
-  const byteval    = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
-  const pic        = RCSB_IDs[byteval % RCSB_IDs.length]
-  const method     = (() => {
+  const byteval = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
+  const pic = RCSB_IDs[byteval % RCSB_IDs.length]
+  const method = (() => {
     if (_.expMethod.toLowerCase().includes("electron")) {
       return "EM"
     } else if (_.expMethod.toLowerCase().includes("ray")) {
@@ -54,9 +54,15 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
           {/* TODO: Replace with `deposition_year` */}
           {_.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null}
           <div className="absolute top-4 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
-            <div className="border bg-muted rounded-sm px-1"> SSU+LSU</div>
-            {/* <div className="border bg-muted rounded-sm px-1"> SSU</div> */}
-            <div className="border bg-muted rounded-sm px-1"> Mitochondrion</div>
+            {
+              _.subunit_presence?.includes("lsu") ? _.subunit_presence?.includes("ssu") ?
+                <div className="border bg-muted rounded-sm px-1"> SSU+LSU</div> : <div className="border bg-muted rounded-sm px-1"> LSU</div>
+                : <div className="border bg-muted rounded-sm px-1"> SSU</div>
+
+            }
+            {_.mitochondrial ? <div className="border bg-muted rounded-sm px-1"> Mitochondrion</div> : null}
+
+
           </div>
 
           <div className="absolute top-10 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">

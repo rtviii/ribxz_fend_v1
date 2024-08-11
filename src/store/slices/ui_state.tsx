@@ -5,12 +5,13 @@ import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiati
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
 export interface FiltersState {
-    search: string | null
-    year: [number | null, number | null]
-    resolution: [number | null, number | null]
-    polymer_classes: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
-    source_taxa: number[]
-    host_taxa: number[]
+    search          : string | null
+    year            : [number | null, number | null]
+    resolution      : [number | null, number | null]
+    subunit_presence: 'LSU+SSU'|'SSU'|'LSU' | null
+    polymer_classes : CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
+    source_taxa     : number[]
+    host_taxa       : number[]
 }
 
 export interface PaginationState {
@@ -39,13 +40,13 @@ export type LigandInstances = Array<[{
 
 export type LigandInstance = {
     ligand: {
-        chemicalId: string
-        chemicalName: string
+        chemicalId          : string
+        chemicalName        : string
         drugbank_description: string
-        drugbank_id: string
-        pdbx_description: string
-        formula_weight: number
-        number_of_instances: number
+        drugbank_id         : string
+        pdbx_description    : string
+        formula_weight      : number
+        number_of_instances : number
 
     }, parent_structure: {
         rcsb_id: string
@@ -103,12 +104,13 @@ const initialState: UIState = {
         current_polymer_class: null
     },
     filters: {
-        search: '',
-        year: [null, null],
-        resolution: [null, null],
-        polymer_classes: [],
-        source_taxa: [],
-        host_taxa: [],
+        search          : '',
+        subunit_presence: null,
+        year            : [null, null],
+        resolution      : [null, null],
+        polymer_classes : [],
+        source_taxa     : [],
+        host_taxa       : [],
     },
     pagination: {
         current_structures_page: 1,

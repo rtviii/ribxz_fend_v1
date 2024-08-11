@@ -26,7 +26,7 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4 text-xs" onClick={
         () => {
             ctx?.create_ligand(data.chemicalId)
-            ctx?.create_ligand_and_surroundings(data.chemicalId)
+            ctx?.create_ligand_and_surroundings(data.chemicalId, 10)
         }
     }>
         <div className="absolute top-4 right-4 text-sm  text-green-600">LIGAND</div>
@@ -48,7 +48,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     const [method, setMethod] = useState<undefined | string>()
 
 
-    ptc_data as any
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
@@ -61,6 +60,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     }, [])
 
     useEffect(() => {
+        console.log("Fired off download struct");
+        
         ctx?.download_struct(rcsb_id)
             .then(({ ctx, struct_representation }) => {
                 if (ligand_param != null) {
@@ -203,9 +204,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
                                         </ScrollArea>
                                     </TabsContent>
-
-
-
                                     <TabsContent value="components">
                                         {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
                                     </TabsContent>
@@ -219,9 +217,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                 <ResizableHandle />
 
                 <ResizablePanel defaultSize={75}>
-                    <div className="flex flex-col gap-4">
                         <MolstarNode ref={molstarNodeRef} />
-                    </div>
                 </ResizablePanel>
 
 

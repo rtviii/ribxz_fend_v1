@@ -21,10 +21,19 @@ import {
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
+import {
+  Select as shadcnSelect,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const groupStyles = {
   borderRadius: '5px',
-  background  : '#f2fcff',
+  background: '#f2fcff',
 };
 
 export const Group = (props: GroupProps<PolymerClassOption, false>) => (
@@ -34,13 +43,13 @@ export const Group = (props: GroupProps<PolymerClassOption, false>) => (
 );
 
 export enum FilterType {
-  PolymerClass   = "PolymerClass",
+  PolymerClass = "PolymerClass",
   SourceOrganism = "SourceOrganism",
-  HostOrganism   = "HostOrganism",
+  HostOrganism = "HostOrganism",
   DepositionDate = "DepositionDate",
-  Resolution     = "Resolution",
-  Search         = "Search",
-  Sort           = "Sort"
+  Resolution = "Resolution",
+  Search = "Search",
+  Sort = "Sort"
 }
 
 export function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
@@ -67,25 +76,27 @@ interface FiltersProps {
 export function Filters(props: FiltersProps) {
 
 
-  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
 
-  const [polymerClassOptions, setPolymerClassOptions]                              = useState<any>([]);
+  const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
 
   const [triggerStructuresRefetch] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 
-  const struct_state               = useAppSelector((state) => state.ui.data)
-  const filters                    = useAppSelector(state => state.ui.filters)!
+  const struct_state = useAppSelector((state) => state.ui.data)
+  const filters = useAppSelector(state => state.ui.filters)!
 
   const debounced_filters = useDebounceFilters(filters, 250)
-  const dispatch          = useAppDispatch();
+  const dispatch = useAppDispatch();
 
 
   // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
   useEffect(() => {
     //? This garbage is needed to send a all filter params as one url string.
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
+    console.log("Sendign subunit_presence ", filters.subunit_presence);
+
     triggerStructuresRefetch({
       page: 1,
       year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
@@ -93,7 +104,8 @@ export function Filters(props: FiltersProps) {
       hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
       sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
       polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
-      search: filters.search === null ? '' : filters.search
+      search: filters.search === null ? '' : filters.search,
+      subunitPresence: filters.subunit_presence === null ? '' : filters.subunit_presence,
     }).unwrap()
 
     dispatch(pagination_set_page({
@@ -184,6 +196,7 @@ export function Filters(props: FiltersProps) {
               defaultValue={[]}
               // @ts-ignore
               onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
+              placeholder="Chains Present in Structure"
               instanceId={"polymer_class"}
               options={polymerClassOptions}
               components={{ Group }}
@@ -194,6 +207,32 @@ export function Filters(props: FiltersProps) {
             />
           </div>
 
+          <div className="space-y-2">
+
+            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="SourceOrganism">
+              Subunit
+            </label>
+            <Select
+              defaultValue={[]}
+              // @ts-ignore
+              placeholder="Subunit"
+              onChange={(option) => {
+                dispatch(set_filter(
+                  {
+                    filter_type: "subunit_presence",
+                    value: option.value
+                  }
+                ))
+              }}
+              instanceId={"polymer_class"}
+              options={[{ value: "SSU+LSU", id: "SSU+LSU", label: "SSU+LSU", color: 'red' }, { value: "SSU", id: "SSU", label: "SSU", color: 'red' }, { value: "LSU", id: "LSU", label: "LSU", color: 'red' }]}
+              // components={{ Group }}
+              // @ts-ignore
+              // isMulti={true}
+              isDisabled={props.disabled_whole}
+            // isSearchable={true}
+            />
+          </div>
           <div className="space-y-2">
             <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="SourceOrganism">
               Source Organism
@@ -240,7 +279,7 @@ export function Filters(props: FiltersProps) {
               />
             </div>
           </div>
-          <Collapsible className="mt-4">
+          {/* <Collapsible className="mt-4">
             <CollapsibleTrigger className="flex items-center justify-between " disabled={props.disabled_whole}>
               <h3 className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""} `}>Sort by:</h3>
               <ChevronDownIcon className="h-4 w-4" />
@@ -259,7 +298,7 @@ export function Filters(props: FiltersProps) {
                 PDB Codename
               </Button>
             </CollapsibleContent>
-          </Collapsible>
+          </Collapsible> */}
         </div>
       </CollapsibleContent>
     </Collapsible>
