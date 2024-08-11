@@ -1,7 +1,6 @@
 "use client"
 import { Badge } from "@/components/ui/badge"
 import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { BindingSite, BindingSiteChain, LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Button } from "@/components/ui/button"
@@ -45,8 +44,6 @@ import { ResidueBadge } from "@/components/ribxz/residue_badge"
 import { ImperativePanelHandle } from "react-resizable-panels"
 import ChainPicker, { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
 import { Spinner } from "@/components/ui/spinner"
-
-
 
 interface TaxaDropdownProps {
     count: number

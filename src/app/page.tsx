@@ -337,23 +337,26 @@ export default function Home() {
         <div className="w-3/6 flex flex-col items-center justify-center mt-20">
           <div className="flex flex-row items-start justify-center space-x-10 relative">
             <Image src="/ribxz_logo_black.png" alt="Ribosome structure" className="w-60" width={60} height={120} />
-            <div className="space-y-4">
+            <div className="space-y-4 flex flex-col">
               <p className="flex font-medium">
                 <span className='mr-2'>
                   Organized access to atomic structures of the ribosome.</span>
               </p>
-              <p className="text-sm">
-                Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>Protein Data Bank</Link>?
-                <p> - we implement standard nomenclatures<InTextCitation number={1} paper={citation1} /> <InTextCitation number={2} paper={citation2} /> <InTextCitation number={3} paper={citaiton3} /> for polymer chains (RNA and proteins)  across all structures.  </p>
-                <p> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </p>
-                <p> - provide integrated tools for visualization, structural alignment, ligand prediction.  </p>
-              </p>
 
-              <p className="text-sm">API is available at <code className='border ribxz-link  bg-gray-100 rounded-sm my-2'>api.ribosome.xyz</code> for programmatic access to the data.</p>
-              <div className='border rounded-md p-2 border-blue-800 hover:cursor-pointer   hover:shadow-lg'>
-                <p className="text-xs font-medium">RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures</p>
-                <p className='text-xs italic'> Nucleic Acids Research, Volume 51, Issue D1, 6 January 2023</p>
+              <span className='text-sm'>Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>Protein Data Bank</Link>?</span>
+              <div className="text-sm flex flex-col">
+                <span> - we implement standard nomenclatures<InTextCitation number={1} paper={citation1} /> <InTextCitation number={2} paper={citation2} /> <InTextCitation number={3} paper={citaiton3} /> for polymer chains (RNA and proteins)  across all structures.  </span>
+                <span> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </span>
+                <span> - provide integrated tools for visualization, structural alignment, ligand prediction.  </span>
               </div>
+              <p className="text-sm">API is available at <code className='border ribxz-link  bg-gray-100 rounded-sm my-4'>api.ribosome.xyz</code> for programmatic access to the data.</p>
+              <Link href={"https://academic.oup.com/nar/article/51/D1/D509/6777803"} className='my-2'>
+                <div className='border rounded-md p-2 border-blue-800 hover:cursor-pointer   hover:shadow-lg'>
+                  <p className="text-xs font-medium">RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures</p>
+                  <p className='text-xs italic'> Nucleic Acids Research, Volume 51, Issue D1, 6 January 2023</p>
+                </div>
+
+              </Link>
             </div>
           </div>
         </div>
@@ -365,12 +368,12 @@ export default function Home() {
             <LigandsOverviewPanel data={{}} />
             <p className='italic font-light text-lg'>Tools</p>
             <div className='grid-cols-9 grid  gap-1'>
-              {["Visualization (WIP)", "3D Superposition (WIP)", "Ligands & Small Molecules", "Landmarks(WIP)"].map((tool, i) => {
-                return <div className={`border rounded-sm col-span-9 flex justify-around align-middle text-center p-2 hover:cursor-pointer     ${tool === "Ligands & Small Molecules" ? "hover:shadow-lg hover:border-blue-600" : `hover:cursor-default  bg-gray-100 text-gray-300`}`}>
-                  <Link href={"/ligands"}>
-                    <span className='align-middle text-center flex content-center justify-center items-center text-sm font-medium '>{tool}</span>
-                  </Link>
-                </div>
+              {[["Visualization (WIP)", '/vis'], ["3D Superposition (WIP)", '/superpose'], ["Ligands & Small Molecules", '/ligands'], ["Landmarks(WIP)", '/landmarks']].map((kvp, i) => {
+                const [tool, path] = kvp
+                return <Link href={path} className={`border rounded-sm col-span-9 flex justify-around align-middle text-center p-2 hover:cursor-pointer ${tool === "Ligands & Small Molecules" ? "hover:shadow-lg hover:border-blue-600" : `hover:cursor-default  bg-gray-100 text-gray-300`}`}>
+
+                  <span className='align-middle text-center flex content-center justify-center items-center text-sm font-medium '>{tool}</span>
+                </Link>
               })}
             </div>
 
