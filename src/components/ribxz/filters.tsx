@@ -1,22 +1,14 @@
 'use client'
 import { Input } from "@/components/ui/input"
 import { CollapsibleTrigger, CollapsibleContent, Collapsible } from "@/components/ui/collapsible"
-import { Button } from "@/components/ui/button"
 import Select, { components, GroupProps } from 'react-select';
 import { TreeSelect } from 'antd'
 import { useEffect, useRef, useState } from "react"
-import { PaginationState } from '@/store/slices/ui_state'
 import {
   ribxz_api,
   useRoutersRouterStructListSourceTaxaQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
 } from "@/store/ribxz_api/ribxz_api"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
@@ -24,7 +16,7 @@ import { FiltersState, pagination_next_page, pagination_prev_page, pagination_se
 
 const groupStyles = {
   borderRadius: '5px',
-  background: '#f2fcff',
+  background  : '#f2fcff',
 };
 
 export const Group = (props: GroupProps<PolymerClassOption, false>) => (
@@ -34,13 +26,13 @@ export const Group = (props: GroupProps<PolymerClassOption, false>) => (
 );
 
 export enum FilterType {
-  PolymerClass = "PolymerClass",
+  PolymerClass   = "PolymerClass",
   SourceOrganism = "SourceOrganism",
-  HostOrganism = "HostOrganism",
+  HostOrganism   = "HostOrganism",
   DepositionDate = "DepositionDate",
-  Resolution = "Resolution",
-  Search = "Search",
-  Sort = "Sort"
+  Resolution     = "Resolution",
+  Search         = "Search",
+  Sort           = "Sort"
 }
 
 export function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {

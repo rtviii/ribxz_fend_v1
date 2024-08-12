@@ -172,7 +172,7 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[], disabled: boolean, filename: string }) => {
     const handleDownloadCSV = () => {
 
-        var data = residues.map((residue) => { return [residue.label_seq_id, residue.label_comp_id, residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
+        var data = residues.map((residue) => { return [residue.auth_seq_id, residue.label_comp_id, residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
 
         const csvContent = data.map(row => row.join(',')).join('\n');
 
@@ -541,7 +541,7 @@ export default function Ligands() {
                                             <AccordionContent>
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
                                                     <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
-                                                    <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
+                                                    {/* <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label> */}
                                                     <DownloadDropdown
                                                         residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
                                                         disabled={!(surroundingResidues.length > 0)}
@@ -654,10 +654,25 @@ export default function Ligands() {
                                                         ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                         ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                     }}> Display Prediction</Button>
-                                                    <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
-                                                    <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
                                                     <DownloadDropdown
-                                                        residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
+                                                        residues={ligands_state.prediction_data?.purported_binding_site.chains
+                                                            .map(chain => {
+                                                                return chain.bound_residues.map(r => {
+                                                                    var newres: Residue = {
+                                                                        auth_asym_id : chain.auth_asym_id,
+                                                                        auth_seq_id  : r.auth_seq_id,
+                                                                        label_comp_id: r.label_comp_id,
+                                                                        label_seq_id : r.label_seq_id,
+                                                                        rcsb_id      : r.rcsb_id,
+                                                                        polymer_class: chain.nomenclature[0]
+                                                                    }
+                                                                    return newres
+                                                                })
+                                                            }).reduce((acc: Residue[], next: Residue[]) => {
+                                                                return [...acc, ...next]
+                                                            }, [])}
+
+
                                                         disabled={!(surroundingResidues.length > 0)}
                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
 

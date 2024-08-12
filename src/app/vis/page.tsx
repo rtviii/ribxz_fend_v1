@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Polymer, RibosomeStructure, ribxz_api, useRoutersRouterStructOverviewQuery, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import ChainPicker from "@/components/ribxz/chainPicker"
+// import ChainPicker from "@/components/ribxz/chainPicker"
 import { Filters } from "@/components/ribxz/filters"
 import { Button } from "@/components/ui/button";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
@@ -122,10 +122,10 @@ export default function Vis() {
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
                             {/* <Filters /> */}
                             <MolstarContext.Provider value={ctx}>
-                                <ChainPicker>
+                                {/* <ChainPicker> */}
                                     <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                                     </Button>
-                                </ChainPicker>
+                                {/* </ChainPicker> */}
                             </MolstarContext.Provider>
                         </CardContent>
                         <CardFooter className="flex justify-between">

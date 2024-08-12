@@ -67,14 +67,14 @@ export function SidebarMenu() {
 
           <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-muted rounded-sm" href="/polymers">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
-              <span>{"Polymers (Proteins & RNA)"} </span>
+              <span>{"Polymers: Proteins, Factors & RNA"} </span>
               <DnaIcon className="h-5 w-5" />
             </div>
           </Link>
 
           <Link className="block py-2  px-2  font-semibold text-sm text-gray-700 hover:bg-muted rounded-sm" href="/ligands">
             <div className="flex justify-between items-center space-x-2 text-gray-800 hover:text-gray-600   " >
-              <span>{" Ligands & Small Molecules"} </span>
+              <span>{" Ligands: Antibiotics & Small Molecules"} </span>
               {/* <DnaIcon className="h-5 w-5" /> */}
               <Image src={"/ligand_icon.svg"}  width={20} height={20}  alt="ligands"/> 
             </div>
@@ -82,37 +82,38 @@ export function SidebarMenu() {
 
 
           <hr className="border-t my-4 border-gray-200" />
-          {/* <div className="space-y-2 pt-2"> */}
           <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/vis">
-            <span>Visualization</span>
-          </Link>
 
-          <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/superpose">
-            <span>Polymer Superposition (3D)</span>
-          </Link>
+          <div className="space-y-2 pt-2 flex flex-col">
+          {/* <Link className=" block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/vis" > */}
+            <span  className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Visualization (WIP)</span>
+          {/* </Link>  */}
 
+          {/* <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/superpose"> */}
+            <span  className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Polymer Superposition 3D (WIP)</span>
+          {/* </Link> */}
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1" className="w-full">
               <AccordionTrigger className="p-0 m-0">
-                <span className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Landmarks</span>
+                <span className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Landmarks (WIP)</span>
               </AccordionTrigger>
 
               <AccordionContent>
-                <Link href="/landmarks?type=ptc" className="w-full">
+                {/* <Link href="/landmarks?type=ptc" className="w-full"> */}
                   <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md">PTC</span>
-                </Link>
+                {/* </Link> */}
 
               </AccordionContent>
               <AccordionContent>
-                <Link href="/landmarks?type=exit_tunnel" className="w-full ">
+                {/* <Link href="/landmarks?type=exit_tunnel" className="w-full "> */}
                   <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md">Exit Tunnel</span>
-                </Link>
+                {/* </Link> */}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
 
 
+</div>
 
         </div>
         <div className="flex-col  h-full   align-bottom justify-end justify-items-end content-end  ">
