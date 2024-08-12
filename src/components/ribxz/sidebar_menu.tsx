@@ -84,43 +84,43 @@ export function SidebarMenu() {
           <hr className="border-t my-4 border-gray-200" />
           <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
 
-          <div className="space-y-2 pt-2 flex flex-col">
-          {/* <Link className=" block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/vis" > */}
-            <span  className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Visualization (WIP)</span>
-          {/* </Link>  */}
+
+
+          {/* <Link className=" block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href="/ligands" > */}
+            <Link  className="block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href={'/ligands'}>Ligand Prediction</Link>
+            {/* </Link>  */}
 
           {/* <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/superpose"> */}
-            <span  className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Polymer Superposition 3D (WIP)</span>
+            <span  className="block py-2 px-2 font-semibold  text-sm text-gray-400  hover:bg-muted rounded-sm">Polymer Superposition 3D (WIP)</span>
           {/* </Link> */}
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1" className="w-full">
               <AccordionTrigger className="p-0 m-0">
-                <span className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm">Landmarks (WIP)</span>
+                <span className="block py-2 px-2 font-semibold  text-sm text-gray-400  hover:bg-muted rounded-sm">Landmarks (WIP)</span>
               </AccordionTrigger>
 
               <AccordionContent>
                 {/* <Link href="/landmarks?type=ptc" className="w-full"> */}
-                  <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md">PTC</span>
+                  <span className="w-full py-2 px-8   text-sm   text-gray-400 hover:bg-muted rounded-md">PTC</span>
                 {/* </Link> */}
 
               </AccordionContent>
               <AccordionContent>
                 {/* <Link href="/landmarks?type=exit_tunnel" className="w-full "> */}
-                  <span className="w-full py-2 px-8   text-sm   hover:bg-muted rounded-md">Exit Tunnel</span>
+                  <span className="w-full py-2 px-8   text-sm   text-gray-400 hover:bg-muted rounded-md">Exit Tunnel</span>
                 {/* </Link> */}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
 
 
-</div>
 
         </div>
         <div className="flex-col  h-full   align-bottom justify-end justify-items-end content-end  ">
           <h2 className="text-sm  uppercase text-gray-400 ">Info</h2>
-          <Link className="block py-2 text-sm " href="#"> About (WIP) </Link>
-          <Link className="block py-2 text-sm " href="#"> How To (WIP) </Link>
-          <Link className="block py-2 text-sm " href="mailto:rtkushner@gmail.com; kdd@math.ubc.ca"> Contact </Link>
+          <Link className="block py-2   text-sm " href="#"> About (WIP) </Link>
+          <Link className="block py-2   text-sm " href="#"> How To (WIP) </Link>
+          <Link className="block py-2   text-sm " href="mailto:rtkushner@gmail.com; kdd@math.ubc.ca"> Contact </Link>
         </div>
 
         <SheetFooter>

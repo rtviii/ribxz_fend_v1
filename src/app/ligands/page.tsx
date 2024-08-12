@@ -4,10 +4,7 @@ import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@
 import { BindingSite, BindingSiteChain, LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import _ from 'lodash'
@@ -540,8 +537,6 @@ export default function Ligands() {
                                             </AccordionTrigger>
                                             <AccordionContent>
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-                                                    <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
-                                                    {/* <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label> */}
                                                     <DownloadDropdown
                                                         residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
                                                         disabled={!(surroundingResidues.length > 0)}
