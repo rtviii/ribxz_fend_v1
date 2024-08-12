@@ -28,19 +28,19 @@ export default function StructureCatalogue() {
   // })!
 
 
-  const debounced_page_state       = useDebouncePagination(current_page, 250)
+  const debounced_page_state       = useDebouncePagination(current_page, 150)
   const [triggerStructuresRefetch] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const filter_state               = useAppSelector((state) => state.ui.filters)
   useEffect(() => {
       triggerStructuresRefetch({
-        page: current_page,
-        year: filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-        resolution: filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-        hostTaxa: filter_state.host_taxa.length == 0 ? '' : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-        sourceTaxa: filter_state.source_taxa.length == 0 ? '' : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-        polymerClasses: filter_state.polymer_classes.length == 0 ? '' : filter_state.polymer_classes.join(','),
-        search: filter_state.search === null ? '' : filter_state.search,
-
+        page           : current_page,
+        year           : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+        resolution     : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+        hostTaxa       : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+        sourceTaxa     : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+        polymerClasses : filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
+        search         : filter_state.search === null ? ''                                                      : filter_state.search,
+        subunitPresence: filter_state.subunit_presence == null ? ''                                             : filter_state.subunit_presence
       }).unwrap()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

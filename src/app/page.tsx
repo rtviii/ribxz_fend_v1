@@ -64,7 +64,7 @@ const StructuresOverviewPanel = () => {
   return (
     // <div className="  rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
 
-    <div className="px-4 py-2 rounded-md relative border hover:border-blue-600  hover:shadow-lg transition-all hover:cursor-pointer">
+    <Link href='/structures' className="px-4 py-2 rounded-md relative border hover:border-blue-600  hover:shadow-lg transition-all hover:cursor-pointer">
       {/* <StructStatsTable data={data} /> */}
       <h3 className='text-sm font-medium '>1864 Atomic Structures</h3>
       {/* <p className='text-xs'>Number of PDB Depositions since 2000 </p> */}
@@ -94,7 +94,7 @@ const StructuresOverviewPanel = () => {
           </p>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

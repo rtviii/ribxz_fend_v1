@@ -127,12 +127,15 @@ export const GlobalStructureSelection = ({ props }: { props: any }) => {
         {...props}
         showSearch={true}
         placeholder="Select a structure"
-        onChange={(val, struct) => { console.log(val, struct.S); dispatch(select_structure(struct.S as StructureOverview)) }}
+        onChange={(val, struct) => { 
+            // @ts-ignore
+            dispatch(select_structure(struct.S as StructureOverview)) }}
         value={selected?.rcsb_id}
         style={{ width: '100%' }}
         filterOption={filterOption}
         options={structs_overview.map(S => ({
-            value: S.rcsb_id, label: (
+            value: S.rcsb_id, 
+            label: (
                 <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>{S.rcsb_id}</span>
                     <span>{S.tax_name}</span>

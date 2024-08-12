@@ -46,13 +46,16 @@ export const ResidueBadge = ({ residue, molstar_ctx,  show_parent_chain }:
     { residue: Residue, molstar_ctx: MolstarRibxz | null,  show_parent_chain?: boolean }) => {
     const residue_color_border = () => {
 
-        if (Object.keys(NucleotidesColorTable).includes(residue.label_comp_id)) {
+        if (residue.label_comp_id === undefined || residue.label_comp_id === null) {
+
+            return [ "#0c0a09", 'border' ]
+        }
+        else if (Object.keys(NucleotidesColorTable).includes(residue.label_comp_id)) {
             return [ NucleotidesColorTable[residue.label_comp_id].hex, 'border' ]
         }
         else if (Object.keys(AminoAcidColorTable).includes(residue.label_comp_id)) {
             return [ AminoAcidColorTable[residue.label_comp_id].hex, 'border-dashed' ]
-        }
-        else {
+        }else{
             return [ "#0c0a09", 'border' ]
         }
 

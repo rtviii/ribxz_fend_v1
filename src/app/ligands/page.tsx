@@ -4,10 +4,7 @@ import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@
 import { BindingSite, BindingSiteChain, LigandTransposition, ribxz_api, useRoutersRouterStructListLigandsQuery } from "@/store/ribxz_api/ribxz_api"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
-import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import _ from 'lodash'
@@ -42,7 +39,7 @@ import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
 import { ImperativePanelHandle } from "react-resizable-panels"
-import ChainPicker, { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
+import  { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
 import { Spinner } from "@/components/ui/spinner"
 
 interface TaxaDropdownProps {
@@ -172,7 +169,7 @@ const lig_data_to_tree = (lig_data: LigandInstances) => {
 const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[], disabled: boolean, filename: string }) => {
     const handleDownloadCSV = () => {
 
-        var data = residues.map((residue) => { return [residue.label_seq_id, residue.label_comp_id, residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
+        var data = residues.map((residue) => { return [residue.auth_seq_id, residue.label_comp_id, residue.auth_asym_id, residue.polymer_class, residue.rcsb_id] })
 
         const csvContent = data.map(row => row.join(',')).join('\n');
 
@@ -540,8 +537,6 @@ export default function Ligands() {
                                             </AccordionTrigger>
                                             <AccordionContent>
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-                                                    <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
-                                                    <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
                                                     <DownloadDropdown
                                                         residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
                                                         disabled={!(surroundingResidues.length > 0)}
@@ -637,27 +632,43 @@ export default function Ligands() {
                                             <AccordionContent>
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-                                                    <Button variant={"outline"} onClick={() => {
+                                                    <Button variant={"outline"} 
+                                                    onClick={() => {
                                                         if (current_selected_target === null || current_ligand === null) { return }
                                                         dispatch(fetchPredictionData(
                                                             {
                                                                 chemid: current_ligand?.ligand.chemicalId,
-                                                                src: current_ligand?.parent_structure.rcsb_id,
-                                                                tgt: current_selected_target?.rcsb_id,
+                                                                src   : current_ligand?.parent_structure.rcsb_id,
+                                                                tgt   : current_selected_target?.rcsb_id,
                                                                 radius: lig_state.radius
                                                             }
                                                         ))
-                                                    }}> {ligands_state.prediction_pending ? <Spinner /> : "Render Prediction"}</Button>
+                                                    }}> {ligands_state.prediction_pending ? <><Spinner/> <span className="mx-2">Calculating</span></> : "Render Prediction"}</Button>
 
                                                     <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
                                                         if (ligands_state.prediction_data === undefined || ligands_state.prediction_data === null) { return }
                                                         ctx_secondary?.highlightResidueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                         ctx_secondary?.select_residueCluster(LigandPredictionNucleotides(ligands_state.prediction_data))
                                                     }}> Display Prediction</Button>
-                                                    <Checkbox id="show-polymer-class" checked={checked} onCheckedChange={() => setChecked(!checked)} />
-                                                    <Label htmlFor="show-polymer-class" className="text-xs">Show Polymer class</Label>
                                                     <DownloadDropdown
-                                                        residues={surroundingResidues.map(r => ({ ...r, polymer_class: nomenclatureMap[r.auth_asym_id] }))}
+                                                        residues={ligands_state.prediction_data?.purported_binding_site.chains
+                                                            .map(chain => {
+                                                                return chain.bound_residues.map(r => {
+                                                                    var newres: Residue = {
+                                                                        auth_asym_id : chain.auth_asym_id,
+                                                                        auth_seq_id  : r.auth_seq_id,
+                                                                        label_comp_id: r.label_comp_id,
+                                                                        label_seq_id : r.label_seq_id,
+                                                                        rcsb_id      : r.rcsb_id,
+                                                                        polymer_class: chain.nomenclature[0]
+                                                                    }
+                                                                    return newres
+                                                                })
+                                                            }).reduce((acc: Residue[], next: Residue[]) => {
+                                                                return [...acc, ...next]
+                                                            }, []) as Residue[]}
+
+
                                                         disabled={!(surroundingResidues.length > 0)}
                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
 

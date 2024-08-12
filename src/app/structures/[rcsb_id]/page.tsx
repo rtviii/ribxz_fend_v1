@@ -10,11 +10,18 @@ import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
 import { MolstarNode } from "@/components/mstar/lib"
-import { Separator } from "@/components/ui/separator"
-import Image from 'next/image'
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { ExpMethodBadge } from "@/components/ribxz/exp_method_badge"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { DownloadIcon } from "lucide-react"
 
 // StateTransforms
 // https://github.com/molstar/molstar/issues/1074
@@ -35,12 +42,38 @@ const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     </div>
 
 }
+
+const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
+    const handleCifDownload = () => {
+        const link = document.createElement('a');
+        link.href = `https://files.rcsb.org/download/${rcsb_id}.cif`;
+        link.download = `${rcsb_id}.cif` || 'download';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    return (
+        <DropdownMenu >
+            <DropdownMenuTrigger asChild >
+                <Button variant="outline" size="sm" >
+                    <DownloadIcon className=" h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleCifDownload}>
+                    <code className="text-blue-600 cursor-pointer">{rcsb_id}.mmcif</code>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+};
 export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
 
-    const { rcsb_id }  = useParams<{ rcsb_id: string; }>()
+    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
-    const ptc          = searchParams.get('ptc')
+    const ptc = searchParams.get('ptc')
 
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
@@ -61,7 +94,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
     useEffect(() => {
         console.log("Fired off download struct");
-        
+
         ctx?.download_struct(rcsb_id)
             .then(({ ctx, struct_representation }) => {
                 if (ligand_param != null) {
@@ -76,7 +109,15 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                 <ResizablePanel defaultSize={25} >
                     <Card className="h-full flex flex-col ">
                         <CardHeader>
-                            <CardTitle>{data?.rcsb_id}</CardTitle>
+                            <CardTitle className="flex flex-row justify-between">
+                                {/* <div> */}
+
+
+                                <span className="text-center content-center">{data?.rcsb_id} </span>
+                                <DownloadDropdown rcsb_id={data?.rcsb_id as string} />
+                                {/* </div> */}
+
+                            </CardTitle>
                             <p className="text-gray-500 text-xs">{data?.citation_title}</p>
                         </CardHeader>
 
@@ -101,17 +142,17 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                                             <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md text-xs   transition-colors z-10" title="Full list of authors"  >
                                                                 <span style={{ fontStyle: "italic" }} >{data?.citation_rcsb_authors[0]}</span>
                                                                 <span style={{
-                                                                    cursor         : "pointer",
-                                                                    display        : 'inline-block',
-                                                                    width          : '15px',
-                                                                    height         : '15px',
-                                                                    borderRadius   : '50%',
+                                                                    cursor: "pointer",
+                                                                    display: 'inline-block',
+                                                                    width: '15px',
+                                                                    height: '15px',
+                                                                    borderRadius: '50%',
                                                                     backgroundColor: '#cccccc',
-                                                                    textAlign      : 'center',
-                                                                    lineHeight     : '15px',
-                                                                    fontWeight     : 'bold',
-                                                                    fontSize       : '14px',
-                                                                    color          : 'white'
+                                                                    textAlign: 'center',
+                                                                    lineHeight: '15px',
+                                                                    fontWeight: 'bold',
+                                                                    fontSize: '14px',
+                                                                    color: 'white'
                                                                 }}>+</span>
 
 
@@ -158,6 +199,11 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                                     <h4 className="text text-sm font-medium">Host Organism</h4>
                                                     <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
                                                 </div> : null}
+                                        </div>
+                                        <div>
+
+
+
                                         </div>
 
 
@@ -217,7 +263,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                 <ResizableHandle />
 
                 <ResizablePanel defaultSize={75}>
-                        <MolstarNode ref={molstarNodeRef} />
+                    <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
 
 
