@@ -39,7 +39,7 @@ import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "
 import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
 import { ResidueBadge } from "@/components/ribxz/residue_badge"
 import { ImperativePanelHandle } from "react-resizable-panels"
-import ChainPicker, { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
+import  { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
 import { Spinner } from "@/components/ui/spinner"
 
 interface TaxaDropdownProps {
