@@ -632,17 +632,18 @@ export default function Ligands() {
                                             <AccordionContent>
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-                                                    <Button variant={"outline"} onClick={() => {
+                                                    <Button variant={"outline"} 
+                                                    onClick={() => {
                                                         if (current_selected_target === null || current_ligand === null) { return }
                                                         dispatch(fetchPredictionData(
                                                             {
                                                                 chemid: current_ligand?.ligand.chemicalId,
-                                                                src: current_ligand?.parent_structure.rcsb_id,
-                                                                tgt: current_selected_target?.rcsb_id,
+                                                                src   : current_ligand?.parent_structure.rcsb_id,
+                                                                tgt   : current_selected_target?.rcsb_id,
                                                                 radius: lig_state.radius
                                                             }
                                                         ))
-                                                    }}> {ligands_state.prediction_pending ? <Spinner /> : "Render Prediction"}</Button>
+                                                    }}> {ligands_state.prediction_pending ? <><Spinner/> <span className="mx-2">Calculating</span></> : "Render Prediction"}</Button>
 
                                                     <Button variant={"outline"} disabled={ligands_state.prediction_data === undefined || _.isEmpty(ligands_state.prediction_data)} onClick={() => {
                                                         if (ligands_state.prediction_data === undefined || ligands_state.prediction_data === null) { return }
@@ -665,7 +666,7 @@ export default function Ligands() {
                                                                 })
                                                             }).reduce((acc: Residue[], next: Residue[]) => {
                                                                 return [...acc, ...next]
-                                                            }, [])}
+                                                            }, []) as Residue[]}
 
 
                                                         disabled={!(surroundingResidues.length > 0)}

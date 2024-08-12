@@ -169,13 +169,15 @@ export function Filters(props: FiltersProps) {
                   dispatch(set_filter(
                     {
                       filter_type: "subunit_presence",
-                      value: option ? option.value : null
+                      // @ts-ignore
+                      value: option ? option.value  : null
                     }
                   ))
                 }}
 
                 isClearable={true}
                 instanceId={"polymer_class"}
+                // @ts-ignore
                 options={[{ value: "SSU+LSU", id: "SSU+LSU", label: "SSU+LSU", color: 'red' }, { value: "SSU", id: "SSU", label: "SSU", color: 'red' }, { value: "LSU", id: "LSU", label: "LSU", color: 'red' }]}
                 // components={{ Group }}
                 // @ts-ignore

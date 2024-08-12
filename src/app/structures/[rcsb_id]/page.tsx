@@ -114,7 +114,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
 
                                 <span className="text-center content-center">{data?.rcsb_id} </span>
-                                <DownloadDropdown rcsb_id={data?.rcsb_id} />
+                                <DownloadDropdown rcsb_id={data?.rcsb_id as string} />
                                 {/* </div> */}
 
                             </CardTitle>
