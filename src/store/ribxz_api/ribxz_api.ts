@@ -522,13 +522,13 @@ export type RoutersRouterStructListLigandsApiArg = void;
 export type RoutersRouterStructFilterListApiResponse =
   /** status 200 OK */ object;
 export type RoutersRouterStructFilterListApiArg = {
-  page           ?: number;
-  search         ?: string;
-  year           ?: string;
-  resolution     ?: string;
-  polymerClasses ?: string;
-  sourceTaxa     ?: string;
-  hostTaxa       ?: string;
+  page?: number;
+  search?: string;
+  year?: string;
+  resolution?: string;
+  polymerClasses?: string;
+  sourceTaxa?: string;
+  hostTaxa?: string;
   subunitPresence?: string;
 };
 export type RoutersRouterStructOverviewApiResponse =

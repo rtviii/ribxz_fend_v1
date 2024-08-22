@@ -10,11 +10,12 @@ export interface StructureOverview {
     tax_id       : number
     mitochondrial: boolean
     rcsb_id      : string
+    title      : string
   }
 
 export interface AllStructuresOverview {
     structures: StructureOverview[],
-    selected: StructureOverview| null
+    selected  : StructureOverview| null
 
 }
 

@@ -14,6 +14,7 @@ import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
 import { MolstarContext } from "@/components/ribxz/molstar_context";
 import { Structure } from "molstar/lib/mol-model/structure";
 import { Select } from "antd";
+import { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection";
 
 
 const ChainSelection = ({ polymers }: { polymers: Polymer[] }) => {
@@ -95,28 +96,7 @@ export default function Vis() {
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
-                            <Select
-                                showSearch
-                                placeholder="Select a person"
-                                filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                                onChange={(value) => {
-                                    set_rcsb_id(value);
-                                }}
-                                options={
-                                    structs_overview && structs_overview.map((d: any) => ({
-                                        value: d['rcsb_id'],
-                                        label: d['rcsb_id'],
-                                    }))}
-                            />
-
-                            <ChainSelection polymers={profile_data ? [...profile_data?.proteins, ...profile_data?.rnas] as Polymer[] : []} />
-                            {/* Chain selection tray -- choose multiple elemnts by polymer rows -- fetch the structure from model server */}
-                            {/* create separate components for each selected chain */}
-
-                            <p>TODO:</p>
-                            <p> - chain selector </p>
-                            <p> - landmarks for that structure </p>
-                            <p> - "visualize" button </p>
+                            <GlobalStructureSelection/>
 
                         </CardHeader>
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">

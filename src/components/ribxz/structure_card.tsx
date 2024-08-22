@@ -207,7 +207,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
       case "EM":
         return "text-cyan-500"
       case "XRAY":
-        return "text-orange-500"
+        return "text-brown-500"
       case "NMR":
         return "text-green-500"
     }
@@ -232,7 +232,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                 : <div className="border bg-muted rounded-sm px-1"> SSU</div>
 
             }
-            {_.mitochondrial ? <div className="border bg-muted rounded-sm px-1"> Mitochondrion</div> : null}
+            {_.mitochondrial ? <div className="border bg-muted rounded-sm px-1 text-orange-500"> Mitochondrion</div> : null}
 
 
           </div>
