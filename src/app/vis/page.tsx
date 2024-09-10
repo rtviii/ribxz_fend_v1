@@ -56,6 +56,16 @@ export default function Vis() {
         })()
     }, [])
 
+    useEffect(() => {
+        console.log("Fired off download struct");
+
+        ctx?.download_struct("3J7Z")
+            // .then(({ ctx, struct_representation }) => {
+            //     if (ligand_param != null) {
+            //         ctx.create_ligand(ligand_param!)
+            //     }
+            // })
+    }, [ctx])
 
     const [rcsb_id, set_rcsb_id] = useState<string | null>(null)
     useEffect(() => {
@@ -115,9 +125,7 @@ export default function Vis() {
                 </ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel defaultSize={75}>
-                    <div className="flex flex-col gap-4">
                         <MolstarNode ref={molstarNodeRef} />
-                    </div>
                 </ResizablePanel>
             </ResizablePanelGroup>
 

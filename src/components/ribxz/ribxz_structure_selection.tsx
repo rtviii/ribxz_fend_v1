@@ -109,7 +109,6 @@ export default function StructurePicker({ children }: { children?: React.ReactNo
 //! Do "Coordinate" double dropdown for chains
 // It's an input field with its own state 
 // and that can be parametrized by filters but isn't by default
-
 const { Text } = Typography;
 
 export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentProps<typeof Select>> = {})  => {
