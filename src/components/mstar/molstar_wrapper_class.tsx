@@ -5,6 +5,7 @@ import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mo
 import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
 import { compileIdListSelection } from 'molstar/lib/mol-script/util/id-list'
 import { log } from 'console';
+import { RuntimeContext } from 'molstar/lib/mol-task/execution/runtime-context';
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/interactivity';
 import { StateObjectRef } from 'molstar/lib/mol-state/object';
@@ -40,6 +41,7 @@ import { ShapeRepresentation } from 'molstar/lib/mol-repr/shape/representation';
 import { Shape } from 'molstar/lib/mol-model/shape';
 import { Task } from 'molstar/lib/mol-task';
 import { ColorNames } from 'molstar/lib/mol-util/color/names';
+import { ShapeFromPly } from 'molstar/lib/mol-plugin-state/transforms/model';
 
 
 
@@ -170,10 +172,29 @@ export class MolstarRibxz {
   }
 
 
-  renderPLY = async (url: string) => {
-    var dataformat = this.ctx.dataFormats.get('ply')
-    console.log("GOT DATA FORMAT");
-    console.log(dataformat);
+  renderPLY =  async (url: string) => {
+    const provider = this.ctx.dataFormats.get('ply')
+    const myurl    = 'http://127.0.0.1:8000/structures/tunnel_geometry?rcsb_id=5afi&is_ascii=true'
+    const data     = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()) , isBinary: false });
+    const parsed   = await provider!.parse(this.ctx, data!);
+    await provider.visuals(this.ctx, parsed);
+
+    // const shape    = await this.ctx.runTask(shapeFromPly(parsed.data))
+    // -
+  // const trajectory = await this.ctx.build().to(data).apply(parsed, { data }).commit();
+  // await this.ctx.builders.structure.hierarchy.applyPreset(provider?.visuals(this.ctx, parsed), 'default');
+  // 
+
+    // ShapeFromPly.apply(this.ctx, { shape, label: 'Tunnel Geometry' })
+
+    // const update = this.ctx.build();
+    // update
+    //     .toRoot()
+    //       .to()
+    //       .apply(StateTransforms.Representation.ShapeRepresentation3D);
+
+    // provider?.visuals
+  
   }
 
 

@@ -20,16 +20,16 @@ import { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_sel
 const ChainSelection = ({ polymers }: { polymers: Polymer[] }) => {
 
     const [selectedItems, setSelectedItems] = useState<Polymer[]>([]);
-    const filteredOptions:Polymer[] = polymers.filter((o) => !selectedItems.includes(o));
+    const filteredOptions: Polymer[] = polymers.filter((o) => !selectedItems.includes(o));
 
     return (
         <Select
-            mode        = "multiple"
-            placeholder = "Inserted are removed"
-            value       = {selectedItems}
-            onChange    = {setSelectedItems}
-            style       = {{ width: '100%' }}
-            options     = {filteredOptions.map((item) => ({
+            mode="multiple"
+            placeholder="Inserted are removed"
+            value={selectedItems}
+            onChange={setSelectedItems}
+            style={{ width: '100%' }}
+            options={filteredOptions.map((item) => ({
                 value: item.auth_asym_id,
                 label: item.auth_asym_id,
             }))}
@@ -58,13 +58,7 @@ export default function Vis() {
 
     useEffect(() => {
         console.log("Fired off download struct");
-
-        ctx?.download_struct("3J7Z")
-            // .then(({ ctx, struct_representation }) => {
-            //     if (ligand_param != null) {
-            //         ctx.create_ligand(ligand_param!)
-            //     }
-            // })
+        ctx?.download_struct("5afi")
     }, [ctx])
 
     const [rcsb_id, set_rcsb_id] = useState<string | null>(null)
@@ -74,13 +68,13 @@ export default function Vis() {
 
 
 
-    const [refetch_profile, _]                              = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
-    const [test_active, test_active_set]                    = useState<boolean>(false)
-    const [profile_data, setProfileData] = useState<RibosomeStructure|null>(null)
+    const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
+    const [test_active, test_active_set] = useState<boolean>(false)
+    const [profile_data, setProfileData] = useState<RibosomeStructure | null>(null)
 
 
     useEffect(() => {
-        if ( rcsb_id == null ) {return }
+        if (rcsb_id == null) { return }
         (async () => {
             const data = await refetch_profile({ rcsbId: rcsb_id }).unwrap()
             setProfileData(data)
@@ -106,15 +100,21 @@ export default function Vis() {
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
-                            <GlobalStructureSelection/>
+                            <GlobalStructureSelection />
+                            <Button onClick={()=>{
+                                console.log("Render PLY")
+                                ctx?.renderPLY("someurl")
+
+
+                            }}>Render PLY</Button>
 
                         </CardHeader>
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
                             {/* <Filters /> */}
                             <MolstarContext.Provider value={ctx}>
                                 {/* <ChainPicker> */}
-                                    <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
-                                    </Button>
+                                <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
+                                </Button>
                                 {/* </ChainPicker> */}
                             </MolstarContext.Provider>
                         </CardContent>
@@ -125,7 +125,7 @@ export default function Vis() {
                 </ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel defaultSize={75}>
-                        <MolstarNode ref={molstarNodeRef} />
+                    <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
             </ResizablePanelGroup>
 
