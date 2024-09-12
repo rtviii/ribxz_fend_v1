@@ -139,7 +139,7 @@ export const MySpec: PluginUISpec = {
     
     controls:{
         bottom:'none',
-        left:'none'
+        // left:'none'
         
     },
     remoteState: 'none',

@@ -101,11 +101,21 @@ export default function Vis() {
                     <Card className="h-full flex flex-col">
                         <CardHeader>
                             <GlobalStructureSelection />
-                            <Button onClick={()=>{
+                            <Button onClick={() => {
                                 console.log("Render PLY")
                                 ctx?.renderPLY("someurl")
+                            }}>Render PLY</Button>
 
 
+
+                            <Button onClick={() => {
+                                console.log("Spheres ")
+                                ctx?.addSpheres([{ x: 50, y: 50, z: 50, radius: 5 }, 
+                                    { x: 50, y: 56, z: 50, radius: 5 },
+                                    { x: 50, y: 60, z: 50, radius: 5 },
+                                    { x: 50, y: 68, z: 50, radius: 5 },
+                                    
+                                ])
                             }}>Render PLY</Button>
 
                         </CardHeader>

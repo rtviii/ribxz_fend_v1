@@ -6,7 +6,6 @@ import { addSphere } from "molstar/lib/mol-geo/geometry/mesh/builder/sphere";
 import { MeshBuilder } from 'molstar/lib/mol-geo/geometry/mesh/mesh-builder';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { Color } from 'molstar/lib/mol-util/color';
-
 import { Interval } from 'molstar/lib/mol-data/int';
 import { Mesh } from 'molstar/lib/mol-geo/geometry/mesh/mesh';
 import { LocationIterator } from "molstar/lib/mol-geo/util/location-iterator";
@@ -26,8 +25,7 @@ import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
 
 const ArbitrarySphereVisuals = {
-    'arbitrary-sphere': (ctx: RepresentationContext, getParams: RepresentationParamsGetter<Structure, ArbitrarySphereParams>) =>
-        UnitsRepresentation('Arbitrary sphere mesh', ctx, getParams, ArbitrarySphereVisual),
+    'arbitrary-sphere': (ctx: RepresentationContext, getParams: RepresentationParamsGetter<Structure, ArbitrarySphereParams>) => UnitsRepresentation('Arbitrary sphere mesh', ctx, getParams, ArbitrarySphereVisual),
 };
 
 // Parameters that allow us to control the appearance of the sphere
@@ -89,7 +87,7 @@ function ArbitrarySphereVisual(materialId: number): UnitsVisual<ArbitrarySphereP
 
                 // Function that creates a label for the Loci. The label is displayed in the UI when the user hovers over
                 // the graphical object represented by this Loci.
-                () => ""
+                () => "Yo, I'm a sphere!"
             );
 
             // You may also just return EmptyLoci. This will make the sphere non-interactable
@@ -116,25 +114,23 @@ function ArbitrarySphereVisual(materialId: number): UnitsVisual<ArbitrarySphereP
         }
     }, materialId);
 }
-
 export type ArbitrarySphereRepresentation = StructureRepresentation<ArbitrarySphereParams>;
 
-export function ConfalPyramidsRepresentation(ctx: RepresentationContext,
-    getParams: RepresentationParamsGetter<Structure, ArbitrarySphereParams>): ArbitrarySphereRepresentation {
+export function ConfalPyramidsRepresentation(ctx: RepresentationContext, getParams: RepresentationParamsGetter<Structure, ArbitrarySphereParams>): ArbitrarySphereRepresentation {
     const repr = Representation.createMulti('Confal Pyramids', ctx, getParams, StructureRepresentationStateBuilder, ArbitrarySphereVisuals as unknown as Representation.Def<Structure, ArbitrarySphereParams>);
     return repr;
 }
 
 export const ArbitrarySphereRepresentationProvider = StructureRepresentationProvider({
-    name: 'arbitrary-sphere',
-    label: 'Arbitrary sphere',
-    description: 'Displays an arbitrary sphere at given coordinates',
-    factory: ConfalPyramidsRepresentation,
-    getParams: (ctx: ThemeRegistryContext, structure: Structure) => PD.clone(ArbitrarySphereParams),
-    defaultValues: PD.getDefaultValues(ArbitrarySphereParams),
+    name             : 'arbitrary-sphere',
+    label            : 'Arbitrary sphere',
+    description      : 'Displays an arbitrary sphere at given coordinates',
+    factory          : ConfalPyramidsRepresentation,
+    getParams        : (ctx: ThemeRegistryContext, structure: Structure) => PD.clone(ArbitrarySphereParams),
+    defaultValues    : PD.getDefaultValues(ArbitrarySphereParams),
     defaultColorTheme: { name: 'uniform' },
-    defaultSizeTheme: { name: 'uniform' },
-    isApplicable: (structure: Structure) => true,                                                         // Assume that we can always draw a sphere
+    defaultSizeTheme : { name: 'uniform' },
+    isApplicable     : (structure: Structure) => true,                                                         // Assume that we can always draw a sphere
 });
 
 function createArbitrarySphereMesh(ctx: VisualContext, unit: Unit, structure: Structure, theme: Theme, props: PD.Values<ArbitrarySphereParams>, mesh?: Mesh) {
@@ -149,6 +145,37 @@ function createArbitrarySphereMesh(ctx: VisualContext, unit: Unit, structure: St
     position[0] = props.x;
     position[1] = props.y;
     position[2] = props.z;
+
     addSphere(mb, position, props.radius, 2);
+
     return MeshBuilder.getMesh(mb);
 }
+
+declare global {
+    interface Window {
+        molstar?: PluginUIContext;
+    }
+}
+
+async function displayStructureAndSphere(ms: PluginUIContext, pdbId: string, spheres: Partial<{ x: number, y: number, z: number, radius: number, color: Color}>[]) {
+    const data = await ms.builders.data.download(
+        { url: `https://files.rcsb.org/download/${pdbId}.pdb` }, /* replace with your URL */
+        { state: { isGhost: true } }
+    );
+    const trajectory = await ms.builders.structure.parseTrajectory(data, "pdb");
+    const model = await ms.builders.structure.createModel(trajectory);
+    const structure = await ms.builders.structure.createStructure(model);
+
+    ms.builders.structure.representation.addRepresentation(structure, { type: 'cartoon' });
+    // Now, at last, create the sphere visuals
+    spheres.map((s) => {
+        ms.builders.structure.representation.addRepresentation(
+            structure, {
+                type: 'arbitrary-sphere' as any, // Coerce TypeScript into accepting the representation name
+                typeParams: s,
+                colorParams: s.color ? { value:  s.color } : void 0,
+            },
+        );
+    });
+}
+

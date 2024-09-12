@@ -94,17 +94,12 @@ export class MolstarRibxz {
   }
 
 
-
-
-  async addSpheres(structure_ref: string, spheres: Partial<{ x: number, y: number, z: number, radius: number, color: Color }>[]) {
-
-
+  async addSpheres(spheres: Partial<{ x: number, y: number, z: number, radius: number, color: Color }>[]) {
+    const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
     spheres.map((s) => {
-
-
       this.ctx.builders.structure.representation.addRepresentation(
-        structure_ref, {
-        type: 'arbitrary-sphere' as any,              // Coerce TypeScript into accepting the representation name
+        structureRef, {
+        type: 'arbitrary-sphere' as any,             // Coerce TypeScript into accepting the representation name
         typeParams: s,
         colorParams: s.color ? { value: s.color } : void 0,
       },
@@ -172,18 +167,18 @@ export class MolstarRibxz {
   }
 
 
-  renderPLY =  async (url: string) => {
+  renderPLY = async (url: string) => {
     const provider = this.ctx.dataFormats.get('ply')
-    const myurl    = 'http://127.0.0.1:8000/structures/tunnel_geometry?rcsb_id=5afi&is_ascii=true'
-    const data     = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()) , isBinary: false });
-    const parsed   = await provider!.parse(this.ctx, data!);
+    const myurl = 'http://127.0.0.1:8000/structures/tunnel_geometry?rcsb_id=5afi&is_ascii=true'
+    const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
+    const parsed = await provider!.parse(this.ctx, data!);
     await provider.visuals(this.ctx, parsed);
 
     // const shape    = await this.ctx.runTask(shapeFromPly(parsed.data))
     // -
-  // const trajectory = await this.ctx.build().to(data).apply(parsed, { data }).commit();
-  // await this.ctx.builders.structure.hierarchy.applyPreset(provider?.visuals(this.ctx, parsed), 'default');
-  // 
+    // const trajectory = await this.ctx.build().to(data).apply(parsed, { data }).commit();
+    // await this.ctx.builders.structure.hierarchy.applyPreset(provider?.visuals(this.ctx, parsed), 'default');
+    // 
 
     // ShapeFromPly.apply(this.ctx, { shape, label: 'Tunnel Geometry' })
 
@@ -194,7 +189,7 @@ export class MolstarRibxz {
     //       .apply(StateTransforms.Representation.ShapeRepresentation3D);
 
     // provider?.visuals
-  
+
   }
 
 
@@ -304,7 +299,6 @@ export class MolstarRibxz {
   async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }) {
     const myUrl = `${DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
-
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
   }
