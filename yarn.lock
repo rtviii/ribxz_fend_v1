@@ -1676,10 +1676,10 @@
   dependencies:
     undici-types "~5.25.1"
 
-"@types/node@^18.19.31":
-  version "18.19.34"
-  resolved "https://registry.npmjs.org/@types/node/-/node-18.19.34.tgz"
-  integrity sha512-eXF4pfBNV5DAMKGbI02NnDtWrQ40hAN558/2vvS4gMpMIxaf6JmD7YjnZbq0Q9TDSSkKBamime8ewRoomHdt4g==
+"@types/node@^18.19.47":
+  version "18.19.50"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.50.tgz#8652b34ee7c0e7e2004b3f08192281808d41bf5a"
+  integrity sha512-xonK+NRrMBRtkL1hVCc3G+uXtjh1Al4opBLjqVmipe5ZAaBYWW6cNAiBVZ1BvmkBhep698rP3UM3aRAdSALuhg==
   dependencies:
     undici-types "~5.26.4"
 
@@ -1753,10 +1753,10 @@
     "@types/mime" "*"
     "@types/node" "*"
 
-"@types/swagger-ui-dist@3.30.4":
-  version "3.30.4"
-  resolved "https://registry.npmjs.org/@types/swagger-ui-dist/-/swagger-ui-dist-3.30.4.tgz"
-  integrity sha512-FeOBc7uj4/lAIh4jkBzorvmNoUU9JgSccyDIRo0E9MJw9KQfSxlwpHCyKGnU9kfV5N5dEdfpY8wm7to3nSwTmA==
+"@types/swagger-ui-dist@3.30.5":
+  version "3.30.5"
+  resolved "https://registry.yarnpkg.com/@types/swagger-ui-dist/-/swagger-ui-dist-3.30.5.tgz#4579a8e2511f7ab018cee13aeb063126d6ed4afa"
+  integrity sha512-SrXhD9L8qeIxJzN+o1kmf3wXeVf/+Km3jIdRM1+Yq3I5b/dlF5TcGr5WCVM7I/cBYpgf43/gCPIucQ13AhICiw==
 
 "@types/unist@*", "@types/unist@^3.0.0":
   version "3.0.2"
@@ -4221,10 +4221,15 @@ immer@^10.0.3, immer@^10.1.1:
   resolved "https://registry.npmjs.org/immer/-/immer-10.1.1.tgz"
   integrity sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==
 
-immutable@^4.0.0, immutable@^4.3.5:
+immutable@^4.0.0:
   version "4.3.6"
   resolved "https://registry.npmjs.org/immutable/-/immutable-4.3.6.tgz"
   integrity sha512-Ju0+lEMyzMVZarkTn/gqRpdqd5dOPaz1mCZ0SH3JV6iFw81PldE/PEB1hWVEA288HPt4WXW8O7AWxB10M+03QQ==
+
+immutable@^4.3.7:
+  version "4.3.7"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.3.7.tgz#c70145fc90d89fb02021e65c84eb0226e4e5a381"
+  integrity sha512-1hqclzwYwjRDFLjcFxOM5AYkkG0rpFPpr1RLPMEuGczoS7YA8gLhy8SWXYRAA/XwfEHpfo3cw5JGioS32fnMRw==
 
 import-fresh@^3.2.1:
   version "3.3.0"
@@ -5286,18 +5291,18 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.npmjs.org/mkdirp/-/mkdirp-1.0.4.tgz"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-molstar@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.npmjs.org/molstar/-/molstar-4.3.0.tgz"
-  integrity sha512-/iLKaLx43nlVVEYfQiL/VNWpxm2BxGqac/94JWeL1jwNht43fI0nHQJNAIY4YmW3JxNrsO5Bc8SQ3BjR1D/S/w==
+molstar@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/molstar/-/molstar-4.6.0.tgz#fc9b207e8f9f54fd11fba9f4a067bcd9a19e02ff"
+  integrity sha512-8bfZe72lRnewzjswCeudhPr1sbsVxtzrHsD9Rlly+bGl1MRkbDkEZqI9G20zUBqT2qbAktfLFfuDyvNBrnPErw==
   dependencies:
     "@types/argparse" "^2.0.16"
     "@types/benchmark" "^2.1.5"
     "@types/compression" "1.7.5"
     "@types/express" "^4.17.21"
-    "@types/node" "^18.19.31"
+    "@types/node" "^18.19.47"
     "@types/node-fetch" "^2.6.11"
-    "@types/swagger-ui-dist" "3.30.4"
+    "@types/swagger-ui-dist" "3.30.5"
     argparse "^2.0.1"
     body-parser "^1.20.2"
     compression "^1.7.4"
@@ -5305,13 +5310,13 @@ molstar@^4.3.0:
     express "^4.19.2"
     h264-mp4-encoder "^1.0.12"
     immer "^10.1.1"
-    immutable "^4.3.5"
+    immutable "^4.3.7"
     io-ts "^2.2.21"
     node-fetch "^2.7.0"
     react-markdown "^9.0.1"
     rxjs "^7.8.1"
-    swagger-ui-dist "^5.17.2"
-    tslib "^2.6.2"
+    swagger-ui-dist "^5.17.14"
+    tslib "^2.7.0"
     util.promisify "^1.1.2"
     xhr2 "^0.2.1"
 
@@ -7159,9 +7164,9 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-swagger-ui-dist@^5.17.2:
+swagger-ui-dist@^5.17.14:
   version "5.17.14"
-  resolved "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-5.17.14.tgz"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.17.14.tgz#e2c222e5bf9e15ccf80ec4bc08b4aaac09792fd6"
   integrity sha512-CVbSfaLpstV65OnSjbXfVd6Sta3q3F7Cj/yYuvHMp1P90LztOLs6PfUnKEVAeiIVQt9u2SaPwv0LiH/OyMjHRw==
 
 swagger2openapi@^7.0.4, swagger2openapi@^7.0.8:
@@ -7374,10 +7379,15 @@ tslib@2.4.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.4.0.tgz"
   integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
-tslib@^2.0.0, tslib@^2.1.0, tslib@^2.4.0, tslib@^2.6.2:
+tslib@^2.0.0, tslib@^2.1.0, tslib@^2.4.0:
   version "2.6.2"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.6.2.tgz"
   integrity sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==
+
+tslib@^2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.7.0.tgz#d9b40c5c40ab59e8738f297df3087bf1a2690c01"
+  integrity sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"

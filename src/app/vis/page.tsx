@@ -110,13 +110,14 @@ export default function Vis() {
 
                             <Button onClick={() => {
                                 console.log("Spheres ")
-                                ctx?.addSpheres([{ x: 50, y: 50, z: 50, radius: 5 }, 
+                                ctx?.addSpheres(
+                                    [{ x: 50, y: 50, z: 50, radius: 5 }, 
                                     { x: 50, y: 56, z: 50, radius: 5 },
                                     { x: 50, y: 60, z: 50, radius: 5 },
-                                    { x: 50, y: 68, z: 50, radius: 5 },
-                                    
-                                ])
-                            }}>Render PLY</Button>
+                                    { x: 50, y: 68, z: 50, radius: 5 }
+                                ]
+                                )
+                            }}>Render Spheres</Button>
 
                         </CardHeader>
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
