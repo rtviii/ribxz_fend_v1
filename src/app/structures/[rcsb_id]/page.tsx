@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { DownloadIcon } from "lucide-react"
 import { AuthorsHovercard } from "@/components/ribxz/authors_hovercard"
+import { contract_taxname } from "@/my_utils"
 
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     const ctx = useContext(MolstarContext)
@@ -69,6 +70,8 @@ const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
 const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
 
     return <><div className="grid grid-cols-2 gap-4">
+
+        <p className="text-xs text-gray-500 px-3 mb-2 truncate">{data?.citation_title}</p>
         {data?.citation_rcsb_authors ?
             <div>
                 <h4 className="text text-sm font-medium">Authors</h4>
@@ -156,10 +159,10 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
     else {
 
         return <Tabs defaultValue="polymers">
-            <TabsList className="grid w-full grid-cols-3  bg-gray-100 p-0.5 h-7 mb-2">
-                <TabsTrigger value="polymers" className="text-xs py-1 px-2">Polymers </TabsTrigger>
-                <TabsTrigger value="landmarks" className="text-xs py-1 px-2">Landmarks</TabsTrigger>
-                <TabsTrigger value="ligands" className="text-xs py-1 px-2">Ligands  </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3  p-0.5 h-7 mb-2">
+                <TabsTrigger value="polymers"  className="text-xs py-1 px-2">Polymers  </TabsTrigger>
+                <TabsTrigger value="landmarks" className="text-xs py-1 px-2">Landmarks </TabsTrigger>
+                <TabsTrigger value="ligands"   className="text-xs py-1 px-2">Ligands   </TabsTrigger>
             </TabsList>
 
             <TabsContent value="polymers">
@@ -203,6 +206,26 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 }
 
 
+const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+    return <div className="flex items-center justify-between  px-3 py-2">
+        <div className="flex items-center space-x-2 overflow-hidden">
+            <span className="font-medium">{data?.rcsb_id}</span>
+            <span className="italic text-xs truncate max-w-[150px]">
+                {contract_taxname(data?.src_organism_names?.[0])}
+            </span>
+            <ExpMethodBadge
+                className="text-xs"
+                expMethod={data?.expMethod}
+                resolution={data?.resolution?.toFixed(2)}
+            />
+        </div>
+        <TabsList className="bg-transparent border-0">
+            <TabsTrigger value="components" className="text-xs py-1 px-2">Components</TabsTrigger>
+            <TabsTrigger value="info" className="text-xs py-1 px-2">Info</TabsTrigger>
+        </TabsList>
+
+    </div>
+}
 export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
@@ -243,22 +266,15 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                 <ResizablePanel defaultSize={25}>
                     <Card className="h-full flex flex-col border-0 rounded-none">
                         <Tabs defaultValue="components" className="w-full">
-                            <div className="flex items-center bg-gray-100 px-3 py-2">
-                                <span className="text-sm font-medium mr-auto">{data?.rcsb_id}</span>
-                                <TabsList className="bg-transparent border-0">
-                                    <TabsTrigger value="components" className="text-xs py-1 px-2">Components</TabsTrigger>
-                                    <TabsTrigger value="info" className="text-xs py-1 px-2">Info</TabsTrigger>
-                                </TabsList>
 
-                            </div>
-                            <p className="text-xs text-gray-500 px-3 mb-2 truncate">{data?.citation_title}</p>
-
+                            <StructureHeader data={data!} isLoading />
                             <CardContent className="flex-grow overflow-hidden p-0 pt-2">
-
                                 <TabsContent value="components">
+                                    <StructureComponentsDashboard data={data!} isLoading={isLoading} />
                                 </TabsContent>
 
                                 <TabsContent value="info" className="px-3">
+                                    <StructureInfoDashboard data={data!} isLoading={isLoading} />
                                 </TabsContent>
                             </CardContent>
                         </Tabs>
