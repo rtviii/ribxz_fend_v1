@@ -22,11 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { DownloadIcon } from "lucide-react"
-
-// StateTransforms
-// https://github.com/molstar/molstar/issues/1074
-// https://github.com/molstar/molstar/issues/1112
-// https://github.com/molstar/molstar/issues/1121
+import { AuthorsHovercard } from "@/components/ribxz/authors_hovercard"
 
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     const ctx = useContext(MolstarContext)
@@ -68,6 +64,7 @@ const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
         </DropdownMenu>
     );
 };
+
 export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
@@ -110,13 +107,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                     <Card className="h-full flex flex-col ">
                         <CardHeader>
                             <CardTitle className="flex flex-row justify-between">
-                                {/* <div> */}
-
-
                                 <span className="text-center content-center">{data?.rcsb_id} </span>
                                 <DownloadDropdown rcsb_id={data?.rcsb_id as string} />
-                                {/* </div> */}
-
                             </CardTitle>
                             <p className="text-gray-500 text-xs">{data?.citation_title}</p>
                         </CardHeader>
@@ -124,54 +116,18 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                         <MolstarContext.Provider value={ctx}>
                             <CardContent className="flex-grow overflow-hidden">
                                 <Tabs defaultValue="info" >
+
                                     <TabsList className="grid w-full grid-cols-2">
                                         <TabsTrigger value="info">Structure Info</TabsTrigger>
                                         <TabsTrigger value="components">Polymers</TabsTrigger>
                                     </TabsList>
 
-
-
                                     <TabsContent value="info" className=" h-[80vh] ">
-                                        {/* <Image alt={`${data?.rcsb_id}`} className="mb-4" height="200" src="/sping.gif" style={{ aspectRatio: "300/200", objectFit: "cover", }} width="300" /> */}
                                         <div className="grid grid-cols-2 gap-4">
                                             {data?.citation_rcsb_authors ?
                                                 <div>
                                                     <h4 className="text text-sm font-medium">Authors</h4>
-                                                    <HoverCard>
-                                                        <HoverCardTrigger asChild>
-                                                            <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md text-xs   transition-colors z-10" title="Full list of authors"  >
-                                                                <span style={{ fontStyle: "italic" }} >{data?.citation_rcsb_authors[0]}</span>
-                                                                <span style={{
-                                                                    cursor: "pointer",
-                                                                    display: 'inline-block',
-                                                                    width: '15px',
-                                                                    height: '15px',
-                                                                    borderRadius: '50%',
-                                                                    backgroundColor: '#cccccc',
-                                                                    textAlign: 'center',
-                                                                    lineHeight: '15px',
-                                                                    fontWeight: 'bold',
-                                                                    fontSize: '14px',
-                                                                    color: 'white'
-                                                                }}>+</span>
-
-
-
-                                                            </span>
-
-                                                        </HoverCardTrigger>
-                                                        <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
-                                                            {
-                                                                data?.citation_rcsb_authors.map((author) => {
-                                                                    return <div key={author} className="flex items-center gap-2">
-                                                                        <div>
-                                                                            <div className="font-medium">{author}</div>
-                                                                            <div className="text-sm text-gray-500 dark:text-gray-400">Co-Author</div>
-                                                                        </div>
-                                                                    </div>
-                                                                })}
-                                                        </HoverCardContent>
-                                                    </HoverCard>
+                                                    <AuthorsHovercard authors={data?.citation_rcsb_authors} />
                                                 </div> : null}
 
 
@@ -203,11 +159,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                                         <div>
 
 
-
                                         </div>
-
-
-                                        {/* <Separator className="my-2" /> */}
                                         <h3 className=" font-medium my-2 text-gray-600">Ligands <span className="text-xs font-semibold text-gray-600">| </span>Landmarks</h3>
                                         <ScrollArea className="p-2 h-[55vh] overflow-auto rounded-sm no-scrollbar border-l border-r border-t ">
                                             <div>
