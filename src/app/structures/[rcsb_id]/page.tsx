@@ -65,13 +65,150 @@ const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     );
 };
 
+
+const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+
+    return <><div className="grid grid-cols-2 gap-4">
+        {data?.citation_rcsb_authors ?
+            <div>
+                <h4 className="text text-sm font-medium">Authors</h4>
+                <AuthorsHovercard authors={data?.citation_rcsb_authors} />
+            </div> : null}
+
+        <div>
+            <h4 className="text text-sm font-medium">Deposition Year</h4>
+            <p className="text-xs mt-1">{data?.citation_year}</p>
+        </div>
+
+        <div>
+            <h4 className="text text-sm font-medium">Experimental Method</h4>
+            <ExpMethodBadge expMethod={data?.expMethod} />
+        </div>
+
+        <div>
+            <h4 className="text text-sm font-medium">Resolution</h4>
+            <p className="text-xs mt-1">{data?.resolution + " Å"} </p>
+        </div>
+
+        <div>
+            <h4 className="text text-sm font-medium">Source Organism</h4>
+            <p className="text-xs mt-1"> {data?.src_organism_names.join(", ")} </p>
+        </div>
+        {data?.host_organism_names && data.host_organism_names.length > 0 ?
+            <div>
+                <h4 className="text text-sm font-medium">Host Organism</h4>
+                <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
+            </div> : null}
+    </div>
+        <div>
+
+
+        </div>
+        <h3 className=" font-medium my-2 text-gray-600">Ligands <span className="text-xs font-semibold text-gray-600">| </span>Landmarks</h3>
+        <ScrollArea className="p-2 h-[55vh] overflow-auto rounded-sm no-scrollbar border-l border-r border-t ">
+            <div>
+                {/* {
+                    ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
+                        <>
+
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                {
+                                    ptc_data ?
+                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
+                                            onClick={() => {
+                                                var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
+                                                var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
+                                                ctx?.select_multiple_residues([ptc_query as [string, number[]]])
+                                            }} >
+
+                                            <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
+                                            <h4 className="font-semibold text-xs">PTC</h4>
+                                            <p className="text-xs" >Peptidyl Transferase Center</p>
+                                        </div> : null
+                                }
+                                {
+                                    data?.nonpolymeric_ligands
+                                        .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                                        .map((ligand, i) => {
+                                            return <>
+                                                <LigandThumbnail data={ligand} key={i} />
+                                            </>
+                                        }
+                                        )
+
+                                }
+
+                            </div>
+                        </> : null
+
+                } */}
+            </div>
+
+        </ScrollArea>
+
+    </>
+}
+const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+    // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    if (isLoading) {
+        return <div>Loading...</div>
+    }
+    else {
+
+        return <Tabs defaultValue="polymers">
+            <TabsList className="grid w-full grid-cols-3  bg-gray-100 p-0.5 h-7 mb-2">
+                <TabsTrigger value="polymers" className="text-xs py-1 px-2">Polymers </TabsTrigger>
+                <TabsTrigger value="landmarks" className="text-xs py-1 px-2">Landmarks</TabsTrigger>
+                <TabsTrigger value="ligands" className="text-xs py-1 px-2">Ligands  </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="polymers">
+                {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
+            </TabsContent>
+
+            <TabsContent value="landmarks">
+                <ScrollArea className="h-[70vh] p-4">
+                    {/* {ptc_data && (
+                                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
+                                                            onClick={() => {
+                                                                var auth_asym_id = ptc_data['LSU_rRNA_auth_asym_id'];
+                                                                var ptc_query = [auth_asym_id, ptc_data['site_9_residues'].map((r) => r[1])];
+                                                                ctx?.select_multiple_residues([ptc_query]);
+                                                            }}>
+                                                            <div className="absolute top-4 right-4 text-sm text-blue-600">LANDMARK</div>
+                                                            <h4 className="font-semibold text-xs">PTC</h4>
+                                                            <p className="text-xs">Peptidyl Transferase Center</p>
+                                                        </div>
+                                                    )} */}
+                    {/* Add more landmarks here */}
+                </ScrollArea>
+            </TabsContent>
+
+            <TabsContent value="ligands">
+                <ScrollArea className="h-[70vh] p-4">
+                    <div className="grid grid-cols-2 gap-2">
+                        {data?.nonpolymeric_ligands
+                            .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                            .map((ligand, i) => (
+                                <LigandThumbnail data={ligand} key={i} />
+                            ))
+                        }
+                    </div>
+                </ScrollArea>
+            </TabsContent>
+        </Tabs>
+
+        return <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} />
+    }
+}
+
+
 export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
     const ptc = searchParams.get('ptc')
-
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
@@ -102,124 +239,37 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal" className=" ">
-                <ResizablePanel defaultSize={25} >
-                    <Card className="h-full flex flex-col ">
-                        <CardHeader>
-                            <CardTitle className="flex flex-row justify-between">
-                                <span className="text-center content-center">{data?.rcsb_id} </span>
-                                <DownloadDropdown rcsb_id={data?.rcsb_id as string} />
-                            </CardTitle>
-                            <p className="text-gray-500 text-xs">{data?.citation_title}</p>
-                        </CardHeader>
+            <ResizablePanelGroup direction="horizontal">
+                <ResizablePanel defaultSize={25}>
+                    <Card className="h-full flex flex-col border-0 rounded-none">
+                        <Tabs defaultValue="components" className="w-full">
+                            <div className="flex items-center bg-gray-100 px-3 py-2">
+                                <span className="text-sm font-medium mr-auto">{data?.rcsb_id}</span>
+                                <TabsList className="bg-transparent border-0">
+                                    <TabsTrigger value="components" className="text-xs py-1 px-2">Components</TabsTrigger>
+                                    <TabsTrigger value="info" className="text-xs py-1 px-2">Info</TabsTrigger>
+                                </TabsList>
 
-                        <MolstarContext.Provider value={ctx}>
-                            <CardContent className="flex-grow overflow-hidden">
-                                <Tabs defaultValue="info" >
+                            </div>
+                            <p className="text-xs text-gray-500 px-3 mb-2 truncate">{data?.citation_title}</p>
 
-                                    <TabsList className="grid w-full grid-cols-2">
-                                        <TabsTrigger value="info">Structure Info</TabsTrigger>
-                                        <TabsTrigger value="components">Polymers</TabsTrigger>
-                                    </TabsList>
+                            <CardContent className="flex-grow overflow-hidden p-0 pt-2">
 
-                                    <TabsContent value="info" className=" h-[80vh] ">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            {data?.citation_rcsb_authors ?
-                                                <div>
-                                                    <h4 className="text text-sm font-medium">Authors</h4>
-                                                    <AuthorsHovercard authors={data?.citation_rcsb_authors} />
-                                                </div> : null}
+                                <TabsContent value="components">
+                                </TabsContent>
 
-
-                                            <div>
-                                                <h4 className="text text-sm font-medium">Deposition Year</h4>
-                                                <p className="text-xs mt-1">{data?.citation_year}</p>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="text text-sm font-medium">Experimental Method</h4>
-                                                <ExpMethodBadge expMethod={data?.expMethod} />
-                                            </div>
-
-                                            <div>
-                                                <h4 className="text text-sm font-medium">Resolution</h4>
-                                                <p className="text-xs mt-1">{data?.resolution + " Å"} </p>
-                                            </div>
-
-                                            <div>
-                                                <h4 className="text text-sm font-medium">Source Organism</h4>
-                                                <p className="text-xs mt-1"> {data?.src_organism_names.join(", ")} </p>
-                                            </div>
-                                            {data?.host_organism_names && data.host_organism_names.length > 0 ?
-                                                <div>
-                                                    <h4 className="text text-sm font-medium">Host Organism</h4>
-                                                    <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
-                                                </div> : null}
-                                        </div>
-                                        <div>
-
-
-                                        </div>
-                                        <h3 className=" font-medium my-2 text-gray-600">Ligands <span className="text-xs font-semibold text-gray-600">| </span>Landmarks</h3>
-                                        <ScrollArea className="p-2 h-[55vh] overflow-auto rounded-sm no-scrollbar border-l border-r border-t ">
-                                            <div>
-                                                {
-                                                    ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
-                                                        <>
-
-                                                            <div className="grid grid-cols-2 gap-2 mt-2">
-                                                                {
-                                                                    ptc_data ?
-                                                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
-                                                                            onClick={() => {
-                                                                                var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
-                                                                                var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
-                                                                                ctx?.select_multiple_residues([ptc_query as [string, number[]]])
-                                                                            }} >
-
-                                                                            <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
-                                                                            <h4 className="font-semibold text-xs">PTC</h4>
-                                                                            <p className="text-xs" >Peptidyl Transferase Center</p>
-                                                                        </div> : null
-                                                                }
-                                                                {
-                                                                    data?.nonpolymeric_ligands
-                                                                        .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                                                                        .map((ligand, i) => {
-                                                                            return <>
-                                                                                <LigandThumbnail data={ligand} key={i} />
-                                                                            </>
-                                                                        }
-                                                                        )
-
-                                                                }
-
-                                                            </div>
-                                                        </> : null
-
-                                                }
-                                            </div>
-
-                                        </ScrollArea>
-                                    </TabsContent>
-                                    <TabsContent value="components">
-                                        {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
-                                    </TabsContent>
-                                </Tabs>
-
+                                <TabsContent value="info" className="px-3">
+                                </TabsContent>
                             </CardContent>
-                        </MolstarContext.Provider>
+                        </Tabs>
                     </Card>
                 </ResizablePanel>
 
-                <ResizableHandle />
+                <ResizableHandle className="w-px bg-gray-200" />
 
                 <ResizablePanel defaultSize={75}>
                     <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
-
-
-
             </ResizablePanelGroup>
             <SidebarMenu />
         </div>
