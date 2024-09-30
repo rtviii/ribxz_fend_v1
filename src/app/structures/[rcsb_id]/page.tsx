@@ -151,61 +151,6 @@ const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, 
 
     </>
 }
-const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-    // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-    if (isLoading) {
-        return <div>Loading...</div>
-    }
-    else {
-
-        return <Tabs defaultValue="polymers">
-            <TabsList className="grid w-full grid-cols-3  p-0.5 h-7 mb-2">
-                <TabsTrigger value="polymers"  className="text-xs py-1 px-2">Polymers  </TabsTrigger>
-                <TabsTrigger value="landmarks" className="text-xs py-1 px-2">Landmarks </TabsTrigger>
-                <TabsTrigger value="ligands"   className="text-xs py-1 px-2">Ligands   </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="polymers">
-                {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
-            </TabsContent>
-
-            <TabsContent value="landmarks">
-                <ScrollArea className="h-[70vh] p-4">
-                    {/* {ptc_data && (
-                                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
-                                                            onClick={() => {
-                                                                var auth_asym_id = ptc_data['LSU_rRNA_auth_asym_id'];
-                                                                var ptc_query = [auth_asym_id, ptc_data['site_9_residues'].map((r) => r[1])];
-                                                                ctx?.select_multiple_residues([ptc_query]);
-                                                            }}>
-                                                            <div className="absolute top-4 right-4 text-sm text-blue-600">LANDMARK</div>
-                                                            <h4 className="font-semibold text-xs">PTC</h4>
-                                                            <p className="text-xs">Peptidyl Transferase Center</p>
-                                                        </div>
-                                                    )} */}
-                    {/* Add more landmarks here */}
-                </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="ligands">
-                <ScrollArea className="h-[70vh] p-4">
-                    <div className="grid grid-cols-2 gap-2">
-                        {data?.nonpolymeric_ligands
-                            .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                            .map((ligand, i) => (
-                                <LigandThumbnail data={ligand} key={i} />
-                            ))
-                        }
-                    </div>
-                </ScrollArea>
-            </TabsContent>
-        </Tabs>
-
-        return <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} />
-    }
-}
-
-
 const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     return <div className="flex items-center justify-between  px-3 py-2">
         <div className="flex items-center space-x-2 overflow-hidden">
@@ -226,6 +171,47 @@ const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoadi
 
     </div>
 }
+
+
+const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+    // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    if (isLoading) {
+        return <div>Loading...</div>
+    }
+    else {
+
+        return <Tabs defaultValue="polymers">
+            <TabsList className="grid w-full grid-cols-3  p-0.5 h-7 mb-2">
+                <TabsTrigger value="polymers"  className="text-xs py-1 px-2">Polymers  </TabsTrigger>
+                <TabsTrigger value="landmarks" className="text-xs py-1 px-2">Landmarks </TabsTrigger>
+                <TabsTrigger value="ligands"   className="text-xs py-1 px-2">Ligands   </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="polymers">
+                {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
+            </TabsContent>
+
+            <TabsContent value="landmarks">
+                <ScrollArea className="h-[70vh] p-4">
+                </ScrollArea>
+            </TabsContent>
+
+            <TabsContent value="ligands">
+                <ScrollArea className="h-[70vh] p-4">
+                    <div className="grid grid-cols-2 gap-2">
+                        {data?.nonpolymeric_ligands
+                            .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                            .map((ligand, i) => (
+                                <LigandThumbnail data={ligand} key={i} />
+                            ))
+                        }
+                    </div>
+                </ScrollArea>
+            </TabsContent>
+        </Tabs>
+    }
+}
+
 export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
 
     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
