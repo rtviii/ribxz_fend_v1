@@ -82,41 +82,6 @@ export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.polymers.filter(p => p.entity_poly_polymer_type == "Protein")
     const rnas     = props.polymers.filter(p => p.entity_poly_polymer_type == "RNA")
 
-    // const [filter, setFilter]         = useState('');
-    // const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
-    // useEffect(() => {
-    //     console.log(sortConfig);
-    // },[sortConfig])
-
-
-    // const handleSort = (key:string|null) => {
-    //     setSortConfig((prevConfig) => ({
-    //         key,
-    //         direction:
-    //             prevConfig.key === key && prevConfig.direction === 'ascending'
-    //                 ? 'descending'
-    //                 : 'ascending',
-    //     }));
-    // };
-
-    // const filteredAndSortedPolymers = useMemo(() => {
-    //     let result = [...proteins, ...rnas];
-    //     if (filter) {
-    //         result = result.filter((polymer) =>
-    //             Object.values(polymer).some((value) =>
-    //                 String(value).toLowerCase().includes(filter.toLowerCase())
-    //             )
-    //         );
-    //     }
-    //     if (sortConfig.key== 'polymer_class') {
-    //         result.sort((a:Polymer, b:Polymer) => {
-    //             if (a.nomenclature[0] < b.nomenclature[0]) return sortConfig.direction === 'ascending' ? -1 : 1;
-    //             if (a.nomenclature[0] > b.nomenclature[0]) return sortConfig.direction === 'ascending' ? 1 : -1;
-    //             return 0;
-    //         });
-    //     }
-    //     return result;
-    // }, [proteins, rnas, filter, sortConfig]);
 
     return (
         <div>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import  {  useRef, useEffect } from 'react';
+import { ArrowUpRight } from "lucide-react";
 
 
 const ArrowIcon = ({ size = 15, color = 'currentColor' }) => (
@@ -22,31 +22,78 @@ const ArrowIcon = ({ size = 15, color = 'currentColor' }) => (
   </svg>
 );
 
-const SequencePopover = ({ sequence, seqType }: { sequence: string, seqType: 'amino' | 'rna' }) => {
+
+const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'amino' | 'rna' }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+  const [selection, setSelection] = useState({ start: -1, end: -1 });
+  const sequenceRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = (index: number) => {
+    setSelection({ start: index, end: index });
+  };
+
+  const handleMouseMove = (index: number) => {
+    if (selection.start !== -1) {
+      setSelection(prev => ({ ...prev, end: index }));
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (selection.start !== -1 && selection.end !== -1) {
+      const start = Math.min(selection.start, selection.end);
+      const end = Math.max(selection.start, selection.end);
+      console.log(`Selected: ${sequence.substring(start, end + 1)} (indices: ${start}-${end})`);
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseLeave = () => {
+      if (selection.start !== -1) {
+        handleMouseUp();
+        setSelection({ start: -1, end: -1 });
+      }
+    };
+
+    document.addEventListener('mouseup', handleMouseUp);
+    sequenceRef.current?.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      document.removeEventListener('mouseup', handleMouseUp);
+      sequenceRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [selection]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" className="p-0" onMouseEnter={() => setIsOpen(true)}>
-          <ArrowIcon size={24} />
+          <ArrowUpRight size={18} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[800px]" >
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <h4 className="font-medium leading-none">Sequence Viewer</h4>
-            <p className="text-sm text-muted-foreground">
-              {seqType.toUpperCase()} Sequence
-            </p>
-          </div>
-          <div className=" gap-2  h-[600px]">
-            {/* <div className="h-[200px] w-full"> */}
-
-
-            {/* </div> */}
-          </div>
+      <PopoverContent 
+        className="w-[800px] max-h-[300px] overflow-y-auto p-0" 
+        onMouseLeave={() => setIsOpen(false)}
+      >
+        <div 
+          ref={sequenceRef}
+          className="font-mono text-sm whitespace-pre-wrap p-4"
+          style={{ userSelect: 'none' }}
+        >
+          {sequence.split('').map((char, index) => (
+            <span
+              key={index}
+              className={`inline-block w-[1ch] text-center ${
+                index >= Math.min(selection.start, selection.end) && 
+                index <= Math.max(selection.start, selection.end)
+                  ? 'bg-blue-200'
+                  : ''
+              }`}
+              onMouseDown={() => handleMouseDown(index)}
+              onMouseMove={() => handleMouseMove(index)}
+            >
+              {char}
+            </span>
+          ))}
         </div>
       </PopoverContent>
     </Popover>
