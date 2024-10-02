@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import  {  useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { ArrowUpRight } from "lucide-react";
-
+import { Toast } from "@/components/ui/toast";
+import { CopyIcon } from './icon_copy';
+import { Toaster } from "@/components/ui/toaster"
+import { useToast } from "@/hooks/use-toast"
+import { ToastProvider } from '@radix-ui/react-toast';
 
 const ArrowIcon = ({ size = 15, color = 'currentColor' }) => (
   <svg
@@ -21,80 +25,141 @@ const ArrowIcon = ({ size = 15, color = 'currentColor' }) => (
     />
   </svg>
 );
+const ToastDemo = () => {
+  const { toast } = useToast()
+
+  return (
+    <Button
+      onClick={() => {
+        toast({
+          title: "Scheduled: Catch up",
+          description: "Friday, February 10, 2023 at 5:57 PM",
+        })
+      }}
+    >
+      Show Toast
+    </Button>
+  )
+}
 
 
 const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'amino' | 'rna' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selection, setSelection] = useState({ start: -1, end: -1 });
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const sequenceRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast()
 
   const handleMouseDown = (index: number) => {
+    setIsSelecting(true);
     setSelection({ start: index, end: index });
   };
 
   const handleMouseMove = (index: number) => {
-    if (selection.start !== -1) {
+    if (isSelecting) {
       setSelection(prev => ({ ...prev, end: index }));
     }
   };
 
-  const handleMouseUp = () => {
-    if (selection.start !== -1 && selection.end !== -1) {
+  const handleMouseUp = useCallback(() => {
+    if (isSelecting) {
+      setIsSelecting(false);
       const start = Math.min(selection.start, selection.end);
       const end = Math.max(selection.start, selection.end);
       console.log(`Selected: ${sequence.substring(start, end + 1)} (indices: ${start}-${end})`);
     }
-  };
+  }, [selection, isSelecting, sequence]);
 
   useEffect(() => {
-    const handleMouseLeave = () => {
-      if (selection.start !== -1) {
+    const handleGlobalMouseUp = () => {
+      if (isSelecting) {
+        setIsSelecting(false);
         handleMouseUp();
-        setSelection({ start: -1, end: -1 });
       }
     };
 
-    document.addEventListener('mouseup', handleMouseUp);
-    sequenceRef.current?.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
 
     return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
-      sequenceRef.current?.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [selection]);
+  }, [isSelecting, handleMouseUp]);
 
+  const copySequence = () => {
+
+
+    navigator.clipboard.writeText(sequence).then(() => {
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+    });
+  };
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="p-0" onMouseEnter={() => setIsOpen(true)}>
-          <ArrowUpRight size={18} />
+        <Button variant="ghost" className="p-0" onClick={(e) => { e.stopPropagation(); setIsOpen(true) }}>
+          <ArrowUpRight size={24} className='border hover:bg-slate-200 hover:border-blue-300' />
         </Button>
       </PopoverTrigger>
-      <PopoverContent 
-        className="w-[800px] max-h-[300px] overflow-y-auto p-0" 
-        onMouseLeave={() => setIsOpen(false)}
+
+      <PopoverContent className="w-[800px] max-h-[400px] overflow-y-auto p-0 flex flex-col"
+        onMouseDown={(e) => e.stopPropagation()}
+        onMouseUp={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div 
-          ref={sequenceRef}
-          className="font-mono text-sm whitespace-pre-wrap p-4"
-          style={{ userSelect: 'none' }}
-        >
-          {sequence.split('').map((char, index) => (
-            <span
-              key={index}
-              className={`inline-block w-[1ch] text-center ${
-                index >= Math.min(selection.start, selection.end) && 
-                index <= Math.max(selection.start, selection.end)
-                  ? 'bg-blue-200'
-                  : ''
-              }`}
-              onMouseDown={() => handleMouseDown(index)}
-              onMouseMove={() => handleMouseMove(index)}
-            >
-              {char}
-            </span>
-          ))}
+
+
+        <div className="p-2 bg-gray-100 flex justify-between items-center border-b">
+          <span className="text-sm font-medium">
+            {seqType.toUpperCase()} Sequence ({sequence.length} residues)
+          </span>
+          <Button size="sm" onClick={(e) => {
+            e.stopPropagation();
+            toast({ title: "Sequence Copied", description: "" })
+            copySequence()
+
+          }} >
+            <CopyIcon size={16} className="mr-2" />
+            Copy Sequence
+
+          </Button>
+
         </div>
+<div
+  ref={sequenceRef}
+  className="font-mono text-sm whitespace-pre-wrap p-4"
+  style={{ userSelect: 'none' }}
+>
+  {sequence.split('').map((char, index) => (
+  <React.Fragment key={index}>
+    <span
+      className={`inline-block w-[1ch] text-center ${
+        (isSelecting || !isSelecting) &&
+        index >= Math.min(selection.start, selection.end) &&
+        index <= Math.max(selection.start, selection.end)
+          ? 'bg-blue-200'
+          : ''
+      }`}
+      onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(index) }}
+      onMouseMove={(e) => { e.stopPropagation(); handleMouseMove(index) }}
+      onMouseUp={(e) => { e.stopPropagation(); handleMouseUp() }}
+    >
+      {char}
+    </span>
+    {(index + 1) % 10 === 0 && (
+      <span className="relative inline-block">
+        <span className="mr-4" /> {/* Add extra space here */}
+        <sub 
+          className="absolute text-[0.6em] text-gray-400 bottom-3 left-0"
+          style={{ pointerEvents: 'none' }}
+        >
+          {(index + 1).toString().padStart(4, '0')}
+        </sub>
+      </span>
+    )}
+  </React.Fragment>
+))}
+</div>
       </PopoverContent>
     </Popover>
   );
