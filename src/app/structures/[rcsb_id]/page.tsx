@@ -24,7 +24,6 @@ import { Button } from "@/components/ui/button"
 import { DownloadIcon } from "lucide-react"
 import { AuthorsHovercard } from "@/components/ribxz/authors_hovercard"
 import { contract_taxname } from "@/my_utils"
-import { SeqViz } from "seqviz"
 
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     const ctx = useContext(MolstarContext)
@@ -173,7 +172,6 @@ const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoadi
     </div>
 }
 
-
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     if (isLoading) {
@@ -189,7 +187,7 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
             </TabsList>
 
             <TabsContent value="polymers">
-                {!isLoading ? <PolymersTable polymers={[...data.proteins, ...data.rnas]} connect_to_molstar_ctx={true} /> : null}
+                {!isLoading ? <PolymersTable   polymers={[...data.proteins, ...data.rnas, ...data.other_polymers]} connect_to_molstar_ctx={true} /> : null}
             </TabsContent>
 
             <TabsContent value="landmarks">
@@ -251,6 +249,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
+            <MolstarContext.Provider value={ctx}>
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={25}>
                     <Card className="h-full flex flex-col border-0 rounded-none">
@@ -276,6 +275,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                     <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
             </ResizablePanelGroup>
+            
+            </MolstarContext.Provider>
             <SidebarMenu />
         </div>
     )
