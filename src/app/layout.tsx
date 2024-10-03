@@ -2,9 +2,7 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import StoreProvider from './store_provider'
-import { useDispatch } from 'react-redux'
-import { useAppDispatch } from '@/store/store'
-import { ribxz_api } from '../store/ribxz_api/ribxz_api'
+import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,6 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <StoreProvider>
       <body className={inter.className}>{children}</body>
+        <Toaster />
       </StoreProvider>
     </html>
   )

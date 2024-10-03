@@ -21,7 +21,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { DownloadIcon } from "lucide-react"
+import { DownloadIcon, EyeIcon } from "lucide-react"
 import { AuthorsHovercard } from "@/components/ribxz/authors_hovercard"
 import { contract_taxname } from "@/my_utils"
 
@@ -68,16 +68,13 @@ const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
 
 
 const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-
-    return <><div className="grid grid-cols-2 gap-4">
-
-        <p className="text-xs text-gray-500 px-3 mb-2 truncate">{data?.citation_title}</p>
+    return <div className="grid grid-cols-2 gap-4">
+        <p className="text-xs text-gray-500 px-3 mb-2 ">{data?.citation_title}</p>
         {data?.citation_rcsb_authors ?
             <div>
                 <h4 className="text text-sm font-medium">Authors</h4>
                 <AuthorsHovercard authors={data?.citation_rcsb_authors} />
             </div> : null}
-
         <div>
             <h4 className="text text-sm font-medium">Deposition Year</h4>
             <p className="text-xs mt-1">{data?.citation_year}</p>
@@ -85,7 +82,7 @@ const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, 
 
         <div>
             <h4 className="text text-sm font-medium">Experimental Method</h4>
-            <ExpMethodBadge expMethod={data?.expMethod} />
+            <ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />
         </div>
 
         <div>
@@ -103,60 +100,14 @@ const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, 
                 <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
             </div> : null}
     </div>
-        <div>
 
-
-        </div>
-        <h3 className=" font-medium my-2 text-gray-600">Ligands <span className="text-xs font-semibold text-gray-600">| </span>Landmarks</h3>
-        <ScrollArea className="p-2 h-[55vh] overflow-auto rounded-sm no-scrollbar border-l border-r border-t ">
-            <div>
-                {/* {
-                    ptc_data !== undefined || data?.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")) ?
-                        <>
-
-                            <div className="grid grid-cols-2 gap-2 mt-2">
-                                {
-                                    ptc_data ?
-                                        <div className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4"
-                                            onClick={() => {
-                                                var auth_asym_id = (ptc_data as any)['LSU_rRNA_auth_asym_id']
-                                                var ptc_query = [auth_asym_id, (ptc_data as any)['site_9_residues'].map((r: any) => { return r[1] })]
-                                                ctx?.select_multiple_residues([ptc_query as [string, number[]]])
-                                            }} >
-
-                                            <div className="absolute top-4 right-4 text-sm  text-blue-600">LANDMARK</div>
-                                            <h4 className="font-semibold text-xs">PTC</h4>
-                                            <p className="text-xs" >Peptidyl Transferase Center</p>
-                                        </div> : null
-                                }
-                                {
-                                    data?.nonpolymeric_ligands
-                                        .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                                        .map((ligand, i) => {
-                                            return <>
-                                                <LigandThumbnail data={ligand} key={i} />
-                                            </>
-                                        }
-                                        )
-
-                                }
-
-                            </div>
-                        </> : null
-
-                } */}
-            </div>
-
-        </ScrollArea>
-
-    </>
 }
 const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     return <div className="flex items-center justify-between  px-3 py-2">
         <div className="flex items-center space-x-2 overflow-hidden">
             <span className="font-medium">{data?.rcsb_id}</span>
             <span className="italic text-xs truncate max-w-[150px]">
-                {contract_taxname(data?.src_organism_names?.[0])}
+                {/* {contract_taxname(data?.src_organism_names?.[0])} */}
             </span>
             <ExpMethodBadge
                 className="text-xs"
@@ -172,6 +123,72 @@ const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoadi
     </div>
 }
 
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+
+const landmarks = [
+    {
+        title: "PTC",
+        description: "Peptidyl Transferase Center",
+        longDescription: "The PTC is the active site of the ribosome where peptide bond formation occurs..."
+    },
+    {
+        title: "NPET",
+        description: "Nascent Peptide Exit Tunnel",
+        longDescription: "The NPET is a channel through which newly synthesized proteins exit the ribosome..."
+    }, 
+    // {
+    //     title: "rRNA Helices",
+    //     description: "",
+    //     longDescription: "Helices are the defining elements of secondary RNA structure identified with specific geometric and molecular interaction criteria."
+    // }, {
+    //     title: "SRL",
+    //     description: "Sarcin-Ricin Loop",
+    //     longDescription: ""
+    // },
+    // {
+    //     title: "A-Site",
+    //     description: "",
+    //     longDescription: ""
+    // }, {
+    //     title: "P-Site",
+    //     description: "",
+    //     longDescription: ""
+    // },
+    // {
+    //     title: "E-Site",
+    //     description: "",
+    //     longDescription: ""
+    // },
+    // {
+    //     title: "NPET Vestibule",
+    //     description: "",
+    //     longDescription: ""
+    // },
+    
+    // Add more landmarks as needed
+];
+
+const LandmarkItem = ({ title, description, longDescription }) => (
+    <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value={title} className="border rounded-md overflow-hidden p-4">
+            <AccordionTrigger className="hover:no-underline ">
+                <div className="flex items-center justify-between w-full">
+                    <div className="text-left">
+                        <h3 className="text-lg font-semibold">{title}</h3>
+                        <p className="text-xs text-gray-500 italic">{description}</p>
+                    </div>
+                    <div className="flex items-center space-x-2 mr-4">
+                        <DownloadIcon className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation()}}/>
+                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation()}}/>
+                    </div>
+                </div>
+            </AccordionTrigger>
+            <AccordionContent>
+                <p className="text-sm text-gray-700">{longDescription}</p>
+            </AccordionContent>
+        </AccordionItem>
+    </Accordion>
+);
 
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
@@ -182,17 +199,25 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 
         return <Tabs defaultValue="polymers">
             <TabsList className="grid w-full grid-cols-3  p-0.5 h-7 mb-2">
-                <TabsTrigger value="polymers"  className="text-xs py-1 px-2">Polymers  </TabsTrigger>
+                <TabsTrigger value="polymers" className="text-xs py-1 px-2">Polymers  </TabsTrigger>
                 <TabsTrigger value="landmarks" className="text-xs py-1 px-2">Landmarks </TabsTrigger>
-                <TabsTrigger value="ligands"   className="text-xs py-1 px-2">Ligands   </TabsTrigger>
+                <TabsTrigger value="ligands" className="text-xs py-1 px-2">Ligands   </TabsTrigger>
             </TabsList>
 
             <TabsContent value="polymers">
-                {!isLoading ? <PolymersTable proteins={data?.proteins!} rnas={data?.rnas!} connect_to_molstar_ctx={true} /> : null}
+                {!isLoading ? <PolymersTable polymers={[...data.proteins, ...data.rnas, ...data.other_polymers]} connect_to_molstar_ctx={true} /> : null}
             </TabsContent>
 
             <TabsContent value="landmarks">
-                <ScrollArea className="h-[70vh] p-4">
+                <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
+                    {/* <div className="space-y-4"> */}
+                        {landmarks.map((landmark, index) => (
+                            <LandmarkItem key={index} {...landmark} />
+                        ))}
+                    {/* </div> */}
+
+
+
                 </ScrollArea>
             </TabsContent>
 
@@ -248,31 +273,34 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={25}>
-                    <Card className="h-full flex flex-col border-0 rounded-none">
-                        <Tabs defaultValue="components" className="w-full">
+            <MolstarContext.Provider value={ctx}>
+                <ResizablePanelGroup direction="horizontal">
+                    <ResizablePanel defaultSize={25}>
+                        <Card className="h-full flex flex-col border-0 rounded-none">
+                            <Tabs defaultValue="components" className="w-full">
 
-                            <StructureHeader data={data!} isLoading />
-                            <CardContent className="flex-grow overflow-hidden p-0 pt-2">
-                                <TabsContent value="components">
-                                    <StructureComponentsDashboard data={data!} isLoading={isLoading} />
-                                </TabsContent>
+                                <StructureHeader data={data!} isLoading />
+                                <CardContent className="flex-grow overflow-hidden p-0 pt-2">
+                                    <TabsContent value="components">
+                                        <StructureComponentsDashboard data={data!} isLoading={isLoading} />
+                                    </TabsContent>
 
-                                <TabsContent value="info" className="px-3">
-                                    <StructureInfoDashboard data={data!} isLoading={isLoading} />
-                                </TabsContent>
-                            </CardContent>
-                        </Tabs>
-                    </Card>
-                </ResizablePanel>
+                                    <TabsContent value="info" className="px-3">
+                                        <StructureInfoDashboard data={data!} isLoading={isLoading} />
+                                    </TabsContent>
+                                </CardContent>
+                            </Tabs>
+                        </Card>
+                    </ResizablePanel>
 
-                <ResizableHandle className="w-px bg-gray-200" />
+                    <ResizableHandle className="w-px bg-gray-200" />
 
-                <ResizablePanel defaultSize={75}>
-                    <MolstarNode ref={molstarNodeRef} />
-                </ResizablePanel>
-            </ResizablePanelGroup>
+                    <ResizablePanel defaultSize={75}>
+                        <MolstarNode ref={molstarNodeRef} />
+                    </ResizablePanel>
+                </ResizablePanelGroup>
+
+            </MolstarContext.Provider>
             <SidebarMenu />
         </div>
     )
