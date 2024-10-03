@@ -343,7 +343,7 @@ export default function Home() {
                   Organized access to atomic structures of the ribosome.</span>
               </p>
 
-              <span className='text-sm'>Why not just use the <Link className='ribxz-link' href={"https://pdb101.rcsb.org"}>Protein Data Bank</Link>?</span>
+              <span className='text-sm'>Why not just use the <Link className='ribxz-link' href={"https://www.rcsb.org/"}>Protein Data Bank</Link>?</span>
               <div className="text-sm flex flex-col">
                 <span> - we implement standard nomenclatures<InTextCitation number={1} paper={citation1} /> <InTextCitation number={2} paper={citation2} /> <InTextCitation number={3} paper={citaiton3} /> for polymer chains (RNA and proteins)  across all structures.  </span>
                 <span> - provide structural landmarks: PTC, exit tunnel geometries, ligands & small molecules. </span>

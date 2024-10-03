@@ -7,6 +7,7 @@ import Link from "next/link"
 import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
 import { contract_taxname } from "@/my_utils"
+import { ExpMethodBadge } from "./exp_method_badge"
 
 export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   const RCSB_IDs = [
@@ -192,26 +193,26 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   }
 
 
-  const method = (() => {
-    if (_.expMethod.toLowerCase().includes("electron")) {
-      return "EM"
-    } else if (_.expMethod.toLowerCase().includes("ray")) {
-      return "XRAY"
-    } else if (_.expMethod.toLowerCase().includes("nmr")) {
-      return "NMR"
-    }
-  })()
+  // const method = (() => {
+  //   if (_.expMethod.toLowerCase().includes("electron")) {
+  //     return "EM"
+  //   } else if (_.expMethod.toLowerCase().includes("ray")) {
+  //     return "XRAY"
+  //   } else if (_.expMethod.toLowerCase().includes("nmr")) {
+  //     return "NMR"
+  //   }
+  // })()
 
-  const method_color = (() => {
-    switch (method) {
-      case "EM":
-        return "text-cyan-500"
-      case "XRAY":
-        return "text-orange-500"
-      case "NMR":
-        return "text-green-500"
-    }
-  })()
+  // const method_color = (() => {
+  //   switch (method) {
+  //     case "EM":
+  //       return "text-cyan-500"
+  //     case "XRAY":
+  //       return "text-brown-500"
+  //     case "NMR":
+  //       return "text-green-500"
+  //   }
+  // })()
 
 
   const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
@@ -222,7 +223,10 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
         <div className="relative h-[40%] transition-all duration-300 hover:h-[100%] border-b-2 ">
           <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
           <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
-          <div className={`absolute bottom-4 left-4 bg-muted border rounded-sm  px-3 py-1 text-xs  ${method_color}`} > {method}  {_.resolution.toFixed(2)} Å  </div>
+
+                    <ExpMethodBadge expMethod={_.expMethod} resolution={_.resolution.toFixed(2)} className="absolute bottom-4 left-4"/>
+
+
           {/* TODO: Replace with `deposition_year` */}
           {_.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null}
           <div className="absolute top-4 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
@@ -232,7 +236,7 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
                 : <div className="border bg-muted rounded-sm px-1"> SSU</div>
 
             }
-            {_.mitochondrial ? <div className="border bg-muted rounded-sm px-1"> Mitochondrion</div> : null}
+            {_.mitochondrial ? <div className="border bg-muted rounded-sm px-1 text-orange-500"> Mitochondrion</div> : null}
 
 
           </div>

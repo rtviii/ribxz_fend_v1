@@ -14,21 +14,22 @@ import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
 import { MolstarContext } from "@/components/ribxz/molstar_context";
 import { Structure } from "molstar/lib/mol-model/structure";
 import { Select } from "antd";
+import { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection";
 
 
 const ChainSelection = ({ polymers }: { polymers: Polymer[] }) => {
 
     const [selectedItems, setSelectedItems] = useState<Polymer[]>([]);
-    const filteredOptions:Polymer[] = polymers.filter((o) => !selectedItems.includes(o));
+    const filteredOptions: Polymer[] = polymers.filter((o) => !selectedItems.includes(o));
 
     return (
         <Select
-            mode        = "multiple"
-            placeholder = "Inserted are removed"
-            value       = {selectedItems}
-            onChange    = {setSelectedItems}
-            style       = {{ width: '100%' }}
-            options     = {filteredOptions.map((item) => ({
+            mode="multiple"
+            placeholder="Inserted are removed"
+            value={selectedItems}
+            onChange={setSelectedItems}
+            style={{ width: '100%' }}
+            options={filteredOptions.map((item) => ({
                 value: item.auth_asym_id,
                 label: item.auth_asym_id,
             }))}
@@ -55,6 +56,10 @@ export default function Vis() {
         })()
     }, [])
 
+    useEffect(() => {
+        console.log("Fired off download struct");
+        ctx?.download_struct("5afi")
+    }, [ctx])
 
     const [rcsb_id, set_rcsb_id] = useState<string | null>(null)
     useEffect(() => {
@@ -63,13 +68,13 @@ export default function Vis() {
 
 
 
-    const [refetch_profile, _]                              = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
-    const [test_active, test_active_set]                    = useState<boolean>(false)
-    const [profile_data, setProfileData] = useState<RibosomeStructure|null>(null)
+    const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
+    const [test_active, test_active_set] = useState<boolean>(false)
+    const [profile_data, setProfileData] = useState<RibosomeStructure | null>(null)
 
 
     useEffect(() => {
-        if ( rcsb_id == null ) {return }
+        if (rcsb_id == null) { return }
         (async () => {
             const data = await refetch_profile({ rcsbId: rcsb_id }).unwrap()
             setProfileData(data)
@@ -95,36 +100,29 @@ export default function Vis() {
 
                     <Card className="h-full flex flex-col">
                         <CardHeader>
-                            <Select
-                                showSearch
-                                placeholder="Select a person"
-                                filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                                onChange={(value) => {
-                                    set_rcsb_id(value);
-                                }}
-                                options={
-                                    structs_overview && structs_overview.map((d: any) => ({
-                                        value: d['rcsb_id'],
-                                        label: d['rcsb_id'],
-                                    }))}
-                            />
+                            <GlobalStructureSelection />
+                            <Button onClick={() => {
+                                console.log("Render PLY")
+                                ctx?.renderPLY("someurl")
+                            }}>Render PLY</Button>
 
-                            <ChainSelection polymers={profile_data ? [...profile_data?.proteins, ...profile_data?.rnas] as Polymer[] : []} />
-                            {/* Chain selection tray -- choose multiple elemnts by polymer rows -- fetch the structure from model server */}
-                            {/* create separate components for each selected chain */}
-
-                            <p>TODO:</p>
-                            <p> - chain selector </p>
-                            <p> - landmarks for that structure </p>
-                            <p> - "visualize" button </p>
-
+                            <Button onClick={() => {
+                                console.log("Spheres ")
+                                ctx?.addSpheres(
+                                    [{ x: 50, y: 50, z: 50, radius: 5 },
+                                    { x: 50, y: 56, z: 50, radius: 5 },
+                                    { x: 50, y: 60, z: 50, radius: 5 },
+                                    { x: 50, y: 68, z: 50, radius: 5 }
+                                    ])
+                            }}>
+                                Render Spheres</Button>
                         </CardHeader>
                         <CardContent className="flex-grow overflow-auto space-y-8 items-center">
                             {/* <Filters /> */}
                             <MolstarContext.Provider value={ctx}>
                                 {/* <ChainPicker> */}
-                                    <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
-                                    </Button>
+                                <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
+                                </Button>
                                 {/* </ChainPicker> */}
                             </MolstarContext.Provider>
                         </CardContent>
@@ -135,9 +133,7 @@ export default function Vis() {
                 </ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel defaultSize={75}>
-                    <div className="flex flex-col gap-4">
-                        <MolstarNode ref={molstarNodeRef} />
-                    </div>
+                    <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
             </ResizablePanelGroup>
 

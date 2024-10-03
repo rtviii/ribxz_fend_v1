@@ -84,6 +84,9 @@ export function SidebarMenu() {
           <hr className="border-t my-4 border-gray-200" />
           <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
 
+          {/* <Link className=" block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href="/ligands" > */}
+            <Link  className="block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href={'/vis'}>Visualization</Link>
+            {/* </Link>  */}
 
 
           {/* <Link className=" block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href="/ligands" > */}

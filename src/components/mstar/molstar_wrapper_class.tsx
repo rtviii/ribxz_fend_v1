@@ -5,6 +5,7 @@ import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mo
 import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
 import { compileIdListSelection } from 'molstar/lib/mol-script/util/id-list'
 import { log } from 'console';
+import { RuntimeContext } from 'molstar/lib/mol-task/execution/runtime-context';
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/interactivity';
 import { StateObjectRef } from 'molstar/lib/mol-state/object';
@@ -33,9 +34,26 @@ import { components } from 'react-select';
 import { Loci } from 'molstar/lib/mol-model/structure/structure/element/element';
 import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { ArbitrarySphereRepresentationProvider } from './sphere_drawing';
+import { parsePly } from 'molstar/lib/mol-io/reader/ply/parser';
+import { shapeFromPly } from 'molstar/lib/mol-model-formats/shape/ply';
+import { PluginContext } from 'molstar/lib/mol-plugin/context';
+import { ShapeRepresentation } from 'molstar/lib/mol-repr/shape/representation';
+import { Shape } from 'molstar/lib/mol-model/shape';
+import { Task } from 'molstar/lib/mol-task';
+import { ColorNames } from 'molstar/lib/mol-util/color/names';
+import { ShapeFromPly } from 'molstar/lib/mol-plugin-state/transforms/model';
+
+
+
+
 const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
+
+
+
+
+
 
 
 declare global {
@@ -46,17 +64,19 @@ declare global {
 }
 
 export type Residue = {
-  label_seq_id  : number | null | undefined,
-  label_comp_id : string | null | undefined,
-  auth_seq_id   : number,
-  auth_asym_id  : string,
-  rcsb_id       : string,
+  label_seq_id: number | null | undefined,
+  label_comp_id: string | null | undefined,
+  auth_seq_id: number,
+  auth_asym_id: string,
+  rcsb_id: string,
   polymer_class?: string,
 }
 
 export type ResidueList = Residue[]
 
 export class MolstarRibxz {
+
+
 
   //@ts-ignore
   ctx: PluginUIContext;
@@ -65,26 +85,28 @@ export class MolstarRibxz {
   async init(parent: HTMLElement) {
     this.ctx = await createPluginUI({
       target: parent,
-      spec  : MySpec,
+      spec: MySpec,
       render: renderReact18
     });
 
-  this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
+    this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
 
   }
 
 
-  async addSpheres( structure_ref:string, spheres: Partial<{ x: number, y: number, z: number, radius: number, color: Color}>[]) {
-      spheres.map((s) => {
-          this.ctx.builders.structure.representation.addRepresentation(
-              structure_ref, {
-                  type: 'arbitrary-sphere' as any, // Coerce TypeScript into accepting the representation name
-                  typeParams: s,
-                  colorParams: s.color ? { value:  s.color } : void 0,
-              },
-          );
-      });
+  async addSpheres(spheres: Partial<{ x: number, y: number, z: number, radius: number, color: Color }>[]) {
+    const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+    spheres.map((s) => {
+      this.ctx.builders.structure.representation.addRepresentation(
+        structureRef, {
+        type: 'arbitrary-sphere' as any,             // Coerce TypeScript into accepting the representation name
+        typeParams: s,
+        colorParams: s.color ? { value: s.color } : void 0,
+      },
+      );
+    });
   }
+
 
 
   toggleSpin() {
@@ -111,13 +133,13 @@ export class MolstarRibxz {
 
   select_residueCluster = (chain_residue_tuples: {
     auth_asym_id: string,
-    auth_seq_id : number,
+    auth_seq_id: number,
   }[]) => {
 
-    const expr     = this.selectionResidueClusterExpression(chain_residue_tuples)
-    const data:any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    const sel      = Script.getStructureSelection(expr, data);
-    let   loci     = StructureSelection.toLociWithSourceUnits(sel);
+    const expr = this.selectionResidueClusterExpression(chain_residue_tuples)
+    const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const sel = Script.getStructureSelection(expr, data);
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
     this.ctx.managers.structure.selection.clear();
     this.ctx.managers.structure.selection.fromLoci('add', loci);
     this.ctx.managers.camera.focusLoci(loci);
@@ -125,6 +147,8 @@ export class MolstarRibxz {
   }
 
   select_chain = (auth_asym_id: string) => {
+
+
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
     const sel = Script.getStructureSelection(
@@ -142,9 +166,36 @@ export class MolstarRibxz {
     this.ctx.managers.interactivity.lociHighlights.clearHighlights();
   }
 
+
+  renderPLY = async (url: string) => {
+    const provider = this.ctx.dataFormats.get('ply')
+    const myurl = 'http://127.0.0.1:8000/structures/tunnel_geometry?rcsb_id=5afi&is_ascii=true'
+    const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
+    const parsed = await provider!.parse(this.ctx, data!);
+    await provider.visuals(this.ctx, parsed);
+
+    // const shape    = await this.ctx.runTask(shapeFromPly(parsed.data))
+    // -
+    // const trajectory = await this.ctx.build().to(data).apply(parsed, { data }).commit();
+    // await this.ctx.builders.structure.hierarchy.applyPreset(provider?.visuals(this.ctx, parsed), 'default');
+    // 
+
+    // ShapeFromPly.apply(this.ctx, { shape, label: 'Tunnel Geometry' })
+
+    // const update = this.ctx.build();
+    // update
+    //     .toRoot()
+    //       .to()
+    //       .apply(StateTransforms.Representation.ShapeRepresentation3D);
+
+    // provider?.visuals
+
+  }
+
+
   _highlightChain = (auth_asym_id: string) => {
-    const data:any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (data ===undefined){
+    const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    if (data === undefined) {
       return
     }
     const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({ 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), }), data);
@@ -166,7 +217,7 @@ export class MolstarRibxz {
     const groups: Expression[] = [];
     for (var chain_residue_tuple of chain_residues_tuples_tuples) {
       groups.push(MS.struct.generator.atomGroups({
-        "chain-test"  : MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple.auth_asym_id]),
+        "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple.auth_asym_id]),
         "residue-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_seq_id(), chain_residue_tuple.auth_seq_id]),
       }));
     }
@@ -182,8 +233,8 @@ export class MolstarRibxz {
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (data === undefined) return;
     const expr = this.selectionResidueClusterExpression(chain_residues_tuples)
-    const sel  = Script.getStructureSelection(expr, data);
-    let   loci = StructureSelection.toLociWithSourceUnits(sel);
+    const sel = Script.getStructureSelection(expr, data);
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
 
     this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
   }
@@ -248,7 +299,6 @@ export class MolstarRibxz {
   async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }) {
     const myUrl = `${DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
-
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
   }
@@ -266,13 +316,13 @@ export class MolstarRibxz {
       }
     }
     this.ctx.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
-    var   expression = MS.struct.combinator.merge(groups);
-    const data       = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    var expression = MS.struct.combinator.merge(groups);
+    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
 
-    if (data===undefined) return;
+    if (data === undefined) return;
 
-    const sel  = Script.getStructureSelection(expression, data);
-    let   loci = StructureSelection.toLociWithSourceUnits(sel);
+    const sel = Script.getStructureSelection(expression, data);
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
 
     this.ctx.managers.structure.selection.clear();
     this.ctx.managers.structure.selection.fromLoci('add', loci);
@@ -291,9 +341,9 @@ export class MolstarRibxz {
       await this.ctx.clear()
     }
 
-    const data       = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
+    const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    const st         = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
 
     st?.structure.ref
     st?.model.ref
@@ -355,7 +405,7 @@ export class MolstarRibxz {
 
   }
 
-  async get_selection_constituents(chemicalId: string | undefined, radius:number): Promise<ResidueList> {
+  async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<ResidueList> {
     if (!chemicalId) {
       return []
     }
@@ -394,19 +444,19 @@ export class MolstarRibxz {
     Structure.eachAtomicHierarchyElement(struct_Element, {
       residue: (loc) => {
         residueList.push({
-          label_seq_id : StructureProperties.residue.label_seq_id(loc),
-          auth_seq_id  : StructureProperties.residue.auth_seq_id(loc),
+          label_seq_id: StructureProperties.residue.label_seq_id(loc),
+          auth_seq_id: StructureProperties.residue.auth_seq_id(loc),
 
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
-          rcsb_id      : StructureProperties.unit.model_entry_id(loc),
+          auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
+          rcsb_id: StructureProperties.unit.model_entry_id(loc),
         });
       },
     });
     return residueList
   }
 
-  async create_ligand_and_surroundings(chemicalId: string | undefined, radius:number) {
+  async create_ligand_and_surroundings(chemicalId: string | undefined, radius: number) {
     if (!chemicalId) {
       return this
     }
@@ -423,7 +473,7 @@ export class MolstarRibxz {
           'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
         })
       ]);
-      const surroundings              = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: radius, 'as-whole-residues': true });
+      const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: radius, 'as-whole-residues': true });
       const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: ligand });
 
       // Create a group for both ligand and surroundings
@@ -452,7 +502,7 @@ export class MolstarRibxz {
     return this
   }
 
-  async select_focus_ligand_surroundings(chemicalId: string | undefined,radius:number, focus_select: Array<'focus' | 'select' | 'highlight'>) {
+  async select_focus_ligand_surroundings(chemicalId: string | undefined, radius: number, focus_select: Array<'focus' | 'select' | 'highlight'>) {
     const RADIUS = radius
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
