@@ -68,7 +68,7 @@ export default function Vis() {
 
 
 
-    const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
+    const [refetch_profile, _]           = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery()
     const [test_active, test_active_set] = useState<boolean>(false)
     const [profile_data, setProfileData] = useState<RibosomeStructure | null>(null)
 
@@ -102,7 +102,6 @@ export default function Vis() {
                         <CardHeader>
                             <GlobalStructureSelection />
                             <Button onClick={() => {
-                                console.log("Render PLY")
                                 ctx?.renderPLY("someurl")
                             }}>Render PLY</Button>
 

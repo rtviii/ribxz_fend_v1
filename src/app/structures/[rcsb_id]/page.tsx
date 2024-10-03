@@ -129,12 +129,12 @@ const landmarks = [
     {
         title: "PTC",
         description: "Peptidyl Transferase Center",
-        longDescription: "The PTC is the active site of the ribosome where peptide bond formation occurs..."
+        longDescription: "The PTC is the active site of the ribosome where peptide bond formation occurs."
     },
     {
         title: "NPET",
         description: "Nascent Peptide Exit Tunnel",
-        longDescription: "The NPET is a channel through which newly synthesized proteins exit the ribosome..."
+        longDescription: "The NPET is a channel through which newly synthesized proteins exit the ribosome."
     }, 
     // {
     //     title: "rRNA Helices",
@@ -168,8 +168,12 @@ const landmarks = [
     // Add more landmarks as needed
 ];
 
-const LandmarkItem = ({ title, description, longDescription }) => (
-    <Accordion type="single" collapsible className="w-full">
+const LandmarkItem = ({ title, description, longDescription }) => {
+   
+    const  ctx             = useContext(MolstarContext)
+    const { rcsb_id } =     useParams<{ rcsb_id: string; }>()
+    return <Accordion type = "single" collapsible className = "w-full">
+       
         <AccordionItem value={title} className="border rounded-md overflow-hidden p-4">
             <AccordionTrigger className="hover:no-underline ">
                 <div className="flex items-center justify-between w-full">
@@ -179,7 +183,10 @@ const LandmarkItem = ({ title, description, longDescription }) => (
                     </div>
                     <div className="flex items-center space-x-2 mr-4">
                         <DownloadIcon className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation()}}/>
-                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation()}}/>
+                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); ctx?.renderPLY(rcsb_id)}}
+                        
+                            
+                            />
                     </div>
                 </div>
             </AccordionTrigger>
@@ -188,7 +195,7 @@ const LandmarkItem = ({ title, description, longDescription }) => (
             </AccordionContent>
         </AccordionItem>
     </Accordion>
-);
+};
 
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })

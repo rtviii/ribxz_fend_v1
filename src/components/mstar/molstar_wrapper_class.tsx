@@ -27,34 +27,12 @@ import { MySpec } from "./lib";
 import _ from "lodash";
 import { StateElements } from './functions';
 import { Script } from 'molstar/lib/mol-script/script';
-import { PresetStructureRepresentations } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 import { Color } from 'molstar/lib/mol-util/color/color';
-import { QuickStyles } from 'molstar/lib/mol-plugin-ui/structure/quick-styles';
-import { components } from 'react-select';
-import { Loci } from 'molstar/lib/mol-model/structure/structure/element/element';
 import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { ArbitrarySphereRepresentationProvider } from './sphere_drawing';
-import { parsePly } from 'molstar/lib/mol-io/reader/ply/parser';
-import { shapeFromPly } from 'molstar/lib/mol-model-formats/shape/ply';
-import { PluginContext } from 'molstar/lib/mol-plugin/context';
-import { ShapeRepresentation } from 'molstar/lib/mol-repr/shape/representation';
-import { Shape } from 'molstar/lib/mol-model/shape';
-import { Task } from 'molstar/lib/mol-task';
-import { ColorNames } from 'molstar/lib/mol-util/color/names';
-import { ShapeFromPly } from 'molstar/lib/mol-plugin-state/transforms/model';
-
-
-
-
-const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../../.env.local" });
+const { parsed: { DJANGO_URL } } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
-
-
-
-
-
-
 
 declare global {
   interface Window {
@@ -93,6 +71,20 @@ export class MolstarRibxz {
 
   }
 
+  async renderPTC(rcsb_id:string,) {
+
+    // var ptc  { x: number, y: number, z: number, radius: number, color: Color }
+    let sphere ={ x: 0, y: 0, z: 0, radius: 0, color: 'blue' }
+    const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+    this.ctx.builders.structure.representation.addRepresentation(
+      structureRef, {
+      type: 'arbitrary-sphere' as any,             // Coerce TypeScript into accepting the representation name
+      typeParams: sphere,
+      colorParams: sphere.color ? { value: sphere.color } : void 0,
+    },
+    )
+
+  }
 
   async addSpheres(spheres: Partial<{ x: number, y: number, z: number, radius: number, color: Color }>[]) {
     const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
@@ -167,28 +159,13 @@ export class MolstarRibxz {
   }
 
 
-  renderPLY = async (url: string) => {
+  renderPLY = async (rcsb_id: string) => {
     const provider = this.ctx.dataFormats.get('ply')
-    const myurl = 'http://127.0.0.1:8000/structures/tunnel_geometry?rcsb_id=5afi&is_ascii=true'
+    const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
     const parsed = await provider!.parse(this.ctx, data!);
     await provider.visuals(this.ctx, parsed);
 
-    // const shape    = await this.ctx.runTask(shapeFromPly(parsed.data))
-    // -
-    // const trajectory = await this.ctx.build().to(data).apply(parsed, { data }).commit();
-    // await this.ctx.builders.structure.hierarchy.applyPreset(provider?.visuals(this.ctx, parsed), 'default');
-    // 
-
-    // ShapeFromPly.apply(this.ctx, { shape, label: 'Tunnel Geometry' })
-
-    // const update = this.ctx.build();
-    // update
-    //     .toRoot()
-    //       .to()
-    //       .apply(StateTransforms.Representation.ShapeRepresentation3D);
-
-    // provider?.visuals
 
   }
 

@@ -24,9 +24,6 @@ interface PolymersTableProps {
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
     const polymer                                          = props.polymer
     const ctx                                              = useContext(MolstarAppContext)
-    useEffect(() => {
-        console.log(ctx)
-    },[ctx])
     const [trigger, result, lastPromiseInfo]               = ribxz_api.useLazyRoutersRouterStructPolymerClassificationReportQuery();
     const [classification_report, setClassificationReport] = useState()
     const taxid_dict                                       = useAppSelector(state => state.ui.taxid_dict)

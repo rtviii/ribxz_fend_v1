@@ -66,15 +66,6 @@ const injectedRtkApi = api.injectEndpoints({
         },
       }),
     }),
-    routersRouterStructStructurePtc: build.query<
-      RoutersRouterStructStructurePtcApiResponse,
-      RoutersRouterStructStructurePtcApiArg
-    >({
-      query: (queryArg) => ({
-        url: `/structures/ptc`,
-        params: { rcsb_id: queryArg.rcsbId },
-      }),
-    }),
     routersRouterStructListLigands: build.query<
       RoutersRouterStructListLigandsApiResponse,
       RoutersRouterStructListLigandsApiArg
@@ -114,6 +105,15 @@ const injectedRtkApi = api.injectEndpoints({
         params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
+    routersRouterStructStructurePtc: build.query<
+      RoutersRouterStructStructurePtcApiResponse,
+      RoutersRouterStructStructurePtcApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/structures/ptc`,
+        params: { rcsb_id: queryArg.rcsbId },
+      }),
+    }),
     routersRouterStructChainsByStruct: build.query<
       RoutersRouterStructChainsByStructApiResponse,
       RoutersRouterStructChainsByStructApiArg
@@ -133,6 +133,24 @@ const injectedRtkApi = api.injectEndpoints({
       query: (queryArg) => ({
         url: `/structures/list_source_taxa`,
         params: { source_or_host: queryArg.sourceOrHost },
+      }),
+    }),
+    routersRouterStructGetShape: build.query<
+      RoutersRouterStructGetShapeApiResponse,
+      RoutersRouterStructGetShapeApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/structures/tunnel_geometry`,
+        params: { rcsb_id: queryArg.rcsbId, is_ascii: queryArg.isAscii },
+      }),
+    }),
+    routersRouterStructGetRadial: build.query<
+      RoutersRouterStructGetRadialApiResponse,
+      RoutersRouterStructGetRadialApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/structures/tunnel_radial`,
+        params: { rcsb_id: queryArg.rcsbId },
       }),
     }),
     routersRouterClassesPolynucleotideClass: build.query<
@@ -197,6 +215,12 @@ const injectedRtkApi = api.injectEndpoints({
           radius: queryArg.radius,
         },
       }),
+    }),
+    routersRouterLigLigChemicalCategories: build.query<
+      RoutersRouterLigLigChemicalCategoriesApiResponse,
+      RoutersRouterLigLigChemicalCategoriesApiArg
+    >({
+      query: () => ({ url: `/ligand/chemical_classification` }),
     }),
   }),
   overrideExisting: false,
@@ -509,11 +533,6 @@ export type RoutersRouterStructPolymersByStructureApiArg = {
   sourceTaxa?: string;
   hostTaxa?: string;
 };
-export type RoutersRouterStructStructurePtcApiResponse =
-  /** status 200 OK */ object;
-export type RoutersRouterStructStructurePtcApiArg = {
-  rcsbId: string;
-};
 export type RoutersRouterStructListLigandsApiResponse = /** status 200 OK */ [
   object,
   object[]
@@ -539,6 +558,11 @@ export type RoutersRouterStructStructureProfileApiResponse =
 export type RoutersRouterStructStructureProfileApiArg = {
   rcsbId: string;
 };
+export type RoutersRouterStructStructurePtcApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterStructStructurePtcApiArg = {
+  rcsbId: string;
+};
 export type RoutersRouterStructChainsByStructApiResponse =
   /** status 200 OK */ ChainsByStruct[];
 export type RoutersRouterStructChainsByStructApiArg = void;
@@ -549,6 +573,15 @@ export type RoutersRouterStructListSourceTaxaApiResponse =
   /** status 200 OK */ object[];
 export type RoutersRouterStructListSourceTaxaApiArg = {
   sourceOrHost: "source" | "host";
+};
+export type RoutersRouterStructGetShapeApiResponse = unknown;
+export type RoutersRouterStructGetShapeApiArg = {
+  rcsbId: string;
+  isAscii?: boolean;
+};
+export type RoutersRouterStructGetRadialApiResponse = unknown;
+export type RoutersRouterStructGetRadialApiArg = {
+  rcsbId: string;
 };
 export type RoutersRouterClassesPolynucleotideClassApiResponse =
   /** status 200 OK */ Rna[];
@@ -917,6 +950,9 @@ export type RoutersRouterLigLigTransposeApiArg = {
   chemicalId: string;
   radius: number;
 };
+export type RoutersRouterLigLigChemicalCategoriesApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterLigLigChemicalCategoriesApiArg = void;
 export type CompositionStats = {
   lsu_only: number;
   ssu_only: number;
@@ -1310,6 +1346,10 @@ export type NonpolymericLigand = {
   pdbx_description: string;
   number_of_instances: number;
   nonpolymer_comp?: NonpolymerComp | null;
+  SMILES?: string | null;
+  SMILES_stereo?: string | null;
+  InChI?: string | null;
+  InChIKey?: string | null;
 };
 export type RibosomeStructure = {
   rcsb_id: string;
@@ -1419,18 +1459,21 @@ export const {
   useRoutersRouterStructRandomProfileQuery,
   useRoutersRouterStructPolymersByPolymerClassQuery,
   useRoutersRouterStructPolymersByStructureQuery,
-  useRoutersRouterStructStructurePtcQuery,
   useRoutersRouterStructListLigandsQuery,
   useRoutersRouterStructFilterListQuery,
   useRoutersRouterStructOverviewQuery,
   useRoutersRouterStructStructureProfileQuery,
+  useRoutersRouterStructStructurePtcQuery,
   useRoutersRouterStructChainsByStructQuery,
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
   useRoutersRouterStructListSourceTaxaQuery,
+  useRoutersRouterStructGetShapeQuery,
+  useRoutersRouterStructGetRadialQuery,
   useRoutersRouterClassesPolynucleotideClassQuery,
   useRoutersRouterClassesPolypeptideClassQuery,
   useRoutersRouterClassesLifecycleFactorClassQuery,
   useRoutersRouterMmcifPolymerQuery,
   useRoutersRouterLigLigNbhdQuery,
   useRoutersRouterLigLigTransposeQuery,
+  useRoutersRouterLigLigChemicalCategoriesQuery,
 } = injectedRtkApi;
