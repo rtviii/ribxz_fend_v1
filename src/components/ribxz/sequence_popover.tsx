@@ -25,6 +25,7 @@ const ArrowIcon = ({ size = 15, color = 'currentColor' }) => (
     />
   </svg>
 );
+
 const ToastDemo = () => {
   const { toast } = useToast()
 
@@ -41,7 +42,6 @@ const ToastDemo = () => {
     </Button>
   )
 }
-
 
 const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'amino' | 'rna' }) => {
   const [isOpen, setIsOpen] = useState(false);
