@@ -68,7 +68,6 @@ const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
 
 
 const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-
     return <div className="grid grid-cols-2 gap-4">
         <p className="text-xs text-gray-500 px-3 mb-2 ">{data?.citation_title}</p>
         {data?.citation_rcsb_authors ?
@@ -76,7 +75,6 @@ const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, 
                 <h4 className="text text-sm font-medium">Authors</h4>
                 <AuthorsHovercard authors={data?.citation_rcsb_authors} />
             </div> : null}
-
         <div>
             <h4 className="text text-sm font-medium">Deposition Year</h4>
             <p className="text-xs mt-1">{data?.citation_year}</p>
@@ -137,37 +135,39 @@ const landmarks = [
         title: "NPET",
         description: "Nascent Peptide Exit Tunnel",
         longDescription: "The NPET is a channel through which newly synthesized proteins exit the ribosome..."
-    }, {
-        title: "rRNA Helices",
-        description: "",
-        longDescription: "Helices are the defining elements of secondary RNA structure identified with specific geometric and molecular interaction criteria."
-    }, {
-        title: "SRL",
-        description: "Sarcin-Ricin Loop",
-        longDescription: ""
-    },
-    {
-        title: "A-Site",
-        description: "",
-        longDescription: ""
-    }, {
-        title: "P-Site",
-        description: "",
-        longDescription: ""
-    },
-    {
-        title: "E-Site",
-        description: "",
-        longDescription: ""
-    },
-    {
-        title: "NPET Vestibule",
-        description: "",
-        longDescription: ""
-    },
+    }, 
+    // {
+    //     title: "rRNA Helices",
+    //     description: "",
+    //     longDescription: "Helices are the defining elements of secondary RNA structure identified with specific geometric and molecular interaction criteria."
+    // }, {
+    //     title: "SRL",
+    //     description: "Sarcin-Ricin Loop",
+    //     longDescription: ""
+    // },
+    // {
+    //     title: "A-Site",
+    //     description: "",
+    //     longDescription: ""
+    // }, {
+    //     title: "P-Site",
+    //     description: "",
+    //     longDescription: ""
+    // },
+    // {
+    //     title: "E-Site",
+    //     description: "",
+    //     longDescription: ""
+    // },
+    // {
+    //     title: "NPET Vestibule",
+    //     description: "",
+    //     longDescription: ""
+    // },
     
     // Add more landmarks as needed
 ];
+
 const LandmarkItem = ({ title, description, longDescription }) => (
     <Accordion type="single" collapsible className="w-full">
         <AccordionItem value={title} className="border rounded-md overflow-hidden p-4">
@@ -177,9 +177,9 @@ const LandmarkItem = ({ title, description, longDescription }) => (
                         <h3 className="text-lg font-semibold">{title}</h3>
                         <p className="text-xs text-gray-500 italic">{description}</p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer" />
-                        <EyeIcon className="h-4 w-4 text-gray-500 cursor-pointer" />
+                    <div className="flex items-center space-x-2 mr-4">
+                        <DownloadIcon className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation()}}/>
+                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation()}}/>
                     </div>
                 </div>
             </AccordionTrigger>
