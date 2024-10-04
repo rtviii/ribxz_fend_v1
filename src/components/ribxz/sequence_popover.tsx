@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useRef, useEffect } from 'react';
@@ -8,6 +8,9 @@ import { CopyIcon } from './icon_copy';
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
 import { ToastProvider } from '@radix-ui/react-toast';
+import { Polymer } from '@/store/ribxz_api/ribxz_api';
+import { MolstarContext } from './molstar_context';
+import { range } from 'lodash';
 
 const ArrowIcon = ({ size = 15, color = 'currentColor' }) => (
   <svg
@@ -43,7 +46,9 @@ const ToastDemo = () => {
   )
 }
 
-const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'amino' | 'rna' }) => {
+const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seqType: 'amino' | 'rna', polymer?: Polymer }) => {
+  const ctx = useContext(MolstarContext)
+
   const [isOpen, setIsOpen] = useState(false);
   const [selection, setSelection] = useState({ start: -1, end: -1 });
   const [isSelecting, setIsSelecting] = useState(false);
@@ -68,6 +73,21 @@ const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'am
       const start = Math.min(selection.start, selection.end);
       const end = Math.max(selection.start, selection.end);
       console.log(`Selected: ${sequence.substring(start, end + 1)} (indices: ${start}-${end})`);
+     
+      if (polymer === undefined){
+        return
+      }
+      var residues = []
+      
+      for (var res_ix of range(start,end)){
+        residues.push({
+          "auth_asym_id": polymer?.auth_asym_id,
+          "auth_seq_id" : res_ix
+        })
+
+      }
+      ctx?.select_residueCluster(residues)
+
     }
   }, [selection, isSelecting, sequence]);
 
@@ -78,7 +98,6 @@ const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'am
         handleMouseUp();
       }
     };
-
     document.addEventListener('mouseup', handleGlobalMouseUp);
 
     return () => {
@@ -87,8 +106,6 @@ const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'am
   }, [isSelecting, handleMouseUp]);
 
   const copySequence = () => {
-
-
     navigator.clipboard.writeText(sequence).then(() => {
       setShowToast(true);
       setTimeout(() => setShowToast(false), 2000);
@@ -105,13 +122,11 @@ const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'am
       <PopoverContent className="w-[800px] max-h-[400px] overflow-y-auto p-0 flex flex-col"
         onMouseDown={(e) => e.stopPropagation()}
         onMouseUp={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-      >
-
+        onClick={(e) => e.stopPropagation()} >
 
         <div className="p-2 bg-gray-100 flex justify-between items-center border-b">
           <span className="text-sm font-medium">
-            {seqType.toUpperCase()} Sequence ({sequence.length} residues)
+            {polymer === undefined ? `[${seqType}]` : polymer.rcsb_pdbx_description + `(${sequence.length} residues)`}
           </span>
           <Button size="sm" onClick={(e) => {
             e.stopPropagation();
@@ -125,41 +140,40 @@ const SequencePopover = ({ sequence, seqType }: { sequence: string; seqType: 'am
           </Button>
 
         </div>
-<div
-  ref={sequenceRef}
-  className="font-mono text-sm whitespace-pre-wrap p-4"
-  style={{ userSelect: 'none' }}
->
-  {sequence.split('').map((char, index) => (
-  <React.Fragment key={index}>
-    <span
-      className={`inline-block w-[1ch] text-center ${
-        (isSelecting || !isSelecting) &&
-        index >= Math.min(selection.start, selection.end) &&
-        index <= Math.max(selection.start, selection.end)
-          ? 'bg-blue-200'
-          : ''
-      }`}
-      onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(index) }}
-      onMouseMove={(e) => { e.stopPropagation(); handleMouseMove(index) }}
-      onMouseUp={(e) => { e.stopPropagation(); handleMouseUp() }}
-    >
-      {char}
-    </span>
-    {(index + 1) % 10 === 0 && (
-      <span className="relative inline-block">
-        <span className="mr-4" /> {/* Add extra space here */}
-        <sub 
-          className="absolute text-[0.6em] text-gray-400 bottom-3 left-0"
-          style={{ pointerEvents: 'none' }}
+        <div
+          ref={sequenceRef}
+          className="font-mono text-sm whitespace-pre-wrap p-4"
+          style={{ userSelect: 'none' }}
         >
-          {(index + 1).toString().padStart(4, '0')}
-        </sub>
-      </span>
-    )}
-  </React.Fragment>
-))}
-</div>
+          {sequence.split('').map((char, index) => (
+            <React.Fragment key={index}>
+              <span
+                className={`inline-block w-[1ch] text-center ${(isSelecting || !isSelecting) &&
+                    index >= Math.min(selection.start, selection.end) &&
+                    index <= Math.max(selection.start, selection.end)
+                    ? 'bg-blue-200'
+                    : ''
+                  }`}
+                onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(index) }}
+                onMouseMove={(e) => { e.stopPropagation(); handleMouseMove(index) }}
+                onMouseUp={(e) => { e.stopPropagation(); handleMouseUp() }}
+              >
+                {char}
+              </span>
+              {(index + 1) % 10 === 0 && (
+                <span className="relative inline-block">
+                  <span className="mr-4" /> {/* Add extra space here */}
+                  <sub
+                    className="absolute text-[0.6em] text-gray-400 bottom-3 left-0"
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    {(index + 1).toString().padStart(4, '0')}
+                  </sub>
+                </span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
       </PopoverContent>
     </Popover>
   );

@@ -182,9 +182,14 @@ const LandmarkItem = ({ title, description, longDescription }) => {
                         <p className="text-xs text-gray-500 italic">{description}</p>
                     </div>
                     <div className="flex items-center space-x-2 mr-4">
-                        <DownloadIcon className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation()}}/>
-                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); ctx?.renderPLY(rcsb_id)}}
+                        <DownloadIcon className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); 
+                            
+                            ctx?.renderPTC(rcsb_id)
                         
+                        }
+                            
+                            }/>
+                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); ctx?.renderPLY(rcsb_id)}}
                             
                             />
                     </div>

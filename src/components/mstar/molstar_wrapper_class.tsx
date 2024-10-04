@@ -25,11 +25,13 @@ import "molstar/lib/mol-plugin-ui/skin/light.scss";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
 import { MySpec } from "./lib";
 import _ from "lodash";
+import { useAppDispatch, useAppSelector } from "@/store/store"
 import { StateElements } from './functions';
 import { Script } from 'molstar/lib/mol-script/script';
 import { Color } from 'molstar/lib/mol-util/color/color';
 import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { ArbitrarySphereRepresentationProvider } from './sphere_drawing';
+import { ribxz_api } from '@/store/ribxz_api/ribxz_api';
 const { parsed: { DJANGO_URL } } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
@@ -71,17 +73,21 @@ export class MolstarRibxz {
 
   }
 
-  async renderPTC(rcsb_id:string,) {
+  async renderPTC(rcsb_id: string,) {
 
     // var ptc  { x: number, y: number, z: number, radius: number, color: Color }
-    let sphere ={ x: 0, y: 0, z: 0, radius: 0, color: 'blue' }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`);
+    const data = await response.json()
+    let [x, y, z] = data['midpoint_coordinates']
+    let sphere = { x: x, y: y, z: z, radius: 5, color: 'blue' }
+
     const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
     this.ctx.builders.structure.representation.addRepresentation(
       structureRef, {
       type: 'arbitrary-sphere' as any,             // Coerce TypeScript into accepting the representation name
       typeParams: sphere,
       colorParams: sphere.color ? { value: sphere.color } : void 0,
-    },
+    }
     )
 
   }
