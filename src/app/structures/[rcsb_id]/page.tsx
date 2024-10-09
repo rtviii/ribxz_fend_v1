@@ -21,9 +21,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { DownloadIcon, EyeIcon } from "lucide-react"
+import { DownloadIcon, EyeIcon, InfoIcon } from "lucide-react"
 import { AuthorsHovercard } from "@/components/ribxz/authors_hovercard"
 import { contract_taxname } from "@/my_utils"
+import { Plus, Minus } from 'lucide-react';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 
 const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
     const ctx = useContext(MolstarContext)
@@ -73,8 +76,35 @@ const InfoRow = ({ title, value }) => (
   </div>
 );
 
+const InfoSectionAccordion = ({ title, children, isActive }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={`border-b border-gray-200 ${!isActive ? 'opacity-50' : ''}`}>
+      <button
+        className="flex justify-between items-center w-full py-2 px-4 text-left text-xs font-medium"
+        onClick={() => isActive && setIsOpen(!isOpen)}
+        disabled={!isActive}
+      >
+
+        {title}
+        {isActive && (isOpen ? <Minus size={14} /> : <Plus size={14} />)}
+      </button>
+      {isOpen && isActive && (
+        <div className="px-4 pb-2 text-xs">{children}</div>
+      )}
+    </div>
+  );
+};
+
+
+
 const StructureInfoDashboard = ({ data, isLoading }) => {
   if (isLoading) return <div className="text-xs">Loading...</div>;
+
+  const hasPolymers = data.polymers && data.polymers.length > 0;
+  const hasLigands = data.ligands && data.ligands.length > 0;
+  const hasLandmarks = data.landmarks && data.landmarks.length > 0;
 
   return (
     <div className="space-y-2">
@@ -98,44 +128,33 @@ const StructureInfoDashboard = ({ data, isLoading }) => {
           <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
         )}
       </div>
+
+      {/* <div className="mt-4">
+        <InfoSectionAccordion title="Polymers" isActive={hasPolymers}>
+          {hasPolymers && data.polymers.map((polymer, index) => (
+            <div key={index} className="mb-1 cursor-pointer hover:underline">
+              {polymer.name}
+            </div>
+          ))}
+        </InfoSectionAccordion>
+        <InfoSectionAccordion title="Ligands" isActive={hasLigands}>
+          {hasLigands && data.ligands.map((ligand, index) => (
+            <div key={index} className="mb-1 cursor-pointer hover:underline">
+              {ligand.name}
+            </div>
+          ))}
+        </InfoSectionAccordion>
+        <InfoSectionAccordion title="Landmarks" isActive={hasLandmarks}>
+          {hasLandmarks && data.landmarks.map((landmark, index) => (
+            <div key={index} className="mb-1 cursor-pointer hover:underline">
+              {landmark.name}
+            </div>
+          ))}
+        </InfoSectionAccordion>
+      </div> */}
     </div>
   );
 };
-// const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-//     return <div className="grid grid-cols-2 gap-4">
-//         <p className="text-xs text-gray-500 px-3 mb-2 ">{data?.citation_title}</p>
-//         {data?.citation_rcsb_authors ?
-//             <div>
-//                 <h4 className="text text-sm font-medium">Authors</h4>
-//                 <AuthorsHovercard authors={data?.citation_rcsb_authors} />
-//             </div> : null}
-//         <div>
-//             <h4 className="text text-sm font-medium">Deposition Year</h4>
-//             <p className="text-xs mt-1">{data?.citation_year}</p>
-//         </div>
-
-//         <div>
-//             <h4 className="text text-sm font-medium">Experimental Method</h4>
-//             <ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />
-//         </div>
-
-//         <div>
-//             <h4 className="text text-sm font-medium">Resolution</h4>
-//             <p className="text-xs mt-1">{data?.resolution + " Å"} </p>
-//         </div>
-
-//         <div>
-//             <h4 className="text text-sm font-medium">Source Organism</h4>
-//             <p className="text-xs mt-1"> {data?.src_organism_names.join(", ")} </p>
-//         </div>
-//         {data?.host_organism_names && data.host_organism_names.length > 0 ?
-//             <div>
-//                 <h4 className="text text-sm font-medium">Host Organism</h4>
-//                 <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
-//             </div> : null}
-//     </div>
-
-// }
 const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     return <div className="flex items-center justify-between  px-3 py-2">
         <div className="flex items-center space-x-2 overflow-hidden">
@@ -157,7 +176,6 @@ const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoadi
     </div>
 }
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 const landmarks = [
     {
@@ -202,35 +220,55 @@ const landmarks = [
     // Add more landmarks as needed
 ];
 
-const LandmarkItem = ({ title, description, longDescription }) => {
-   
-    const  ctx             = useContext(MolstarContext)
-    const { rcsb_id } =     useParams<{ rcsb_id: string; }>()
-    return <Accordion type = "single" collapsible className = "w-full">
-       
-        <AccordionItem value={title} className="border rounded-md overflow-hidden p-4">
-            <AccordionTrigger className="hover:no-underline ">
-                <div className="flex items-center justify-between w-full">
-                    <div className="text-left">
-                        <h3 className="text-lg font-semibold">{title}</h3>
-                        <p className="text-xs text-gray-500 italic">{description}</p>
-                    </div>
-                    <div className="flex items-center space-x-2 mr-4">
-                        <DownloadIcon className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); 
-                            
-                            ctx?.renderPTC(rcsb_id)
-                        }
-                            
-                            }/>
-                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); ctx?.renderPLY(rcsb_id)}} />
-                    </div>
-                </div>
-            </AccordionTrigger>
-            <AccordionContent>
-                <p className="text-sm text-gray-700">{longDescription}</p>
-            </AccordionContent>
-        </AccordionItem>
+
+
+
+const LandmarkItem = ({ title, description, longDescription, imageUrl }) => {
+  const ctx = useContext(MolstarContext);
+  const { rcsb_id } = useParams();
+  const [isHoverOpen, setIsHoverOpen] = useState(false);
+
+  return (
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem value={title} className="border rounded-md overflow-hidden">
+        <AccordionTrigger className="hover:no-underline py-2 px-4">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center space-x-2 text-left">
+              <h3 className="text-base font-semibold">{title}</h3>
+              <p className="text-xs text-gray-500 italic">{description}</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <DownloadIcon 
+                className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
+                onClick={(e) => { e.stopPropagation(); ctx?.renderPTC(rcsb_id); }}
+              />
+              <EyeIcon 
+                className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
+                onClick={(e) => { e.stopPropagation(); ctx?.renderPLY(rcsb_id); }}
+              />
+              <Popover open={isHoverOpen} onOpenChange={setIsHoverOpen}>
+                <PopoverTrigger asChild>
+                  <InfoIcon 
+                    className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
+                    onClick={(e) => { e.stopPropagation(); setIsHoverOpen(!isHoverOpen); }}
+                  />
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="flex flex-col space-y-2">
+                    <img src={imageUrl} alt={title} className="w-full h-40 object-cover rounded" />
+                    <p className="text-sm text-gray-700">{longDescription}</p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-4 py-2">
+          <p className="text-sm text-gray-700">{longDescription}</p>
+        </AccordionContent>
+      </AccordionItem>
     </Accordion>
+  );
 };
 
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
@@ -254,9 +292,18 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
             <TabsContent value="landmarks">
                 <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
                     {/* <div className="space-y-4"> */}
-                        {landmarks.map((landmark, index) => (
+                        {/* {landmarks.map((landmark, index) => (
                             <LandmarkItem key={index} {...landmark} />
-                        ))}
+                        ))} */}
+{landmarks.map((landmark, index) => (
+  <LandmarkItem
+    key={index}
+    title={landmark.title}
+    description={landmark.description}
+    longDescription={landmark.longDescription}
+    imageUrl={landmark.imageUrl} // You'll need to add this to your landmarks data
+  />
+))}
                     {/* </div> */}
 
 
