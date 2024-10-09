@@ -56,8 +56,6 @@ export type ResidueList = Residue[]
 
 export class MolstarRibxz {
 
-
-
   //@ts-ignore
   ctx: PluginUIContext;
   constructor() { }
@@ -65,7 +63,7 @@ export class MolstarRibxz {
   async init(parent: HTMLElement) {
     this.ctx = await createPluginUI({
       target: parent,
-      spec: MySpec,
+      spec  : MySpec,
       render: renderReact18
     });
 

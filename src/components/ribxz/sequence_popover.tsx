@@ -72,13 +72,10 @@ const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seq
       setIsSelecting(false);
       const start = Math.min(selection.start, selection.end);
       const end = Math.max(selection.start, selection.end);
-      console.log(`Selected: ${sequence.substring(start, end + 1)} (indices: ${start}-${end})`);
-     
       if (polymer === undefined){
         return
       }
       var residues = []
-      
       for (var res_ix of range(start,end)){
         residues.push({
           "auth_asym_id": polymer?.auth_asym_id,

@@ -66,42 +66,76 @@ const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     );
 };
 
+const InfoRow = ({ title, value }) => (
+  <div className="flex justify-between items-center py-1 border-b border-gray-100 last:border-b-0">
+    <h4 className="text-xs font-medium text-gray-600">{title}</h4>
+    <div className="text-xs text-gray-800">{value}</div>
+  </div>
+);
 
-const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-    return <div className="grid grid-cols-2 gap-4">
-        <p className="text-xs text-gray-500 px-3 mb-2 ">{data?.citation_title}</p>
-        {data?.citation_rcsb_authors ?
-            <div>
-                <h4 className="text text-sm font-medium">Authors</h4>
-                <AuthorsHovercard authors={data?.citation_rcsb_authors} />
-            </div> : null}
-        <div>
-            <h4 className="text text-sm font-medium">Deposition Year</h4>
-            <p className="text-xs mt-1">{data?.citation_year}</p>
-        </div>
+const StructureInfoDashboard = ({ data, isLoading }) => {
+  if (isLoading) return <div className="text-xs">Loading...</div>;
 
-        <div>
-            <h4 className="text text-sm font-medium">Experimental Method</h4>
-            <ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />
-        </div>
-
-        <div>
-            <h4 className="text text-sm font-medium">Resolution</h4>
-            <p className="text-xs mt-1">{data?.resolution + " Å"} </p>
-        </div>
-
-        <div>
-            <h4 className="text text-sm font-medium">Source Organism</h4>
-            <p className="text-xs mt-1"> {data?.src_organism_names.join(", ")} </p>
-        </div>
-        {data?.host_organism_names && data.host_organism_names.length > 0 ?
-            <div>
-                <h4 className="text text-sm font-medium">Host Organism</h4>
-                <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
-            </div> : null}
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-gray-500 mb-2">{data?.citation_title}</p>
+      
+      <div className="space-y-0">
+        {data?.citation_rcsb_authors && (
+          <InfoRow 
+            title="Authors" 
+            value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} 
+          />
+        )}
+        <InfoRow title="Deposition Year" value={data?.citation_year} />
+        <InfoRow 
+          title="Experimental Method" 
+          value={<ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />} 
+        />
+        <InfoRow title="Resolution" value={`${data?.resolution} Å`} />
+        <InfoRow title="Source Organism" value={data?.src_organism_names.join(", ")} />
+        {data?.host_organism_names?.length > 0 && (
+          <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
+        )}
+      </div>
     </div>
+  );
+};
+// const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+//     return <div className="grid grid-cols-2 gap-4">
+//         <p className="text-xs text-gray-500 px-3 mb-2 ">{data?.citation_title}</p>
+//         {data?.citation_rcsb_authors ?
+//             <div>
+//                 <h4 className="text text-sm font-medium">Authors</h4>
+//                 <AuthorsHovercard authors={data?.citation_rcsb_authors} />
+//             </div> : null}
+//         <div>
+//             <h4 className="text text-sm font-medium">Deposition Year</h4>
+//             <p className="text-xs mt-1">{data?.citation_year}</p>
+//         </div>
 
-}
+//         <div>
+//             <h4 className="text text-sm font-medium">Experimental Method</h4>
+//             <ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />
+//         </div>
+
+//         <div>
+//             <h4 className="text text-sm font-medium">Resolution</h4>
+//             <p className="text-xs mt-1">{data?.resolution + " Å"} </p>
+//         </div>
+
+//         <div>
+//             <h4 className="text text-sm font-medium">Source Organism</h4>
+//             <p className="text-xs mt-1"> {data?.src_organism_names.join(", ")} </p>
+//         </div>
+//         {data?.host_organism_names && data.host_organism_names.length > 0 ?
+//             <div>
+//                 <h4 className="text text-sm font-medium">Host Organism</h4>
+//                 <p className="text-xs mt-1">{data?.host_organism_names[0]} </p>
+//             </div> : null}
+//     </div>
+
+// }
 const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     return <div className="flex items-center justify-between  px-3 py-2">
         <div className="flex items-center space-x-2 overflow-hidden">
@@ -185,13 +219,10 @@ const LandmarkItem = ({ title, description, longDescription }) => {
                         <DownloadIcon className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); 
                             
                             ctx?.renderPTC(rcsb_id)
-                        
                         }
                             
                             }/>
-                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); ctx?.renderPLY(rcsb_id)}}
-                            
-                            />
+                        <EyeIcon      className="h-5 w-5 text-gray-500 cursor-pointer hover:bg-slate-200 hover:border "  onClick={(e)=>{e.stopPropagation(); ctx?.renderPLY(rcsb_id)}} />
                     </div>
                 </div>
             </AccordionTrigger>
