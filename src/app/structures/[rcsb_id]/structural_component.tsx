@@ -6,8 +6,8 @@ import { MolstarContext } from "@/components/ribxz/molstar_context"
 import ReactJson from 'react-json-view';
 import { useParams } from 'next/navigation';
 import { NonpolymericLigand } from '@/store/ribxz_api/ribxz_api';
+import { LandmarkActions, LandmarkItemProps } from '@/app/landmarks/types';
 
-// Base StructuralComponent
 const StructuralComponent = ({ 
   title, 
   description, 
@@ -39,30 +39,23 @@ const StructuralComponent = ({
   );
 };
 
-
-
-interface LandmarkItem {
-  download?: (rcsb_id:string) => null
-  render  ?: (rcsb_id:string) =>null
-}
-
-
-
-
-const LandmarkItem = ({ title, description, longDescription, imageUrl }) => {
-  const ctx = useContext(MolstarContext);
-  const { rcsb_id } = useParams();
+const LandmarkItem = <T extends LandmarkActions>({ data, rcsb_id }: LandmarkItemProps<T>) => {
+  const { title, description, longDescription, imageUrl, download, render } = data;
 
   const actions = (
     <>
-      <DownloadIcon 
-        className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
-        onClick={(e) => { e.stopPropagation(); ctx?.renderPTC(rcsb_id); }}
-      />
-      <EyeIcon 
-        className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
-        onClick={(e) => { e.stopPropagation(); ctx?.renderPLY(rcsb_id); }}
-      />
+      {download && (
+        <DownloadIcon 
+          className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
+          onClick={(e) => { e.stopPropagation(); download(rcsb_id); }}
+        />
+      )}
+      {render && (
+        <EyeIcon 
+          className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
+          onClick={(e) => { e.stopPropagation(); render(rcsb_id); }}
+        />
+      )}
       <Popover>
         <PopoverTrigger asChild>
           <InfoIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" />
@@ -83,16 +76,15 @@ const LandmarkItem = ({ title, description, longDescription, imageUrl }) => {
 
   return (
     <StructuralComponent
-      title={title}
-      description={description}
-      extendedContent={extendedContent}
-      imageUrl={imageUrl}
-      actions={actions}
+      title           = {title}
+      description     = {description}
+      extendedContent = {extendedContent}
+      imageUrl        = {imageUrl}
+      actions         = {actions}
     />
   );
 };
 
-// LigandItem component
 const LigandItem = ({ title, description, ligandData }:{title:string, description:string, ligandData:NonpolymericLigand}) => {
   const ctx = useContext(MolstarContext);
   const { rcsb_id } = useParams();

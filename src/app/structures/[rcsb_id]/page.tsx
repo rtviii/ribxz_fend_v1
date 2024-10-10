@@ -5,7 +5,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/compone
 import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
-import { createContext, useContext, useEffect, useRef, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
@@ -28,6 +28,7 @@ import { Plus, Minus } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { LandmarkItem, LigandItem } from "./structural_component"
+import { BaseLandmark, createTunnelLandmark, TunnelActions } from "@/app/landmarks/types"
 
 const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     const handleCifDownload = () => {
@@ -161,53 +162,27 @@ const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoadi
     </div>
 }
 
-const landmarks = [
-    {
-        title: "PTC",
-        description: "Peptidyl Transferase Center",
+const landmarks = { 
+    "PTC":{
+        title          : "PTC",
+        description    : "Peptidyl Transferase Center",
         longDescription: "The PTC is the active site of the ribosome where peptide bond formation occurs."
     },
-    {
-        title: "NPET",
-        description: "Nascent Peptide Exit Tunnel",
+    "NPET":{
+        title          : "NPET",
+        description    : "Nascent Peptide Exit Tunnel",
         longDescription: "The NPET is a channel through which newly synthesized proteins exit the ribosome."
     },
-    // {
-    //     title: "rRNA Helices",
-    //     description: "",
-    //     longDescription: "Helices are the defining elements of secondary RNA structure identified with specific geometric and molecular interaction criteria."
-    // }, {
-    //     title: "SRL",
-    //     description: "Sarcin-Ricin Loop",
-    //     longDescription: ""
-    // },
-    // {
-    //     title: "A-Site",
-    //     description: "",
-    //     longDescription: ""
-    // }, {
-    //     title: "P-Site",
-    //     description: "",
-    //     longDescription: ""
-    // },
-    // {
-    //     title: "E-Site",
-    //     description: "",
-    //     longDescription: ""
-    // },
-    // {
-    //     title: "NPET Vestibule",
-    //     description: "",
-    //     longDescription: ""
-    // },
+ };
 
-    // Add more landmarks as needed
-];
-
-
+const TunnelLandmarkComponent: React.FC<{ data: BaseLandmark, rcsb_id:string, ctx :MolstarRibxz }> = ({ data, rcsb_id,ctx }) => {
+  const  tunnelData                        = useMemo(() => createTunnelLandmark(data, ctx), [data, ctx]);
+  return <LandmarkItem<TunnelActions> data = {tunnelData} rcsb_id = {rcsb_id} />;
+};
 
 
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+    const ctx = useContext(MolstarContext)
     // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     if (isLoading) {
         return <div>Loading...</div>
@@ -227,15 +202,9 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 
             <TabsContent value="landmarks">
                 <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                    {landmarks.map((landmark, index) => (
-                        <LandmarkItem
-                            key={index}
-                            title={landmark.title}
-                            description={landmark.description}
-                            longDescription={landmark.longDescription}
-                            imageUrl={landmark.imageUrl} // You'll need to add this to your landmarks data
-                        />
-                    ))}
+                    <TunnelLandmarkComponent data={landmarks.PTC} rcsb_id={data.rcsb_id}  ctx={ctx}/>
+
+
                 </ScrollArea>
             </TabsContent>
 
@@ -246,7 +215,7 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
                         .map((ligand, i) => {
 
                             return <LigandItem
-                            ligandData={ligand}
+                                ligandData={ligand}
                                 key={i}
                                 title={ligand.chemicalId}
                                 description={ligand.pdbx_description}
