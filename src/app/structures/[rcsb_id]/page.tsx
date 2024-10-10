@@ -180,6 +180,10 @@ const TunnelLandmarkComponent: React.FC<{ data: BaseLandmark, rcsb_id:string, ct
   return <LandmarkItem<TunnelActions> data = {tunnelData} rcsb_id = {rcsb_id} />;
 };
 
+const PTCLandmarkComponent: React.FC<{ data: BaseLandmark, rcsb_id:string, ctx :MolstarRibxz }> = ({ data, rcsb_id,ctx }) => {
+  const  tunnelData                        = useMemo(() => createTunnelLandmark(data, ctx), [data, ctx]);
+  return <LandmarkItem<TunnelActions> data = {tunnelData} rcsb_id = {rcsb_id} />;
+};
 
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     const ctx = useContext(MolstarContext)
@@ -202,7 +206,7 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 
             <TabsContent value="landmarks">
                 <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                    <TunnelLandmarkComponent data={landmarks.PTC} rcsb_id={data.rcsb_id}  ctx={ctx}/>
+                    <TunnelLandmarkComponent data={landmarks.NPET} rcsb_id={data.rcsb_id}  ctx={ctx!}/>
 
 
                 </ScrollArea>

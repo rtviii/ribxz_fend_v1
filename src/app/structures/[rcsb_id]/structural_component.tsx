@@ -8,11 +8,11 @@ import { useParams } from 'next/navigation';
 import { NonpolymericLigand } from '@/store/ribxz_api/ribxz_api';
 import { LandmarkActions, LandmarkItemProps } from '@/app/landmarks/types';
 
-const StructuralComponent = ({ 
-  title, 
-  description, 
+const StructuralComponent = ({
+  title,
+  description,
   extendedContent,
-  imageUrl, 
+  imageUrl,
   annotation,
   actions
 }) => {
@@ -40,22 +40,13 @@ const StructuralComponent = ({
 };
 
 const LandmarkItem = <T extends LandmarkActions>({ data, rcsb_id }: LandmarkItemProps<T>) => {
+  const ctx = useContext(MolstarContext);
   const { title, description, longDescription, imageUrl, download, render } = data;
 
   const actions = (
     <>
-      {download && (
-        <DownloadIcon 
-          className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
-          onClick={(e) => { e.stopPropagation(); download(rcsb_id); }}
-        />
-      )}
-      {render && (
-        <EyeIcon 
-          className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
-          onClick={(e) => { e.stopPropagation(); render(rcsb_id); }}
-        />
-      )}
+      {download && (<DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); download(rcsb_id); }} />)}
+      {render && (<EyeIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); render(rcsb_id, ctx!); }} />)}
       <Popover>
         <PopoverTrigger asChild>
           <InfoIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" />
@@ -76,37 +67,38 @@ const LandmarkItem = <T extends LandmarkActions>({ data, rcsb_id }: LandmarkItem
 
   return (
     <StructuralComponent
-      title           = {title}
-      description     = {description}
-      extendedContent = {extendedContent}
-      imageUrl        = {imageUrl}
-      actions         = {actions}
+      title={title}
+      description={description}
+      extendedContent={extendedContent}
+      imageUrl={imageUrl}
+      actions={actions}
     />
   );
 };
 
-const LigandItem = ({ title, description, ligandData }:{title:string, description:string, ligandData:NonpolymericLigand}) => {
+const LigandItem = ({ title, description, ligandData }: { title: string, description: string, ligandData: NonpolymericLigand }) => {
   const ctx = useContext(MolstarContext);
   const { rcsb_id } = useParams();
 
   const actions = (
     <>
       {/* <DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); ctx?.renderLigand(rcsb_id, title); }} /> */}
-      <EyeIcon 
-        className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-700 " 
+      <EyeIcon
+        className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-700 "
 
-        onClick={(e) => { e.stopPropagation(); 
+        onClick={(e) => {
+          e.stopPropagation();
           ctx?.create_ligand_and_surroundings(ligandData.chemicalId, 5)
-          ctx?.select_focus_ligand(ligandData.chemicalId, [ 'select', 'focus' ]); 
+          ctx?.select_focus_ligand(ligandData.chemicalId, ['select', 'focus']);
         }}
       />
     </>
   );
 
   const extendedContent = (
-<div className="max-h-96 overflow-auto bg-white">
-      <ReactJson 
-        src={ligandData} 
+    <div className="max-h-96 overflow-auto bg-white">
+      <ReactJson
+        src={ligandData}
         theme="chalk"
         displayDataTypes={false}
         displayObjectSize={false}
@@ -118,11 +110,11 @@ const LigandItem = ({ title, description, ligandData }:{title:string, descriptio
 
   return (
     <StructuralComponent
-      title           = {title}
-      description     = {description}
-      extendedContent = {extendedContent}
+      title={title}
+      description={description}
+      extendedContent={extendedContent}
       // annotation      = "LIGAND"
-      actions         = {actions}
+      actions={actions}
     />
   );
 };
