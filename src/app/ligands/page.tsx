@@ -622,7 +622,9 @@ export default function Ligands() {
                                                 </div>
                                             </AccordionTrigger>
                                             <AccordionContent>
+
                                                 <GlobalStructureSelection props={{ disabled: !predictionMode }} />
+
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
                                                     <Button variant={"outline"} 
                                                     onClick={() => {

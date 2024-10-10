@@ -5,6 +5,7 @@ import { DownloadIcon, EyeIcon, InfoIcon } from 'lucide-react';
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 import ReactJson from 'react-json-view';
 import { useParams } from 'next/navigation';
+import { NonpolymericLigand } from '@/store/ribxz_api/ribxz_api';
 
 // Base StructuralComponent
 const StructuralComponent = ({ 
@@ -24,7 +25,7 @@ const StructuralComponent = ({
               <h3 className="text-base font-semibold">{title}</h3>
               <p className="text-xs text-gray-500 italic">{description}</p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 ml-4">
               {annotation && <span className="text-xs text-green-500">{annotation}</span>}
               {actions}
             </div>
@@ -38,7 +39,16 @@ const StructuralComponent = ({
   );
 };
 
-// LandmarkItem component
+
+
+interface LandmarkItem {
+  download?: (rcsb_id:string) => null
+  render  ?: (rcsb_id:string) =>null
+}
+
+
+
+
 const LandmarkItem = ({ title, description, longDescription, imageUrl }) => {
   const ctx = useContext(MolstarContext);
   const { rcsb_id } = useParams();
@@ -83,28 +93,29 @@ const LandmarkItem = ({ title, description, longDescription, imageUrl }) => {
 };
 
 // LigandItem component
-const LigandItem = ({ title, description, ligandData }) => {
+const LigandItem = ({ title, description, ligandData }:{title:string, description:string, ligandData:NonpolymericLigand}) => {
   const ctx = useContext(MolstarContext);
   const { rcsb_id } = useParams();
 
   const actions = (
     <>
-      <DownloadIcon 
-        className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
-        onClick={(e) => { e.stopPropagation(); ctx?.renderLigand(rcsb_id, title); }}
-      />
+      {/* <DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); ctx?.renderLigand(rcsb_id, title); }} /> */}
       <EyeIcon 
-        className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" 
-        onClick={(e) => { e.stopPropagation(); ctx?.focusLigand(rcsb_id, title); }}
+        className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-700 " 
+
+        onClick={(e) => { e.stopPropagation(); 
+          ctx?.create_ligand_and_surroundings(ligandData.chemicalId, 5)
+          ctx?.select_focus_ligand(ligandData.chemicalId, [ 'select', 'focus' ]); 
+        }}
       />
     </>
   );
 
   const extendedContent = (
-    <div className="max-h-96 overflow-auto">
+<div className="max-h-96 overflow-auto bg-white">
       <ReactJson 
         src={ligandData} 
-        theme="monokai"
+        theme="chalk"
         displayDataTypes={false}
         displayObjectSize={false}
         enableClipboard={false}
@@ -115,11 +126,11 @@ const LigandItem = ({ title, description, ligandData }) => {
 
   return (
     <StructuralComponent
-      title={title}
-      description={description}
-      extendedContent={extendedContent}
-      annotation="LIGAND"
-      actions={actions}
+      title           = {title}
+      description     = {description}
+      extendedContent = {extendedContent}
+      // annotation      = "LIGAND"
+      actions         = {actions}
     />
   );
 };

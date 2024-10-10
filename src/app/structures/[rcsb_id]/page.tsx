@@ -29,69 +29,6 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { LandmarkItem, LigandItem } from "./structural_component"
 
-// const LigandThumbnail = ({ data }: { data: NonpolymericLigand }) => {
-//     const ctx = useContext(MolstarContext)
-//     return <div key={data.chemicalId} className="hover:bg-slate-200 relative hover:cursor-pointer hover:border-white border rounded-md p-4 text-xs" onClick={
-//         () => {
-//             ctx?.create_ligand(data.chemicalId)
-//             ctx?.create_ligand_and_surroundings(data.chemicalId, 10)
-//         }
-//     }>
-//         <div className="absolute top-4 right-4 text-sm  text-green-600">LIGAND</div>
-//         <h4 className="font-semibold">{data.chemicalId}</h4>
-//         <p>{data.chemicalName}</p>
-//     </div>
-
-// }
-
-// const LandmarkItem = ({ title, description, longDescription, imageUrl }) => {
-//     const ctx = useContext(MolstarContext);
-//     const { rcsb_id } = useParams();
-//     const [isHoverOpen, setIsHoverOpen] = useState(false);
-
-//     return (
-//         <Accordion type="single" collapsible className="w-full">
-//             <AccordionItem value={title} className="border rounded-md overflow-hidden">
-//                 <AccordionTrigger className="hover:no-underline py-2 px-4">
-//                     <div className="flex items-center justify-between w-full">
-//                         <div className="flex items-center space-x-2 text-left">
-//                             <h3 className="text-base font-semibold">{title}</h3>
-//                             <p className="text-xs text-gray-500 italic">{description}</p>
-//                         </div>
-//                         <div className="flex items-center space-x-2">
-//                             <DownloadIcon
-//                                 className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700"
-//                                 onClick={(e) => { e.stopPropagation(); ctx?.renderPTC(rcsb_id); }}
-//                             />
-//                             <EyeIcon
-//                                 className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700"
-//                                 onClick={(e) => { e.stopPropagation(); ctx?.renderPLY(rcsb_id); }}
-//                             />
-//                             <Popover open={isHoverOpen} onOpenChange={setIsHoverOpen}>
-//                                 <PopoverTrigger asChild>
-//                                     <InfoIcon
-//                                         className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700"
-//                                         onClick={(e) => { e.stopPropagation(); setIsHoverOpen(!isHoverOpen); }}
-//                                     />
-//                                 </PopoverTrigger>
-//                                 <PopoverContent className="w-80">
-//                                     <div className="flex flex-col space-y-2">
-//                                         <img src={imageUrl} alt={title} className="w-full h-40 object-cover rounded" />
-//                                         <p className="text-sm text-gray-700">{longDescription}</p>
-//                                     </div>
-//                                 </PopoverContent>
-//                             </Popover>
-//                         </div>
-//                     </div>
-//                 </AccordionTrigger>
-//                 <AccordionContent className="px-4 py-2">
-//                     <p className="text-sm text-gray-700">{longDescription}</p>
-//                 </AccordionContent>
-//             </AccordionItem>
-//         </Accordion>
-//     );
-// };
-
 const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     const handleCifDownload = () => {
         const link = document.createElement('a');
@@ -145,7 +82,6 @@ const InfoSectionAccordion = ({ title, children, isActive }) => {
         </div>
     );
 };
-
 
 
 const StructureInfoDashboard = ({ data, isLoading }) => {
@@ -224,7 +160,6 @@ const StructureHeader = ({ data, isLoading }: { data: RibosomeStructure, isLoadi
 
     </div>
 }
-
 
 const landmarks = [
     {
@@ -306,19 +241,20 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 
             <TabsContent value="ligands">
                 <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                        {data?.nonpolymeric_ligands
-                            // .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                            .map((ligand, i) => { 
+                    {data?.nonpolymeric_ligands
+                        // .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
+                        .map((ligand, i) => {
 
-                              return  <LigandItem
-                            key={i}
-                            title={ligand.chemicalId}
-                            description={ligand.pdbx_description}
-                            longDescription={ligand.SMILES}
-                            imageUrl={ligand.imageUrl} // You'll need to add this to your landmarks data
-                              />
-                             })
-                        }
+                            return <LigandItem
+                            ligandData={ligand}
+                                key={i}
+                                title={ligand.chemicalId}
+                                description={ligand.pdbx_description}
+                                longDescription={ligand.SMILES}
+                                imageUrl={ligand.imageUrl} // You'll need to add this to your landmarks data
+                            />
+                        })
+                    }
                 </ScrollArea>
             </TabsContent>
         </Tabs>
