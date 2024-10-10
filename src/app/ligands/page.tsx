@@ -391,9 +391,7 @@ export default function Ligands() {
                             <div className="p-4 space-y-2">
                                 <div className="flex flex-row space-x-4">
 
-                                    <TreeSelect
-                                        status={current_ligand === null ? "warning" : undefined}
-                                        showSearch={true}
+                                    <TreeSelect status={current_ligand === null ? "warning" : undefined} showSearch={true}
                                         treeNodeFilterProp='search_aggregator'                                                                                     // Changed from 'search_front' to 'title'
                                         placeholder="Select ligand-structure pair..."
                                         variant="outlined"
@@ -495,7 +493,6 @@ export default function Ligands() {
                                     </Accordion>
 
 
-
                                     <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === undefined}>
                                         <AccordionItem value="item-1">
                                             <AccordionTrigger className="text-xs rounded-sm flex flex-roww justify-between  hover:cursor-pointer hover:bg-muted border p-1">
@@ -521,11 +518,6 @@ export default function Ligands() {
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
-
-
-
-
-
 
                                     <Accordion type="single" collapsible defaultValue="item" className="border p-1 rounded-md">
                                         <AccordionItem value="item">

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { Input } from "@/components/ui/input"
-import { Select, Space, Tag ,Typography } from 'antd';
+import { Select, Space, Tag, Typography } from 'antd';
 import {
     Pagination,
     PaginationContent,
@@ -73,10 +73,10 @@ const StructureComponentsSelection = ({ structure }: { structure: RibosomeStruct
 
 export default function StructurePicker({ children }: { children?: React.ReactNode }) {
 
-    const dispatch           = useAppDispatch();
-    const search_val         = useAppSelector(state => state.molstar.superimpose.struct_search)!
+    const dispatch = useAppDispatch();
+    const search_val = useAppSelector(state => state.molstar.superimpose.struct_search)!
     const current_structures = useAppSelector(state => state.ui.data.current_structures)
-    const filters            = useAppSelector(state => state.ui.filters)
+    const filters = useAppSelector(state => state.ui.filters)
 
     return (
         <HoverCard openDelay={0} closeDelay={0}>
@@ -111,49 +111,61 @@ export default function StructurePicker({ children }: { children?: React.ReactNo
 // and that can be parametrized by filters but isn't by default
 const { Text } = Typography;
 
-export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentProps<typeof Select>> = {})  => {
+
+import type { SelectProps } from 'antd';
+type LabelRender = SelectProps['labelRender'];
+const labelRender: LabelRender = (props) => {
+  const { label, value } = props;
+
+  if (label) {
+    return value;
+  }
+  return <span>No option match</span>;
+};
+export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentProps<typeof Select>> = {}) => {
 
     const structs_overview = useAppSelector(state => state.all_structures_overview.structures)
-    const selected         = useAppSelector(state => state.all_structures_overview.selected)
-    const dispatch     = useAppDispatch();
+    const selected = useAppSelector(state => state.all_structures_overview.selected)
+    const dispatch = useAppDispatch();
 
     const filterOption = (input: string, option: any) => {
-        
+
         const { S } = option;
-        return ( S.rcsb_id.toLowerCase().indexOf(input.toLowerCase()) >= 0 || S.tax_name.toLowerCase().indexOf(input.toLowerCase()) >= 0 );
+        return (S.rcsb_id.toLowerCase().indexOf(input.toLowerCase()) >= 0 || S.tax_name.toLowerCase().indexOf(input.toLowerCase()) >= 0);
     };
 
     return <Select
         {...props}
-        showSearch  = {true}
-        placeholder = "Select a structure"
-        onChange    = {(val, struct) => { 
-            // @ts-ignore
-            dispatch(select_structure(struct.S as StructureOverview)) }}
-        value={selected?.rcsb_id}
-        style={{ width: '100%' }}
-        filterOption={filterOption}
-        options={structs_overview.map(struct_overview => ({
-            value: struct_overview.rcsb_id, 
+        labelRender={labelRender}
+
+        showSearch   = {true}
+        placeholder  = "Select a structure"
+        onChange     = {(val, struct) => { dispatch(select_structure(struct.S as StructureOverview)) }}
+        value        = {selected?.rcsb_id}
+        style        = {{ width: '100%' }}
+        filterOption = {filterOption}
+        options      = {structs_overview.map(struct_overview => ({
+            value: struct_overview.rcsb_id,
             label: (
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Space style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-              <Text strong>{struct_overview.rcsb_id}</Text>
-              <Space>
-                {struct_overview.mitochondrial && (
-                  <Text strong style={{ color: 'orange', fontSize: '1em', marginRight: '4px' }}>
-                    mt
-                  </Text>
-                )}
-                <Text>{struct_overview.tax_name}</Text>
-              </Space>
-            </Space>
-            <Text style={{ fontSize: '0.9em', color: '#666' }}>
-              {struct_overview.title}
-            </Text>
-          </Space>
-        ), 
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    <Space style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <Text strong>{struct_overview.rcsb_id}</Text>
+                        <Space>
+                            {struct_overview.mitochondrial && (
+                                <Text strong style={{ color: 'orange', fontSize: '1em', marginRight: '4px' }}>
+                                    mt
+                                </Text>
+                            )}
+                            <Text>{struct_overview.tax_name}</Text>
+                        </Space>
+                    </Space>
+                    <Text style={{ fontSize: '0.9em', color: '#666' }}>
+                        {struct_overview.title}
+                    </Text>
+                </Space>
+            ),
             S: struct_overview
-        }))}
+        }))
+        }
     />
 }
