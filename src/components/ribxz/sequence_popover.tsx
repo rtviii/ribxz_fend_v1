@@ -72,17 +72,24 @@ const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seq
       setIsSelecting(false);
       const start = Math.min(selection.start, selection.end);
       const end = Math.max(selection.start, selection.end);
-      if (polymer === undefined){
+      if (polymer === undefined) {
         return
       }
       var residues = []
-      for (var res_ix of range(start,end)){
+      if (start === end) {
         residues.push({
           "auth_asym_id": polymer?.auth_asym_id,
-          "auth_seq_id" : res_ix
+          "auth_seq_id": start
         })
-
+      } else {
+        for (var res_ix of range(start, end+1)) {
+          residues.push({
+            "auth_asym_id": polymer?.auth_asym_id,
+            "auth_seq_id": res_ix
+          })
+        }
       }
+      console.log("ress----->", residues)
       ctx?.select_residueCluster(residues)
 
     }
@@ -146,10 +153,10 @@ const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seq
             <React.Fragment key={index}>
               <span
                 className={`inline-block w-[1ch] text-center ${(isSelecting || !isSelecting) &&
-                    index >= Math.min(selection.start, selection.end) &&
-                    index <= Math.max(selection.start, selection.end)
-                    ? 'bg-blue-200'
-                    : ''
+                  index >= Math.min(selection.start, selection.end) &&
+                  index <= Math.max(selection.start, selection.end)
+                  ? 'bg-blue-200'
+                  : ''
                   }`}
                 onMouseDown={(e) => { e.stopPropagation(); handleMouseDown(index) }}
                 onMouseMove={(e) => { e.stopPropagation(); handleMouseMove(index) }}

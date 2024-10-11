@@ -67,6 +67,7 @@ const LandmarkItem = <T extends LandmarkActions>({ data, rcsb_id }: LandmarkItem
 
   return (
     <StructuralComponent
+    annotation={""}
       title={title}
       description={description}
       extendedContent={extendedContent}
