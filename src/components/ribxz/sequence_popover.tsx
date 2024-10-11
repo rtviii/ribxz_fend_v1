@@ -3,11 +3,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { useRef, useEffect } from 'react';
 import { ArrowUpRight } from "lucide-react";
-import { Toast } from "@/components/ui/toast";
 import { CopyIcon } from './icon_copy';
-import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
-import { ToastProvider } from '@radix-ui/react-toast';
 import { Polymer } from '@/store/ribxz_api/ribxz_api';
 import { MolstarContext } from './molstar_context';
 import { range } from 'lodash';
@@ -47,14 +44,14 @@ const ToastDemo = () => {
 }
 
 const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seqType: 'amino' | 'rna', polymer?: Polymer }) => {
-  const ctx = useContext(MolstarContext)
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [selection, setSelection] = useState({ start: -1, end: -1 });
+  const ctx                           = useContext(MolstarContext)
+  const [isOpen, setIsOpen]           = useState(false);
+  const [selection, setSelection]     = useState({ start: -1, end: -1 });
   const [isSelecting, setIsSelecting] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const sequenceRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast()
+  const [showToast, setShowToast]     = useState(false);
+  const sequenceRef                   = useRef<HTMLDivElement>(null);
+  const { toast }                     = useToast()
 
   const handleMouseDown = (index: number) => {
     setIsSelecting(true);
@@ -82,7 +79,7 @@ const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seq
           "auth_seq_id": start
         })
       } else {
-        for (var res_ix of range(start, end+1)) {
+        for (var res_ix of range(start, end + 1)) {
           residues.push({
             "auth_asym_id": polymer?.auth_asym_id,
             "auth_seq_id": res_ix
