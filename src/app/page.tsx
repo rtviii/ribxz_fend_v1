@@ -2,7 +2,7 @@
 import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
 import Image from 'next/image';
-import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
+import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
 import { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button"
@@ -325,10 +325,6 @@ const citaiton3 = `Ban N, Beckmann R, Cate JH, Dinman JD, Dragon F, Ellis SR, La
 
 export default function Home() {
 
-  const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
-  const [isOpen_structs, setIsOpen_structs] = useState(false)
-  const [isOpen_polymers, setIsOpen_polymers] = useState(false)
-  const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
 
   return (
     <StoreProvider >

@@ -225,15 +225,15 @@ export const uiSlice = createSlice({
             builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchRejected, (state, action) => {
                 state.ligands_page.prediction_pending = false
             });
-        builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
-
-            // @ts-ignore
-            state.data.current_structures = action.payload.structures
-            // @ts-ignore
-            state.data.total_structures_count = action.payload.count
-            // @ts-ignore
-            state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
-        });
+        //  TODO: Replaced with the POST mutation based approach
+        // builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
+        //     // @ts-ignore
+        //     state.data.current_structures = action.payload.structures
+        //     // @ts-ignore
+        //     state.data.total_structures_count = action.payload.count
+        //     // @ts-ignore
+        //     state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
+        // });
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
             console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");

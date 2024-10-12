@@ -186,8 +186,8 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
 
   if (!RCSB_IDs.includes(`${_.rcsb_id.toUpperCase()}.png`)) {
     const utf8Encode = new TextEncoder();
-    const byteval = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
-    var pic = RCSB_IDs[byteval % RCSB_IDs.length]
+    const byteval    = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
+    var   pic        = RCSB_IDs[byteval % RCSB_IDs.length]
   }
   else {
     var pic = _.rcsb_id.toUpperCase() + ".png"

@@ -65,8 +65,6 @@ export function Filters(props: FiltersProps) {
 
   const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
 
-  const [triggerStructuresRefetch] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-
   const struct_state = useAppSelector((state) => state.ui.data)
   const filters = useAppSelector(state => state.ui.filters)!
 
@@ -80,16 +78,16 @@ export function Filters(props: FiltersProps) {
     //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
     console.log("Sendign subunit_presence ", filters.subunit_presence);
 
-    triggerStructuresRefetch({
-      page: 1,
-      year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
-      search: filters.search === null ? '' : filters.search,
-      subunitPresence: filters.subunit_presence === null ? '' : filters.subunit_presence,
-    }).unwrap()
+    // triggerStructuresRefetch({
+    //   page: 1,
+    //   year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+    //   resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+    //   hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+    //   sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+    //   polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
+    //   search: filters.search === null ? '' : filters.search,
+    //   subunitPresence: filters.subunit_presence === null ? '' : filters.subunit_presence,
+    // }).unwrap()
 
     dispatch(pagination_set_page({
       set_to_page: 1,
