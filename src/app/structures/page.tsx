@@ -3,10 +3,10 @@ import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
-import StructureCard from "../../components/ribxz/structure_card"
+import { StructureCard, StructureStack } from "../../components/ribxz/structure_card"
 import { useEffect, useState } from "react"
-import {  Filters, useDebounceFilters } from "@/components/ribxz/filters"
-import {PaginationElement} from '@/components/ribxz/pagination_element'
+import { Filters, useDebounceFilters } from "@/components/ribxz/filters"
+import { PaginationElement } from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
@@ -19,29 +19,23 @@ import { useDebouncePagination } from "@/my_utils"
 
 
 export default function StructureCatalogue() {
-  const current_structures = useAppSelector((state) => state.ui.data.current_structures)
-
-  const current_page = useAppSelector(state => state.ui.pagination.current_structures_page )
-  // const total_pages = useAppSelector(state => {
-  //   if (props.slice_type === 'polymers') { return state.ui.pagination.total_polymers_pages }
-  //   else if (props.slice_type === 'structures') { return state.ui.pagination.total_structures_pages }
-  // })!
-
-
+  const current_structures         = useAppSelector((state) => state.ui.data.current_structures)
+  const current_page               = useAppSelector(state => state.ui.pagination.current_structures_page)
   const debounced_page_state       = useDebouncePagination(current_page, 150)
   const [triggerStructuresRefetch] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
   const filter_state               = useAppSelector((state) => state.ui.filters)
+
   useEffect(() => {
-      triggerStructuresRefetch({
-        page           : current_page,
-        year           : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-        resolution     : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-        hostTaxa       : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-        sourceTaxa     : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-        polymerClasses : filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
-        search         : filter_state.search === null ? ''                                                      : filter_state.search,
-        subunitPresence: filter_state.subunit_presence == null ? ''                                             : filter_state.subunit_presence
-      }).unwrap()
+    triggerStructuresRefetch({
+      page           : current_page,
+      year           : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      resolution     : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
+      hostTaxa       : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
+      sourceTaxa     : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
+      polymerClasses : filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
+      search         : filter_state.search === null ? ''                                                      : filter_state.search,
+      subunitPresence: filter_state.subunit_presence == null ? ''                                             : filter_state.subunit_presence
+    }).unwrap()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced_page_state])
@@ -57,11 +51,12 @@ export default function StructureCatalogue() {
             <Filters />
             <SidebarMenu />
             <div className="p-1 my-4 rounded-md border w-full">
-              <PaginationElement  slice_type={ "structures" }/>
+              <PaginationElement slice_type={"structures"} />
             </div>
           </div>
           <div className="col-span-9 scrollbar-hidden">
             <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
+              <StructureStack structures={current_structures.slice(0,20)}/>
               <div className=" gap-4 flex  flex-wrap   scrollbar-hidden"  >
                 {current_structures.map((struct: RibosomeStructure) => <StructureCard _={struct} key={struct.rcsb_id} />)}
               </div>

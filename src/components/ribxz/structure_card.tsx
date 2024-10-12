@@ -8,8 +8,9 @@ import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
 import { contract_taxname } from "@/my_utils"
 import { ExpMethodBadge } from "./exp_method_badge"
+import { useState } from "react"
 
-export default function StructureCard({ _ }: { _: RibosomeStructure }) {
+export function StructureCard({ _ }: { _: RibosomeStructure }) {
   const RCSB_IDs = [
     "1FFK.png", "4D61.png", "4V75.png", "5IT8.png", "6BZ8.png", "6P4H.png", "6Z6M.png", "7OHQ.png", "7UCJ.png", "8EWB.png",
     "1FJG.png", "4D67.png", "4V76.png", "5IT9.png", "6C0F.png", "6P5I.png", "6Z6N.png", "7OHS.png", "7UCK.png", "8EWC.png",
@@ -307,5 +308,41 @@ export default function StructureCard({ _ }: { _: RibosomeStructure }) {
   )
 }
 
+
+export const StructureStack = ({ structures }:{structures:RibosomeStructure[]}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const currentStructure = structures[currentIndex];
+
+  return (
+    <Card className="w-80 max-h-full h-full bg-white shadow-sm rounded-lg overflow-hidden relative transition hover:shadow-xl duration-100">
+      <div className="relative">
+        <div className="flex overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {structures.map((structure, index) => (
+            <div
+              key={structure.rcsb_id}
+              className={`flex-shrink-0 px-1 py-0.5 cursor-pointer text-[0.6rem] leading-tight ${
+                index === currentIndex ? 'bg-blue-500 text-white' : 'bg-gray-200'
+              }`}
+              onClick={() => setCurrentIndex(index)}
+            >
+              {structure.rcsb_id}
+            </div>
+          ))}
+        </div>
+        <StructureCard _={currentStructure}  />
+      </div>
+      <div className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded-full text-xs">
+        {currentIndex + 1} / {structures.length}
+      </div>
+    </Card>
+  );
+};
+
+// const StructureCardOrStack = ({ structures, taxid_dict }) => {
+//   if (structures.length === 1) {
+//     return <StructureCard structure={structures[0]} taxid_dict={taxid_dict} />;
+//   }
+//   return <StructureStack structures={structures} taxid_dict={taxid_dict} />;
+// };
 
 
