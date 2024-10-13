@@ -4,6 +4,7 @@ import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiati
 
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
+
 export interface FiltersState {
     search          : string | null
     year            : [number | null, number | null]
@@ -15,12 +16,13 @@ export interface FiltersState {
 }
 
 export interface PaginationState {
-    current_polymers_page: number
-    total_polymers_pages: number | null
+    current_polymers_page  : number
+    total_polymers_pages   : number | null
 
     current_structures_page: number
-    total_structures_pages: number | null
+    total_structures_pages : number | null
 }
+
 // array of tuples [{ ligand info }, all structs in which it is present : [ {rcsb id, taxnodeinfo} ]]
 export type LigandInstances = Array<[{
     chemicalId          : string
@@ -96,9 +98,10 @@ const initialState: UIState = {
     },
     data: {
         current_structures: [],
-        current_polymers: [],
         total_structures_count: null,
-        total_polymers_count: null
+
+        current_polymers  : [],
+        total_polymers_count  : null
     },
     polymers: { // polymers_page
         current_polymer_class: null
@@ -154,15 +157,15 @@ export const uiSlice = createSlice({
         set_ligand_prediction_data(state, action: PayloadAction<LigandTransposition|null>) {
             state.ligands_page.prediction_data = action.payload
         },
-
-        // !---------------- Ligands
+        // !---------------- Taxonomy
         set_tax_dict(state, action: PayloadAction<Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>>) {
             state.taxid_dict = action.payload
         },
+        // !---------------- Structures
         set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
-
+        // !---------------- Polymers
         set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
             state.data.current_polymers = action.payload
         },
@@ -170,10 +173,12 @@ export const uiSlice = createSlice({
             Object.assign(state.polymers, { current_polymer_class: action.payload })
         },
 
+        // !---------------- Polymers
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
 
+        // !---------------- Pagination
         pagination_prev_page(state, action: PayloadAction<{
             slice_name: 'structures' | 'polymers',
         }>) {

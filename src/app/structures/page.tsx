@@ -23,13 +23,13 @@ import { debounce } from "lodash"
 
 export default function StructureCatalogue() {
 
-  const [groupByDeposition, setGroupByDeposition] = useState(false);
-  const filter_state                              = useAppSelector((state) => state.ui.filters)
-  const debounced_filters                         = useDebounceFilters(filter_state, 250)
-  const [cursor, setCursor] = useState(null)
-  const [structures, setStructures] = useState<RibosomeStructure[]>([])
+  const [groupByDeposition, setGroupByDeposition]                                                      = useState(false);
+  const filter_state                                                                                   = useAppSelector((state) => state.ui.filters)
+  const debounced_filters                                                                              = useDebounceFilters(filter_state, 250)
+  const [cursor, setCursor]                                                                            = useState(null)
+  const [structures, setStructures]                                                                    = useState<RibosomeStructure[]>([])
   const [getStructures, { isLoading:structs_isLoading, isError:structs_isErorr, error:structs_error }] = useGetStructuresMutation()
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading]                                                                      = useState(false);
 
 
  const fetchStructures = useCallback(async (newCursor: string | null = null) => {
@@ -37,13 +37,13 @@ export default function StructureCatalogue() {
     const payload = {
       cursor          : newCursor,
       limit           : 20,
-      year            : debounced_filters.year[0] === null && debounced_filters.year[1] === null ? null            : debounced_filters.year,
-      search          : debounced_filters.search || null,
-      resolution      : debounced_filters.resolution[0] === null && debounced_filters.resolution[1] === null ? null: debounced_filters.resolution,
-      polymer_classes : debounced_filters.polymer_classes.length === 0 ? null                                      : debounced_filters.polymer_classes,
-      source_taxa     : debounced_filters.source_taxa.length === 0 ? null                                          : debounced_filters.source_taxa,
-      host_taxa       : debounced_filters.host_taxa.length === 0 ? null                                            : debounced_filters.host_taxa,
-      subunit_presence: debounced_filters.subunit_presence || null,
+      year            : filter_state.year[0] === null && filter_state.year[1] === null ? null            : filter_state.year,
+      search          : filter_state.search || null,
+      resolution      : filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null: filter_state.resolution,
+      polymer_classes : filter_state.polymer_classes.length === 0 ? null                                 : filter_state.polymer_classes,
+      source_taxa     : filter_state.source_taxa.length === 0 ? null                                     : filter_state.source_taxa,
+      host_taxa       : filter_state.host_taxa.length === 0 ? null                                       : filter_state.host_taxa,
+      subunit_presence: filter_state.subunit_presence || null,
     };
     
     try {

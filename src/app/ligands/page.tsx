@@ -364,7 +364,7 @@ export default function Ligands() {
     //     { skip: current_ligand === null || current_selected_target === null, refetchOnMountOrArgChange: true,
     //     }
     // );
-    const current_selected_target = useAppSelector(state => state.all_structures_overview.selected)
+    const current_selected_target = useAppSelector(state => state.homepage_overview.selected)
     useEffect(() => {
         if (current_selected_target !== null) {
             ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)

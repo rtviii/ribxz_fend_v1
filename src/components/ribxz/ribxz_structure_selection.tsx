@@ -124,8 +124,8 @@ const labelRender: LabelRender = (props) => {
 };
 export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentProps<typeof Select>> = {}) => {
 
-    const structs_overview = useAppSelector(state => state.all_structures_overview.structures)
-    const selected = useAppSelector(state => state.all_structures_overview.selected)
+    const structs_overview = useAppSelector(state => state.homepage_overview.structures)
+    const selected = useAppSelector(state => state.homepage_overview.selected)
     const dispatch = useAppDispatch();
 
     const filterOption = (input: string, option: any) => {

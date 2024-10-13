@@ -53,7 +53,6 @@ export function useDebounceFilters(value: Partial<FiltersState>, delay: number):
 
 interface FiltersProps {
   disabled_whole?: boolean,
-  // disabled_filters?: FilterType[]
 }
 
 export function Filters(props: FiltersProps) {
@@ -64,24 +63,7 @@ export function Filters(props: FiltersProps) {
   const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
   const struct_state                                  = useAppSelector((state) => state.ui.data)
   const filters                                       = useAppSelector(state => state.ui.filters)!
-  const debounced_filters                             = useDebounceFilters(filters, 250)
   const dispatch                                      = useAppDispatch();
-
-
-  // // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
-  // useEffect(() => {
-  //   dispatch(pagination_set_page({
-  //     set_to_page: 1,
-  //     slice_name: 'structures'
-  //   }))
-
-  //   dispatch(pagination_set_page({
-  //     set_to_page: 1,
-  //     slice_name: 'polymers'
-  //   }))
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [debounced_filters]);
 
 
   useEffect(() => {
