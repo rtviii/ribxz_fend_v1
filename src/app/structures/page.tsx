@@ -13,12 +13,13 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
-import { FiltersState, pagination_set_page } from "@/store/slices/ui_state"
+import { FiltersState, pagination_set_page, set_current_structures, set_total_structures_count } from "@/store/slices/ui_state"
 import { useDebouncePagination } from "@/my_utils"
 import { log } from "node:console"
 import { ApiProvider } from '@reduxjs/toolkit/query/react'
 import { structuresApi, useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
 import { debounce } from "lodash"
+
 
 
 export default function StructureCatalogue() {
@@ -30,6 +31,7 @@ export default function StructureCatalogue() {
   const [structures, setStructures]                                                                    = useState<RibosomeStructure[]>([])
   const [getStructures, { isLoading:structs_isLoading, isError:structs_isErorr, error:structs_error }] = useGetStructuresMutation()
   const [isLoading, setIsLoading]                                                                      = useState(false);
+  const dispatch=  useAppDispatch();
 
 
  const fetchStructures = useCallback(async (newCursor: string | null = null) => {
@@ -48,6 +50,11 @@ export default function StructureCatalogue() {
     
     try {
       const result = await getStructures(payload).unwrap();
+      const {structures, next_cursor, total_count}= result;
+
+      dispatch(set_current_structures(structures))
+      dispatch(set_total_structures_count(total_count))
+
       console.log("Got result:", result);
       if (newCursor === null) {
         setStructures(result.structures);

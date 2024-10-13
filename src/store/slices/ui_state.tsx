@@ -162,8 +162,11 @@ export const uiSlice = createSlice({
             state.taxid_dict = action.payload
         },
         // !---------------- Structures
-        set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
+        set_current_structures(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
+        },
+        set_total_structures_count(state, action: PayloadAction<number>) {
+            state.data.total_structures_count = action.payload
         },
         // !---------------- Polymers
         set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
@@ -173,7 +176,7 @@ export const uiSlice = createSlice({
             Object.assign(state.polymers, { current_polymer_class: action.payload })
         },
 
-        // !---------------- Polymers
+        // !---------------- Filters
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
@@ -272,15 +275,20 @@ export const {
     set_ligands_radius,
     set_ligand_prediction_data,
 
-    set_tax_dict,
+
     set_current_polymers,
     set_current_polymer_class,
-    set_new_structs,
+
+    set_current_structures,
+    set_total_structures_count,
+
+    set_tax_dict,
     set_filter,
 
     pagination_set_page,
     pagination_next_page,
     pagination_prev_page
+
 } = uiSlice.actions
 export default uiSlice.reducer
 
