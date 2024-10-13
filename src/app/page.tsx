@@ -267,7 +267,7 @@ const StructStatsTable = (props: { data: any }) => {
 
             <TableCell >LSU
               <AsteriskTooltip className='text-red-500'>
-                <p>LSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA16S,5.8SrRNA,5SrRNA,23SrRNA,25SrRNA,25sRNA </code>] are present.</p>
+                <span>LSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA16S,5.8SrRNA,5SrRNA,23SrRNA,25SrRNA,25sRNA </code>] are present.</span>
               </AsteriskTooltip>
 
 
@@ -282,7 +282,7 @@ const StructStatsTable = (props: { data: any }) => {
             <TableCell >SSU
 
               <AsteriskTooltip className='text-red-500'>
-                <p>SSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA12S,16SrRNA,18SrRNA </code>] are present.</p >
+                <span>SSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA12S,16SrRNA,18SrRNA </code>] are present.</span >
               </AsteriskTooltip>
 
             </TableCell>
@@ -450,41 +450,41 @@ function Citation() {
   </div>
 }
 
-function VisualizeRandom() {
+// function VisualizeRandom() {
 
-  const router = useRouter()
-  const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
-  const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
+//   const router = useRouter()
+//   const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
+//   const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
 
 
-  return (
-    <TooltipProvider>
-      <Tooltip delayDuration={0}>
-        <div className="bg-white  rounded-lg border  p-2 group  border-gray-400 ">
-          <TooltipTrigger asChild  >
-            <div className="flex justify-between  ">
-              <div className="flex items-center justify-between w-1/5 ">
-                <Image
-                  onClick={() => { refetch_profile() }}
-                  src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
-                <Separator orientation='vertical' className='ml-4' />
-              </div>
-              <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={() => {
-                router.push(`/structures/${random_profile?.rcsb_id}`)
-              }}>
-                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4 text-blue-700'>{random_profile?.rcsb_id}</div>
-                <div className="flex flex-col text-xs  justify-center w-full">
-                  <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + (random_profile.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : " ") + " et al." : (random_profile?.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : "") + " et al."}</p>
-                  <p>{random_profile?.src_organism_names[0]}</p>
-                </div>
-              </div>
-            </div>
-          </TooltipTrigger>
-        </div>
-        <TooltipContent side="top">
-          <p>Visualize random structure</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
+//   return (
+//     <TooltipProvider>
+//       <Tooltip delayDuration={0}>
+//         <div className="bg-white  rounded-lg border  p-2 group  border-gray-400 ">
+//           <TooltipTrigger asChild  >
+//             <div className="flex justify-between  ">
+//               <div className="flex items-center justify-between w-1/5 ">
+//                 <Image
+//                   onClick={() => { refetch_profile() }}
+//                   src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
+//                 <Separator orientation='vertical' className='ml-4' />
+//               </div>
+//               <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={() => {
+//                 router.push(`/structures/${random_profile?.rcsb_id}`)
+//               }}>
+//                 <div className='text-2xl text-center align-middle justify-center items-center flex mr-4 text-blue-700'>{random_profile?.rcsb_id}</div>
+//                 <div className="flex flex-col text-xs  justify-center w-full">
+//                   <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + (random_profile.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : " ") + " et al." : (random_profile?.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : "") + " et al."}</p>
+//                   <p>{random_profile?.src_organism_names[0]}</p>
+//                 </div>
+//               </div>
+//             </div>
+//           </TooltipTrigger>
+//         </div>
+//         <TooltipContent side="top">
+//           <p>Visualize random structure</p>
+//         </TooltipContent>
+//       </Tooltip>
+//     </TooltipProvider>
+//   )
+// }

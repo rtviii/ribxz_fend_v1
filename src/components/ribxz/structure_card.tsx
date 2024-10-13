@@ -6,7 +6,7 @@ import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/h
 import Link from "next/link"
 import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
-import { contract_taxname } from "@/my_utils"
+import { contract_taxname, parseDateString } from "@/my_utils"
 import { ExpMethodBadge } from "./exp_method_badge"
 import { useState } from "react"
 
@@ -207,6 +207,8 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
 
           {/* TODO: Replace with `deposition_year` */}
           {_.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null}
+          {_.deposition_date ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{parseDateString( _.deposition_date ).year}  </div> : null}
+
           <div className="absolute top-4 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
             {
               _.subunit_presence?.includes("lsu") ? _.subunit_presence?.includes("ssu") ?

@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { RibosomeStructure } from "./store/ribxz_api/ribxz_api";
 
+export function parseDateString(dateString: string): { year: number, month: number, day: number } {
+  const date = new Date(dateString);
+  
+  return {
+    year : date.getUTCFullYear(),
+    month: date.getUTCMonth() + 1,   // getUTCMonth() returns 0-11, so we add 1
+    day  : date.getUTCDate()
+  };
+}
+
 export function useDebouncePagination(value: number, delay: number): number {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {

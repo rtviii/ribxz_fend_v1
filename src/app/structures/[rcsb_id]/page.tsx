@@ -23,7 +23,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { DownloadIcon, EyeIcon, InfoIcon } from "lucide-react"
 import { AuthorsHovercard } from "@/components/ribxz/authors_hovercard"
-import { contract_taxname } from "@/my_utils"
+import { contract_taxname, parseDateString } from "@/my_utils"
 import { Plus, Minus } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -103,7 +103,7 @@ const StructureInfoDashboard = ({ data, isLoading }) => {
                         value={<AuthorsHovercard authors={data.citation_rcsb_authors} />}
                     />
                 )}
-                <InfoRow title="Deposition Year" value={data?.citation_year} />
+                <InfoRow title="Deposition Year" value={parseDateString( data.deposition_date ).year} />
                 <InfoRow
                     title="Experimental Method"
                     value={<ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />}

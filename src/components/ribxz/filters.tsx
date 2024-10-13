@@ -58,49 +58,30 @@ interface FiltersProps {
 
 export function Filters(props: FiltersProps) {
 
-
-  const { data: tax_dict, isLoading: tax_dict_is_loading } = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
+  const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
 
-
   const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
-
-  const struct_state = useAppSelector((state) => state.ui.data)
-  const filters = useAppSelector(state => state.ui.filters)!
-
-  const debounced_filters = useDebounceFilters(filters, 250)
-  const dispatch = useAppDispatch();
+  const struct_state                                  = useAppSelector((state) => state.ui.data)
+  const filters                                       = useAppSelector(state => state.ui.filters)!
+  const debounced_filters                             = useDebounceFilters(filters, 250)
+  const dispatch                                      = useAppDispatch();
 
 
-  // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
-  useEffect(() => {
-    //? This garbage is needed to send a all filter params as one url string.
-    //? If typed, rtk autogen infers the types as body args, which forces the django-ninja query to be a POST, which is, mildly, a pain in the a
-    console.log("Sendign subunit_presence ", filters.subunit_presence);
+  // // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
+  // useEffect(() => {
+  //   dispatch(pagination_set_page({
+  //     set_to_page: 1,
+  //     slice_name: 'structures'
+  //   }))
 
-    // triggerStructuresRefetch({
-    //   page: 1,
-    //   year: filters.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-    //   resolution: filters.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-    //   hostTaxa: filters.host_taxa.length == 0 ? '' : filters.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-    //   sourceTaxa: filters.source_taxa.length == 0 ? '' : filters.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-    //   polymerClasses: filters.polymer_classes.length == 0 ? '' : filters.polymer_classes.join(','),
-    //   search: filters.search === null ? '' : filters.search,
-    //   subunitPresence: filters.subunit_presence === null ? '' : filters.subunit_presence,
-    // }).unwrap()
+  //   dispatch(pagination_set_page({
+  //     set_to_page: 1,
+  //     slice_name: 'polymers'
+  //   }))
 
-    dispatch(pagination_set_page({
-      set_to_page: 1,
-      slice_name: 'structures'
-    }))
-
-    dispatch(pagination_set_page({
-      set_to_page: 1,
-      slice_name: 'polymers'
-    }))
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debounced_filters]);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [debounced_filters]);
 
 
   useEffect(() => {
@@ -251,26 +232,6 @@ export function Filters(props: FiltersProps) {
               />
             </div>
           </div>
-          {/* <Collapsible className="mt-4">
-            <CollapsibleTrigger className="flex items-center justify-between " disabled={props.disabled_whole}>
-              <h3 className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""} `}>Sort by:</h3>
-              <ChevronDownIcon className="h-4 w-4" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-1">
-              <Button className="justify-start" variant="ghost">
-                Resolution
-              </Button>
-              <Button className="justify-start" variant="ghost">
-                Year
-              </Button>
-              <Button className="justify-start" variant="ghost">
-                Number of Proteins
-              </Button>
-              <Button className="justify-start" variant="ghost">
-                PDB Codename
-              </Button>
-            </CollapsibleContent>
-          </Collapsible> */}
         </div>
       </CollapsibleContent>
     </Collapsible>
