@@ -39,10 +39,6 @@ export default function StructureCatalogue() {
 
 
   const fetchStructures = async (newCursor: string | null = null) => {
-    console.log("-----------------");
-    console.log("Firing fetchStructures");
-
-    // if (!hasMore) return;
     setIsLoading(true);
     const payload = {
       cursor          : newCursor,
@@ -62,10 +58,8 @@ export default function StructureCatalogue() {
 
       if (newCursor === null) {
         dispatch(set_current_structures(new_structures));
-        console.log("Set structures ");
       } else {
         dispatch(set_current_structures([...current_structures, ...new_structures]));
-        console.log("Set structuresnew ");
       }
 
       dispatch(set_total_structures_count(total_count));
@@ -88,12 +82,6 @@ useEffect(() => {
   fetchStructures();
 }, [debounced_filters]);
 
-  useEffect(() => {
-    console.log("FILTERS:", debounced_filters);
-    console.log("CURRNET STRUCTS:", current_structures);
-    console.log(":", current_structures);
-
-  }, [debounced_filters])
 
 
   const loadMore = () => {
