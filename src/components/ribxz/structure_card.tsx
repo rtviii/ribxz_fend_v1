@@ -198,7 +198,7 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
   return (
     <Link href={`/structures/${_.rcsb_id}`}>
       <Card className="w-80  max-h-full h-full  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
-        <div className="relative h-[40%] transition-all duration-300 hover:h-[100%] border-b-2 ">
+        <div className="relative h-[50%] transition-all duration-300 hover:h-[100%] border-b-2 ">
           <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
           <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
 
@@ -242,7 +242,7 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between items-center  group relative">
+            {/* <div className="flex justify-between items-center  group relative">
               <span className="text-xs">Proteins:</span>
               <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
                 <span title="List of proteins">{_.proteins.length}</span>
@@ -259,10 +259,10 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
               <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
                 <span title="List of ligands">{_.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")).length}</span>
               </div>
-            </div>
+            </div> */}
             {
               _.citation_rcsb_authors ?
-                <div className="relative flex justify-between items-center mt-1">
+                <div className="relative flex justify-between items-center">
                   <span className="text-xs">Authors:</span>
                   <HoverCard>
                     <HoverCardTrigger asChild>

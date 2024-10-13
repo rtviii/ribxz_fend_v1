@@ -79,7 +79,7 @@ export interface UIState {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
     }
 
-    filters: FiltersState,
+    filters   : FiltersState,
     pagination: PaginationState
 }
 

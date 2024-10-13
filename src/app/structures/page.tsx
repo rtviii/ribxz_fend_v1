@@ -4,7 +4,7 @@ import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import { StructureCard, StructureStack } from "../../components/ribxz/structure_card"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Filters, useDebounceFilters } from "@/components/ribxz/filters"
 import { PaginationElement } from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
@@ -13,72 +13,73 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
 import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
-import { pagination_set_page } from "@/store/slices/ui_state"
+import { FiltersState, pagination_set_page } from "@/store/slices/ui_state"
 import { useDebouncePagination } from "@/my_utils"
 import { log } from "node:console"
 import { ApiProvider } from '@reduxjs/toolkit/query/react'
 import { structuresApi, useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
+import { debounce } from "lodash"
 
 
 export default function StructureCatalogue() {
-  // const current_structures                        = useAppSelector((state) => state.ui.data.current_structures)
-  // const current_page                              = useAppSelector(state => state.ui.pagination.current_structures_page)
-  // const debounced_page_state                      = useDebouncePagination(current_page, 150)
 
   const [groupByDeposition, setGroupByDeposition] = useState(false);
-
-  const filter_state = useAppSelector((state) => state.ui.filters)
-  const debounced_filters = useDebounceFilters(filter_state, 250)
-
+  const filter_state                              = useAppSelector((state) => state.ui.filters)
+  const debounced_filters                         = useDebounceFilters(filter_state, 250)
   const [cursor, setCursor] = useState(null)
   const [structures, setStructures] = useState<RibosomeStructure[]>([])
+  const [getStructures, { isLoading:structs_isLoading, isError:structs_isErorr, error:structs_error }] = useGetStructuresMutation()
+  const [isLoading, setIsLoading] = useState(false);
 
 
-  const [getStructures, { isLoading, isError, error }] = useGetStructuresMutation()
-
-  const fetchStructures = async () => {
+ const fetchStructures = useCallback(async (newCursor: string | null = null) => {
+    setIsLoading(true);
     const payload = {
-      cursor         : cursor,
-      limit          : 20,
-      year           : filter_state.year[0] === null && filter_state.year[1] === null ? null            : filter_state.year,
-      resolution     : filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null: filter_state.resolution,
-      hostTaxa       : filter_state.host_taxa.length === 0 ? null                                       : filter_state.host_taxa,
-      sourceTaxa     : filter_state.source_taxa.length === 0 ? null                                     : filter_state.source_taxa,
-      polymerClasses : filter_state.polymer_classes.length === 0 ? null                                 : filter_state.polymer_classes,
-      search         : filter_state.search || null,
-      subunitPresence: filter_state.subunit_presence || null,
+      cursor          : newCursor,
+      limit           : 20,
+      year            : debounced_filters.year[0] === null && debounced_filters.year[1] === null ? null            : debounced_filters.year,
+      search          : debounced_filters.search || null,
+      resolution      : debounced_filters.resolution[0] === null && debounced_filters.resolution[1] === null ? null: debounced_filters.resolution,
+      polymer_classes : debounced_filters.polymer_classes.length === 0 ? null                                      : debounced_filters.polymer_classes,
+      source_taxa     : debounced_filters.source_taxa.length === 0 ? null                                          : debounced_filters.source_taxa,
+      host_taxa       : debounced_filters.host_taxa.length === 0 ? null                                            : debounced_filters.host_taxa,
+      subunit_presence: debounced_filters.subunit_presence || null,
     };
-
+    
     try {
-      // TODO: Repalced this with debouneced filters
       const result = await getStructures(payload).unwrap();
-      console.log('Result:', result);
-
-      if (cursor === null) {
+      console.log("Got result:", result);
+      if (newCursor === null) {
         setStructures(result.structures);
       } else {
         setStructures(prev => [...prev, ...result.structures]);
       }
       setCursor(result.next_cursor);
+
     } catch (err) {
-      console.error('Error details:', err);
+      console.error('Error fetching structures:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [debounced_filters, getStructures]);
+
+  const debouncedFetch = useCallback(
+    debounce(() => fetchStructures(null), 300),
+    [fetchStructures]
+  );
+
+  useEffect(() => {
+    debouncedFetch();
+    return () => {
+      debouncedFetch.cancel();
+    };
+  }, [filter_state, debouncedFetch]);
+
+  const handleLoadMore = () => {
+    if (cursor && !isLoading) {
+      fetchStructures(cursor);
     }
   };
-
-
-  // useEffect(() => {
-  //   setCursor(null)
-  //   fetchStructures()
-  // }, [debounced_filters])
-
-  // const loadMore = () => {
-  //   if (cursor) {
-  //     fetchStructures()
-  //   }
-  // }
-
-  if (isLoading && structures.length === 0) return <div>Loading...</div>
-  // if (isError) return <div>Error: {error.message}</div>
 
 
   // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
@@ -91,9 +92,9 @@ export default function StructureCatalogue() {
           <div className="col-span-3  flex flex-col min-h-full pr-4">
             <Filters />
             <SidebarMenu />
-            <div className="p-1 my-4 rounded-md border w-full">
+            {/* <div className="p-1 my-4 rounded-md border w-full">
               <PaginationElement slice_type={"structures"} />
-            </div>
+            </div> */}
           </div>
           <div className="col-span-9 scrollbar-hidden">
             <Button onClick={() => { setGroupByDeposition(!groupByDeposition) }}>Group by deposition? {`${groupByDeposition}`}</Button>
