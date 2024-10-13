@@ -23,67 +23,69 @@ import { debounce } from "lodash"
 
 
 export default function StructureCatalogue() {
+  const dispatch = useAppDispatch();
+  const filter_state = useAppSelector((state) => state.ui.filters)
+  const debounced_filters = useDebounceFilters(filter_state, 250)
+  const [hasMore, setHasMore] = useState(true);
+  const [groupByDeposition, setGroupByDeposition] = useState(false);
 
-  const [groupByDeposition, setGroupByDeposition]                                                      = useState(false);
-  const filter_state                                                                                   = useAppSelector((state) => state.ui.filters)
-  const debounced_filters                                                                              = useDebounceFilters(filter_state, 250)
-  const [cursor, setCursor]                                                                            = useState(null)
-  const [structures, setStructures]                                                                    = useState<RibosomeStructure[]>([])
-  const [getStructures, { isLoading:structs_isLoading, isError:structs_isErorr, error:structs_error }] = useGetStructuresMutation()
-  const [isLoading, setIsLoading]                                                                      = useState(false);
-  const dispatch=  useAppDispatch();
+  const [cursor, setCursor] = useState(null)
+  // const [structures, setStructures]                                                                    = useState<RibosomeStructure[]>([])
+  const [getStructures, { isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error }] = useGetStructuresMutation()
+  const [isLoading, setIsLoading] = useState(false);
+  const current_structures = useAppSelector(state => state.ui.data.current_structures);
+  const total_structures_count = useAppSelector(state => state.ui.data.total_structures_count);
 
 
- const fetchStructures = useCallback(async (newCursor: string | null = null) => {
+
+  const fetchStructures = useCallback(async (newCursor: string | null = null) => {
+    if (!hasMore) return;
     setIsLoading(true);
     const payload = {
-      cursor          : newCursor,
-      limit           : 20,
-      year            : filter_state.year[0] === null && filter_state.year[1] === null ? null            : filter_state.year,
-      search          : filter_state.search || null,
-      resolution      : filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null: filter_state.resolution,
-      polymer_classes : filter_state.polymer_classes.length === 0 ? null                                 : filter_state.polymer_classes,
-      source_taxa     : filter_state.source_taxa.length === 0 ? null                                     : filter_state.source_taxa,
-      host_taxa       : filter_state.host_taxa.length === 0 ? null                                       : filter_state.host_taxa,
+      cursor: newCursor,
+      limit: 20,
+      year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
+      search: filter_state.search || null,
+      resolution: filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null : filter_state.resolution,
+      polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
+      source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
+      host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
       subunit_presence: filter_state.subunit_presence || null,
     };
-    
+
     try {
       const result = await getStructures(payload).unwrap();
-      const {structures, next_cursor, total_count}= result;
+      const { structures: new_structures, next_cursor, total_count } = result;
 
-      dispatch(set_current_structures(structures))
-      dispatch(set_total_structures_count(total_count))
-
-      console.log("Got result:", result);
       if (newCursor === null) {
-        setStructures(result.structures);
+        dispatch(set_current_structures(new_structures));
       } else {
-        setStructures(prev => [...prev, ...result.structures]);
+        dispatch(set_current_structures([...current_structures, ...new_structures]));
       }
-      setCursor(result.next_cursor);
+      dispatch(set_total_structures_count(total_count));
 
+      setCursor(next_cursor);
+      setHasMore(next_cursor !== null && current_structures.length + new_structures.length < total_count);
     } catch (err) {
       console.error('Error fetching structures:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [debounced_filters, getStructures]);
+  }, [filter_state, getStructures, current_structures, dispatch]);
 
-  const debouncedFetch = useCallback(
-    debounce(() => fetchStructures(null), 300),
-    [fetchStructures]
-  );
+
 
   useEffect(() => {
-    debouncedFetch();
-    return () => {
-      debouncedFetch.cancel();
-    };
-  }, [filter_state, debouncedFetch]);
+    // Reset state when filters change
+    dispatch(set_current_structures([]));
+    setCursor(null);
+    setHasMore(true);
+    fetchStructures();
+  }, [filter_state]);
 
-  const handleLoadMore = () => {
-    if (cursor && !isLoading) {
+
+  const loadMore = () => {
+    if (!isLoading && hasMore) {
       fetchStructures(cursor);
     }
   };
@@ -99,23 +101,26 @@ export default function StructureCatalogue() {
           <div className="col-span-3  flex flex-col min-h-full pr-4">
             <Filters />
             <SidebarMenu />
-            {/* <div className="p-1 my-4 rounded-md border w-full">
-              <PaginationElement slice_type={"structures"} />
-            </div> */}
           </div>
           <div className="col-span-9 scrollbar-hidden">
-            <Button onClick={() => { setGroupByDeposition(!groupByDeposition) }}>Group by deposition? {`${groupByDeposition}`}</Button>
+            {/* <Button onClick={() => { setGroupByDeposition(!groupByDeposition) }}>Group by deposition? {`${groupByDeposition}`}</Button> */}
 
             <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
               <div className=" gap-4 flex  flex-wrap   scrollbar-hidden"  >
-                {structures.map((struct) => (<StructureCard _={struct} key={struct.rcsb_id} />))}
-              </div>
-              <div>
-                {/* {cursor && (
+                {/* {current_structures.map((struct) => (<StructureCard _={struct} key={struct.rcsb_id} />))} */}
+                {current_structures.map(structure => (
+                  <StructureCard key={structure.rcsb_id} _={structure} />
+                ))}
+                {isLoading && <p>Loading...</p>}
+
+                {!isLoading && hasMore && (
                   <button onClick={loadMore} disabled={isLoading}>
-                    {isLoading ? 'Loading more...' : 'Load More'}
+                    Load More
                   </button>
-                )} */}
+                )}
+
+                {!hasMore && <p>All structures loaded</p>}
+                <p>Showing {current_structures.length} of {total_structures_count} structures</p>
               </div>
             </ScrollArea>
           </div>

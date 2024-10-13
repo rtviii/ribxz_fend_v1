@@ -72,10 +72,10 @@ export interface UIState {
     },
     data: {
         current_structures: RibosomeStructure[],
-        current_polymers: Array<Polymer | Rna | Protein>,
+        current_polymers  : Array<Polymer | Rna | Protein>,
 
         total_structures_count: number | null,
-        total_polymers_count: number | null
+        total_polymers_count  : number | null
     },
     polymers: {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,

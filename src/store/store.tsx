@@ -14,7 +14,6 @@ export const makeStore = () => {
     reducer: {
       [ribxz_api.reducerPath]    : ribxz_api.reducer,
       molstar                    : molstarSlice.reducer,
-
       ui                         : uiSlice.reducer,
       homepage_overview    : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
       [structuresApi.reducerPath]: structuresApi.reducer,
