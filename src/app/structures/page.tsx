@@ -38,18 +38,21 @@ export default function StructureCatalogue() {
 
 
 
-  const fetchStructures = useCallback(async (newCursor: string | null = null) => {
-    if (!hasMore) return;
+  const fetchStructures = async (newCursor: string | null = null) => {
+    console.log("-----------------");
+    console.log("Firing fetchStructures");
+
+    // if (!hasMore) return;
     setIsLoading(true);
     const payload = {
-      cursor: newCursor,
-      limit: 20,
-      year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
-      search: filter_state.search || null,
-      resolution: filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null : filter_state.resolution,
-      polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
-      source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
-      host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
+      cursor          : newCursor,
+      limit           : 20,
+      year            : filter_state.year[0] === null && filter_state.year[1] === null ? null            : filter_state.year,
+      search          : filter_state.search || null,
+      resolution      : filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null: filter_state.resolution,
+      polymer_classes : filter_state.polymer_classes.length === 0 ? null                                 : filter_state.polymer_classes,
+      source_taxa     : filter_state.source_taxa.length === 0 ? null                                     : filter_state.source_taxa,
+      host_taxa       : filter_state.host_taxa.length === 0 ? null                                       : filter_state.host_taxa,
       subunit_presence: filter_state.subunit_presence || null,
     };
 
@@ -59,29 +62,38 @@ export default function StructureCatalogue() {
 
       if (newCursor === null) {
         dispatch(set_current_structures(new_structures));
+        console.log("Set structures ");
       } else {
         dispatch(set_current_structures([...current_structures, ...new_structures]));
+        console.log("Set structuresnew ");
       }
+
       dispatch(set_total_structures_count(total_count));
 
       setCursor(next_cursor);
-      setHasMore(next_cursor !== null && current_structures.length + new_structures.length < total_count);
+setHasMore(next_cursor !== null);
     } catch (err) {
       console.error('Error fetching structures:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [filter_state, getStructures, current_structures, dispatch]);
+  }
 
 
+
+useEffect(() => {
+  dispatch(set_current_structures([]));
+  setCursor(null);
+  setHasMore(true);
+  fetchStructures();
+}, [debounced_filters]);
 
   useEffect(() => {
-    // Reset state when filters change
-    dispatch(set_current_structures([]));
-    setCursor(null);
-    setHasMore(true);
-    fetchStructures();
-  }, [filter_state]);
+    console.log("FILTERS:", debounced_filters);
+    console.log("CURRNET STRUCTS:", current_structures);
+    console.log(":", current_structures);
+
+  }, [debounced_filters])
 
 
   const loadMore = () => {
@@ -91,7 +103,6 @@ export default function StructureCatalogue() {
   };
 
 
-  // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
       {/* <HoverMenu /> */}
@@ -103,25 +114,26 @@ export default function StructureCatalogue() {
             <SidebarMenu />
           </div>
           <div className="col-span-9 scrollbar-hidden">
-            {/* <Button onClick={() => { setGroupByDeposition(!groupByDeposition) }}>Group by deposition? {`${groupByDeposition}`}</Button> */}
 
-            <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
+            <ScrollArea className="flex-grow max-h-[90vh] overflow-y-auto border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2" scrollHideDelay={1} >
+
               <div className=" gap-4 flex  flex-wrap   scrollbar-hidden"  >
-                {/* {current_structures.map((struct) => (<StructureCard _={struct} key={struct.rcsb_id} />))} */}
                 {current_structures.map(structure => (
                   <StructureCard key={structure.rcsb_id} _={structure} />
                 ))}
                 {isLoading && <p>Loading...</p>}
-
-                {!isLoading && hasMore && (
-                  <button onClick={loadMore} disabled={isLoading}>
-                    Load More
-                  </button>
-                )}
-
-                {!hasMore && <p>All structures loaded</p>}
-                <p>Showing {current_structures.length} of {total_structures_count} structures</p>
               </div>
+
+              <Button
+                onClick={loadMore}
+                disabled={isLoading || !hasMore}
+                className=" m-3 py-0 text-sm font-semibold  transition-colors duration-200 ease-in-out"
+              >
+                {isLoading ? 'Loading...' : hasMore ? 'Load More' : 'All structures loaded'}
+                <span className="m-2 text-sm font-normal">
+                  (Showing {current_structures.length} of {total_structures_count} structures)
+                </span>
+              </Button>
             </ScrollArea>
           </div>
         </div>

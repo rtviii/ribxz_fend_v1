@@ -74,7 +74,7 @@ export function Filters(props: FiltersProps) {
 
 
   return (
-    <Collapsible className="bg-white p-4 shadow-sm border rounded-sm " defaultChecked={true} defaultOpen={true} disabled={true}>
+    <Collapsible className=" p-4  border rounded-sm bg-slate-100 shadow-inner " defaultChecked={true} defaultOpen={true} disabled={true}>
       <div className="flex items-center justify-between  mb-2 ">
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex ">
           <div className={` min-w-full font-semibold flex flex-row justify-between ${props.disabled_whole ? "disabled-text" : ""}`}>
@@ -86,7 +86,7 @@ export function Filters(props: FiltersProps) {
 
       <CollapsibleContent >
         <div className="space-y-2">
-          <Input placeholder="Search"
+          <Input placeholder="Search" className="bg-white"
             disabled={props.disabled_whole}
             value={filters.search == null ? '' : filters.search}
             onChange={(e) => {
@@ -101,8 +101,8 @@ export function Filters(props: FiltersProps) {
               Deposition year
             </label>
             <div className="flex items-center space-x-2">
-              <Input disabled={props.disabled_whole} className="w-20" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-              <Input disabled={props.disabled_whole} className="w-20" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
             </div>
           </div>
 
@@ -111,8 +111,8 @@ export function Filters(props: FiltersProps) {
               Resolution
             </label>
             <div className="flex items-center space-x-2">
-              <Input disabled={props.disabled_whole} className="w-20" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
-              <Input disabled={props.disabled_whole} className="w-20" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
+              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
             </div>
           </div>
 
