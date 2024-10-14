@@ -96,7 +96,9 @@ export default function PolymersTable(props: PolymersTableProps) {
                         </TableRow>
                     </TableHeader>
                     <TableBody >
-                        {props.polymers.toSorted(sort_by_polymer_class).map(p =>
+                        {props.polymers.toSorted(sort_by_polymer_class)
+                        .filter(p=>p.assembly_id === 0)
+                        .map(p =>
                             <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />
                         )}
                     </TableBody>
