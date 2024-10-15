@@ -183,14 +183,16 @@ export default function PolymersPage() {
                                     <TabsTrigger className="w-full" value="by_structure" >By Structure</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="by_polymer_class" >
-                                    <PolymersTable
-                                        proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein') as Protein[]}
-                                        rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA') as Rna[]} />
+                                    <PolymersTable 
+                                    polymers={current_polymers}
+                                    // proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein') as Protein[]} rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA') as Rna[]} 
+                                        />
                                 </TabsContent>
                                 <TabsContent value="by_structure" >
-                                    <PolymersTable
-                                        proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein') as Protein[]}
-                                        rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA') as Rna[]} />
+                                    <PolymersTable 
+                                    polymers={current_polymers}
+                                    // proteins={current_polymers.filter(p => p.entity_poly_polymer_type === 'Protein') as Protein[]} rnas={current_polymers.filter(p => p.entity_poly_polymer_type === 'RNA') as Rna[]}
+                                    />
                                 </TabsContent>
                             </Tabs>
                         </div>

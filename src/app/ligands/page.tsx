@@ -547,10 +547,8 @@ export default function Ligands() {
                                                             }
                                                             return acc
                                                         }, {})).map(entry =>
-                                                            <Accordion type="single" collapsible className="border p-1 rounded-md w-full h-fit my-1">
+                                                            <Accordion type="single" collapsible className="border p-1 rounded-md w-full h-fit my-1" key={entry[0]}>
                                                                 <AccordionItem value={"other"}>
-
-
                                                                     <AccordionTrigger >
 
                                                                         <div className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300"
@@ -623,7 +621,7 @@ export default function Ligands() {
                                             </AccordionTrigger>
                                             <AccordionContent>
 
-                                                <GlobalStructureSelection props={{ disabled: !predictionMode }} />
+                                                <GlobalStructureSelection />
 
                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
                                                     <Button variant={"outline"} 
@@ -671,7 +669,7 @@ export default function Ligands() {
 
                                                 {ligands_state.prediction_data === undefined ? null :
                                                     ligands_state.prediction_data?.constituent_chains.map((chain, i) =>
-                                                        <Accordion type="single" collapsible className="border p-1 rounded-md w-full my-2">
+                                                        <Accordion type="single" collapsible className="border p-1 rounded-md w-full my-2" key={i}>
                                                             <AccordionItem value={"other"}>
 
                                                                 <AccordionTrigger >

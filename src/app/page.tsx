@@ -17,7 +17,6 @@ import { IconVisibilityOn } from '@/components/ribxz/visibility_icon';
 import * as React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-
 const ban_citation = `Nenad Ban, Roland Beckmann, Jamie HD Cate, Jonathan D Dinman, François Dragon, Steven R Ellis, Denis LJ Lafontaine, Lasse Lindahl, Anders Liljas, Jeffrey M Lipton, Michael A McAlear, Peter B Moore, Harry F Noller, Joaquin Ortega, Vikram Govind Panse, V Ramakrishnan, Christian MT Spahn, Thomas A Steitz, Marek Tchorzewski, David Tollervey, Alan J Warren, James R Williamson, Daniel Wilson, Ada Yonath, Marat Yusupov,
 A new system for naming ribosomal proteins,
 Current Opinion in Structural Biology,
@@ -62,7 +61,6 @@ function InTextCitation({ number, paper }: CitationProps) {
 const StructuresOverviewPanel = () => {
 
   return (
-    // <div className="  rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
 
     <Link href='/structures' className="px-4 py-2 rounded-md relative border hover:border-blue-600  hover:shadow-lg transition-all hover:cursor-pointer">
       {/* <StructStatsTable data={data} /> */}
@@ -228,7 +226,6 @@ const LigandsOverviewPanel = (props: { data: any }) => {
       </div>
     </Link>
   )
-
 }
 
 const StructStatsTable = (props: { data: any }) => {
@@ -312,7 +309,6 @@ const StructStatsTable = (props: { data: any }) => {
     </>
   )
 }
-
 
 const ToolSection = () => {
 
@@ -412,8 +408,6 @@ export default function Home() {
     </StoreProvider>
   )
 }
-
-
 
 const citation = `@article{kushner2023riboxyz,
   title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
