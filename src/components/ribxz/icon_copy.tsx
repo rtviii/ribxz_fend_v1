@@ -6,7 +6,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export function CopyIcon({ props, children }: { props?: any, children: React.ReactNode }) {
+export function CopyIcon({ props, children }: { props?: any, children?: React.ReactNode }) {
     return (
         <TooltipProvider>
             <Tooltip>
