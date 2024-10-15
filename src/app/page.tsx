@@ -380,14 +380,13 @@ export default function Home() {
                 {
                   [
 
-                    <Link href={"https://www.rcsb.org/"}> <Image src={"/logo_rcsb.png"} alt='ubclogo' width={120} height={120} /> </Link>,
-                    <Link href={"http://hmmer.org/"}> <Image src={"/logo_hmmer.png"} alt='hmmer' width={40} height={40} /> </Link>,
-                    <Link href={"https://molstar.org/"}> <Image src={"/logo_molstar.png"} alt='ubclogo' width={100} height={100} /> </Link>,
-                    <Link href={"https://neo4j.com/"}> <Image src={"/logo_neo4j.png"} alt='ubclogo' width={100} height={100} /> </Link>,
-                    <Link href={"https://www.cgl.ucsf.edu/chimerax/"}> <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} /> </Link>,
-
-                  ].map(i => {
-                    return <div className='border p-1 rounded-sm hover:border-blue-700 hover:shadow-lg '>{i}</div>
+                    <Link key={"logo_rcsb"    } href={"https://www.rcsb.org/"             }> <Image src={"/logo_rcsb.png"    } alt='ubclogo' width={120} height={120} /> </Link>,
+                    <Link key={"logo_hmmer"   } href={"http://hmmer.org/"                 }> <Image src={"/logo_hmmer.png"   } alt='hmmer'   width={40 } height={40 } /> </Link>,
+                    <Link key={"logo_molstar" } href={"https://molstar.org/"              }> <Image src={"/logo_molstar.png" } alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link key={"logo_neo4j"   } href={"https://neo4j.com/"                }> <Image src={"/logo_neo4j.png"   } alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link key={"logo_chimerax"} href={"https://www.cgl.ucsf.edu/chimerax/"}> <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40 } height={40 } /> </Link>,
+                  ].map((i,k) => {
+                    return <div key={k} className='border p-1 rounded-sm hover:border-blue-700 hover:shadow-lg '>{i}</div>
                   })
 
                 }
@@ -396,8 +395,6 @@ export default function Home() {
               {/* <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>muscle5</code>
               <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>BioPython</code> */}
               <div>
-
-
               </div>
             </div>
             <Citation />

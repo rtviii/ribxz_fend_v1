@@ -12,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
-import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
+import { RibosomeStructure, ribxz_api } from "@/store/ribxz_api/ribxz_api"
 import { FiltersState, pagination_set_page, set_current_structures, set_total_structures_count } from "@/store/slices/ui_state"
 import { useDebouncePagination } from "@/my_utils"
 import { log } from "node:console"
@@ -41,14 +41,14 @@ export default function StructureCatalogue() {
   const fetchStructures = async (newCursor: string | null = null) => {
     setIsLoading(true);
     const payload = {
-      cursor          : newCursor,
-      limit           : 20,
-      year            : filter_state.year[0] === null && filter_state.year[1] === null ? null            : filter_state.year,
-      search          : filter_state.search || null,
-      resolution      : filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null: filter_state.resolution,
-      polymer_classes : filter_state.polymer_classes.length === 0 ? null                                 : filter_state.polymer_classes,
-      source_taxa     : filter_state.source_taxa.length === 0 ? null                                     : filter_state.source_taxa,
-      host_taxa       : filter_state.host_taxa.length === 0 ? null                                       : filter_state.host_taxa,
+      cursor: newCursor,
+      limit: 20,
+      year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
+      search: filter_state.search || null,
+      resolution: filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null : filter_state.resolution,
+      polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
+      source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
+      host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
       subunit_presence: filter_state.subunit_presence || null,
     };
 
@@ -65,7 +65,7 @@ export default function StructureCatalogue() {
       dispatch(set_total_structures_count(total_count));
 
       setCursor(next_cursor);
-setHasMore(next_cursor !== null);
+      setHasMore(next_cursor !== null);
     } catch (err) {
       console.error('Error fetching structures:', err);
     } finally {
@@ -75,14 +75,12 @@ setHasMore(next_cursor !== null);
 
 
 
-useEffect(() => {
-  dispatch(set_current_structures([]));
-  setCursor(null);
-  setHasMore(true);
-  fetchStructures();
-}, [debounced_filters]);
-
-
+  useEffect(() => {
+    dispatch(set_current_structures([]));
+    setCursor(null);
+    setHasMore(true);
+    fetchStructures();
+  }, [debounced_filters]);
 
   const loadMore = () => {
     if (!isLoading && hasMore) {

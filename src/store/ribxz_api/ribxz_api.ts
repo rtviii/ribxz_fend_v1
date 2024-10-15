@@ -1297,16 +1297,16 @@ export type NonpolymerComp = {
   rcsb_chem_comp_target?: RcsbChemCompTarget[] | null;
 };
 export type NonpolymericLigand = {
-  chemicalId: string;
-  chemicalName: string;
-  formula_weight?: number | null;
-  pdbx_description: string;
-  number_of_instances: number;
-  nonpolymer_comp?: NonpolymerComp | null;
-  SMILES?: string | null;
-  SMILES_stereo?: string | null;
-  InChI?: string | null;
-  InChIKey?: string | null;
+  chemicalId          : string;
+  chemicalName        : string;
+  formula_weight     ?: number | null;
+  pdbx_description    : string;
+  number_of_instances : number;
+  nonpolymer_comp    ?: NonpolymerComp | null;
+  SMILES             ?: string | null;
+  SMILES_stereo      ?: string | null;
+  InChI              ?: string | null;
+  InChIKey           ?: string | null;
 };
 export type Protein = {
   assembly_id: number;

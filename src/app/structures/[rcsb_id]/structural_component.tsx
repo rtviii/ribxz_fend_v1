@@ -7,8 +7,16 @@ import ReactJson from 'react-json-view';
 import { useParams } from 'next/navigation';
 import { NonpolymericLigand } from '@/store/ribxz_api/ribxz_api';
 import { LandmarkActions, LandmarkItemProps } from '@/app/landmarks/types';
+interface StructuralComponentProps {
+  title           : string;
+  description     : string;
+  extendedContent : React.ReactNode;
+  imageUrl?        : string;
+  annotation     ?: string;
+  actions         : React.ReactNode;
+}
 
-const StructuralComponent = ({
+const StructuralComponent:React.FC<StructuralComponentProps> = ({
   title,
   description,
   extendedContent,
