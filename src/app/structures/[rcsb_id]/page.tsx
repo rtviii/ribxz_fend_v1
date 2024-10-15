@@ -2,10 +2,10 @@
 import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
-import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
+import {  RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, ReactNode, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
@@ -56,41 +56,41 @@ const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     );
 };
 
-const InfoRow = ({ title, value }) => (
+const InfoRow = ({ title, value }:{title:string, value:ReactNode}) => (
     <div className="flex justify-between items-center py-1 border-b border-gray-100 last:border-b-0">
         <h4 className="text-xs font-medium text-gray-600">{title}</h4>
         <div className="text-xs text-gray-800">{value}</div>
     </div>
 );
 
-const InfoSectionAccordion = ({ title, children, isActive }) => {
-    const [isOpen, setIsOpen] = useState(false);
+// const InfoSectionAccordion = ({ title, children, isActive }) => {
+//     const [isOpen, setIsOpen] = useState(false);
 
-    return (
-        <div className={`border-b border-gray-200 ${!isActive ? 'opacity-50' : ''}`}>
-            <button
-                className="flex justify-between items-center w-full py-2 px-4 text-left text-xs font-medium"
-                onClick={() => isActive && setIsOpen(!isOpen)}
-                disabled={!isActive}
-            >
+//     return (
+//         <div className={`border-b border-gray-200 ${!isActive ? 'opacity-50' : ''}`}>
+//             <button
+//                 className="flex justify-between items-center w-full py-2 px-4 text-left text-xs font-medium"
+//                 onClick={() => isActive && setIsOpen(!isOpen)}
+//                 disabled={!isActive}
+//             >
 
-                {title}
-                {isActive && (isOpen ? <Minus size={14} /> : <Plus size={14} />)}
-            </button>
-            {isOpen && isActive && (
-                <div className="px-4 pb-2 text-xs">{children}</div>
-            )}
-        </div>
-    );
-};
+//                 {title}
+//                 {isActive && (isOpen ? <Minus size={14} /> : <Plus size={14} />)}
+//             </button>
+//             {isOpen && isActive && (
+//                 <div className="px-4 pb-2 text-xs">{children}</div>
+//             )}
+//         </div>
+//     );
+// };
 
 
-const StructureInfoDashboard = ({ data, isLoading }) => {
+const StructureInfoDashboard = ({ data, isLoading }:{data:RibosomeStructure, isLoading:boolean}) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
 
-    const hasPolymers = data.polymers && data.polymers.length > 0;
-    const hasLigands = data.ligands && data.ligands.length > 0;
-    const hasLandmarks = data.landmarks && data.landmarks.length > 0;
+    // const hasPolymers  = data.polymers && data.polymers.length > 0;
+    // const hasLigands   = data.ligands && data.ligands.length > 0;
+    // const hasLandmarks = data.landmarks && data.landmarks.length > 0;
 
     return (
         <div className="space-y-2">
@@ -98,18 +98,14 @@ const StructureInfoDashboard = ({ data, isLoading }) => {
 
             <div className="space-y-0">
                 {data?.citation_rcsb_authors && (
-                    <InfoRow
-                        title="Authors"
-                        value={<AuthorsHovercard authors={data.citation_rcsb_authors} />}
-                    />
+                    <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
                 )}
-                <InfoRow title="Deposition Year" value={parseDateString( data.deposition_date ).year} />
-                <InfoRow
-                    title="Experimental Method"
-                    value={<ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />}
-                />
-                <InfoRow title="Resolution" value={`${data?.resolution} Å`} />
-                <InfoRow title="Source Organism" value={data?.src_organism_names.join(", ")} />
+
+                 <InfoRow title="Deposition Year"     value={parseDateString(data.deposition_date    ).year                          } />
+                 <InfoRow title="Experimental Method" value={<ExpMethodBadge expMethod={data?.expMethod         } resolution={data.resolution} />} />
+                 <InfoRow title="Resolution"          value={`${data?.resolution} Å`                             } />
+                 <InfoRow title="Source Organism"     value={data?.src_organism_names.join(", ")                      } />
+
                 {data?.host_organism_names?.length > 0 && (
                     <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
                 )}
@@ -242,8 +238,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     const ptc = searchParams.get('ptc')
 
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
-    const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-    const [method, setMethod] = useState<undefined | string>()
+    const { data, isLoading, error }                                          = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    const [method, setMethod]                                                 = useState<undefined | string>()
 
 
 

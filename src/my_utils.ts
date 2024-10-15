@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { RibosomeStructure } from "./store/ribxz_api/ribxz_api";
 
-export function parseDateString(dateString: string): { year: number, month: number, day: number } {
+export function parseDateString(dateString: string|null| undefined): { year: number, month: number, day: number } {
+  if (dateString === null || dateString === undefined) {
+    return { year: 0, month: 0, day: 0 };
+  }
   const date = new Date(dateString);
   
   return {
