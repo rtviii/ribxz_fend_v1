@@ -32,6 +32,8 @@ import { Color } from 'molstar/lib/mol-util/color/color';
 import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
 import { ArbitrarySphereRepresentationProvider } from './sphere_drawing';
 import { ribxz_api } from '@/store/ribxz_api/ribxz_api';
+import { Shape, ShapeGroup } from 'molstar/lib/mol-model/shape/shape';
+import { ShapeRepresentation } from 'molstar/lib/mol-repr/shape/representation';
 const { parsed: { DJANGO_URL } } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
@@ -72,12 +74,11 @@ export class MolstarRibxz {
   }
 
   async renderPTC(rcsb_id: string,) {
-
     // var ptc  { x: number, y: number, z: number, radius: number, color: Color }
-    const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`);
-    const data = await response.json()
-    let [x, y, z] = data['midpoint_coordinates']
-    let sphere = { x: x, y: y, z: z, radius: 5, color: 'blue' }
+    const response  = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`);
+    const data      = await response.json()
+    let   [x, y, z] = data['midpoint_coordinates']
+    let   sphere    = { x: x, y: y, z: z, radius: 5, color: 'blue' }
 
     const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
     this.ctx.builders.structure.representation.addRepresentation(
@@ -102,7 +103,6 @@ export class MolstarRibxz {
       );
     });
   }
-
 
 
   toggleSpin() {
@@ -165,11 +165,29 @@ export class MolstarRibxz {
 
   renderPLY = async (rcsb_id: string) => {
     const provider = this.ctx.dataFormats.get('ply')!
-    const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
-    const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
-    const parsed = await provider!.parse(this.ctx, data!);
+    const myurl    = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
+    const data     = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
+    
+    const parsed   = await provider!.parse(this.ctx, data!);
+
+
     if (provider.visuals) {
-      await provider.visuals!(this.ctx, parsed);
+      const k = await provider.visuals!(this.ctx, parsed);
+      const shape_ref=  k.ref
+      console.log(shape_ref)
+      const meshObject = this.ctx.state.data.select(shape_ref)[0]
+      const shapeGroup = meshObject.obj.data.repr.getAllLoci()
+      this.ctx.managers.camera.focusLoci(shapeGroup);
+
+      
+
+//     this.ctx.managers.camera.focusRenderObjects([meshObject]);
+// this.ctx.managers.structure.selection.(new Set([shape_ref]));
+      // focus the mesh by the ref returned from "visuals"
+      
+      
+
+      
     }else{
       throw Error("provider.visuals is undefined for this `ply` data format")
     }
@@ -265,10 +283,10 @@ export class MolstarRibxz {
         })
       ]);
 
-      const query = compile<StructureSelection>(pivot);
+      const query         = compile<StructureSelection>(pivot);
       const structureRefs = this.ctx.managers.structure.hierarchy.current.structures;
-      const selections = structureRefs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
-      const transforms = superpose(selections);
+      const selections    = structureRefs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
+      const transforms    = superpose(selections);
       console.log({ ...transforms });
 
       await this.siteVisual(structureRefs[0].cell, pivot)
