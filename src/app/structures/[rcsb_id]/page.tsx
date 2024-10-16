@@ -88,9 +88,6 @@ const InfoRow = ({ title, value }: { title: string, value: ReactNode }) => (
 const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
 
-    // const hasPolymers  = data.polymers && data.polymers.length > 0;
-    // const hasLigands   = data.ligands && data.ligands.length > 0;
-    // const hasLandmarks = data.landmarks && data.landmarks.length > 0;
 
     return (
         <div className="space-y-2">
@@ -267,6 +264,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <MolstarContext.Provider value={ctx}>
                 <ResizablePanelGroup direction="horizontal">
+
+    <Button onClick={()=>ctx?.create_subcomponent_by_auth_asym_id('LE')}> Create chain LE </Button>
                     <ResizablePanel defaultSize={25}>
                         <Card className="h-full flex flex-col border-0 rounded-none">
                             <Tabs defaultValue="components" className="w-full">

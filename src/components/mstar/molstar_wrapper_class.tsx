@@ -170,7 +170,6 @@ export class MolstarRibxz {
     
     const parsed   = await provider!.parse(this.ctx, data!);
 
-
     if (provider.visuals) {
       const k = await provider.visuals!(this.ctx, parsed);
       const shape_ref=  k.ref
@@ -179,15 +178,6 @@ export class MolstarRibxz {
       const shapeGroup = meshObject.obj.data.repr.getAllLoci()
       this.ctx.managers.camera.focusLoci(shapeGroup);
 
-      
-
-//     this.ctx.managers.camera.focusRenderObjects([meshObject]);
-// this.ctx.managers.structure.selection.(new Set([shape_ref]));
-      // focus the mesh by the ref returned from "visuals"
-      
-      
-
-      
     }else{
       throw Error("provider.visuals is undefined for this `ply` data format")
     }
@@ -249,7 +239,6 @@ export class MolstarRibxz {
       _highlightResidueCluster(chain_residues_tuples)
     }, 50, { "leading": true, "trailing": true })
   )(this._highlightResidueCluster);
-
 
 
 
@@ -407,16 +396,51 @@ export class MolstarRibxz {
 
   }
 
+
+
+  create_subcomponent_by_auth_asym_id = async (auth_asym_id: string) => {
+
+    // first select the chain:
+
+    // const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    // if (!data) return;
+    // const sel = Script.getStructureSelection(
+    //   Q => Q.struct.generator.atomGroups({
+    //     'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+    //   }), data);
+
+    // let loci = StructureSelection.toLociWithSourceUnits(sel);
+
+
+
+    let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct     = structures[0];
+
+    let expression = MS.struct.generator.atomGroups({ 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), })
+    const update     = this.ctx.build();
+
+    const group           = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Chain so and so ` }, { ref: 'chain_so&so' });
+    const chain_sel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `ll`, expression: expression }, { ref: 'chainso&so' });
+    chain_sel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
+
+    await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
+    // const chain = MS.struct.filter.first([
+    //   MS.struct.generator.atomGroups({
+    //     'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
+    //     'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
+    //   })
+    // ]);
+
+
+  }
   async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<ResidueList> {
     if (!chemicalId) {
       return []
     }
-
-    const RADIUS = radius
-
-    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct = structures[0];
-    const update = this.ctx.build();
+    const RADIUS     = radius
+    let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct     = structures[0];
+    const update     = this.ctx.build();
 
     const ligand = MS.struct.filter.first([
       MS.struct.generator.atomGroups({
@@ -428,7 +452,7 @@ export class MolstarRibxz {
     const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
     const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: ligand });
 
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
+    const group           = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
     const surroundingsSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand }, { ref: 'surroundingsSel' });
 
     surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
