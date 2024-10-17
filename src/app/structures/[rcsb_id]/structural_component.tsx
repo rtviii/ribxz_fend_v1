@@ -63,7 +63,7 @@ const LandmarkItem:React.FC<Landmark > = ({
       {landmark_actions.render && (<EyeIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); landmark_actions.render!(rcsb_id, ctx!); }} />)}
             <Button onClick={()=>{ landmark_actions.on_click!() }}>Select</Button>
       <Popover>
-        <PopoverTrigger asChild >
+        <PopoverTrigger asChild onMouseLeave={()=>{landmark_actions.seldesel!(false)}} onMouseEnter={()=>{landmark_actions.seldesel!(true);}  }>
           <InfoIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" />
         </PopoverTrigger>
         <PopoverContent className="w-80" >

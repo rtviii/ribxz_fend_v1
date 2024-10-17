@@ -6,7 +6,7 @@ export interface LandmarkActions{
   download?: (rcsb_id: string) => void;
   render  ?: (rcsb_id: string, ctx: MolstarRibxz) => void;
   on_click?: () => void;
-  seldesel?: () => void;
+  seldesel?: (_:boolean) => void;
 }
 export interface Landmark {
   landmark_actions : LandmarkActions;
