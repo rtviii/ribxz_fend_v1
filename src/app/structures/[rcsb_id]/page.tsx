@@ -177,7 +177,6 @@ const TunnelLandmarkComponent: React.FC<{ rcsb_id: string, ctx: MolstarRibxz }> 
       download: (rcsb_id: string) => { downloadPlyFile(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`, `${rcsb_id}_tunnel_geometry.ply`) },
       render  : async (rcsb_id: string, ctx) => { const tunnel_loci = await ctx?.renderPLY(rcsb_id); console.log("Returned loci:", tunnel_loci); dispatch(set_tunnel_shape_loci(tunnel_loci))},
       on_click: () =>{console.log(tunnel_loci);ctx.ctx.managers.structure.selection.fromLoci('add',tunnel_loci[0]); ctx.ctx.managers.camera.focusLoci(tunnel_loci)},
-      seldesel: (_:boolean)=>{ _ ? ctx.ctx.managers.interactivity.lociHighlights.highlight(tunnel_loci): ctx.ctx.managers.interactivity.lociHighlights.clearHighlights()}
     };
     return <LandmarkItem  {...landmarks["NPET"]} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions}/>;
 };
