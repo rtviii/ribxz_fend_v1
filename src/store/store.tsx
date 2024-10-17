@@ -6,6 +6,7 @@ import { molstarListenerMiddleware, molstarSlice } from './slices/molstar_state'
 import { fetchPredictionData, prefetchLigandsData, uiSlice } from './slices/ui_state'
 import { allStructuresOverviewSlice, prefetchAllStructsOverview } from './slices/all_structs_overview_state'
 import { structuresApi } from './ribxz_api/structures_api'
+import { structurePageSlice } from './slices/rcsb_id_state'
 
 
 
@@ -15,7 +16,8 @@ export const makeStore = () => {
       [ribxz_api.reducerPath]    : ribxz_api.reducer,
       molstar                    : molstarSlice.reducer,
       ui                         : uiSlice.reducer,
-      homepage_overview    : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
+      homepage_overview          : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
+      structure_page             : structurePageSlice.reducer,
       [structuresApi.reducerPath]: structuresApi.reducer,
     },
 

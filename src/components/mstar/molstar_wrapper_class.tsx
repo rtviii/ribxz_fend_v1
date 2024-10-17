@@ -34,6 +34,7 @@ import { ArbitrarySphereRepresentationProvider } from './sphere_drawing';
 import { ribxz_api } from '@/store/ribxz_api/ribxz_api';
 import { Shape, ShapeGroup } from 'molstar/lib/mol-model/shape/shape';
 import { ShapeRepresentation } from 'molstar/lib/mol-repr/shape/representation';
+import { Loci } from 'molstar/lib/mol-model/structure/structure/element/loci';
 const { parsed: { DJANGO_URL } } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
@@ -75,10 +76,10 @@ export class MolstarRibxz {
 
   async renderPTC(rcsb_id: string,) {
     // var ptc  { x: number, y: number, z: number, radius: number, color: Color }
-    const response  = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`);
-    const data      = await response.json()
-    let   [x, y, z] = data['midpoint_coordinates']
-    let   sphere    = { x: x, y: y, z: z, radius: 5, color: 'blue' }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`);
+    const data = await response.json()
+    let [x, y, z] = data['midpoint_coordinates']
+    let sphere = { x: x, y: y, z: z, radius: 5, color: 'blue' }
 
     const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
     this.ctx.builders.structure.representation.addRepresentation(
@@ -162,28 +163,26 @@ export class MolstarRibxz {
     this.ctx.managers.interactivity.lociHighlights.clearHighlights();
   }
 
-
   renderPLY = async (rcsb_id: string) => {
     const provider = this.ctx.dataFormats.get('ply')!
-    const myurl    = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
-    const data     = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
-    
-    const parsed   = await provider!.parse(this.ctx, data!);
+    const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
+    const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
+
+    const parsed = await provider!.parse(this.ctx, data!);
 
     if (provider.visuals) {
       const k = await provider.visuals!(this.ctx, parsed);
-      const shape_ref=  k.ref
+      const shape_ref = k.ref
       console.log(shape_ref)
       const meshObject = this.ctx.state.data.select(shape_ref)[0]
       const shapeGroup = meshObject.obj.data.repr.getAllLoci()
       this.ctx.managers.camera.focusLoci(shapeGroup);
 
-    }else{
+    } else {
       throw Error("provider.visuals is undefined for this `ply` data format")
     }
 
   }
-
 
   _highlightChain = (auth_asym_id: string) => {
     const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
@@ -217,7 +216,6 @@ export class MolstarRibxz {
     return expression
   }
 
-
   _highlightResidueCluster = (chain_residues_tuples: {
     auth_asym_id: string,
     auth_seq_id: number,
@@ -239,10 +237,6 @@ export class MolstarRibxz {
       _highlightResidueCluster(chain_residues_tuples)
     }, 50, { "leading": true, "trailing": true })
   )(this._highlightResidueCluster);
-
-
-
-
 
 
 
@@ -272,10 +266,10 @@ export class MolstarRibxz {
         })
       ]);
 
-      const query         = compile<StructureSelection>(pivot);
+      const query = compile<StructureSelection>(pivot);
       const structureRefs = this.ctx.managers.structure.hierarchy.current.structures;
-      const selections    = structureRefs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
-      const transforms    = superpose(selections);
+      const selections = structureRefs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
+      const transforms = superpose(selections);
       console.log({ ...transforms });
 
       await this.siteVisual(structureRefs[0].cell, pivot)
@@ -413,13 +407,13 @@ export class MolstarRibxz {
 
 
 
-    let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct     = structures[0];
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
 
     let expression = MS.struct.generator.atomGroups({ 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), })
-    const update     = this.ctx.build();
+    const update = this.ctx.build();
 
-    const group           = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Chain so and so ` }, { ref: 'chain_so&so' });
+    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Chain so and so ` }, { ref: 'chain_so&so' });
     const chain_sel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `ll`, expression: expression }, { ref: 'chainso&so' });
     chain_sel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
 
@@ -437,10 +431,10 @@ export class MolstarRibxz {
     if (!chemicalId) {
       return []
     }
-    const RADIUS     = radius
-    let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct     = structures[0];
-    const update     = this.ctx.build();
+    const RADIUS = radius
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
+    const update = this.ctx.build();
 
     const ligand = MS.struct.filter.first([
       MS.struct.generator.atomGroups({
@@ -452,7 +446,7 @@ export class MolstarRibxz {
     const surroundings = MS.struct.modifier.includeSurroundings({ 0: ligand, radius: RADIUS, 'as-whole-residues': true });
     const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: ligand });
 
-    const group           = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
+    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `${chemicalId} Surroundins Group` }, { ref: 'surroundings' });
     const surroundingsSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand }, { ref: 'surroundingsSel' });
 
     surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });

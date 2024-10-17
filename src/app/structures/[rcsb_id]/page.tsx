@@ -28,7 +28,8 @@ import { Plus, Minus } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { LandmarkItem, LigandItem } from "./structural_component"
-import { BaseLandmark, createTunnelLandmark, TunnelActions } from "@/app/landmarks/types"
+import { LandmarkData, createTunnelLandmark, TunnelActions } from "@/app/landmarks/types"
+import { useAppDispatch } from "@/store/store"
 
 const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     const handleCifDownload = () => {
@@ -168,19 +169,20 @@ const landmarks = {
     },
 };
 
-const TunnelLandmarkComponent: React.FC<{ data: BaseLandmark, rcsb_id: string, ctx: MolstarRibxz }> = ({ data, rcsb_id, ctx }) => {
-    const tunnelData = useMemo(() => createTunnelLandmark(data, ctx), [data, ctx]);
-    return <LandmarkItem<TunnelActions> data={tunnelData} rcsb_id={rcsb_id} />;
+const TunnelLandmarkComponent: React.FC<{ data: Partial<Landmark>, rcsb_id: string, ctx: MolstarRibxz }> = ({ data, rcsb_id, ctx }) => {
+    return <LandmarkItem {...landmarks["NPET"]} rcsb_id={rcsb_id} 
+    
+    />;
 };
 
-const PTCLandmarkComponent: React.FC<{ data: BaseLandmark, rcsb_id: string, ctx: MolstarRibxz }> = ({ data, rcsb_id, ctx }) => {
-    const tunnelData = useMemo(() => createTunnelLandmark(data, ctx), [data, ctx]);
-    return <LandmarkItem<TunnelActions> data={tunnelData} rcsb_id={rcsb_id} />;
-};
+// const PTCLandmarkComponent: React.FC<{ data: LandmarkData, rcsb_id: string, ctx: MolstarRibxz }> = ({ data, rcsb_id, ctx }) => {
+//     const tunnelData = useMemo(() => createTunnelLandmark(data, ctx), [data, ctx]);
+//     return <LandmarkItem<TunnelActions> data={tunnelData} rcsb_id={rcsb_id} />;
+// };
 
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     const ctx = useContext(MolstarContext)
-    // const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+    
     if (isLoading) {
         return <div>Loading...</div>
     }
@@ -200,8 +202,6 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
             <TabsContent value="landmarks">
                 <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
                     <TunnelLandmarkComponent data={landmarks.NPET} rcsb_id={data.rcsb_id} ctx={ctx!} />
-
-
                 </ScrollArea>
             </TabsContent>
 
@@ -264,8 +264,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <MolstarContext.Provider value={ctx}>
                 <ResizablePanelGroup direction="horizontal">
-
-    <Button onClick={()=>ctx?.create_subcomponent_by_auth_asym_id('LE')}> Create chain LE </Button>
                     <ResizablePanel defaultSize={25}>
                         <Card className="h-full flex flex-col border-0 rounded-none">
                             <Tabs defaultValue="components" className="w-full">
