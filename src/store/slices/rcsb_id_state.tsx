@@ -3,11 +3,12 @@ import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction 
 import type { RootState } from '../store'
 import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
 import { ChainsByStruct, PolymerByStruct, ribxz_api } from '../ribxz_api/ribxz_api';
+import { Loci } from 'molstar/lib/mol-model/structure/structure/element/loci';
 
 
 export interface StructurePageState {
     tunnel:{
-        mstar_ref:string | null
+        loci:Loci | null
         ptc: any
     },
   }
@@ -15,8 +16,8 @@ export interface StructurePageState {
 
 const initialState: StructurePageState = {
     tunnel:{
-        mstar_ref: null,
-        ptc:null
+        loci: null,
+        ptc : null
     }
 }
 
@@ -24,8 +25,11 @@ export const structurePageSlice = createSlice({
   name: 'structure_page',
   initialState,
   reducers: {
-    set_tunnel_shape_ref(state, action: PayloadAction<string>) {
-        Object.assign(state, {tunnel:{mstar_ref: action.payload, ptc: state.tunnel.ptc}})
+    set_tunnel_shape_loci(state, action: PayloadAction<Loci>) {
+      console.log("got new loci", action);
+      
+        Object.assign(state, {tunnel:{loci: action.payload, ptc: state.tunnel.ptc}})
+      console.log("finalized state", state);
     },
   },
   extraReducers: (builder) => {
@@ -36,16 +40,8 @@ export const structurePageSlice = createSlice({
 })
 
 export const {
-set_tunnel_shape_ref
+set_tunnel_shape_loci
 } = structurePageSlice.actions
 export default structurePageSlice.reducer
 
 
-
-
-export const prefetchAllStructsOverview = createAsyncThunk( 'all_structs_overview/prefetchAllStructsOverview',
-  async (_, { dispatch }) => {
-    const result = await dispatch(ribxz_api.endpoints.routersRouterStructOverview.initiate());
-    dispatch(set_all_structures_overview( result.data as StructutrePageState[]));
-  }
-)

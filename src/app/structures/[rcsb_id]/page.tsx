@@ -28,8 +28,9 @@ import { Plus, Minus } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { LandmarkItem, LigandItem } from "./structural_component"
-import { LandmarkData, createTunnelLandmark, TunnelActions } from "@/app/landmarks/types"
-import { useAppDispatch } from "@/store/store"
+import {  LandmarkActions, downloadPlyFile } from "@/app/landmarks/types"
+import { useAppDispatch, useAppSelector } from "@/store/store"
+import { set_tunnel_shape_loci } from "@/store/slices/rcsb_id_state"
 
 const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     const handleCifDownload = () => {
@@ -169,10 +170,24 @@ const landmarks = {
     },
 };
 
-const TunnelLandmarkComponent: React.FC<{ data: Partial<Landmark>, rcsb_id: string, ctx: MolstarRibxz }> = ({ data, rcsb_id, ctx }) => {
-    return <LandmarkItem {...landmarks["NPET"]} rcsb_id={rcsb_id} 
-    
-    />;
+const TunnelLandmarkComponent: React.FC<{ rcsb_id: string, ctx: MolstarRibxz }> = ({  rcsb_id, ctx }) => {
+
+    const tunnel_loci = useAppSelector(state=>state.structure_page.tunnel.loci)
+    useEffect(()=>{
+        console.log(tunnel_loci);
+    },[tunnel_loci])
+    const dispatch = useAppDispatch();
+    const defaultTunnelActions: LandmarkActions = {
+      download: (rcsb_id: string) => { downloadPlyFile(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`, `${rcsb_id}_tunnel_geometry.ply`) },
+      render  : async (rcsb_id: string, ctx) => { const tunnel_loci = await ctx?.renderPLY(rcsb_id); 
+        console.log("Returned loci:", tunnel_loci);
+        
+        dispatch(set_tunnel_shape_loci(tunnel_loci))},
+      on_click: () =>{console.log(tunnel_loci);ctx.ctx.managers.structure.selection.fromLoci('add',tunnel_loci)},
+      seldesel: ()=>{ctx.ctx.managers.camera.focusLoci(tunnel_loci)}
+    };
+    return <LandmarkItem  {...landmarks["NPET"]} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions}/>;
+
 };
 
 // const PTCLandmarkComponent: React.FC<{ data: LandmarkData, rcsb_id: string, ctx: MolstarRibxz }> = ({ data, rcsb_id, ctx }) => {
@@ -201,7 +216,7 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 
             <TabsContent value="landmarks">
                 <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                    <TunnelLandmarkComponent data={landmarks.NPET} rcsb_id={data.rcsb_id} ctx={ctx!} />
+                    <TunnelLandmarkComponent  rcsb_id={data.rcsb_id} ctx={ctx!} />
                 </ScrollArea>
             </TabsContent>
 

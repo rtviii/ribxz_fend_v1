@@ -163,21 +163,21 @@ export class MolstarRibxz {
     this.ctx.managers.interactivity.lociHighlights.clearHighlights();
   }
 
-  renderPLY = async (rcsb_id: string) => {
+  highlihgtLoci= (l:Loci)=>{
+    this.ctx.managers.camera.focusLoci(l)
+  }
+  renderPLY = async (rcsb_id: string):Promise<Loci> => {
     const provider = this.ctx.dataFormats.get('ply')!
     const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
-
     const parsed = await provider!.parse(this.ctx, data!);
 
     if (provider.visuals) {
-      const k = await provider.visuals!(this.ctx, parsed);
-      const shape_ref = k.ref
-      console.log(shape_ref)
+      const visual     = await provider.visuals!(this.ctx, parsed);
+      const shape_ref  = visual.ref;
       const meshObject = this.ctx.state.data.select(shape_ref)[0]
-      const shapeGroup = meshObject.obj.data.repr.getAllLoci()
-      this.ctx.managers.camera.focusLoci(shapeGroup);
-
+      const shape_loci = await meshObject.obj.data.repr.getAllLoci()
+      return shape_loci
     } else {
       throw Error("provider.visuals is undefined for this `ply` data format")
     }
