@@ -230,29 +230,35 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
 const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
-        <div className="space-y-2">
-            <p className="text-xs text-gray-500 mb-2">{data?.citation_title}</p>
+        <Accordion type="multiple" defaultValue={[ "info" ]} className="w-full space-y-2">
+            <AccordionItem value="info" >
+                <AccordionTrigger className="text-sm font-semibold">Info</AccordionTrigger>
+                <AccordionContent>
+                    <p className="text-xs text-gray-500 mb-2">{data?.citation_title}</p>
+                    <div className="space-y-0">
+                        {data?.citation_rcsb_authors && (
+                            <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
+                        )}
+                        <InfoRow title="Deposition Year" value={parseDateString(data.deposition_date).year} />
+                        <InfoRow title="Experimental Method" value={<ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />} />
+                        <InfoRow title="Resolution" value={`${data?.resolution} Å`} />
+                        <InfoRow title="Source Organism" value={data?.src_organism_names.join(", ")} />
+                        {data?.host_organism_names?.length > 0 && (
+                            <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
+                        )}
+                    </div>
+                </AccordionContent>
+            </AccordionItem>
 
-            <div className="space-y-0">
-                {data?.citation_rcsb_authors && (
-                    <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
-                )}
+            <AccordionItem value="actions">
+                <AccordionTrigger className="text-sm font-semibold">Actions</AccordionTrigger>
+                <AccordionContent>
+                    <StructureActionsDashboard data={data} isLoading={isLoading} />
+                </AccordionContent>
+            </AccordionItem>
 
-                <InfoRow title="Deposition Year" value={parseDateString(data.deposition_date).year} />
-                <InfoRow title="Experimental Method" value={<ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />} />
-                <InfoRow title="Resolution" value={`${data?.resolution} Å`} />
-                <InfoRow title="Source Organism" value={data?.src_organism_names.join(", ")} />
-
-                {data?.host_organism_names?.length > 0 && (
-                    <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
-                )}
-            </div>
-
-            <div className="mt-4">
-                <StructureActionsDashboard data={data!} isLoading={isLoading} />
-                <StructureEasyAccessPanel data={data!} isLoading={isLoading} />
-            </div>
-        </div>
+            <StructureEasyAccessPanel data={data} isLoading={isLoading} />
+        </Accordion>
     );
 }
 const StructureComponentsTab = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
