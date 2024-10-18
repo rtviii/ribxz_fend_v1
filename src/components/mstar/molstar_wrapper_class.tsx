@@ -155,7 +155,7 @@ export class MolstarRibxz {
 
     let loci = StructureSelection.toLociWithSourceUnits(sel);
     this.ctx.managers.structure.selection.fromLoci(modifier, loci);
-    this.ctx.managers.camera.focusLoci(loci);
+    // this.ctx.managers.camera.focusLoci(loci);
   }
 
   removeHighlight = () => {
