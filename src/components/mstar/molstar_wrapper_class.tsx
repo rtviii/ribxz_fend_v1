@@ -106,6 +106,7 @@ export class MolstarRibxz {
   }
 
 
+
   toggleSpin() {
     if (!this.ctx.canvas3d) return this;
 
@@ -143,9 +144,8 @@ export class MolstarRibxz {
 
   }
 
-  select_chain = (auth_asym_id: string) => {
 
-
+  select_chain = (auth_asym_id: string, modifier:'set'|'add'|'remove'|'intersect') => {
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
     const sel = Script.getStructureSelection(
@@ -154,8 +154,7 @@ export class MolstarRibxz {
       }), data);
 
     let loci = StructureSelection.toLociWithSourceUnits(sel);
-    this.ctx.managers.structure.selection.clear();
-    this.ctx.managers.structure.selection.fromLoci('add', loci);
+    this.ctx.managers.structure.selection.fromLoci(modifier, loci);
     this.ctx.managers.camera.focusLoci(loci);
   }
 

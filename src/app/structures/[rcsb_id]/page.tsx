@@ -121,6 +121,8 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
     name,
     type,
     isSelected,
+    onMouseEnter,
+    onMouseLeave,
     onClick
 }) => {
     const getTypeColor = (type: string) => {
@@ -142,10 +144,10 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
 
     return (
         <button
-            onClick={onClick}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-            className={cn(
+            onClick      = {onClick}
+            onMouseEnter = {onMouseEnter}
+            onMouseLeave = {onMouseLeave}
+            className    = {cn(
                 "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
                 getTypeColor(type),
                 isSelected ? 'ring-2 ring-offset-1 ring-blue-500' : '',
@@ -158,6 +160,7 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
 };
 
 const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+    const ctx = useContext(MolstarContext)
     const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
     const toggleComponent = (id: string) => {
         setSelectedComponents(prev =>
@@ -175,23 +178,29 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
             <div className="flex flex-wrap gap-2">
                 {data.rnas.map(component => (
                     <MolecularComponentBadge
-                        key={component.auth_asym_id}
-                        id={component.auth_asym_id}
-                        name={component.nomenclature[0] || component.auth_asym_id}
-                        type={'rna'}
-                        isSelected={selectedComponents.includes(component.auth_asym_id)}
-                        onClick={() => toggleComponent(component.auth_asym_id)}
+                        key          = {component.auth_asym_id}
+                        id           = {component.auth_asym_id}
+                        name         = {component.nomenclature[0] || component.auth_asym_id}
+                        type         = {'rna'}
+                        isSelected   = {selectedComponents.includes(component.auth_asym_id)}
+                        onClick      = {() => { toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id) } }
+                        onMouseEnter = {ctx? ()=>ctx.highlightChain(component.auth_asym_id) : undefined}
+                        onMouseLeave = {ctx? ()=>ctx.removeHighlight(): undefined}
                     />
+
                 ))}
 
                 {data.proteins.toSorted(sort_by_polymer_class).map(component => (
                     <MolecularComponentBadge
-                        key={component.auth_asym_id}
-                        id={component.auth_asym_id}
-                        name={component.nomenclature[0] || component.auth_asym_id}
-                        type={'protein'}
-                        isSelected={selectedComponents.includes(component.auth_asym_id)}
-                        onClick={() => toggleComponent(component.auth_asym_id)}
+                        key          = {component.auth_asym_id}
+                        id           = {component.auth_asym_id}
+                        name         = {component.nomenclature[0] || component.auth_asym_id}
+                        type         = {'protein'}
+                        isSelected   = {selectedComponents.includes(component.auth_asym_id)}
+                        onClick      = {() => { toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id) } }
+                        onMouseEnter = {ctx? ()=>ctx.highlightChain(component.auth_asym_id) : undefined}
+                        onMouseLeave = {ctx? ()=>ctx.removeHighlight(): undefined}
+
                     />
                 ))}
                 {data.other_polymers.map(component => (
