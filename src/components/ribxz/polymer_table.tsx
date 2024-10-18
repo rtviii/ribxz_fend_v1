@@ -52,7 +52,7 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
 }
 
 
-const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
+export const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
     var poly_class_a = a.nomenclature.length > 0 ? a.nomenclature[0] : null;
     var poly_class_b = b.nomenclature.length > 0 ? b.nomenclature[0] : null;
 

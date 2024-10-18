@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { Polymer, Protein, RibosomeStructure, Rna, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import { useParams, useSearchParams } from 'next/navigation'
-import PolymersTable from "@/components/ribxz/polymer_table"
+import PolymersTable, { sort_by_polymer_class } from "@/components/ribxz/polymer_table"
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
@@ -91,7 +91,6 @@ const StructureActionsDashboard = ({ data, isLoading }: { data: RibosomeStructur
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
         <div className="space-y-2">
-            <h3 className="text-sm font-semibold">Actions</h3>
             <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
                 Download Structure
             </button>
@@ -112,6 +111,9 @@ interface MolecularComponentBadgeProps {
     type: 'protein' | 'rna' | 'ligand' | 'ion' | 'other' | 'non-id-polymer';
     isSelected: boolean;
     onClick: () => void;
+
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
 }
 
 const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
@@ -141,6 +143,8 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
     return (
         <button
             onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
             className={cn(
                 "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
                 getTypeColor(type),
@@ -154,26 +158,7 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
 };
 
 const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-
-
-    // const structure_ligands;
-    // const structure_landmarks;
-
-    const exampleComponents = [
-        { id: '1', name: 'uL22', type: 'protein' },
-        { id: '2', name: 'uL23', type: 'protein' },
-        { id: '3', name: '23S rRNA', type: 'rna' },
-        { id: '4', name: 'ATP', type: 'ligand' },
-        { id: '5', name: 'Mg2+', type: 'ion' },
-        { id: '6', name: 'uS8', type: 'protein' },
-        { id: '7', name: '5S rRNA', type: 'rna' },
-        { id: '8', name: 'GTP', type: 'ligand' },
-    ];
-
-
-
     const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
-
     const toggleComponent = (id: string) => {
         setSelectedComponents(prev =>
             prev.includes(id)
@@ -199,7 +184,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
                     />
                 ))}
 
-                {data.proteins.map(component => (
+                {data.proteins.toSorted(sort_by_polymer_class).map(component => (
                     <MolecularComponentBadge
                         key={component.auth_asym_id}
                         id={component.auth_asym_id}
@@ -234,7 +219,7 @@ const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isL
             <AccordionItem value="info" >
                 <AccordionTrigger className="text-sm font-semibold">Info</AccordionTrigger>
                 <AccordionContent>
-                    <p className="text-xs text-gray-500 mb-2">{data?.citation_title}</p>
+                    <p className="text-xs text-gray-500 ">{data?.citation_title}</p>
                     <div className="space-y-0">
                         {data?.citation_rcsb_authors && (
                             <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
@@ -350,13 +335,13 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
 
     // !Autoload structure
-    // useEffect(() => {
-    //     (async () => {
-    //         const x = new MolstarRibxz
-    //         await x.init(molstarNodeRef.current!)
-    //         setCtx(x)
-    //     })()
-    // }, [])
+    useEffect(() => {
+        (async () => {
+            const x = new MolstarRibxz
+            await x.init(molstarNodeRef.current!)
+            setCtx(x)
+        })()
+    }, [])
 
     useEffect(() => {
         console.log("Fired off download struct");
