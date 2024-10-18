@@ -8,7 +8,6 @@ import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { useContext, useEffect, useMemo, useState } from "react"
 import SequencePopover from "./sequence_popover"
 
-
 interface PolymerTableRowProps {
     polymer: Polymer,
     connect_to_molstar_ctx?: boolean,
