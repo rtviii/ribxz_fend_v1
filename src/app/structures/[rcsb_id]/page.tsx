@@ -5,7 +5,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/compone
 import { RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable from "@/components/ribxz/polymer_table"
-import { createContext,  ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
@@ -13,6 +13,7 @@ import { MolstarNode } from "@/components/mstar/lib"
 import { MolstarContext } from "@/components/ribxz/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { ExpMethodBadge } from "@/components/ribxz/exp_method_badge"
+import { Badge } from '@/components/ui/badge';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -28,7 +29,7 @@ import { Plus, Minus } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { LandmarkItem, LigandItem } from "./structural_component"
-import {  LandmarkActions, downloadPlyFile } from "@/app/landmarks/types"
+import { LandmarkActions, downloadPlyFile } from "@/app/landmarks/types"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { set_tunnel_shape_loci } from "@/store/slices/rcsb_id_state"
 
@@ -65,28 +66,90 @@ const InfoRow = ({ title, value }: { title: string, value: ReactNode }) => (
     </div>
 );
 
-// const InfoSectionAccordion = ({ title, children, isActive }) => {
-//     const [isOpen, setIsOpen] = useState(false);
+const StructureActionsDashboard = ({ data, isLoading }) => {
+    if (isLoading) return <div className="text-xs">Loading...</div>;
+    return (
+        <div className="space-y-2">
+            <h3 className="text-sm font-semibold">Actions</h3>
+            <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
+                Download Structure
+            </button>
+            <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
+                View in 3D
+            </button>
+            <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
+                Analyze Sequence
+            </button>
+        </div>
+    );
+};
+const StructureEasyAccessPanel = ({ data, isLoading }) => {
+  // Example components - replace with actual data from your API
+  const exampleComponents = [
+    { id: '1', name: 'uL22', type: 'protein' },
+    { id: '2', name: 'uL23', type: 'protein' },
+    { id: '3', name: '23S rRNA', type: 'rna' },
+    { id: '4', name: 'ATP', type: 'ligand' },
+    { id: '5', name: 'Mg2+', type: 'ion' },
+    { id: '6', name: 'uS8', type: 'protein' },
+    { id: '7', name: '5S rRNA', type: 'rna' },
+    { id: '8', name: 'GTP', type: 'ligand' },
+  ];
 
-//     return (
-//         <div className={`border-b border-gray-200 ${!isActive ? 'opacity-50' : ''}`}>
-//             <button
-//                 className="flex justify-between items-center w-full py-2 px-4 text-left text-xs font-medium"
-//                 onClick={() => isActive && setIsOpen(!isOpen)}
-//                 disabled={!isActive}
-//             >
+  const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
 
-//                 {title}
-//                 {isActive && (isOpen ? <Minus size={14} /> : <Plus size={14} />)}
-//             </button>
-//             {isOpen && isActive && (
-//                 <div className="px-4 pb-2 text-xs">{children}</div>
-//             )}
-//         </div>
-//     );
-// };
+  const toggleComponent = (id: string) => {
+    setSelectedComponents(prev =>
+      prev.includes(id)
+        ? prev.filter(compId => compId !== id)
+        : [...prev, id]
+    );
+  };
 
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'protein':
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+      case 'rna':
+        return 'bg-green-100 text-green-800 hover:bg-green-200';
+      case 'ligand':
+        return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200';
+      case 'ion':
+        return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
+    }
+  };
 
+  if (isLoading) return <div className="text-xs">Loading components...</div>;
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-sm font-semibold">Structure Components</h3>
+      <div className="flex flex-wrap gap-2">
+        {exampleComponents.map(component => (
+          <Badge
+            key={component.id}
+            variant="outline"
+            className={`cursor-pointer transition-colors ${
+              getTypeColor(component.type)
+            } ${
+              selectedComponents.includes(component.id)
+                ? 'ring-2 ring-offset-1 ring-blue-500'
+                : ''
+            }`}
+            onClick={() => toggleComponent(component.id)}
+          >
+            {component.name}
+          </Badge>
+        ))}
+      </div>
+      <div className="text-xs text-gray-500">
+        Selected: {selectedComponents.length} component(s)
+      </div>
+    </div>
+  );
+};
 const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
@@ -108,29 +171,11 @@ const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, 
                 )}
             </div>
 
-            {/* <div className="mt-4">
-        <InfoSectionAccordion title="Polymers" isActive={hasPolymers}>
-          {hasPolymers && data.polymers.map((polymer, index) => (
-            <div key={index} className="mb-1 cursor-pointer hover:underline">
-              {polymer.name}
+            <div className="mt-4">
+
+                                        <StructureActionsDashboard data={data!} isLoading={isLoading} />
+                <StructureEasyAccessPanel data={data!} isLoading={isLoading} />
             </div>
-          ))}
-        </InfoSectionAccordion>
-        <InfoSectionAccordion title="Ligands" isActive={hasLigands}>
-          {hasLigands && data.ligands.map((ligand, index) => (
-            <div key={index} className="mb-1 cursor-pointer hover:underline">
-              {ligand.name}
-            </div>
-          ))}
-        </InfoSectionAccordion>
-        <InfoSectionAccordion title="Landmarks" isActive={hasLandmarks}>
-          {hasLandmarks && data.landmarks.map((landmark, index) => (
-            <div key={index} className="mb-1 cursor-pointer hover:underline">
-              {landmark.name}
-            </div>
-          ))}
-        </InfoSectionAccordion>
-      </div> */}
         </div>
     );
 };
@@ -168,20 +213,20 @@ const landmarks = {
     },
 };
 
-const TunnelLandmarkComponent: React.FC<{ rcsb_id: string, ctx: MolstarRibxz }> = ({  rcsb_id, ctx }) => {
-    const tunnel_loci = useAppSelector(state=>state.structure_page.tunnel.loci)
+const TunnelLandmarkComponent: React.FC<{ rcsb_id: string, ctx: MolstarRibxz }> = ({ rcsb_id, ctx }) => {
+    const tunnel_loci = useAppSelector(state => state.structure_page.tunnel.loci)
     const dispatch = useAppDispatch();
     const defaultTunnelActions: LandmarkActions = {
-      download: (rcsb_id: string) => { downloadPlyFile(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`, `${rcsb_id}_tunnel_geometry.ply`) },
-      render  : async (rcsb_id: string, ctx) => { const tunnel_loci = await ctx?.renderPLY(rcsb_id); console.log("Returned loci:", tunnel_loci); dispatch(set_tunnel_shape_loci(tunnel_loci))},
-      on_click: () =>{console.log(tunnel_loci);ctx.ctx.managers.structure.selection.fromLoci('add',tunnel_loci[0]); ctx.ctx.managers.camera.focusLoci(tunnel_loci)},
+        download: (rcsb_id: string) => { downloadPlyFile(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`, `${rcsb_id}_tunnel_geometry.ply`) },
+        render: async (rcsb_id: string, ctx) => { const tunnel_loci = await ctx?.renderPLY(rcsb_id); console.log("Returned loci:", tunnel_loci); dispatch(set_tunnel_shape_loci(tunnel_loci)) },
+        on_click: () => { console.log(tunnel_loci); ctx.ctx.managers.structure.selection.fromLoci('add', tunnel_loci[0]); ctx.ctx.managers.camera.focusLoci(tunnel_loci) },
     };
-    return <LandmarkItem  {...landmarks["NPET"]} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions}/>;
+    return <LandmarkItem  {...landmarks["NPET"]} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions} />;
 };
 
 const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     const ctx = useContext(MolstarContext)
-    
+
     if (isLoading) {
         return <div>Loading...</div>
     }
@@ -189,9 +234,9 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 
         return <Tabs defaultValue="polymers">
             <TabsList className="grid w-full grid-cols-3  p-0.5 h-7 mb-2">
-                <TabsTrigger value="polymers"  className="text-xs py-1 px-2">Polymers  </TabsTrigger>
+                <TabsTrigger value="polymers" className="text-xs py-1 px-2">Polymers  </TabsTrigger>
                 <TabsTrigger value="landmarks" className="text-xs py-1 px-2">Landmarks </TabsTrigger>
-                <TabsTrigger value="ligands"   className="text-xs py-1 px-2">Ligands   </TabsTrigger>
+                <TabsTrigger value="ligands" className="text-xs py-1 px-2">Ligands   </TabsTrigger>
             </TabsList>
 
             <TabsContent value="polymers">
@@ -200,7 +245,7 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
 
             <TabsContent value="landmarks">
                 <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                    <TunnelLandmarkComponent  rcsb_id={data.rcsb_id} ctx={ctx!} />
+                    <TunnelLandmarkComponent rcsb_id={data.rcsb_id} ctx={ctx!} />
                 </ScrollArea>
             </TabsContent>
 
@@ -214,8 +259,8 @@ const StructureComponentsDashboard = ({ data, isLoading }: { data: RibosomeStruc
                                 key={i}
                                 title={ligand.chemicalId}
                                 description={ligand.pdbx_description}
-                                // longDescription={ligand.SMILES}
-                                // imageUrl={ligand.imageUrl} // You'll need to add this to your landmarks data
+                            // longDescription={ligand.SMILES}
+                            // imageUrl={ligand.imageUrl} // You'll need to add this to your landmarks data
                             />
                         })
                     }
