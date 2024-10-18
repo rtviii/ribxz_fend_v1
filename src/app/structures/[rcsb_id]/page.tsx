@@ -175,7 +175,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
     return (
         <div className="space-y-4">
             <h3 className="text-sm font-semibold">Structure Components</h3>
-            <Button onClick={()=>{ctx.ctx.managers.structure.selection()}}> Clear Selection </Button>
+            <Button onClick={()=>{ctx?.ctx.managers.structure.selection.clear()}}> Clear Selection </Button>
             <div className="flex flex-wrap gap-2">
                 {data.rnas.map(component => (
                     <MolecularComponentBadge
@@ -185,7 +185,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
                         type         = {'rna'}
                         isSelected   = {selectedComponents.includes(component.auth_asym_id)}
                         onClick      = {() => { toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id, 
-                            selectedComponents.includes(component.auth_asym_id) ? 'set' : 'intersect'
+                            selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
                         ) } }
                         onMouseEnter = {ctx? ()=>ctx.highlightChain(component.auth_asym_id) : undefined}
                         onMouseLeave = {ctx? ()=>ctx.removeHighlight(): undefined}
@@ -201,7 +201,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
                         type         = {'protein'}
                         isSelected   = {selectedComponents.includes(component.auth_asym_id)}
                         onClick      = {() => { toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id, 
-                            selectedComponents.includes(component.auth_asym_id) ? 'set' : 'intersect'
+                            selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
                         ) } }
                         onMouseEnter = {ctx? ()=>ctx.highlightChain(component.auth_asym_id) : undefined}
                         onMouseLeave = {ctx? ()=>ctx.removeHighlight(): undefined}
