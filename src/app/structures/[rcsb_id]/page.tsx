@@ -31,7 +31,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { LandmarkItem, LigandItem } from "./structural_component"
 import { LandmarkActions, downloadPlyFile } from "@/app/landmarks/types"
 import { useAppDispatch, useAppSelector } from "@/store/store"
-import { set_tunnel_shape_loci } from "@/store/slices/rcsb_id_state"
+import { set_id_to_selection, set_tunnel_shape_loci } from "@/store/slices/rcsb_id_state"
 import { cn } from "@/components/utils"
 import { useUserInputPrompt } from "./user_input_prompt"
 
@@ -159,84 +159,6 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
     );
 };
 
-const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-    const ctx = useContext(MolstarContext)
-    const [selectedComponents, setSelectedComponents] = useState<string[]>([]);
-    const toggleComponent = (id: string) => {
-        setSelectedComponents(prev =>
-            prev.includes(id)
-                ? prev.filter(compId => compId !== id)
-                : [...prev, id]
-        );
-    };
-
-    const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt("Enter a name for the new bookmark:");
-    if (isLoading) return <div className="text-xs">Loading components...</div>;
-
-    const createNewSelection = async () =>{
-        const aaids =  ["LE","LG","LL"]
-        const name = promptForNewBookmark();
-        await ctx?.create_multiple_polymers(aaids, name)
-
-    }
-    return (
-        <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Structure Components</h3>
-            <Button onClick={() => {ctx?.ctx.managers.structure.selection.clear() }}> Clear Selection </Button>
-            <Button onClick={() => {createNewSelection()}}> Create New Selection </Button>
-            <div className="flex flex-wrap gap-2">
-                {data.rnas.map(component => (
-                    <MolecularComponentBadge
-                        key={component.auth_asym_id}
-                        id={component.auth_asym_id}
-                        name={component.nomenclature[0] || component.auth_asym_id}
-                        type={'rna'}
-                        isSelected={selectedComponents.includes(component.auth_asym_id)}
-                        onClick={() => {
-                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id,
-                                selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
-                            )
-                        }}
-                        onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
-                        onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
-                    />
-
-                ))}
-
-                {data.proteins.toSorted(sort_by_polymer_class).map(component => (
-                    <MolecularComponentBadge
-                        key={component.auth_asym_id}
-                        id={component.auth_asym_id}
-                        name={component.nomenclature[0] || component.auth_asym_id}
-                        type={'protein'}
-                        isSelected={selectedComponents.includes(component.auth_asym_id)}
-                        onClick={() => {
-                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id,
-                                selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
-                            )
-                        }}
-                        onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
-                        onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
-
-                    />
-                ))}
-                {data.other_polymers.map(component => (
-                    <MolecularComponentBadge
-                        key={component.auth_asym_id}
-                        id={component.auth_asym_id}
-                        name={component.nomenclature[0] || component.auth_asym_id}
-                        type={'non-id-polymer'}
-                        isSelected={selectedComponents.includes(component.auth_asym_id)}
-                        onClick={() => toggleComponent(component.auth_asym_id)}
-                    />
-                ))}
-            </div>
-            <div className="text-xs text-gray-500">
-                Selected: {selectedComponents.length} component(s)
-            </div>
-        </div>
-    );
-};
 
 const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
@@ -343,6 +265,80 @@ const TunnelLandmarkComponent: React.FC<{ rcsb_id: string, ctx: MolstarRibxz }> 
 };
 
 
+const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
+    const ctx = useContext(MolstarContext)
+    const dispatch = useAppDispatch()
+    const selected_polymers = useAppSelector(state=>state.structure_page.selected)
+    const toggleComponent = (id: string) => {
+        dispatch(set_id_to_selection(id))
+    };
+
+    const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt("Enter a name for the new bookmark:");
+    if (isLoading) return <div className="text-xs">Loading components...</div>;
+
+    const createNewSelection = async () =>{
+        const name = promptForNewBookmark();
+        await ctx?.create_multiple_polymers(selected_polymers, name)
+
+    }
+    return (
+        <div className="space-y-4">
+            <h3 className="text-sm font-semibold">Structure Components</h3>
+            <Button onClick={() => {ctx?.ctx.managers.structure.selection.clear() }}> Clear Selection </Button>
+            <Button onClick={() => {createNewSelection()}}> Create New Selection </Button>
+            <div className="flex flex-wrap gap-2">
+                {data.rnas.map(component => (
+                    <MolecularComponentBadge
+                        key={component.auth_asym_id}
+                        id={component.auth_asym_id}
+                        name={component.nomenclature[0] || component.auth_asym_id}
+                        type={'rna'}
+                        isSelected={selected_polymers.includes(component.auth_asym_id)}
+                        onClick={() => {
+                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id,
+                                selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add'
+                            )
+                        }}
+                        onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
+                        onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
+                    />
+
+                ))}
+
+                {data.proteins.toSorted(sort_by_polymer_class).map(component => (
+                    <MolecularComponentBadge
+                        key={component.auth_asym_id}
+                        id={component.auth_asym_id}
+                        name={component.nomenclature[0] || component.auth_asym_id}
+                        type={'protein'}
+                        isSelected={selected_polymers.includes(component.auth_asym_id)}
+                        onClick={() => {
+                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id,
+                                selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add'
+                            )
+                        }}
+                        onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
+                        onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
+
+                    />
+                ))}
+                {data.other_polymers.map(component => (
+                    <MolecularComponentBadge
+                        key={component.auth_asym_id}
+                        id={component.auth_asym_id}
+                        name={component.nomenclature[0] || component.auth_asym_id}
+                        type={'non-id-polymer'}
+                        isSelected={selected_polymers.includes(component.auth_asym_id)}
+                        onClick={() => toggleComponent(component.auth_asym_id)}
+                    />
+                ))}
+            </div>
+            <div className="text-xs text-gray-500">
+                Selected: {selected_polymers.length} component(s)
+            </div>
+        </div>
+    );
+};
 const BookmarkTab = ({ label }: { label: string }) => (
   <div className="group">
     <div className="
@@ -364,11 +360,11 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
   const [ctx, setCtx]                       = useState<MolstarRibxz | null>(null);
   const { data, isLoading, error }          = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id });
 
-    const searchParams = useSearchParams()
-    const ligand_param = searchParams.get('ligand')
-    const ptc = searchParams.get('ptc')
+    const searchParams                                                        = useSearchParams()
+    const ligand_param                                                        = searchParams.get('ligand')
+    const ptc                                                                 = searchParams.get('ptc')
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
-    const [method, setMethod] = useState<undefined | string>()
+    const [method, setMethod]                                                 = useState<undefined | string>()
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
@@ -382,7 +378,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     }, [])
 
     useEffect(() => {
-        console.log("Fired off download struct");
         ctx?.download_struct(rcsb_id)
             .then(({ ctx, struct_representation }) => {
                 if (ligand_param != null) {
