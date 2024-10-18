@@ -89,8 +89,6 @@ const InfoRow = ({ title, value }: { title: string, value: ReactNode }) => (
 
 const StructureInfoDashboard = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
-
-
     return (
         <div className="space-y-2">
             <p className="text-xs text-gray-500 mb-2">{data?.citation_title}</p>
@@ -267,7 +265,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                 <ResizablePanelGroup direction="horizontal">
                     <ResizablePanel defaultSize={25}>
                         <Card className="h-full flex flex-col border-0 rounded-none">
-                            <Tabs defaultValue="components" className="w-full">
+                            <Tabs defaultValue="info" className="w-full">
 
                                 <StructureHeader data={data!} isLoading />
                                 <CardContent className="flex-grow overflow-hidden p-0 pt-2">
