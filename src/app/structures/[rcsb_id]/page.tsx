@@ -182,7 +182,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
     return (
         <div className="space-y-4">
             <h3 className="text-sm font-semibold">Structure Components</h3>
-            <Button onClick={() => { ctx?.ctx.managers.structure.selection.clear() }}> Clear Selection </Button>
+            <Button onClick={() => {ctx?.ctx.managers.structure.selection.clear() }}> Clear Selection </Button>
             <Button onClick={() => {createNewSelection()}}> Create New Selection </Button>
             <div className="flex flex-wrap gap-2">
                 {data.rnas.map(component => (

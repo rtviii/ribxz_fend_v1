@@ -12,7 +12,6 @@ export const useUserInputPrompt = (message: string, options: UseUserInputPromptO
     do {
       input = window.prompt(message, options.defaultValue);
       if (input === null) {
-        // User cancelled the prompt
         return "";
       }
     } while (options.validator && !options.validator(input));

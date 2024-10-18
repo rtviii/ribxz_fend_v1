@@ -145,7 +145,7 @@ export class MolstarRibxz {
   }
 
 
-  select_chain = (auth_asym_id: string, modifier:'set'|'add'|'remove'|'intersect') => {
+  select_chain = (auth_asym_id: string, modifier: 'set' | 'add' | 'remove' | 'intersect') => {
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (!data) return;
     const sel = Script.getStructureSelection(
@@ -162,18 +162,18 @@ export class MolstarRibxz {
     this.ctx.managers.interactivity.lociHighlights.clearHighlights();
   }
 
-  highlihgtLoci= (l:Loci)=>{
+  highlihgtLoci = (l: Loci) => {
     this.ctx.managers.camera.focusLoci(l)
   }
-  renderPLY = async (rcsb_id: string):Promise<Loci> => {
+  renderPLY = async (rcsb_id: string): Promise<Loci> => {
     const provider = this.ctx.dataFormats.get('ply')!
     const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
     const parsed = await provider!.parse(this.ctx, data!);
 
     if (provider.visuals) {
-      const visual     = await provider.visuals!(this.ctx, parsed);
-      const shape_ref  = visual.ref;
+      const visual = await provider.visuals!(this.ctx, parsed);
+      const shape_ref = visual.ref;
       const meshObject = this.ctx.state.data.select(shape_ref)[0]
       const shape_loci = await meshObject.obj.data.repr.getAllLoci()
       return shape_loci
@@ -294,7 +294,7 @@ export class MolstarRibxz {
     for (var chain_residue_tuple of chain_residues_tuples) {
       for (var res_index of chain_residue_tuple[1]) {
         groups.push(MS.struct.generator.atomGroups({
-          "chain-test"  : MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple[0]]),
+          "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain_residue_tuple[0]]),
           "residue-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), res_index]),
         }));
       }
@@ -389,40 +389,83 @@ export class MolstarRibxz {
   }
 
 
-  expression_polymers_selection = (auth_asym_ids:string[]):Expression =>{
+  expression_polymers_selection = (auth_asym_ids: string[]): Expression => {
     const groups: Expression[] = [];
     for (var aaid of auth_asym_ids) {
-        groups.push(MS.struct.generator.atomGroups({
-          "chain-test"  : MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), aaid]),
-        }));
+      groups.push(MS.struct.generator.atomGroups({
+        "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), aaid]),
+      }));
     }
     return MS.struct.combinator.merge(groups);
   }
 
-  create_multiple_polymers=async(auth_asym_ids:string[], object_name:string)=>{
+  create_multiple_polymers = async (auth_asym_ids: string[], object_name: string) => {
 
     let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct     = structures[0];
 
-    const e          = this.expression_polymers_selection(auth_asym_ids)
-    
+    const e         = this.expression_polymers_selection(auth_asym_ids)
     const update    = this.ctx.build();
     const group     = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: object_name }, { ref: `_${object_name}` });
     const chain_sel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: object_name, expression: e }, { ref: object_name });
     chain_sel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'cartoon' }), { ref: `repr_${object_name}_cartoon` });
     await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
+    this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
+    if (this.ctx.canvas3d) {
+      const pp = this.ctx.canvas3d.props.postprocessing;
+      this.ctx.canvas3d.setProps({
+        postprocessing: {
+          outline: {
+            name: 'on',
+            params: pp.outline.name === 'on'
+              ? pp.outline.params
+              : { scale: 1, color: Color(0x000000), threshold: 0.33 }
+          },
+          occlusion: {
+            name: 'on',
+            params: pp.occlusion.name === 'on'
+              ? pp.occlusion.params
+              : { bias: 0.8, blurKernelSize: 15, radius: 5, samples: 32, resolutionScale: 1 }
+          },
+        }
+      });
+    }
+
   }
 
+  set_stylized = async () => {
+    this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
+    if (this.ctx.canvas3d) {
+      const pp = this.ctx.canvas3d.props.postprocessing;
+      this.ctx.canvas3d.setProps({
+        postprocessing: {
+          outline: {
+            name: 'on',
+            params: pp.outline.name === 'on'
+              ? pp.outline.params
+              : { scale: 1, color: Color(0x000000), threshold: 0.33 }
+          },
+          occlusion: {
+            name: 'on',
+            params: pp.occlusion.name === 'on'
+              ? pp.occlusion.params
+              : { bias: 0.8, blurKernelSize: 15, radius: 5, samples: 32, resolutionScale: 1 }
+          },
+        }
+      });
+    }
+
+  }
 
   create_subcomponent_by_auth_asym_id = async (auth_asym_ids: string[]) => {
 
-    let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct     = structures[0];
-    let   expression = MS.struct.generator.atomGroups({ 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), })
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
+    let expression = MS.struct.generator.atomGroups({ 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), })
 
-    const update    = this.ctx.build();
-    const group     = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Chain so and so ` }, { ref: 'chain_so&so' });
+    const update = this.ctx.build();
+    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Chain so and so ` }, { ref: 'chain_so&so' });
     const chain_sel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `ll`, expression: expression }, { ref: 'chainso&so' });
     chain_sel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'cartoon' }), { ref: 'surroundingsBallAndStick' });
     await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
