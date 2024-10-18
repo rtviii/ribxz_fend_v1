@@ -5,7 +5,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/compone
 import { Polymer, Protein, RibosomeStructure, Rna, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import { useParams, useSearchParams } from 'next/navigation'
 import PolymersTable, { sort_by_polymer_class } from "@/components/ribxz/polymer_table"
-import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
@@ -144,10 +144,10 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
 
     return (
         <button
-            onClick      = {onClick}
-            onMouseEnter = {onMouseEnter}
-            onMouseLeave = {onMouseLeave}
-            className    = {cn(
+            onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            className={cn(
                 "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors",
                 getTypeColor(type),
                 isSelected ? 'ring-2 ring-offset-1 ring-blue-500' : '',
@@ -175,36 +175,40 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
     return (
         <div className="space-y-4">
             <h3 className="text-sm font-semibold">Structure Components</h3>
-            <Button onClick={()=>{ctx?.ctx.managers.structure.selection.clear()}}> Clear Selection </Button>
+            <Button onClick={() => { ctx?.ctx.managers.structure.selection.clear() }}> Clear Selection </Button>
             <div className="flex flex-wrap gap-2">
                 {data.rnas.map(component => (
                     <MolecularComponentBadge
-                        key          = {component.auth_asym_id}
-                        id           = {component.auth_asym_id}
-                        name         = {component.nomenclature[0] || component.auth_asym_id}
-                        type         = {'rna'}
-                        isSelected   = {selectedComponents.includes(component.auth_asym_id)}
-                        onClick      = {() => { toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id, 
-                            selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
-                        ) } }
-                        onMouseEnter = {ctx? ()=>ctx.highlightChain(component.auth_asym_id) : undefined}
-                        onMouseLeave = {ctx? ()=>ctx.removeHighlight(): undefined}
+                        key={component.auth_asym_id}
+                        id={component.auth_asym_id}
+                        name={component.nomenclature[0] || component.auth_asym_id}
+                        type={'rna'}
+                        isSelected={selectedComponents.includes(component.auth_asym_id)}
+                        onClick={() => {
+                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id,
+                                selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
+                            )
+                        }}
+                        onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
+                        onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
                     />
 
                 ))}
 
                 {data.proteins.toSorted(sort_by_polymer_class).map(component => (
                     <MolecularComponentBadge
-                        key          = {component.auth_asym_id}
-                        id           = {component.auth_asym_id}
-                        name         = {component.nomenclature[0] || component.auth_asym_id}
-                        type         = {'protein'}
-                        isSelected   = {selectedComponents.includes(component.auth_asym_id)}
-                        onClick      = {() => { toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id, 
-                            selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
-                        ) } }
-                        onMouseEnter = {ctx? ()=>ctx.highlightChain(component.auth_asym_id) : undefined}
-                        onMouseLeave = {ctx? ()=>ctx.removeHighlight(): undefined}
+                        key={component.auth_asym_id}
+                        id={component.auth_asym_id}
+                        name={component.nomenclature[0] || component.auth_asym_id}
+                        type={'protein'}
+                        isSelected={selectedComponents.includes(component.auth_asym_id)}
+                        onClick={() => {
+                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id,
+                                selectedComponents.includes(component.auth_asym_id) ? 'remove' : 'add'
+                            )
+                        }}
+                        onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
+                        onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
 
                     />
                 ))}
@@ -229,7 +233,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
 const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
-        <Accordion type="multiple" defaultValue={[ "info" ]} className="w-full space-y-2">
+        <Accordion type="multiple" defaultValue={["info"]} className="w-full space-y-2">
             <AccordionItem value="info" >
                 <AccordionTrigger className="text-sm font-semibold">Info</AccordionTrigger>
                 <AccordionContent>
@@ -331,22 +335,34 @@ const TunnelLandmarkComponent: React.FC<{ rcsb_id: string, ctx: MolstarRibxz }> 
 };
 
 
+const BookmarkTab = ({ label }: { label: string }) => (
+  <div className="group">
+    <div className="
+      px-2 pr-4 py-1 bg-white border border-gray-200 rounded-r-md shadow-sm cursor-pointer
+      hover:bg-gray-50 text-[10px] w-10 overflow-hidden
+      transition-all duration-250 ease-in-out
+      group-hover:w-auto group-hover:max-w-[200px]
+    ">
+      <span className="block truncate">
+        {label}
+      </span>
+    </div>
+  </div>
+);
 
 export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
+  const { rcsb_id }                         = params;
+  const [leftPanelWidth, setLeftPanelWidth] = useState(25);
+  const [ctx, setCtx]                       = useState<MolstarRibxz | null>(null);
+  const { data, isLoading, error }          = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id });
 
-    const { rcsb_id } = useParams<{ rcsb_id: string; }>()
     const searchParams = useSearchParams()
     const ligand_param = searchParams.get('ligand')
     const ptc = searchParams.get('ptc')
-
     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
-    const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
     const [method, setMethod] = useState<undefined | string>()
 
-
-
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
 
     // !Autoload structure
     useEffect(() => {
@@ -359,7 +375,6 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
 
     useEffect(() => {
         console.log("Fired off download struct");
-
         ctx?.download_struct(rcsb_id)
             .then(({ ctx, struct_representation }) => {
                 if (ligand_param != null) {
@@ -368,37 +383,178 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
             })
     }, [ctx, ligand_param, rcsb_id])
 
-    return (
-        <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <MolstarContext.Provider value={ctx}>
-                <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={25}>
-                        <Card className="h-full flex flex-col border-0 rounded-none">
-                            <Tabs defaultValue="info" className="w-full">
 
-                                <StructureHeader data={data!} isLoading />
-                                <CardContent className="flex-grow overflow-hidden p-0 pt-2">
-                                    <TabsContent value="components">
-                                        <StructureComponentsTab data={data!} isLoading={isLoading} />
-                                    </TabsContent>
+  const resizeObserver = useCallback(() => {
+    return new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setLeftPanelWidth(entry.contentRect.width);
+      }
+    });
+  }, []);
 
-                                    <TabsContent value="info" className="px-3">
-                                        <StructureControlTab data={data!} isLoading={isLoading} />
-                                    </TabsContent>
-                                </CardContent>
-                            </Tabs>
-                        </Card>
-                    </ResizablePanel>
+  const leftPanelRef = useCallback((node: HTMLElement | null) => {
+    if (node !== null) {
+      const observer = resizeObserver();
+      observer.observe(node);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [resizeObserver]);
 
-                    <ResizableHandle className="w-px bg-gray-200" />
+  // Example bookmarks - replace with your actual bookmarks
+  const bookmarks = [
+    "Bookmark 1",
+    "Bookmark 2",
+    "Bookmark 3",
+    "Long Bookmark Name",
+    "Another Bookmark"
+  ];
 
-                    <ResizablePanel defaultSize={75}>
+  return (
+    <div className="flex flex-col h-screen w-screen overflow-hidden">
+      <div 
+        className="absolute top-4 left-0 z-10 flex flex-col space-y-2" 
+        style={{ transform: `translateX(${leftPanelWidth}px)` }}
+      >
+        {bookmarks.map((bookmark, index) => (
+          <BookmarkTab key={index} label={bookmark} />
+        ))}
+      </div>
+      
+      <MolstarContext.Provider value={ctx}>
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={25}>
+            <div ref={leftPanelRef} className="h-full">
+              <Card className="h-full flex flex-col border-0 rounded-none">
+                <Tabs defaultValue="info" className="w-full">
+                  <StructureHeader data={data!} isLoading={isLoading} />
+                  <CardContent className="flex-grow overflow-hidden p-0 pt-2">
+                    <TabsContent value="components">
+                      <StructureComponentsTab data={data!} isLoading={isLoading} />
+                    </TabsContent>
+                    <TabsContent value="info" className="px-3">
+                      <StructureControlTab data={data!} isLoading={isLoading} />
+                    </TabsContent>
+                  </CardContent>
+                </Tabs>
+              </Card>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle className="w-px bg-gray-200" />
+
+          <ResizablePanel defaultSize={75}>
                         <MolstarNode ref={molstarNodeRef} />
-                    </ResizablePanel>
-                </ResizablePanelGroup>
-
-            </MolstarContext.Provider>
-            <SidebarMenu />
-        </div>
-    )
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </MolstarContext.Provider>
+      <SidebarMenu />
+    </div>
+  );
 }
+
+
+
+
+// export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
+
+//     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
+//     const searchParams = useSearchParams()
+//     const ligand_param = searchParams.get('ligand')
+//     const ptc = searchParams.get('ptc')
+//     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
+//     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
+//     const [method, setMethod] = useState<undefined | string>()
+
+
+
+//     const molstarNodeRef = useRef<HTMLDivElement>(null);
+//     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
+
+//     // !Autoload structure
+//     useEffect(() => {
+//         (async () => {
+//             const x = new MolstarRibxz
+//             await x.init(molstarNodeRef.current!)
+//             setCtx(x)
+//         })()
+//     }, [])
+
+//     useEffect(() => {
+//         console.log("Fired off download struct");
+//         ctx?.download_struct(rcsb_id)
+//             .then(({ ctx, struct_representation }) => {
+//                 if (ligand_param != null) {
+//                     ctx.create_ligand(ligand_param!)
+//                 }
+//             })
+//     }, [ctx, ligand_param, rcsb_id])
+
+
+//     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
+//     const leftPanelRef                        = useRef<HTMLDivElement>(null);
+
+//     useEffect(() => {
+//         const resizeObserver = new ResizeObserver((entries) => {
+//             for (let entry of entries) {
+//                 if (entry.target === leftPanelRef.current) {
+//                     setLeftPanelWidth(entry.contentRect.width);
+//                 }
+//             }
+//         });
+
+//         if (leftPanelRef.current) {
+//             resizeObserver.observe(leftPanelRef.current);
+//         }
+
+//         return () => {
+//             resizeObserver.disconnect();
+//         };
+//     }, []);
+//     return (
+//         <div className="flex flex-col h-screen w-screen overflow-hidden">
+//             <div
+//                 className="absolute top-0 left-0 z-10 flex space-x-2"
+//                 style={{ transform: `translateX(${leftPanelWidth}px)` }}
+//             >
+//                 <BookmarkTab label="Bookmark 1" />
+//                 <BookmarkTab label="Bookmark 2" />
+//                 <BookmarkTab label="Bookmark 3" />
+//             </div>
+//             <MolstarContext.Provider value={ctx}>
+//                 <ResizablePanelGroup direction="horizontal">
+//                     <ResizablePanel defaultSize={25} >
+                    
+//             <div ref={leftPanelRef} className="h-full">
+                         
+//                         <Card className="h-full flex flex-col border-0 rounded-none">
+//                             <Tabs defaultValue="info" className="w-full">
+
+//                                 <StructureHeader data={data!} isLoading />
+//                                 <CardContent className="flex-grow overflow-hidden p-0 pt-2">
+//                                     <TabsContent value="components">
+//                                         <StructureComponentsTab data={data!} isLoading={isLoading} />
+//                                     </TabsContent>
+
+//                                     <TabsContent value="info" className="px-3">
+//                                         <StructureControlTab data={data!} isLoading={isLoading} />
+//                                     </TabsContent>
+//                                 </CardContent>
+//                             </Tabs>
+//                         </Card>
+// </div>
+//                     </ResizablePanel>
+
+//                     <ResizableHandle className="w-px bg-gray-200" />
+
+//                     <ResizablePanel defaultSize={75}>
+//                         <MolstarNode ref={molstarNodeRef} />
+//                     </ResizablePanel>
+//                 </ResizablePanelGroup>
+
+//             </MolstarContext.Provider>
+//             <SidebarMenu />
+//         </div>
+//     )
+// }
