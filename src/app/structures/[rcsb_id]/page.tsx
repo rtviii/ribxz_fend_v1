@@ -33,6 +33,7 @@ import { LandmarkActions, downloadPlyFile } from "@/app/landmarks/types"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { set_tunnel_shape_loci } from "@/store/slices/rcsb_id_state"
 import { cn } from "@/components/utils"
+import { useUserInputPrompt } from "./user_input_prompt"
 
 const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     const handleCifDownload = () => {
@@ -104,7 +105,6 @@ const StructureActionsDashboard = ({ data, isLoading }: { data: RibosomeStructur
     );
 };
 
-
 interface MolecularComponentBadgeProps {
     id: string;
     name: string;
@@ -170,12 +170,20 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
         );
     };
 
+    const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt("Enter a name for the new bookmark:");
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
+    const createNewSelection = async () =>{
+        const aaids =  ["LE","LG","LL"]
+        const name = promptForNewBookmark();
+        await ctx?.create_multiple_polymers(aaids, name)
+
+    }
     return (
         <div className="space-y-4">
             <h3 className="text-sm font-semibold">Structure Components</h3>
             <Button onClick={() => { ctx?.ctx.managers.structure.selection.clear() }}> Clear Selection </Button>
+            <Button onClick={() => {createNewSelection()}}> Create New Selection </Button>
             <div className="flex flex-wrap gap-2">
                 {data.rnas.map(component => (
                     <MolecularComponentBadge
@@ -402,15 +410,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     }
   }, [resizeObserver]);
 
-  // Example bookmarks - replace with your actual bookmarks
-  const bookmarks = [
-    "Bookmark 1",
-    "Bookmark 2",
-    "Bookmark 3",
-    "Long Bookmark Name",
-    "Another Bookmark"
-  ];
-
+  const bookmarks:string[] = [ ];
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
       <div 
