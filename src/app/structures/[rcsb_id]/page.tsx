@@ -165,11 +165,15 @@ const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isL
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
         <Accordion type="multiple" defaultValue={["info"]} className="w-full space-y-2">
-            <AccordionItem value="info" >
+            {/* <AccordionItem value="info" >
                 <AccordionTrigger className="text-sm font-semibold">Info</AccordionTrigger>
-                <AccordionContent className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
+            </AccordionItem> */}
+
+
+                <div className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
                     <p className="text-xs text-gray-500 ">{data?.citation_title}</p>
                     <div className="space-y-0">
+
                         {data?.citation_rcsb_authors && (
                             <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
                         )}
@@ -181,15 +185,13 @@ const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isL
                             <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
                         )}
                     </div>
-                </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="actions">
+                </div>
+            {/* <AccordionItem value="actions">
                 <AccordionTrigger className="text-sm font-semibold">Actions</AccordionTrigger>
                 <AccordionContent>
                     <StructureActionsDashboard data={data} isLoading={isLoading} />
                 </AccordionContent>
-            </AccordionItem>
+            </AccordionItem> */}
 
             <StructureEasyAccessPanel data={data} isLoading={isLoading} />
         </Accordion>
@@ -443,7 +445,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
         style={{ transform: `translateX(${leftPanelWidth}px)` }}
       >
         {bookmarks.map((bookmark, index) => (
-          <BookmarkTab key={index} label={bookmark} onClick={()=>ctx?.select_multiple_polymers(selections[bookmark])}/>
+          <BookmarkTab key={index} label={bookmark} onClick={()=>{ ctx?.ctx.managers.structure.selection.clear();ctx?.select_multiple_polymers(selections[bookmark], 'add') }}/>
         ))}
       </div>
       
