@@ -37,6 +37,9 @@ export const structurePageSlice = createSlice({
     },
     set_id_to_selection(state, action: PayloadAction<auth_asym_id>) {
      Object.assign(state, { selected: state.selected.includes(action.payload) ? state.selected.filter(id => id !== action.payload) : [...state.selected, action.payload] })
+    },
+    clear_selection(state, action: PayloadAction<null>) {
+     Object.assign(state, { selected: []})
     }
 
   },
@@ -50,7 +53,8 @@ export const structurePageSlice = createSlice({
 export const {
   set_tunnel_shape_loci,
   snapshot_selection,
-  set_id_to_selection
+  set_id_to_selection,
+  clear_selection
 
 } = structurePageSlice.actions
 export default structurePageSlice.reducer

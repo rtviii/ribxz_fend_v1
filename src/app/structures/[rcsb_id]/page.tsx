@@ -31,7 +31,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { LandmarkItem, LigandItem } from "./structural_component"
 import { LandmarkActions, downloadPlyFile } from "@/app/landmarks/types"
 import { useAppDispatch, useAppSelector } from "@/store/store"
-import { set_id_to_selection, set_tunnel_shape_loci } from "@/store/slices/rcsb_id_state"
+import { clear_selection, set_id_to_selection, set_tunnel_shape_loci, snapshot_selection } from "@/store/slices/rcsb_id_state"
 import { cn } from "@/components/utils"
 import { useUserInputPrompt } from "./user_input_prompt"
 
@@ -166,7 +166,7 @@ const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isL
         <Accordion type="multiple" defaultValue={["info"]} className="w-full space-y-2">
             <AccordionItem value="info" >
                 <AccordionTrigger className="text-sm font-semibold">Info</AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
                     <p className="text-xs text-gray-500 ">{data?.citation_title}</p>
                     <div className="space-y-0">
                         {data?.citation_rcsb_authors && (
@@ -266,26 +266,48 @@ const TunnelLandmarkComponent: React.FC<{ rcsb_id: string, ctx: MolstarRibxz }> 
 
 
 const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
-    const ctx = useContext(MolstarContext)
-    const dispatch = useAppDispatch()
+    const ctx               = useContext(MolstarContext)
+    const dispatch          = useAppDispatch()
     const selected_polymers = useAppSelector(state=>state.structure_page.selected)
-    const toggleComponent = (id: string) => {
+    const toggleComponent   = (id: string) => {
         dispatch(set_id_to_selection(id))
     };
-
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt("Enter a name for the new bookmark:");
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
     const createNewSelection = async () =>{
         const name = promptForNewBookmark();
         await ctx?.create_multiple_polymers(selected_polymers, name)
-
+        dispatch(snapshot_selection({[ name ]:selected_polymers}))
     }
     return (
-        <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Structure Components</h3>
-            <Button onClick={() => {ctx?.ctx.managers.structure.selection.clear() }}> Clear Selection </Button>
-            <Button onClick={() => {createNewSelection()}}> Create New Selection </Button>
+        <div className="space-y-4 shadow-inner bg-slate-100 p-2 border-gray-200 rounded-md">
+            <h3 className="text-sm  font-semibold"><span>Structure Components</span>
+                 </h3>
+
+                <div className="space-x-1">
+   <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
+          onClick={() => {
+            ctx?.select_multiple_polymers(selected_polymers, 'remove')
+            dispatch(clear_selection(null))
+            // ctx?.ctx.managers.structure.selection.clear();
+        }}
+        >
+          Clear Selection
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+          onClick={() => {createNewSelection()}}
+        >
+          Create New Selection
+        </Button>
+                
+</div>
             <div className="flex flex-wrap gap-2">
                 {data.rnas.map(component => (
                     <MolecularComponentBadge
@@ -295,9 +317,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
                         type={'rna'}
                         isSelected={selected_polymers.includes(component.auth_asym_id)}
                         onClick={() => {
-                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id,
-                                selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add'
-                            )
+                            toggleComponent(component.auth_asym_id); ctx?.select_chain(component.auth_asym_id, selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add' )
                         }}
                         onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
                         onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}

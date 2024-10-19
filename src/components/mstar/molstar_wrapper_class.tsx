@@ -155,7 +155,6 @@ export class MolstarRibxz {
 
     let loci = StructureSelection.toLociWithSourceUnits(sel);
     this.ctx.managers.structure.selection.fromLoci(modifier, loci);
-    // this.ctx.managers.camera.focusLoci(loci);
   }
 
   removeHighlight = () => {
@@ -400,17 +399,13 @@ export class MolstarRibxz {
   }
 
 
-  select_multiple_polymers = async (auth_asym_ids: string[])=>{
+  select_multiple_polymers = async (auth_asym_ids: string[],  modifier: 'set' | 'add' | 'remove' | 'intersect')=>{
     const e         = this.expression_polymers_selection(auth_asym_ids)
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (data === undefined) return;
     const sel = Script.getStructureSelection(e, data);
     let loci = StructureSelection.toLociWithSourceUnits(sel);
-
-    this.ctx.managers.structure.selection.clear();
-    this.ctx.managers.structure.selection.fromLoci('add', loci);
-    this.ctx.managers.camera.focusLoci(loci);
-
+    this.ctx.managers.structure.selection.fromLoci(modifier, loci);
   }
 
   create_multiple_polymers = async (auth_asym_ids: string[], object_name: string) => {
