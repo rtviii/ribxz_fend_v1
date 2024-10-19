@@ -171,7 +171,8 @@ const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isL
 
 
                 <div className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
-                    <p className="text-xs text-gray-500 ">{data?.citation_title}</p>
+            <h3 className="text-sm  font-semibold mb-2"><span>Info</span></h3>
+                    <p className="text-xs text-gray-500 mb-1 ">{data?.citation_title}</p>
                     <div className="space-y-0">
 
                         {data?.citation_rcsb_authors && (
