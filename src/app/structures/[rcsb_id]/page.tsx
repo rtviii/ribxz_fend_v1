@@ -339,9 +339,11 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
         </div>
     );
 };
-const BookmarkTab = ({ label }: { label: string }) => (
+const BookmarkTab = ({ label, onClick }: { label: string, onClick:()=>void }) => (
   <div className="group">
-    <div className="
+    <div 
+    onClick={onClick}
+    className="
       px-2 pr-4 py-1 bg-white border border-gray-200 rounded-r-md shadow-sm cursor-pointer
       hover:bg-gray-50 text-[10px] w-10 overflow-hidden
       transition-all duration-250 ease-in-out
@@ -405,7 +407,14 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     }
   }, [resizeObserver]);
 
-  const bookmarks:string[] = [ ];
+  const selections = useAppSelector(state=>state.structure_page.saved_selections)
+  useEffect(()=>{
+
+  console.log(selections);
+  },[selections])
+  
+  const bookmarks = Object.keys(selections)
+
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
       <div 
@@ -413,7 +422,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
         style={{ transform: `translateX(${leftPanelWidth}px)` }}
       >
         {bookmarks.map((bookmark, index) => (
-          <BookmarkTab key={index} label={bookmark} />
+          <BookmarkTab key={index} label={bookmark} onClick={()=>ctx?.select_multiple_polymers(selections[bookmark])}/>
         ))}
       </div>
       

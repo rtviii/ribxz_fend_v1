@@ -399,6 +399,20 @@ export class MolstarRibxz {
     return MS.struct.combinator.merge(groups);
   }
 
+
+  select_multiple_polymers = async (auth_asym_ids: string[])=>{
+    const e         = this.expression_polymers_selection(auth_asym_ids)
+    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    if (data === undefined) return;
+    const sel = Script.getStructureSelection(e, data);
+    let loci = StructureSelection.toLociWithSourceUnits(sel);
+
+    this.ctx.managers.structure.selection.clear();
+    this.ctx.managers.structure.selection.fromLoci('add', loci);
+    this.ctx.managers.camera.focusLoci(loci);
+
+  }
+
   create_multiple_polymers = async (auth_asym_ids: string[], object_name: string) => {
 
     let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
