@@ -92,15 +92,16 @@ const StructureActionsDashboard = ({ data, isLoading }: { data: RibosomeStructur
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
         <div className="space-y-2">
-            <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
-                Download Structure
+            <h3>TODO: This is not needed. Just add tunnel/PTC/Landmarks/Ligands to components tray</h3>
+            {/* <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
+                Donwload
             </button>
             <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
-                View in 3D
+                Toggle LSU
             </button>
             <button className="w-full text-left text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded">
                 Analyze Sequence
-            </button>
+            </button> */}
         </div>
     );
 };
@@ -293,7 +294,7 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
           onClick={() => {
             ctx?.select_multiple_polymers(selected_polymers, 'remove')
             dispatch(clear_selection(null))
-            // ctx?.ctx.managers.structure.selection.clear();
+            ctx?.ctx.managers.structure.selection.clear();
         }}
         >
           Clear Selection
