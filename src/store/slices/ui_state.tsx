@@ -59,7 +59,7 @@ export type LigandInstance = {
 }
 
 export interface UIState {
-    taxid_dict: Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>,
+    taxid_dict: Record<number, string>,
     ligands_page: {
         data              : LigandInstances,
         filtered_data     : LigandInstances
