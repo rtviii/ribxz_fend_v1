@@ -13,9 +13,7 @@ import { PolymerClassOption, groupedOptions } from "@/components/ribxz/filters_p
 import { pagination_set_page, set_current_polymer_class, set_current_polymers } from "@/store/slices/ui_state"
 import { Protein, Rna, ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
 import PolymersTable from "@/components/ribxz/polymer_table"
-import { TableRow } from "@/components/ui/table"
 import { useSearchParams } from "next/navigation"
-import { PolymerType } from "molstar/lib/mol-model/structure/model/types"
 
 
 
@@ -28,24 +26,18 @@ function PolymerInput(props: PolymerInputProps) {
     const dispatch                                                                   = useAppDispatch();
     const current_polymer_class                                                      = useAppSelector((state) => state.ui.polymers.current_polymer_class)
     const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-    useEffect(() => {
-        if (nomenclature_classes !== undefined) {
-            setPolymerClassOptions(groupedOptions(nomenclature_classes))
-        }
-    }, [nomenclature_classes, nomenclature_classes_is_loading]);
+    useEffect(() => { if (nomenclature_classes !== undefined) { setPolymerClassOptions(groupedOptions(nomenclature_classes)) } }, [nomenclature_classes, nomenclature_classes_is_loading]);
 
 
 
     return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
         <Label htmlFor="input" className={`font-bold text-md mb-2   ${props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
         <Select
-            defaultValue={null}
-            className="w-full max-h-82"
-            showSearch={true}
-            // components={{ Group }}
-            value={current_polymer_class}
-            options={polymerClassOptions}
-            onChange={(value) => {
+            className  = "w-full max-h-82"
+            showSearch = {true}
+            value      = {current_polymer_class}
+            options    = {polymerClassOptions}
+            onChange   = {(value) => {
 
                 dispatch(set_current_polymer_class(value))
             }}
@@ -57,7 +49,6 @@ function PolymerInput(props: PolymerInputProps) {
 
 export default function PolymersPage() {
     const [tab, setTab] = useState("by_polymer_class");
-
     const dispatch         = useAppDispatch();
     const onTabChange      = (value: string) => { setTab(value); }
     const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
@@ -165,9 +156,13 @@ export default function PolymersPage() {
                 <div className="grow"  >
                     <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
                         <div className="col-span-3  flex flex-col min-h-full pr-4">
-
-                            <PolymerInput isDisabled={tab === "by_structure"} />
-                            <Filters disabled_whole={tab === "by_polymer_class"} />
+                            {
+                                 tab  === 'by_polymer_class' ?  <PolymerInput isDisabled={false} />: null
+                            }
+                            {
+                                 tab  === 'by_structure' ? <Filters disabled_whole={false} /> : null }
+                            {/* <PolymerInput isDisabled={tab === "by_structure"} /> */}
+                            {/* <Filters disabled_whole={tab === "by_polymer_class"} /> */}
                             <SidebarMenu />
                             <div className="p-1 my-4 rounded-md border w-full">
                                 <PaginationElement slice_type={"polymers"} />

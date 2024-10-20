@@ -104,7 +104,7 @@ const initialState: UIState = {
         total_polymers_count  : null
     },
     polymers: { // polymers_page
-        current_polymer_class: null
+        current_polymer_class: "EF-Tu"
     },
     filters: {
         search          : '',

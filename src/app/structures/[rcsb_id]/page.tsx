@@ -174,7 +174,6 @@ const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isL
             <h3 className="text-sm  font-semibold mb-2"><span>Info</span></h3>
                     <p className="text-xs text-gray-500 mb-1 ">{data?.citation_title}</p>
                     <div className="space-y-0">
-
                         {data?.citation_rcsb_authors && (
                             <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
                         )}

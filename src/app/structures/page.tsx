@@ -23,32 +23,29 @@ import { debounce } from "lodash"
 
 
 export default function StructureCatalogue() {
-  const dispatch = useAppDispatch();
-  const filter_state = useAppSelector((state) => state.ui.filters)
-  const debounced_filters = useDebounceFilters(filter_state, 250)
-  const [hasMore, setHasMore] = useState(true);
-  const [groupByDeposition, setGroupByDeposition] = useState(false);
 
-  const [cursor, setCursor] = useState(null)
-  // const [structures, setStructures]                                                                    = useState<RibosomeStructure[]>([])
+  const dispatch                                                                                          = useAppDispatch();
+  const filter_state                                                                                      = useAppSelector((state) => state.ui.filters)
+  const debounced_filters                                                                                 = useDebounceFilters(filter_state, 250)
+  const [hasMore, setHasMore]                                                                             = useState(true);
+  const [groupByDeposition, setGroupByDeposition]                                                         = useState(false);
+  const [cursor, setCursor]                                                                               = useState(null)
   const [getStructures, { isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error }] = useGetStructuresMutation()
-  const [isLoading, setIsLoading] = useState(false);
-  const current_structures = useAppSelector(state => state.ui.data.current_structures);
-  const total_structures_count = useAppSelector(state => state.ui.data.total_structures_count);
-
-
+  const [isLoading, setIsLoading]                                                                         = useState(false);
+  const current_structures                                                                                = useAppSelector(state => state.ui.data.current_structures);
+  const total_structures_count                                                                            = useAppSelector(state => state.ui.data.total_structures_count);
 
   const fetchStructures = async (newCursor: string | null = null) => {
     setIsLoading(true);
     const payload = {
-      cursor: newCursor,
-      limit: 20,
-      year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
-      search: filter_state.search || null,
-      resolution: filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null : filter_state.resolution,
-      polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
-      source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
-      host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
+      cursor          : newCursor,
+      limit           : 20,
+      year            : filter_state.year[0] === null && filter_state.year[1] === null ? null            : filter_state.year,
+      search          : filter_state.search || null,
+      resolution      : filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null: filter_state.resolution,
+      polymer_classes : filter_state.polymer_classes.length === 0 ? null                                 : filter_state.polymer_classes,
+      source_taxa     : filter_state.source_taxa.length === 0 ? null                                     : filter_state.source_taxa,
+      host_taxa       : filter_state.host_taxa.length === 0 ? null                                       : filter_state.host_taxa,
       subunit_presence: filter_state.subunit_presence || null,
     };
 

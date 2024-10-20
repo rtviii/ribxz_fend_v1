@@ -1,130 +1,158 @@
-'use client'
-import { MolstarContext as MolstarAppContext } from "@/components/ribxz/molstar_context"
-import { Badge } from "@/components/ui/badge"
-import { TableHead, TableRow, TableHeader, TableCell, TableBody, Table } from "@/components/ui/table"
-import { NonpolymericLigand, Polymer, Protein, Rna, ribxz_api } from "@/store/ribxz_api/ribxz_api"
-import { useAppSelector } from "@/store/store"
-import { ScrollArea } from "@radix-ui/react-scroll-area"
-import { useContext, useEffect, useMemo, useState } from "react"
-import SequencePopover from "./sequence_popover"
+import React, { useState, useMemo } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
-interface PolymerTableRowProps {
-    polymer: Polymer,
-    connect_to_molstar_ctx?: boolean,
-    classification_report?: []
-}
-
-interface PolymersTableProps {
-    polymers               : Polymer[],
-    connect_to_molstar_ctx?: boolean
-    if_empty_prompt       ?: React.ReactNode
-}
-
-export const PolymerTableRow = (props: PolymerTableRowProps) => {
-    const polymer = props.polymer
-    const ctx = useContext(MolstarAppContext)
-    const [trigger, result, lastPromiseInfo] = ribxz_api.useLazyRoutersRouterStructPolymerClassificationReportQuery();
-    const [classification_report, setClassificationReport] = useState()
-    const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
-
-    return <TableRow
-
-
-        className="cursor-pointer h-6"
-        onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
-        onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
-        onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
-
-        <TableCell className=" py-0.5 px-2 text-xs text-center">{polymer.auth_asym_id}</TableCell>
-        <TableCell className=" py-0.5 px-2 text-xs text-center">
-            <Badge variant="outline" className="hover:bg-muted hover:cursor-pointer" >
-                {polymer.nomenclature}
-            </Badge>
-        </TableCell>
-        <TableCell className=" py-0.5 px-2 text-xs whitespace-pre text-center">
-            <SequencePopover
-                seqType={polymer.entity_poly_polymer_type === 'Protein' ? 'amino' : 'rna'}
-                sequence={polymer.entity_poly_seq_one_letter_code_can}
-                polymer={polymer}
-            />
-        </TableCell>
-    </TableRow>
-}
-
-
-export const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
-    var poly_class_a = a.nomenclature.length > 0 ? a.nomenclature[0] : null;
-    var poly_class_b = b.nomenclature.length > 0 ? b.nomenclature[0] : null;
-
-    if (poly_class_a === poly_class_b) {
-        return 0;
-    } if (poly_class_a === null) {
-        return 1;
-    }
-    else if (poly_class_b === null) {
-        return -1;
-    }
-
-
-    const [, prefixA, numberA] = poly_class_a.match(/([a-zA-Z]+)(\d*)/) || [];
-    const [, prefixB, numberB] = poly_class_b.match(/([a-zA-Z]+)(\d*)/) || [];
-
-    if (prefixA !== prefixB) {
-        return prefixA.localeCompare(prefixB);
-    }
-
-    const numA = numberA ? parseInt(numberA, 10) : 0;
-    const numB = numberB ? parseInt(numberB, 10) : 0;
-    return numA - numB;
+export type Polymer = {
+  assembly_id: number;
+  asym_ids: string[];
+  auth_asym_id: string;
+  parent_rcsb_id: string;
+  src_organism_names: string[];
+  host_organism_names: string[];
+  src_organism_ids: number[];
+  host_organism_ids: number[];
+  rcsb_pdbx_description?: string | null;
+  entity_poly_strand_id: string;
+  entity_poly_seq_one_letter_code: string;
+  entity_poly_seq_one_letter_code_can: string;
+  entity_poly_seq_length: number;
+  entity_poly_polymer_type: string;
+  entity_poly_entity_type: string;
+  nomenclature: string[];
 };
 
-export default function PolymersTable(props: PolymersTableProps) {
-    const proteins = props.polymers.filter(p => p.entity_poly_polymer_type == "Protein")
-    const rnas = props.polymers.filter(p => p.entity_poly_polymer_type == "RNA")
-    return (
-        <div>
-            <ScrollArea className="max-h-[80vh] rounded-md border overflow-auto no-scrollbar p-0.5">
-                <Table className="border-collapse">
-                    <TableHeader>
-                        <TableRow>
-                            {[['auth_asym_id', 'auth_asym_id'], ['Polymer Class', 'polymer_class'], ["Sequence", "sequence"]].map((ColumnName) => (
-                                <TableHead key={ColumnName[0]} className="py-0.5 px-2 font-normal text-xs bg-muted border-b-2 border-black">
-                                    {ColumnName[0] === 'auth_asym_id' ? <code>{ColumnName[0]}</code> : ColumnName[0]}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody >
-                        {props.polymers.toSorted(sort_by_polymer_class)
-                            .filter(p => p.assembly_id === 0)
-                            .map(p =>
-                                <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />
-                            )}
-                    </TableBody>
-                </Table>
-            </ScrollArea>
-        </div>
-
-    )
+interface PolymerTableRowProps {
+  polymer: Polymer;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+  showSequence: boolean;
+  visibleColumns: (keyof Polymer)[];
 }
 
-function DeleteIcon(props: any) {
+const PolymerTableRow: React.FC<PolymerTableRowProps> = ({ polymer, isSelected, onSelect, showSequence, visibleColumns }) => {
+  const id = `${polymer.parent_rcsb_id}-${polymer.auth_asym_id}`;
+
+  if (showSequence) {
     return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      <TableRow>
+        <TableCell className="py-1 px-2">
+          <Checkbox checked={isSelected} onCheckedChange={() => onSelect(id)} />
+        </TableCell>
+        <TableCell className="py-1 px-2 font-mono text-xs" colSpan={visibleColumns.length}>
+          {polymer.entity_poly_seq_one_letter_code_can}
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  return (
+    <TableRow>
+      <TableCell className="py-1 px-2">
+        <Checkbox checked={isSelected} onCheckedChange={() => onSelect(id)} />
+      </TableCell>
+      {visibleColumns.map((column) => (
+        <TableCell key={column} className="py-1 px-2 text-xs">
+          {column === 'nomenclature' ? (
+            <Badge variant="outline" className="text-xs">
+              {polymer.nomenclature.join(', ')}
+            </Badge>
+          ) : column === 'rcsb_pdbx_description' ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  {polymer[column]?.substring(0, 20)}...
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{polymer[column]}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            String(polymer[column])
+          )}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+};
+
+interface PolymersTableProps {
+  polymers: Polymer[];
+  visibleColumns?: (keyof Polymer)[];
+}
+
+const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns = ['auth_asym_id', 'nomenclature', 'parent_rcsb_id', 'src_organism_ids', 'rcsb_pdbx_description'] }) => {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showSequence, setShowSequence] = useState(false);
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const sortedPolymers = useMemo(() => {
+    return [...polymers].sort((a, b) => {
+      const polyClassA = a.nomenclature[0] || '';
+      const polyClassB = b.nomenclature[0] || '';
+      return polyClassA.localeCompare(polyClassB);
+    });
+  }, [polymers]);
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium">
+          {selectedIds.size} of {polymers.length} selected
+        </span>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setShowSequence(!showSequence)}
         >
-            <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z" />
-            <line x1="18" x2="12" y1="9" y2="15" />
-            <line x1="12" x2="18" y1="9" y2="15" />
-        </svg>
-    )
-}
+          {showSequence ? <ChevronUp className="h-4 w-4 mr-1" /> : <ChevronDown className="h-4 w-4 mr-1" />}
+          {showSequence ? 'Hide Sequence' : 'Show Sequence'}
+        </Button>
+      </div>
+      <ScrollArea className="h-[70vh] rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[30px]"></TableHead>
+              {visibleColumns.map((column) => (
+                <TableHead key={column} className="py-1 px-2 font-medium text-xs">
+                  {column}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sortedPolymers.map((polymer) => (
+              <PolymerTableRow
+                key={`${polymer.parent_rcsb_id}-${polymer.auth_asym_id}`}
+                polymer={polymer}
+                isSelected={selectedIds.has(`${polymer.parent_rcsb_id}-${polymer.auth_asym_id}`)}
+                onSelect={toggleSelected}
+                showSequence={showSequence}
+                visibleColumns={visibleColumns}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </ScrollArea>
+    </div>
+  );
+};
+
+export default PolymersTable;
