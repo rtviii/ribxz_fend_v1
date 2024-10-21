@@ -193,15 +193,17 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
     var pic = _.rcsb_id.toUpperCase() + ".png"
   }
 
+  // const pic = "8WID.gif"
   const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
 
   return (
     <Link href={`/structures/${_.rcsb_id}`}>
       <Card className="w-80  max-h-full h-full  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
         <div className="relative h-[50%] transition-all duration-300 hover:h-[100%] border-b-2 ">
-          <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
+          <Image alt="Card Image" className="w-full h-full object-cover" height={160} width ={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
           <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
           <ExpMethodBadge expMethod={_.expMethod} resolution={_.resolution.toFixed(2)} className="absolute bottom-4 left-4" />
+
           {/* TODO: Replace with `deposition_year` */}
           {_.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null}
           {_.deposition_date ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{parseDateString(_.deposition_date).year}  </div> : null}

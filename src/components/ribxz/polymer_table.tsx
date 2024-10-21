@@ -18,7 +18,6 @@ interface PolymerTableRowProps {
     visibleColumns: (keyof Polymer)[];
 }
 
-
 interface PolymerTableRowProps {
     polymer: Polymer;
     isSelected: boolean;
@@ -129,7 +128,6 @@ const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns 
             return newSet;
         });
     };
-
     const sortedPolymers = useMemo(() => {
         return [...polymers].sort((a, b) => {
             const polyClassA = a.nomenclature[0] || '';
@@ -193,7 +191,7 @@ const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns 
         </ScrollArea>
       </div>
     </div>
-  );;
+  );
 };
 
 export default PolymersTable;

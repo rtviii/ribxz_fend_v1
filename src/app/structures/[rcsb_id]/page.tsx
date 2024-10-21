@@ -1,10 +1,10 @@
 'use client'
-import { CardTitle, CardHeader, CardContent, CardFooter, Card, CardDescription } from "@/components/ui/card"
+import {  CardContent, Card } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/components/ui/resizable"
 import { Polymer, Protein, RibosomeStructure, Rna, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import { useParams, useSearchParams } from 'next/navigation'
-import PolymersTable, { sort_by_polymer_class } from "@/components/ribxz/polymer_table"
+import PolymersTable  from "@/components/ribxz/polymer_table"
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
@@ -31,9 +31,27 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { LandmarkItem, LigandItem } from "./structural_component"
 import { LandmarkActions, downloadPlyFile } from "@/app/landmarks/types"
 import { useAppDispatch, useAppSelector } from "@/store/store"
-import { clear_selection, set_id_to_selection, set_tunnel_shape_loci, snapshot_selection } from "@/store/slices/rcsb_id_state"
+import { clear_selection, set_id_to_selection, set_tunnel_shape_loci, snapshot_selection } from "@/store/slices/slice_structure_page"
 import { cn } from "@/components/utils"
 import { useUserInputPrompt } from "./user_input_prompt"
+
+
+const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
+  if ( a.nomenclature.length === 0 || b.nomenclature.length === 0 ) {
+    return 0
+  }
+  const [, prefixA, numberA] = a.nomenclature[0].match(/([a-zA-Z]+)(\d*)/) || [];
+  const [, prefixB, numberB] = b.nomenclature[0].match(/([a-zA-Z]+)(\d*)/) || [];
+
+  if (prefixA !== prefixB) {
+    return prefixA.localeCompare(prefixB);
+  }
+
+  const numA = numberA ? parseInt(numberA, 10) : 0;
+  const numB = numberB ? parseInt(numberB, 10) : 0;
+  return numA - numB;
+};
+
 
 const DownloadDropdown = ({ rcsb_id }: { rcsb_id: string }) => {
     const handleCifDownload = () => {
@@ -213,7 +231,7 @@ const StructureComponentsTab = ({ data, isLoading }: { data: RibosomeStructure, 
             </TabsList>
 
             <TabsContent value="polymers">
-                {!isLoading ? <PolymersTable polymers={[...data.proteins, ...data.rnas, ...data.other_polymers]} connect_to_molstar_ctx={true} /> : null}
+                {!isLoading ? <PolymersTable polymers={[...data.proteins, ...data.rnas, ...data.other_polymers]}  /> : null}
             </TabsContent>
 
             <TabsContent value="landmarks">

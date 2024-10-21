@@ -12,7 +12,7 @@ import {
 
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { FiltersState, pagination_next_page, pagination_prev_page, pagination_set_page, set_filter } from "@/store/slices/ui_state";
+import { StructureFilters, set_filter } from "@/store/slices/slice_structures";
 
 const groupStyles = {
   borderRadius: '5px',
@@ -35,7 +35,7 @@ export enum FilterType {
   Sort           = "Sort"
 }
 
-export function useDebounceFilters(value: Partial<FiltersState>, delay: number): Partial<FiltersState> {
+export function useDebounceFilters(value: Partial<StructureFilters>, delay: number): Partial<StructureFilters> {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
@@ -51,21 +51,16 @@ export function useDebounceFilters(value: Partial<FiltersState>, delay: number):
   return debouncedValue;
 }
 
-interface FiltersProps {
-  disabled_whole?: boolean,
-}
 
-export function Filters(props: FiltersProps) {
+export function StructureFiltersComponent() {
 
   const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-
-  const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
-  const struct_state                                  = useAppSelector((state) => state.ui.data)
-  const filters                                       = useAppSelector(state => state.ui.filters)!
+  const total_count                                   = useAppSelector(state=>state.structures_page.total_structures_count)
+  const filters                                       = useAppSelector(state => state.structures_page.filters)!
   const dispatch                                      = useAppDispatch();
 
-
+  const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
   useEffect(() => {
     if (nomenclature_classes !== undefined) {
       setPolymerClassOptions(groupedOptions(nomenclature_classes))
@@ -77,9 +72,9 @@ export function Filters(props: FiltersProps) {
     <Collapsible className=" p-4  border rounded-sm bg-slate-100 shadow-inner " defaultChecked={true} defaultOpen={true} disabled={true}>
       <div className="flex items-center justify-between  mb-2 ">
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex ">
-          <div className={` min-w-full font-semibold flex flex-row justify-between ${props.disabled_whole ? "disabled-text" : ""}`}>
+          <div className={` min-w-full font-semibold flex flex-row justify-between `}>
             <span>Structure Filters</span>
-            <span className="font-semibold"> [{struct_state.total_structures_count} structures]</span>
+            <span className="font-semibold"> [{total_count} structures]</span>
           </div>
         </CollapsibleTrigger>
       </div>
@@ -87,7 +82,6 @@ export function Filters(props: FiltersProps) {
       <CollapsibleContent >
         <div className="space-y-2">
           <Input placeholder="Search" className="bg-white"
-            disabled={props.disabled_whole}
             value={filters.search == null ? '' : filters.search}
             onChange={(e) => {
               dispatch(set_filter({
@@ -97,29 +91,29 @@ export function Filters(props: FiltersProps) {
             }} />
 
           <div className="flex items-center justify-between space-x-2">
-            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="startYear" >
+            <label className={`text-sm font-medium `} htmlFor="startYear" >
               Deposition year
             </label>
             <div className="flex items-center space-x-2">
-              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+              <Input  className="w-20 bg-white" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+              <Input  className="w-20 bg-white" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
             </div>
           </div>
 
           <div className="flex items-center justify-between space-x-2">
-            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="minResolution">
+            <label className={`text-sm font-medium `} htmlFor="minResolution">
               Resolution
             </label>
             <div className="flex items-center space-x-2">
-              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
-              <Input disabled={props.disabled_whole} className="w-20 bg-white" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
+              <Input className="w-20 bg-white" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+              <Input className="w-20 bg-white" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
             </div>
           </div>
 
           <div className="flex flex-row space-x-2">
 
             <div className="w-full h-full">
-              <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="Subunit">
+              <label className={`text-sm font-medium `} htmlFor="Subunit">
                 Subunit
               </label>
               <Select
@@ -137,19 +131,18 @@ export function Filters(props: FiltersProps) {
                 }}
 
                 isClearable={true}
-                instanceId={"polymer_class"}
+                instanceId={"subunit_presence"}
                 // @ts-ignore
                 options={[{ value: "SSU+LSU", id: "SSU+LSU", label: "SSU+LSU", color: 'red' }, { value: "SSU", id: "SSU", label: "SSU", color: 'red' }, { value: "LSU", id: "LSU", label: "LSU", color: 'red' }]}
                 // components={{ Group }}
                 // @ts-ignore
                 // isMulti={true}
-                isDisabled={props.disabled_whole}
               // isSearchable={true}
               />
             </div>
 
             <div className="w-full h-full">
-              <label className={`text-sm font-medium my-4  ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="proteinsPresent">
+              <label className={`text-sm font-medium my-4  `} htmlFor="proteinsPresent">
                 Polymer Classes
               </label>
               <Select
@@ -162,14 +155,13 @@ export function Filters(props: FiltersProps) {
                 components={{ Group }}
                 // @ts-ignore
                 isMulti={true}
-                isDisabled={props.disabled_whole}
                 isSearchable={true}
               />
             </div>
 
           </div>
           <div className="space-y-2">
-            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="SourceOrganism">
+            <label className={`text-sm font-medium `} htmlFor="SourceOrganism">
               Source Organism
             </label>
             <div className="text-sm font-medium" >
@@ -185,13 +177,12 @@ export function Filters(props: FiltersProps) {
                 variant="outlined"
                 onChange={(v) => { dispatch(set_filter({ filter_type: "source_taxa", value: v })) }}
                 treeData={tax_dict}
-                disabled={props.disabled_whole}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className={`text-sm font-medium ${props.disabled_whole ? "disabled-text" : ""}`} htmlFor="multiProteinsPresent">
+            <label className={`text-sm font-medium `} htmlFor="multiProteinsPresent">
               Host Organism
             </label>
             <div className="text-sm font-medium" >
@@ -210,7 +201,6 @@ export function Filters(props: FiltersProps) {
                 // treeDefaultExpandAll
                 onChange={(v) => { dispatch(set_filter({ filter_type: "host_taxa", value: v })) }}
                 treeData={tax_dict}
-                disabled={props.disabled_whole}
               />
             </div>
           </div>

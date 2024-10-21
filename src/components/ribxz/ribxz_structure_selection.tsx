@@ -14,10 +14,10 @@ import {
 import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 import { superimpose_add_chain, superimpose_set_chain_search, superimpose_set_struct_search } from "@/store/slices/molstar_state"
 import { Separator } from "@radix-ui/react-select"
-import { set_filter } from "@/store/slices/ui_state"
+import { set_filter } from "@/store/slices/ui_reducer"
 import { useContext, useEffect, useState } from "react"
 import { MolstarContext } from "@/components/ribxz/molstar_context"
-import { StructureOverview, select_structure } from "@/store/slices/all_structs_overview_state"
+import { StructureOverview, select_structure } from "@/store/slices/slice_structs_overview"
 
 
 const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
