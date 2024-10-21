@@ -7,7 +7,10 @@ import { groupedOptions } from './filters_protein_class_options';
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
 import { Group } from './structure_filters_component';
 import { useAppSelector } from '@/store/store';
-import { set_polymer_filter } from '@/store/slices/slice_polymers';
+import { PolymersFilters, set_polymer_filter } from '@/store/slices/slice_polymers';
+
+import { Button } from '@/components/ui/button'; // Make sure to import the Button component
+import { X } from 'lucide-react'; // Import the X icon from lucide-react
 
 const PolymerFiltersComponent = () => {
   const dispatch = useDispatch();
@@ -21,14 +24,13 @@ const PolymerFiltersComponent = () => {
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
 
   const total_count = useAppSelector(state=>state.polymers_page.total_polymers_count)
-
   const polymers_filters =useAppSelector(state=>state.polymers_page.filters)
 
-  useEffect(() => {
+  const clearFilter = (filterType:keyof PolymersFilters) => {
+    dispatch(set_polymer_filter({ filter_type: filterType, value: null }));
+  };
 
-    console.log(polymers_filters);
-    
-  }, [polymers_filters]);
+
   
 
   return (
@@ -42,54 +44,82 @@ const PolymerFiltersComponent = () => {
         </CollapsibleTrigger>
       </div>
 
-      <CollapsibleContent>
+     <CollapsibleContent>
         <div className="space-y-2">
           <div className="w-full h-full">
-            <label className={`text-sm font-medium my-4 `} htmlFor="polymerClass">
+            <label className={`text-sm font-medium my-4`} htmlFor="polymerClass">
               Polymer Class
             </label>
-            <Select
-              defaultValue={[]}
-              onChange={(value) => {
-                 dispatch(set_polymer_filter({ filter_type: "current_polymer_class", value: value === null ? null : value.value  as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum}))
+            <div className="flex items-center">
+              <Select
+                value={polymers_filters.current_polymer_class ? { value: polymers_filters.current_polymer_class, label: polymers_filters.current_polymer_class } : null}
+                onChange={(value) => {
+                  dispatch(set_polymer_filter({ filter_type: "current_polymer_class", value: value ? value.value as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum : null }))
                 }}
-              placeholder="Present Chains"
-              instanceId="polymer_class"
-              options={polymerClassOptions}
-              components={{ Group }}
-              isSearchable={true}
-            />
+                placeholder="Present Chains"
+                instanceId="polymer_class"
+                options={polymerClassOptions}
+                components={{ Group }}
+                isSearchable={true}
+                isClearable={true}
+                className="flex-grow"
+              />
+            </div>
           </div>
 
           <div>
-            <label className={`text-sm font-medium `} htmlFor="uniprotId">
+            <label className={`text-sm font-medium`} htmlFor="uniprotId">
               Uniprot ID
             </label>
-            <Input
-              id="uniprotId"
-              placeholder="Enter Uniprot ID"
-              className="bg-white"
-              onChange={(e) => { 
-                dispatch(set_polymer_filter({ filter_type: "uniprot_id", value: e.target.value }))
-            
-            }}
-            />
+            <div className="flex items-center">
+              <Input
+                id="uniprotId"
+                placeholder="Enter Uniprot ID"
+                className="bg-white flex-grow"
+                value={polymers_filters.uniprot_id || ''}
+                onChange={(e) => {
+                  dispatch(set_polymer_filter({ filter_type: "uniprot_id", value: e.target.value }))
+                }}
+              />
+              {polymers_filters.uniprot_id && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-2"
+                  onClick={() => clearFilter("uniprot_id")}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
 
           <div>
-            <label className={`text-sm font-medium `} htmlFor="hasMotif">
+            <label className={`text-sm font-medium`} htmlFor="hasMotif">
               Has motif
             </label>
-            <Input
-              id="hasMotif"
-              placeholder="Enter motif"
-              className="bg-white font-mono"
-              style={{ fontFamily: 'monospace' }}
-              onChange={(e) => { 
-                dispatch(set_polymer_filter({ filter_type: "has_motif", value: e.target.value }))
-            
-            }}
-            />
+            <div className="flex items-center">
+              <Input
+                id="hasMotif"
+                placeholder="Enter motif"
+                className="bg-white font-mono flex-grow"
+                style={{ fontFamily: 'monospace' }}
+                value={polymers_filters.has_motif || ''}
+                onChange={(e) => {
+                  dispatch(set_polymer_filter({ filter_type: "has_motif", value: e.target.value }))
+                }}
+              />
+              {polymers_filters.has_motif && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-2"
+                  onClick={() => clearFilter("has_motif")}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </CollapsibleContent>

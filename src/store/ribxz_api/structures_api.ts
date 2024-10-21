@@ -6,7 +6,7 @@ export const structuresApi = createApi({
   endpoints: (builder) => ({
     getStructures: builder.mutation({  // Change this to mutation
       query: (args) => ({
-        url   : 'structures/list',
+        url   : 'structures/list_structures',
         method: 'POST',
         body  : args,
       }),

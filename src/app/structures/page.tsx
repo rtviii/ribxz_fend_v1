@@ -22,10 +22,12 @@ export default function StructureCatalogue() {
   const dispatch                                                                                          = useAppDispatch();
   const filter_state                                                                                      = useAppSelector((state) => state.structures_page.filters)
   const debounced_filters                                                                                 = useDebounceFilters(filter_state, 250)
+
   const [hasMore, setHasMore]                                                                             = useState(true);
   const [cursor, setCursor]                                                                               = useState(null)
   const [getStructures, { isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error }] = useGetStructuresMutation()
   const [isLoading, setIsLoading]                                                                         = useState(false);
+
   const current_structures                                                                                = useAppSelector(state => state.structures_page.current_structures);
   const total_structures_count                                                                            = useAppSelector(state => state.structures_page.total_structures_count);
 

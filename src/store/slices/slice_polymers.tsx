@@ -10,7 +10,7 @@ interface PolymerFilters {
     has_motif            : string | null
 }
 
-type PolymersFilters = StructureFilters & PolymerFilters
+export type PolymersFilters = StructureFilters & PolymerFilters
 
 export interface PolymersSlice {
     current_polymers    : Array<Polymer | Rna | Protein>,
