@@ -5,7 +5,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/component
 import { Input } from '@/components/ui/input';
 import { groupedOptions } from './filters_protein_class_options';
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
-import { Group } from './structure_filters';
+import { Group } from './structure_filters_component';
 import { useAppSelector } from '@/store/store';
 import { set_polymer_filter } from '@/store/slices/slice_polymers';
 
@@ -20,6 +20,7 @@ const PolymerFiltersComponent = () => {
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
 
+  const total_count = useAppSelector(state=>state.polymers_page.total_polymers_count)
 
   const polymers_filters =useAppSelector(state=>state.polymers_page.filters)
 
@@ -34,8 +35,9 @@ const PolymerFiltersComponent = () => {
     <Collapsible className="p-4 border rounded-sm bg-slate-100 shadow-inner" defaultChecked={true} defaultOpen={true} disabled={true}>
       <div className="flex items-center justify-between mb-2">
         <CollapsibleTrigger asChild className="hover:rounded-md cursor-pointer flex">
-          <div className={`min-w-full font-semibold flex flex-row justify-between `}>
+          <div className={` min-w-full font-semibold flex flex-row justify-between `}>
             <span>Polymer Filters</span>
+            <span className="font-semibold"> [{total_count} polymers]</span>
           </div>
         </CollapsibleTrigger>
       </div>
@@ -50,7 +52,6 @@ const PolymerFiltersComponent = () => {
               defaultValue={[]}
               onChange={(value) => {
                  dispatch(set_polymer_filter({ filter_type: "current_polymer_class", value: value === null ? null : value.value  as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum}))
-                
                 }}
               placeholder="Present Chains"
               instanceId="polymer_class"

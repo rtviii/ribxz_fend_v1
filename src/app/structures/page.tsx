@@ -1,34 +1,28 @@
 "use client"
-import { Input } from "@/components/ui/input"
 import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import { StructureCard, StructureStack } from "../../components/ribxz/structure_card"
 import { useCallback, useEffect, useState } from "react"
-import { StructureFiltersComponent, useDebounceFilters } from "@/components/ribxz/structure_filters"
-import { PaginationElement } from '@/components/ribxz/pagination_element'
+import { StructureFiltersComponent, useDebounceFilters } from "@/components/ribxz/structure_filters_component"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
-import { RibosomeStructure, ribxz_api } from "@/store/ribxz_api/ribxz_api"
-import { useDebouncePagination } from "@/my_utils"
-import { log } from "node:console"
-import { ApiProvider } from '@reduxjs/toolkit/query/react'
 import { structuresApi, useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
 import { debounce } from "lodash"
 import { set_current_structures, set_total_structures_count } from "@/store/slices/slice_structures"
 
 
-
 export default function StructureCatalogue() {
+  // TODO:
+  // const [groupByDeposition, setGroupByDeposition]                                                         = useState(false);
 
   const dispatch                                                                                          = useAppDispatch();
   const filter_state                                                                                      = useAppSelector((state) => state.structures_page.filters)
   const debounced_filters                                                                                 = useDebounceFilters(filter_state, 250)
   const [hasMore, setHasMore]                                                                             = useState(true);
-  const [groupByDeposition, setGroupByDeposition]                                                         = useState(false);
   const [cursor, setCursor]                                                                               = useState(null)
   const [getStructures, { isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error }] = useGetStructuresMutation()
   const [isLoading, setIsLoading]                                                                         = useState(false);
@@ -93,7 +87,7 @@ export default function StructureCatalogue() {
       <div className="grow"  >
         <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
           <div className="col-span-3  flex flex-col min-h-full pr-4">
-            <StructureFiltersComponent />
+            <StructureFiltersComponent update_state="structures"/>
             <SidebarMenu />
           </div>
           <div className="col-span-9 scrollbar-hidden">

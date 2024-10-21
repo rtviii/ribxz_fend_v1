@@ -108,14 +108,14 @@ const PolymerTableRow: React.FC<PolymerTableRowProps> = ({ polymer, isSelected, 
 };
 
 interface PolymersTableProps {
-    polymers: Polymer[];
+    polymers       : Polymer[];
     visibleColumns?: (keyof Polymer)[];
 }
 
 const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns = ['auth_asym_id', 'nomenclature', 'parent_rcsb_id', 'src_organism_ids', 'rcsb_pdbx_description'] }) => {
-    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [selectedIds, setSelectedIds]   = useState<Set<string>>(new Set());
     const [showSequence, setShowSequence] = useState(false);
-    const taxdict = useAppSelector((state) => state.ui.taxid_dict);
+    const taxdict                         = useAppSelector((state) => state.ui.taxid_dict);
 
     const toggleSelected = (id: string) => {
         setSelectedIds((prev) => {
@@ -128,13 +128,6 @@ const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns 
             return newSet;
         });
     };
-    const sortedPolymers = useMemo(() => {
-        return [...polymers].sort((a, b) => {
-            const polyClassA = a.nomenclature[0] || '';
-            const polyClassB = b.nomenclature[0] || '';
-            return polyClassA.localeCompare(polyClassB);
-        });
-    }, [polymers]);
 
  return (
 <div className="space-y-2 w-full" style={{ minWidth: '1000px' }}>
@@ -171,7 +164,7 @@ const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns 
             <div className="overflow-x-auto">
               <Table>
                 <TableBody>
-                  {sortedPolymers.map((polymer) => (
+                  {polymers.map((polymer) => (
                     <PolymerTableRow
                       key={`${polymer.parent_rcsb_id}-${polymer.auth_asym_id}`}
                       polymer={polymer}

@@ -14,15 +14,16 @@ type PolymersFilters = StructureFilters & PolymerFilters
 
 export interface PolymersSlice {
     current_polymers    : Array<Polymer | Rna | Protein>,
-    total_polymers_count: number | null
+    total_polymers_count: number | null,
+    total_paren_structures_count: number | null,
     filters             : PolymersFilters
 }
 
 const initialState: PolymersSlice = {
     current_polymers    : [],
     total_polymers_count: null,
+    total_paren_structures_count: null,
     filters             : {
-
         current_polymer_class: null,
         uniprot_id           : null,
         has_motif            : null,
@@ -41,6 +42,13 @@ export const polymers_slice = createSlice({
     name: 'polymers_slice',
     initialState,
     reducers: {
+
+        set_total_polymers_count(state, action: PayloadAction<number>) {
+            state.total_polymers_count = action.payload
+        },
+        set_total_parent_structures_count(state, action: PayloadAction<number>) {
+            state.total_paren_structures_count = action.payload
+        },
         set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
             state.current_polymers = action.payload
         },
@@ -52,6 +60,8 @@ export const polymers_slice = createSlice({
 })
 export const {
     set_current_polymers,
-    set_polymer_filter
+    set_polymer_filter,
+    set_total_polymers_count,
+    set_total_parent_structures_count
 }  = polymers_slice.actions
 export default polymers_slice.reducer

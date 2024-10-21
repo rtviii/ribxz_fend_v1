@@ -12,7 +12,8 @@ import {
 
 import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { StructureFilters, set_filter } from "@/store/slices/slice_structures";
+import { StructureFilters, set_structures_filter } from "@/store/slices/slice_structures";
+import { set_polymer_filter as set_polymers_filter } from "@/store/slices/slice_polymers";
 
 const groupStyles = {
   borderRadius: '5px',
@@ -52,13 +53,17 @@ export function useDebounceFilters(value: Partial<StructureFilters>, delay: numb
 }
 
 
-export function StructureFiltersComponent() {
+export const StructureFiltersComponent =({update_state}:{update_state:'structures'|'polymers'})=> {
 
   const { data: tax_dict, isLoading: tax_dict_is_loading }                         = useRoutersRouterStructListSourceTaxaQuery({ sourceOrHost: "source" });
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-  const total_count                                   = useAppSelector(state=>state.structures_page.total_structures_count)
-  const filters                                       = useAppSelector(state => state.structures_page.filters)!
   const dispatch                                      = useAppDispatch();
+
+  const total_count = useAppSelector(state =>{ return update_state === 'structures' ? state.structures_page.total_structures_count : state.polymers_page.total_paren_structures_count})
+  const filters     = useAppSelector(state =>{ return update_state === 'structures' ? state.structures_page.filters                : state.polymers_page.filters})
+  
+  const update_filter_action = update_state === 'structures' ?  set_structures_filter: set_polymers_filter 
+ 
 
   const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
   useEffect(() => {
@@ -84,7 +89,7 @@ export function StructureFiltersComponent() {
           <Input placeholder="Search" className="bg-white"
             value={filters.search == null ? '' : filters.search}
             onChange={(e) => {
-              dispatch(set_filter({
+              dispatch(update_filter_action({
                 filter_type: "search",
                 value: e.target.value
               }))
@@ -95,8 +100,8 @@ export function StructureFiltersComponent() {
               Deposition year
             </label>
             <div className="flex items-center space-x-2">
-              <Input  className="w-20 bg-white" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
-              <Input  className="w-20 bg-white" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(set_filter({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
+              <Input  className="w-20 bg-white" id="startYear" placeholder="Start Year" type="number" value={filters.year[0] === null ? '' : filters.year[0]} min={2000} max={2024} step={1} onChange={(e) => { dispatch(update_filter_action({ filter_type: 'year', value: [Number(e.target.value), filters.year[1]] })) }} />
+              <Input  className="w-20 bg-white" id="endYear" placeholder="End Year" type="number" value={filters.year[1] === null ? '' : filters.year[1]} min={2000} max={2024} step={1} onChange={(e) => {     dispatch(update_filter_action({ filter_type: 'year', value: [filters.year[0], Number(e.target.value)] })) }} />
             </div>
           </div>
 
@@ -105,8 +110,8 @@ export function StructureFiltersComponent() {
               Resolution
             </label>
             <div className="flex items-center space-x-2">
-              <Input className="w-20 bg-white" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
-              <Input className="w-20 bg-white" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(set_filter({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
+              <Input className="w-20 bg-white" id="minResolution" placeholder="Min" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[0] === null ? '' : filters.resolution[0]} onChange={(e) => { dispatch(update_filter_action({ filter_type: 'resolution', value: [Number(e.target.value), filters.resolution[1]] })) }} />
+              <Input className="w-20 bg-white" id="maxResolution" placeholder="Max" type="number" step={0.1} min={0} max={7.5} value={filters.resolution[1] === null ? '' : filters.resolution[1]} onChange={(e) => { dispatch(update_filter_action({ filter_type: 'resolution', value: [filters.resolution[0], Number(e.target.value)] })) }} />
             </div>
           </div>
 
@@ -121,7 +126,7 @@ export function StructureFiltersComponent() {
                 // @ts-ignore
                 placeholder="Subunit"
                 onChange={(option) => {
-                  dispatch(set_filter(
+                  dispatch(update_filter_action(
                     {
                       filter_type: "subunit_presence",
                       // @ts-ignore
@@ -148,7 +153,7 @@ export function StructureFiltersComponent() {
               <Select
                 defaultValue={[]}
                 // @ts-ignore
-                onChange={(value) => { dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
+                onChange={(value) => { dispatch(update_filter_action({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v: PolymerClassOption) => v.value) })) }}
                 placeholder="Present Chains"
                 instanceId={"polymer_class"}
                 options={polymerClassOptions}
@@ -175,7 +180,7 @@ export function StructureFiltersComponent() {
                 allowClear={false}
                 multiple={true}
                 variant="outlined"
-                onChange={(v) => { dispatch(set_filter({ filter_type: "source_taxa", value: v })) }}
+                onChange={(v) => { dispatch(update_filter_action({ filter_type: "source_taxa", value: v })) }}
                 treeData={tax_dict}
               />
             </div>
@@ -199,7 +204,7 @@ export function StructureFiltersComponent() {
                 multiple={true}
                 variant="outlined"
                 // treeDefaultExpandAll
-                onChange={(v) => { dispatch(set_filter({ filter_type: "host_taxa", value: v })) }}
+                onChange={(v) => { dispatch(update_filter_action({ filter_type: "host_taxa", value: v })) }}
                 treeData={tax_dict}
               />
             </div>

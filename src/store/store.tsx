@@ -9,6 +9,7 @@ import { structuresApi } from './ribxz_api/structures_api'
 import { structurePageSlice } from './slices/slice_structure_page'
 import { structures_slice } from './slices/slice_structures'
 import { polymers_slice } from './slices/slice_polymers'
+import { polymersApi } from './ribxz_api/polymers_api'
 
 export const makeStore = () => {
   const store=  configureStore({
@@ -21,6 +22,7 @@ export const makeStore = () => {
       structures_page            : structures_slice.reducer,
       polymers_page              : polymers_slice.reducer,
       [structuresApi.reducerPath]: structuresApi.reducer,
+      [polymersApi.reducerPath]  : polymersApi.reducer,
     },
 
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })

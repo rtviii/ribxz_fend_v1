@@ -66,7 +66,7 @@ export const {
 
     set_current_structures,
     set_total_structures_count,
-    set_filter,
+    set_filter: set_structures_filter,
 
 
 } = structures_slice.actions

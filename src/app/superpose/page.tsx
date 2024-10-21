@@ -7,7 +7,7 @@ import { ChainsByStruct, Polymer, PolymerByStruct, RibosomeStructure, useRouters
 // import { initiatePluginUIContext, download_struct, superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import { StructureFiltersComponent } from "@/components/ribxz/structure_filters"
+import { StructureFiltersComponent } from "@/components/ribxz/structure_filters_component"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
