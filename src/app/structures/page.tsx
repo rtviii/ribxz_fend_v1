@@ -10,12 +10,12 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
-import { structuresApi, useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
-import { debounce } from "lodash"
+import {  useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
 import { set_current_structures, set_total_structures_count } from "@/store/slices/slice_structures"
 
 
 export default function StructureCatalogue() {
+
   // TODO:
   // const [groupByDeposition, setGroupByDeposition]                                                         = useState(false);
 
