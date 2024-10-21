@@ -4,10 +4,12 @@ import Select from 'react-select';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { groupedOptions } from './filters_protein_class_options';
-import { useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
 import { Group } from './structure_filters';
+import { useAppSelector } from '@/store/store';
+import { set_polymer_filter } from '@/store/slices/slice_polymers';
 
-const PolymerFilters = () => {
+const PolymerFiltersComponent = () => {
   const dispatch = useDispatch();
   const [polymerClassOptions, setPolymerClassOptions] = useState([]);
   const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
@@ -17,6 +19,16 @@ const PolymerFilters = () => {
       setPolymerClassOptions(groupedOptions(nomenclature_classes))
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
+
+
+  const polymers_filters =useAppSelector(state=>state.polymers_page.filters)
+
+  useEffect(() => {
+
+    console.log(polymers_filters);
+    
+  }, [polymers_filters]);
+  
 
   return (
     <Collapsible className="p-4 border rounded-sm bg-slate-100 shadow-inner" defaultChecked={true} defaultOpen={true} disabled={true}>
@@ -37,7 +49,7 @@ const PolymerFilters = () => {
             <Select
               defaultValue={[]}
               onChange={(value) => {
-                //  dispatch(set_filter({ filter_type: "polymer_classes", value: (value === null ? [] : value).map((v) => v.value) }))
+                 dispatch(set_polymer_filter({ filter_type: "current_polymer_class", value: value === null ? null : value.value  as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum}))
                 
                 }}
               placeholder="Present Chains"
@@ -57,7 +69,7 @@ const PolymerFilters = () => {
               placeholder="Enter Uniprot ID"
               className="bg-white"
               onChange={(e) => { 
-                // dispatch(set_filter({ filter_type: "uniprot_id", value: e.target.value }))
+                dispatch(set_polymer_filter({ filter_type: "uniprot_id", value: e.target.value }))
             
             }}
             />
@@ -73,7 +85,7 @@ const PolymerFilters = () => {
               className="bg-white font-mono"
               style={{ fontFamily: 'monospace' }}
               onChange={(e) => { 
-                // dispatch(set_filter({ filter_type: "has_motif", value: e.target.value }))
+                dispatch(set_polymer_filter({ filter_type: "has_motif", value: e.target.value }))
             
             }}
             />
@@ -84,4 +96,4 @@ const PolymerFilters = () => {
   );
 };
 
-export default PolymerFilters;
+export default PolymerFiltersComponent;
