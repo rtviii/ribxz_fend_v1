@@ -17,7 +17,6 @@ import { useGetPolymersMutation } from "@/store/ribxz_api/polymers_api"
 import { set_current_polymers, set_total_parent_structures_count, set_total_polymers_count } from "@/store/slices/slice_polymers"
 import { Button } from "@/components/ui/button"
 
-
 export default function PolymersCatalogue() {
     //     TODO
     const searchParams = useSearchParams()
@@ -125,4 +124,5 @@ export default function PolymersCatalogue() {
 
     }
 }
+
 export const dynamic = 'force-dynamic'
