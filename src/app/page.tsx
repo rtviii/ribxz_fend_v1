@@ -18,49 +18,51 @@ import { Card } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import { StructureCard } from '@/components/ribxz/structure_card';
 import { useAppSelector } from '@/store/store';
-const Hero = () => {
-    return (
-        <div className="flex flex-col items-center justify-center w-full space-y-6 py-16">
-            <Image
-                src="/ribxz_logo_black.png"
-                alt="RiboXYZ Logo"
-                width={240}
-                height={240}
-                className="w-60"
-            />
-            <h1 className="text-2xl font-medium text-center max-w-2xl">
-                Comprehensive database for visualizing and analyzing ribosome structures
-            </h1>
-        </div>
-    );
-};
 
 const StructureCarousel = () => {
-    const current_structure = useAppSelector(state => state.structures_page.current_structures)
-    return (
-        <div className="w-full space-y-4 py-8">
-            <Input
-                className="w-full max-w-2xl mx-auto"
-                placeholder="Search structures..."
-            />
+    const current_structure = useAppSelector(state => state.structures_page.current_structures);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-            <ScrollArea className="w-full whitespace-nowrap rounded-md border">
-                <div className="flex w-full space-x-4 p-4">
-                    {/* Placeholder for your StructureCard components */}
-                    {current_structure.slice(0, 5).map((_, i) => (
-                        <div key={i} className="w-[300px] shrink-0">
-                            <StructureCard _={_} />
-                        </div>
+    const handleWheel = (e: WheelEvent) => {
+        const scrollViewport = scrollContainerRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollViewport) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const scrollAmount = e.deltaY * 0.5;
+            
+            scrollViewport.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        }
+    };
+
+    useEffect(() => {
+        const element = scrollContainerRef.current;
+        if (element) {
+            element.addEventListener('wheel', handleWheel, { passive: false });
+            return () => element.removeEventListener('wheel', handleWheel);
+        }
+    }, []);
+
+    return (
+        <div 
+            className="w-full space-y-4 py-8"
+            ref={scrollContainerRef}
+        >
+            <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
+                <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
+                    {current_structure.slice(0, 10).map((_, i) => (
+                        <StructureCard _={_} key={i} />
                     ))}
 
                     {/* Load More Card */}
-                    <div className="w-[300px] shrink-0">
-                        <Card className="w-full h-[200px] flex items-center justify-center hover:bg-muted cursor-pointer transition-colors">
+                    <div className="w-64 shrink-0">
+                        <Card className="w-full h-full flex items-center justify-center hover:bg-muted cursor-pointer transition-colors rounded-md bg-slate-50">
                             <Plus className="w-10 h-10 text-muted-foreground" />
+                            <span>Load More</span>
                         </Card>
                     </div>
                 </div>
-                <ScrollBar orientation="horizontal" />
+                {/* <ScrollBar orientation="horizontal" /> */}
             </ScrollArea>
         </div>
     );
@@ -122,6 +124,20 @@ const Homepage = () => {
             <Hero />
             <StructureCarousel />
             <Footer />
+        </div>
+    );
+};
+
+
+const Hero = () => {
+    return (
+        <div className="mt-80 flex flex-col items-center justify-center gap-8">
+            <div className="w-full max-w-2xl">
+                <Input
+                    className="w-full bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors"
+                    placeholder="Search structures..."
+                />
+            </div>
         </div>
     );
 };

@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { set_current_structures } from '../slices/slice_structures';
+import { set_current_structures, set_structures_cursor, set_total_structures_count } from '../slices/slice_structures';
 
 export const structuresApi = createApi({
   reducerPath: 'structures_api',
@@ -28,6 +28,8 @@ export const prefetchStructuresData = createAsyncThunk('prefetch_structures_data
     if ('data' in result) {
       const { next_cursor, structures, total_count } = result.data;
       dispatch(set_current_structures(structures));
+      dispatch(set_structures_cursor(next_cursor));
+      dispatch(set_total_structures_count(total_count));
 
     }
 
