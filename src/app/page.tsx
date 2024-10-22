@@ -15,109 +15,13 @@ import * as React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Plus } from 'lucide-react';
+import { ImageDown, Plus } from 'lucide-react';
 import { StructureCard } from '@/components/ribxz/structure_card';
 import { useAppSelector } from '@/store/store';
+import { StructureCarousel } from './homepage/structures_carousel';
+import { Footer } from './homepage/footer';
 
-const StructureCarousel = () => {
-    const current_structure = useAppSelector(state => state.structures_page.current_structures);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const handleWheel = (e: WheelEvent) => {
-        const scrollViewport = scrollContainerRef.current?.querySelector('[data-radix-scroll-area-viewport]');
-        if (scrollViewport) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const scrollAmount = e.deltaY * 0.5;
-            
-            scrollViewport.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        }
-    };
-
-    useEffect(() => {
-        const element = scrollContainerRef.current;
-        if (element) {
-            element.addEventListener('wheel', handleWheel, { passive: false });
-            return () => element.removeEventListener('wheel', handleWheel);
-        }
-    }, []);
-
-    return (
-        <div 
-            className="w-full space-y-4 py-8"
-            ref={scrollContainerRef}
-        >
-            <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
-                <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
-                    {current_structure.slice(0, 10).map((_, i) => (
-                        <StructureCard _={_} key={i} />
-                    ))}
-
-                    {/* Load More Card */}
-                    <div className="w-64 shrink-0">
-                        <Card className="w-full h-full flex items-center justify-center hover:bg-muted cursor-pointer transition-colors rounded-md bg-slate-50">
-                            <Plus className="w-10 h-10 text-muted-foreground" />
-                            <span>Load More</span>
-                        </Card>
-                    </div>
-                </div>
-                {/* <ScrollBar orientation="horizontal" /> */}
-            </ScrollArea>
-        </div>
-    );
-};
-const Footer = () => {
-    const citation = `@article{kushner2023riboxyz,
-    title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
-    author={Kushner, Artem and Petrov, Anton S and Dao Duc, Khanh},
-    journal={Nucleic Acids Research},
-    volume={51}, number={D1}, pages={D509--D516},
-    year={2023},
-    publisher={Oxford University Press}
-  }`;
-
-    return (
-        <div className="grid grid-cols-2 gap-8 w-full py-8">
-            {/* Acknowledgements */}
-            <Card className="p-6 space-y-4">
-                <h2 className="text-lg font-medium">Acknowledgement</h2>
-                <p className="text-sm text-muted-foreground">
-                    We kindly thank the following platforms and packages for making their work freely available or supporting us otherwise.
-                </p>
-                <div className="flex items-center space-x-4">
-                    {['rcsb', 'hmmer', 'molstar', 'neo4j', 'chimerax'].map((logo) => (
-                        <div key={logo} className="border p-2 rounded-md hover:border-primary hover:shadow-lg transition-all">
-                            <Image
-                                src={`/logo_${logo}.png`}
-                                alt={`${logo} logo`}
-                                width={40}
-                                height={40}
-                            />
-                        </div>
-                    ))}
-                </div>
-            </Card>
-
-            {/* Citation */}
-            <Card className="p-6 relative">
-                <h2 className="text-lg font-medium mb-4">Citation</h2>
-                <ScrollArea className="h-[200px] w-full rounded-md border p-4">
-                    <pre className="text-sm">
-                        <code>{citation}</code>
-                    </pre>
-                </ScrollArea>
-                <Button
-                    size="sm"
-                    className="absolute bottom-4 right-4"
-                    onClick={() => navigator.clipboard.writeText(citation)}
-                >
-                    Copy
-                </Button>
-            </Card>
-        </div>
-    );
-};
 const Homepage = () => {
     return (
         <div className="container mx-auto px-4 max-w-6xl">
@@ -128,10 +32,71 @@ const Homepage = () => {
     );
 };
 
+const InkscapeOverlay = () => {
+    const [isHovered, setIsHovered] = useState(false);
+    return (
+        <div
+            className="relative w-full h-full cursor-pointer"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <Image
+                width={80}
+                height={80}
+                src="/inkscape_overlay/gray.png"
+                alt="Molecular structure grayscale"
+                className="absolute top-0 left-0 w-full h-full object-contain"
+            />
+
+            <Image
+                width={80}
+                height={80}
+                src="/inkscape_overlay/circleds.png"
+                alt="Molecular structure colored"
+                className={`
+                    absolute 
+                    top-0 
+                    left-0 
+                    w-full 
+                    h-full 
+                    object-contain 
+                    transition-opacity 
+                    duration-300 
+                    ${isHovered ? 'opacity-100' : 'opacity-0'}
+                `}
+            />
+        </div>
+    );
+};
+
+
 
 const Hero = () => {
     return (
-        <div className="mt-80 flex flex-col items-center justify-center gap-8">
+        <div className="mt-20 flex flex-col items-center justify-center gap-4">
+            {/* Logo + Text Container */}
+            <div className="w-full max-w-2xl flex  items-start">
+                {/* InkscapeOverlay - Made smaller and fixed to left */}
+                <div className="absolute w-80 h-80">
+                    <InkscapeOverlay />
+                </div>
+
+
+                {/* Text Container */}
+                <div className="pl-80 mt-20 flex flex-col  justify-start items-start">
+                    <Image
+                        width={200}
+                        height={40}
+                        src="/inkscape_overlay/riboxyz_textlogo.svg"
+                        alt="riboxyz"
+                        className="h-12 w-auto object-contain"
+                    />
+                    <span className="pl-1 font-mono text-md text-gray-600">
+                        An interface to the atomic structure of the ribosome.
+                    </span>
+                </div>
+            </div>
+
             <div className="w-full max-w-2xl">
                 <Input
                     className="w-full bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors"

@@ -7,8 +7,7 @@ import {
 } from "@/components/ui/tooltip"
 
 
-export function HelpTooltip({ props, children }: { props?: any, children:React.ReactNode }) {
-
+export function HelpTooltip({ props, children }: { props?: any, children: React.ReactNode }) {
     return (
         <TooltipProvider>
             <Tooltip>
@@ -21,7 +20,5 @@ export function HelpTooltip({ props, children }: { props?: any, children:React.R
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
-
-
     )
 }

@@ -126,14 +126,6 @@
   color: var(--ribxz_link)
 }
 
-/* .plot-legend {
-  background-color: khaki;
-  border: 2px dotted;
-  outline: 1px solid slateblue;
-  padding: 10px;
-} */
-
-
 .highlight-path {
   stroke      : black;          /* Original outline color */
   stroke-width: 1;              /* Original outline width */
