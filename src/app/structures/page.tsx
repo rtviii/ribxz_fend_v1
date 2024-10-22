@@ -18,8 +18,8 @@ export default function StructureCatalogue() {
 
   // TODO:
   // const [groupByDeposition, setGroupByDeposition]                                                         = useState(false);
-  const dispatch = useAppDispatch();
-  const filter_state = useAppSelector((state) => state.structures_page.filters)
+  const dispatch          = useAppDispatch();
+  const filter_state      = useAppSelector((state) => state.structures_page.filters)
   const debounced_filters = useDebounceFilters(filter_state, 250)
 
   const [hasMore, setHasMore] = useState(true);

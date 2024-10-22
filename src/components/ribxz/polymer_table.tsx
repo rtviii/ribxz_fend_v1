@@ -113,6 +113,7 @@ interface PolymersTableProps {
 }
 
 const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns = ['auth_asym_id', 'nomenclature', 'parent_rcsb_id', 'src_organism_ids', 'rcsb_pdbx_description'] }) => {
+  const primary_polymers =  polymers.filter(p=>p.assembly_id ===0)
     const [selectedIds, setSelectedIds]   = useState<Set<string>>(new Set());
     const [showSequence, setShowSequence] = useState(false);
     const taxdict                         = useAppSelector((state) => state.ui.taxid_dict);
@@ -133,7 +134,7 @@ const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns 
 <div className="space-y-2 w-full" style={{ minWidth: '1000px' }}>
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium">
-          {selectedIds.size} of {polymers.length} selected
+          {selectedIds.size} of {primary_polymers.length} selected
         </span>
         <Button
           size="sm"
@@ -164,7 +165,7 @@ const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns 
             <div className="overflow-x-auto">
               <Table>
                 <TableBody>
-                  {polymers.map((polymer) => (
+                  {primary_polymers.map((polymer) => (
                     <PolymerTableRow
                       key={`${polymer.parent_rcsb_id}-${polymer.auth_asym_id}`}
                       polymer={polymer}

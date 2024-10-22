@@ -1,36 +1,24 @@
 "use client"
-import DiceIcon from '../../public/dice.svg'
-import Image from 'next/image';
-import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
-import Link from "next/link"
 import { useEffect, useRef, useState } from 'react';
-import { Button } from "@/components/ui/button"
-import { SidebarMenu } from '@/components/ribxz/sidebar_menu';
-import { Separator } from '@/components/ui/separator';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
-import { HoverCard, HoverCardContent, HoverCardTrigger, } from "@/components/ui/hover-card"
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import * as React from "react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import { StructureCard } from '@/components/ribxz/structure_card';
 import { useAppSelector } from '@/store/store';
 
 export const StructureCarousel = () => {
+
     const current_structures = useAppSelector(state => state.structures_page.current_structures);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const last_updated=  useAppSelector(state => state.structures_page.last_db_update);
+    const last_updated       = useAppSelector(state => state.structures_page.last_db_update);
 
     const handleWheel = (e: WheelEvent) => {
         const scrollViewport = scrollContainerRef.current?.querySelector('[data-radix-scroll-area-viewport]');
         if (scrollViewport) {
             e.preventDefault();
             e.stopPropagation();
-
             const scrollAmount = e.deltaY * 0.5;
-
             scrollViewport.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
         }
     };
@@ -44,14 +32,11 @@ export const StructureCarousel = () => {
     }, []);
 
     return (
-        <div
-            className="w-full space-y-4 py-8"
-            ref={scrollContainerRef}
-        >
+        <div className="w-full space-y-4 py-8" ref={scrollContainerRef} >
+
             <div className="px-4">
-                <h2 className="text-sm font-medium text-muted-foreground">Latest Depositions [ {last_updated} ] </h2>
+                <h2 className="text-sm font-medium text-muted-foreground">Latest PDB Depositions [ {last_updated} ] </h2>
             </div>
-            
             <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
                 <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
                     {current_structures.slice(0, 10).map((_, i) => (

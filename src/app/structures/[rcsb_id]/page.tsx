@@ -330,7 +330,9 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
                 
 </div>
             <div className="flex flex-wrap gap-2">
-                {data.rnas.map(component => (
+                {data.rnas
+                .filter(r=>r.assembly_id===0)
+                .map(component => (
                     <MolecularComponentBadge
                         key={component.auth_asym_id}
                         id={component.auth_asym_id}
@@ -346,7 +348,10 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
 
                 ))}
 
-                {data.proteins.toSorted(sort_by_polymer_class).map(component => (
+                {data.proteins
+
+                .filter(r=>r.assembly_id===0)
+                .toSorted(sort_by_polymer_class).map(component => (
                     <MolecularComponentBadge
                         key={component.auth_asym_id}
                         id={component.auth_asym_id}
@@ -363,7 +368,10 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
 
                     />
                 ))}
-                {data.other_polymers.map(component => (
+                {data.other_polymers
+
+                .filter(r=>r.assembly_id===0)
+                .map(component => (
                     <MolecularComponentBadge
                         key={component.auth_asym_id}
                         id={component.auth_asym_id}
