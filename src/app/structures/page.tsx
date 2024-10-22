@@ -10,37 +10,38 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
-import {  useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
-import { set_current_structures, set_total_structures_count } from "@/store/slices/slice_structures"
+import { useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
+import { set_current_structures, set_structures_cursor, set_total_structures_count } from "@/store/slices/slice_structures"
 
 
 export default function StructureCatalogue() {
 
   // TODO:
   // const [groupByDeposition, setGroupByDeposition]                                                         = useState(false);
-  const dispatch                                                                                          = useAppDispatch();
-  const filter_state                                                                                      = useAppSelector((state) => state.structures_page.filters)
-  const debounced_filters                                                                                 = useDebounceFilters(filter_state, 250)
+  const dispatch = useAppDispatch();
+  const filter_state = useAppSelector((state) => state.structures_page.filters)
+  const debounced_filters = useDebounceFilters(filter_state, 250)
 
-  const [hasMore, setHasMore]                                                                             = useState(true);
-  const [cursor, setCursor]                                                                               = useState(null)
+  const [hasMore, setHasMore] = useState(true);
+  // const [cursor, setCursor]                                                                               = useState(null)
   const [getStructures, { isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error }] = useGetStructuresMutation()
-  const [isLoading, setIsLoading]                                                                         = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const current_structures                                                                                = useAppSelector(state => state.structures_page.current_structures);
-  const total_structures_count                                                                            = useAppSelector(state => state.structures_page.total_structures_count);
+  const structures_cursor = useAppSelector(state => state.structures_page.structures_cursor);
+  const current_structures = useAppSelector(state => state.structures_page.current_structures);
+  const total_structures_count = useAppSelector(state => state.structures_page.total_structures_count);
 
   const fetchStructures = async (newCursor: string | null = null) => {
     setIsLoading(true);
     const payload = {
-      cursor          : newCursor,
-      limit           : 20,
-      year            : filter_state.year[0] === null && filter_state.year[1] === null ? null            : filter_state.year,
-      search          : filter_state.search || null,
-      resolution      : filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null: filter_state.resolution,
-      polymer_classes : filter_state.polymer_classes.length === 0 ? null                                 : filter_state.polymer_classes,
-      source_taxa     : filter_state.source_taxa.length === 0 ? null                                     : filter_state.source_taxa,
-      host_taxa       : filter_state.host_taxa.length === 0 ? null                                       : filter_state.host_taxa,
+      cursor: newCursor,
+      limit: 20,
+      year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
+      search: filter_state.search || null,
+      resolution: filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null : filter_state.resolution,
+      polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
+      source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
+      host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
       subunit_presence: filter_state.subunit_presence || null,
     };
 
@@ -56,7 +57,7 @@ export default function StructureCatalogue() {
 
       dispatch(set_total_structures_count(total_count));
 
-      setCursor(next_cursor);
+      dispatch(set_structures_cursor(next_cursor));
       setHasMore(next_cursor !== null);
     } catch (err) {
       console.error('Error fetching structures:', err);
@@ -69,14 +70,14 @@ export default function StructureCatalogue() {
 
   useEffect(() => {
     dispatch(set_current_structures([]));
-    setCursor(null);
+    dispatch(set_structures_cursor(null));
     setHasMore(true);
     fetchStructures();
   }, [debounced_filters]);
 
   const loadMore = () => {
     if (!isLoading && hasMore) {
-      fetchStructures(cursor);
+      fetchStructures(structures_cursor);
     }
   };
 
@@ -88,7 +89,7 @@ export default function StructureCatalogue() {
       <div className="grow"  >
         <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
           <div className="col-span-3  flex flex-col min-h-full pr-4">
-            <StructureFiltersComponent update_state="structures"/>
+            <StructureFiltersComponent update_state="structures" />
             <SidebarMenu />
           </div>
           <div className="col-span-9 scrollbar-hidden">

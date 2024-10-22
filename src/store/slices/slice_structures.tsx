@@ -13,12 +13,14 @@ export interface StructureFilters {
 }
 
 export interface StructuresSlice {
-    current_structures: RibosomeStructure[],
+    structures_cursor     : string | null,
+    current_structures    : RibosomeStructure[],
     total_structures_count: number | null,
-    filters: StructureFilters,
+    filters               : StructureFilters,
 }
 
 const initialState: StructuresSlice = {
+    structures_cursor: null,
     current_structures: [],
     total_structures_count: null,
     filters: {
@@ -43,8 +45,11 @@ export const structures_slice = createSlice({
         set_total_structures_count(state, action: PayloadAction<number>) {
             state.total_structures_count = action.payload
         },
-        set_filter(state, action: PayloadAction<{ filter_type: keyof StructureFilters, value: typeof state.filters[keyof StructureFilters] }>) {
+        set_structures_filter(state, action: PayloadAction<{ filter_type: keyof StructureFilters, value: typeof state.filters[keyof StructureFilters] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
+        },
+        set_structures_cursor(state, action: PayloadAction<null|string>) {
+            Object.assign(state, { structures_cursor: action.payload })
         },
 
     },
@@ -66,7 +71,8 @@ export const {
 
     set_current_structures,
     set_total_structures_count,
-    set_filter: set_structures_filter,
+    set_structures_filter,
+    set_structures_cursor
 
 
 } = structures_slice.actions
