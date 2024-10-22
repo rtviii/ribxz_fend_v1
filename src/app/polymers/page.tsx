@@ -18,36 +18,6 @@ import { set_current_polymers, set_total_parent_structures_count, set_total_poly
 import { Button } from "@/components/ui/button"
 
 
-
-interface PolymerInputProps {
-    isDisabled?: boolean
-}
-
-function PolymerInput(props: PolymerInputProps) {
-    const [polymerClassOptions, setPolymerClassOptions] = useState<any>([]);
-    const dispatch = useAppDispatch();
-    const current_polymer_class = useAppSelector((state) => state.polymers_page.filters.current_polymer_class)
-    const { data: nomenclature_classes, isLoading: nomenclature_classes_is_loading } = useRoutersRouterStructPolymerClassesNomenclatureQuery();
-    useEffect(() => { if (nomenclature_classes !== undefined) { setPolymerClassOptions(groupedOptions(nomenclature_classes)) } }, [nomenclature_classes, nomenclature_classes_is_loading]);
-
-
-
-    return <div className="flex flex-col items-center border rounded-sm pb-2 pr-2 pl-2 pt-2 mb-4">
-        <Label htmlFor="input" className={`font-bold text-md mb-2   ${props.isDisabled ? "disabled-text" : ""} `}> Polymer Class</Label>
-        <Select
-            className="w-full max-h-82"
-            showSearch={true}
-            value={current_polymer_class}
-            options={polymerClassOptions}
-            onChange={(value) => {
-                // dispatch(set_current_polymer_class(value))
-            }}
-            disabled={props.isDisabled}
-        />
-
-    </div>
-}
-
 export default function PolymersCatalogue() {
     //     TODO
     const searchParams = useSearchParams()
@@ -86,7 +56,6 @@ export default function PolymersCatalogue() {
         console.log("Dispatching fetchpolymers with payload", payload);
         try {
             const result = await getPolymers(payload).unwrap();
-            console.log("Received result:", result);
             const { next_cursor, polymers: new_polymers, total_polymers_count, total_structures_count } = result;
 
             if (newCursor === null) {
@@ -105,10 +74,6 @@ export default function PolymersCatalogue() {
             setIsLoading(false);
         }
     }
-
-    useEffect(() => {
-        console.log("CURRENT POLYMERS", current_polymers);
-    }, [current_polymers])
 
     useEffect(() => {
         dispatch(set_current_polymers([]));
