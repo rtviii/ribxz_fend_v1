@@ -1257,22 +1257,22 @@ export type Rna = {
   nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
 };
 export type Polymer = {
-  assembly_id: number;
-  asym_ids: string[];
-  auth_asym_id: string;
-  parent_rcsb_id: string;
-  src_organism_names: string[];
-  host_organism_names: string[];
-  src_organism_ids: number[];
-  host_organism_ids: number[];
-  rcsb_pdbx_description?: string | null;
-  entity_poly_strand_id: string;
-  entity_poly_seq_one_letter_code: string;
-  entity_poly_seq_one_letter_code_can: string;
-  entity_poly_seq_length: number;
-  entity_poly_polymer_type: string;
-  entity_poly_entity_type: string;
-  nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
+  assembly_id                         : number;
+  asym_ids                            : string[];
+  auth_asym_id                        : string;
+  parent_rcsb_id                      : string;
+  src_organism_names                  : string[];
+  host_organism_names                 : string[];
+  src_organism_ids                    : number[];
+  host_organism_ids                   : number[];
+  rcsb_pdbx_description              ?: string | null;
+  entity_poly_strand_id               : string;
+  entity_poly_seq_one_letter_code     : string;
+  entity_poly_seq_one_letter_code_can : string;
+  entity_poly_seq_length              : number;
+  entity_poly_polymer_type            : string;
+  entity_poly_entity_type             : string;
+  nomenclature                        : CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
 };
 export type DrugbankContainerIdentifiers = {
   drugbank_id: string;

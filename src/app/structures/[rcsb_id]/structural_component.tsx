@@ -6,7 +6,8 @@ import { MolstarContext } from "@/components/ribxz/molstar_context"
 import ReactJson from 'react-json-view';
 import { useParams } from 'next/navigation';
 import { NonpolymericLigand } from '@/store/ribxz_api/ribxz_api';
-import { LandmarkActions, LandmarkItemProps } from '@/app/landmarks/types';
+import { Landmark } from '@/app/landmarks/types';
+import { Button } from 'molstar/lib/mol-plugin-ui/controls/common';
 interface StructuralComponentProps {
   title           : string;
   description     : string;
@@ -47,19 +48,25 @@ const StructuralComponent:React.FC<StructuralComponentProps> = ({
   );
 };
 
-const LandmarkItem = <T extends LandmarkActions>({ data, rcsb_id }: LandmarkItemProps<T>) => {
+const LandmarkItem:React.FC<Landmark > = ({ 
+  landmark_actions,
+  title,
+  description    ,
+  longDescription,
+  imageUrl       ,
+  rcsb_id
+}) => {
   const ctx = useContext(MolstarContext);
-  const { title, description, longDescription, imageUrl, download, render } = data;
-
   const actions = (
     <>
-      {download && (<DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); download(rcsb_id); }} />)}
-      {render && (<EyeIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); render(rcsb_id, ctx!); }} />)}
+      {landmark_actions.download && (<DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); landmark_actions.download!(rcsb_id); }} />)}
+      {landmark_actions.render && (<EyeIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); landmark_actions.render!(rcsb_id, ctx!); }} />)}
+            <Button onClick={()=>{ landmark_actions.on_click!() }}>Select</Button>
       <Popover>
         <PopoverTrigger asChild>
           <InfoIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" />
         </PopoverTrigger>
-        <PopoverContent className="w-80">
+        <PopoverContent className="w-80" >
           <div className="flex flex-col space-y-2">
             <img src={imageUrl} alt={title} className="w-full h-40 object-cover rounded" />
             <p className="text-sm text-gray-700">{longDescription}</p>

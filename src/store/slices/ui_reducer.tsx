@@ -2,28 +2,15 @@
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum,  LigandTransposition,  Polymer, Protein, RibosomeStructure, ribxz_api, Rna  } from '@/store/ribxz_api/ribxz_api'
 
-const PAGE_SIZE_STRUCTURES = 20;
-const PAGE_SIZE_POLYMERS = 50;
 
-export interface FiltersState {
-    search          : string | null
-    year            : [number | null, number | null]
-    resolution      : [number | null, number | null]
-    subunit_presence: 'LSU+SSU'|'SSU'|'LSU' | null
-    polymer_classes : CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
-    source_taxa     : number[]
-    host_taxa       : number[]
-}
+// export interface PaginationState {
+//     current_polymers_page  : number
+//     total_polymers_pages   : number | null
 
-export interface PaginationState {
-    current_polymers_page  : number
-    total_polymers_pages   : number | null
+//     current_structures_page: number
+//     total_structures_pages : number | null
+// }
 
-    current_structures_page: number
-    total_structures_pages : number | null
-}
-
-// array of tuples [{ ligand info }, all structs in which it is present : [ {rcsb id, taxnodeinfo} ]]
 export type LigandInstances = Array<[{
     chemicalId          : string
     chemicalName        : string
@@ -59,7 +46,7 @@ export type LigandInstance = {
 }
 
 export interface UIState {
-    taxid_dict: Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>,
+    taxid_dict: Record<number, string>,
     ligands_page: {
         data              : LigandInstances,
         filtered_data     : LigandInstances
@@ -70,19 +57,14 @@ export interface UIState {
         prediction_pending: boolean
 
     },
-    data: {
-        current_structures: RibosomeStructure[],
-        current_polymers  : Array<Polymer | Rna | Protein>,
+    // data: {
+    //     current_polymers  : Array<Polymer | Rna | Protein>,
+    //     total_polymers_count  : number | null
+    // },
+    // polymers: {
+    //     current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
+    // }
 
-        total_structures_count: number | null,
-        total_polymers_count  : number | null
-    },
-    polymers: {
-        current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
-    }
-
-    filters   : FiltersState,
-    pagination: PaginationState
 }
 
 const initialState: UIState = {
@@ -96,32 +78,20 @@ const initialState: UIState = {
         prediction_pending: false
 
     },
-    data: {
-        current_structures: [],
-        total_structures_count: null,
+    // data: {
+    //     current_polymers  : [],
+    //     total_polymers_count  : null
+    // },
+    // polymers: { // polymers_page
+    //     current_polymer_class: "EF-Tu"
+    // },
+    // pagination: {
+    //     current_structures_page: 1,
+    //     total_structures_pages: null,
 
-        current_polymers  : [],
-        total_polymers_count  : null
-    },
-    polymers: { // polymers_page
-        current_polymer_class: null
-    },
-    filters: {
-        search          : '',
-        subunit_presence: null,
-        year            : [null, null],
-        resolution      : [null, null],
-        polymer_classes : [],
-        source_taxa     : [],
-        host_taxa       : [],
-    },
-    pagination: {
-        current_structures_page: 1,
-        total_structures_pages: null,
-
-        current_polymers_page: 1,
-        total_polymers_pages: null
-    }
+    //     current_polymers_page: 1,
+    //     total_polymers_pages: null
+    // }
 }
 
 
@@ -158,67 +128,59 @@ export const uiSlice = createSlice({
             state.ligands_page.prediction_data = action.payload
         },
         // !---------------- Taxonomy
-        set_tax_dict(state, action: PayloadAction<Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>>) {
+        set_tax_dict(state, action: PayloadAction<Record<number, string>>) {
             state.taxid_dict = action.payload
         },
-        // !---------------- Structures
-        set_current_structures(state, action: PayloadAction<RibosomeStructure[]>) {
-            state.data.current_structures = action.payload
-        },
-        set_total_structures_count(state, action: PayloadAction<number>) {
-            state.data.total_structures_count = action.payload
-        },
-        // !---------------- Polymers
-        set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
-            state.data.current_polymers = action.payload
-        },
-        set_current_polymer_class(state, action: PayloadAction<string>) {
-            Object.assign(state.polymers, { current_polymer_class: action.payload })
-        },
-
-        // !---------------- Filters
-        set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
-            Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
-        },
+        // // !---------------- Structures
+        // set_current_structures(state, action: PayloadAction<RibosomeStructure[]>) {
+        //     state.data.current_structures = action.payload
+        // },
+        // set_total_structures_count(state, action: PayloadAction<number>) {
+        //     state.data.total_structures_count = action.payload
+        // },
+        // // !---------------- Filters
+        // set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
+        //     Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
+        // },
 
         // !---------------- Pagination
-        pagination_prev_page(state, action: PayloadAction<{
-            slice_name: 'structures' | 'polymers',
-        }>) {
-            if (action.payload.slice_name === 'polymers') {
-                if (1 < state.pagination.current_polymers_page) {
-                    state.pagination.current_polymers_page -= 1
-                }
-            }
-            if (action.payload.slice_name === 'structures') {
-                if (1 < state.pagination.current_structures_page) {
-                    state.pagination.current_structures_page -= 1
-                }
-            }
-        },
-        pagination_set_page(state, action: PayloadAction<{ slice_name: 'structures' | 'polymers', set_to_page: number }>) {
-            if (action.payload.slice_name === 'polymers') {
-                if (action.payload.set_to_page <= state.pagination.total_polymers_pages! && 1 <= action.payload.set_to_page) {
-                    state.pagination.current_polymers_page = action.payload.set_to_page
-                }
-            } else if (action.payload.slice_name === 'structures') {
-                if (action.payload.set_to_page <= state.pagination.total_structures_pages! && 1 <= action.payload.set_to_page) {
-                    state.pagination.current_structures_page = action.payload.set_to_page
-                }
+        // pagination_prev_page(state, action: PayloadAction<{
+        //     slice_name: 'structures' | 'polymers',
+        // }>) {
+        //     if (action.payload.slice_name === 'polymers') {
+        //         if (1 < state.pagination.current_polymers_page) {
+        //             state.pagination.current_polymers_page -= 1
+        //         }
+        //     }
+        //     if (action.payload.slice_name === 'structures') {
+        //         if (1 < state.pagination.current_structures_page) {
+        //             state.pagination.current_structures_page -= 1
+        //         }
+        //     }
+        // },
+        // pagination_set_page(state, action: PayloadAction<{ slice_name: 'structures' | 'polymers', set_to_page: number }>) {
+        //     if (action.payload.slice_name === 'polymers') {
+        //         if (action.payload.set_to_page <= state.pagination.total_polymers_pages! && 1 <= action.payload.set_to_page) {
+        //             state.pagination.current_polymers_page = action.payload.set_to_page
+        //         }
+        //     } else if (action.payload.slice_name === 'structures') {
+        //         if (action.payload.set_to_page <= state.pagination.total_structures_pages! && 1 <= action.payload.set_to_page) {
+        //             state.pagination.current_structures_page = action.payload.set_to_page
+        //         }
 
-            }
-        },
-        pagination_next_page(state, action: PayloadAction<{ slice_name: 'structures' | 'polymers', }>) {
-            if (action.payload.slice_name == 'polymers') {
-                if (state.pagination.current_polymers_page < state.pagination.total_polymers_pages!) {
-                    state.pagination.current_polymers_page += 1
-                }
-            } else if (action.payload.slice_name == 'structures') {
-                if (state.pagination.current_structures_page < state.pagination.total_structures_pages!) {
-                    state.pagination.current_structures_page += 1
-                }
-            }
-        },
+        //     }
+        // },
+        // pagination_next_page(state, action: PayloadAction<{ slice_name: 'structures' | 'polymers', }>) {
+        //     if (action.payload.slice_name == 'polymers') {
+        //         if (state.pagination.current_polymers_page < state.pagination.total_polymers_pages!) {
+        //             state.pagination.current_polymers_page += 1
+        //         }
+        //     } else if (action.payload.slice_name == 'structures') {
+        //         if (state.pagination.current_structures_page < state.pagination.total_structures_pages!) {
+        //             state.pagination.current_structures_page += 1
+        //         }
+        //     }
+        // },
 
     },
     extraReducers: (builder) => {
@@ -276,18 +238,18 @@ export const {
     set_ligand_prediction_data,
 
 
-    set_current_polymers,
-    set_current_polymer_class,
+    // set_current_polymers,
+    // set_current_polymer_class,
 
-    set_current_structures,
-    set_total_structures_count,
+    // set_current_structures,
+    // set_total_structures_count,
 
     set_tax_dict,
-    set_filter,
+    // set_filter,
 
-    pagination_set_page,
-    pagination_next_page,
-    pagination_prev_page
+    // pagination_set_page,
+    // pagination_next_page,
+    // pagination_prev_page
 
 } = uiSlice.actions
 export default uiSlice.reducer
