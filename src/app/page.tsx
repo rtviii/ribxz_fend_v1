@@ -32,7 +32,7 @@ const Homepage = () => {
     );
 };
 
-const InkscapeOverlay = () => {
+const InkscapeOverlay = ({ active }:{ active:boolean }) => {
     const [isHovered, setIsHovered] = useState(false);
     return (
         <div
@@ -62,7 +62,7 @@ const InkscapeOverlay = () => {
                     object-contain 
                     transition-opacity 
                     duration-300 
-                    ${isHovered ? 'opacity-100' : 'opacity-0'}
+                    ${isHovered || active ? 'opacity-100' : 'opacity-0'}
                 `}
             />
         </div>
@@ -70,41 +70,59 @@ const InkscapeOverlay = () => {
 };
 
 
-
 const Hero = () => {
+    const [inputActive, setInputActive] = useState(false);
+    const handleInputChange = (e:any) => {
+        const hasValue = e.target.value.length > 0;
+        setInputActive(hasValue);
+    };
+
+    const handleInputFocus = () => {
+        setInputActive(true);
+    };
+
+    const handleInputBlur = (e:any) => {
+        if (e.target.value.length === 0) {
+            setInputActive(false);
+        }
+    };
+
     return (
-        <div className="mt-20 flex flex-col items-center justify-center gap-4">
+        <div className="mt-20 flex flex-col items-center justify-center">
+            <SidebarMenu/>
             {/* Logo + Text Container */}
-            <div className="w-full max-w-2xl flex  items-start">
-                {/* InkscapeOverlay - Made smaller and fixed to left */}
-                <div className="absolute w-80 h-80">
-                    <InkscapeOverlay />
+            <div className="w-full max-w-2xl flex gap-4 items-start relative mb-4">
+                {/* InkscapeOverlay - Larger and positioned to extend below */}
+                <div className="absolute -bottom-32 left-0 w-72 h-72">
+                    <InkscapeOverlay active={inputActive}/>
                 </div>
 
-
-                {/* Text Container */}
-                <div className="pl-80 mt-20 flex flex-col  justify-start items-start">
+                {/* Text Container - Pushed to the right to make room for overlay */}
+                <div className="pl-44 ml-auto flex flex-col gap-2 max-w-xl justify-start items-start">
                     <Image
                         width={200}
                         height={40}
                         src="/inkscape_overlay/riboxyz_textlogo.svg"
                         alt="riboxyz"
-                        className="h-12 w-auto object-contain"
+                        className="h-10 w-auto object-contain"
                     />
-                    <span className="pl-1 font-mono text-md text-gray-600">
+                    <span className="pl-1 font-mono text-gray-600">
                         An interface to the atomic structure of the ribosome.
                     </span>
                 </div>
             </div>
 
-            <div className="w-full max-w-2xl">
+            {/* Search Input */}
+            <div className="w-full max-w-2xl relative z-10">
                 <Input
-                    className="w-full bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors"
-                    placeholder="Search structures..."
+                    className   = "w-full bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors"
+                    placeholder = "Search structures..."
+                    onChange    = {handleInputChange}
+                    onFocus     = {handleInputFocus}
+                    onBlur      = {handleInputBlur}
                 />
             </div>
         </div>
     );
 };
-
 export default Homepage;

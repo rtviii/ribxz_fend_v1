@@ -19,8 +19,9 @@ import { StructureCard } from '@/components/ribxz/structure_card';
 import { useAppSelector } from '@/store/store';
 
 export const StructureCarousel = () => {
-    const current_structure = useAppSelector(state => state.structures_page.current_structures);
+    const current_structures = useAppSelector(state => state.structures_page.current_structures);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const last_updated=  useAppSelector(state => state.structures_page.last_db_update);
 
     const handleWheel = (e: WheelEvent) => {
         const scrollViewport = scrollContainerRef.current?.querySelector('[data-radix-scroll-area-viewport]');
@@ -48,12 +49,12 @@ export const StructureCarousel = () => {
             ref={scrollContainerRef}
         >
             <div className="px-4">
-                <h2 className="text-sm font-medium text-muted-foreground">Latest Depositions</h2>
+                <h2 className="text-sm font-medium text-muted-foreground">Latest Depositions [ {last_updated} ] </h2>
             </div>
             
             <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
                 <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
-                    {current_structure.slice(0, 10).map((_, i) => (
+                    {current_structures.slice(0, 10).map((_, i) => (
                         <StructureCard _={_} key={i} />
                     ))}
 

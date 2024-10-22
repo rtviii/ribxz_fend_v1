@@ -17,13 +17,15 @@ export interface StructuresSlice {
     current_structures    : RibosomeStructure[],
     total_structures_count: number | null,
     filters               : StructureFilters,
+    last_db_update: null | string,
 }
 
 const initialState: StructuresSlice = {
-    structures_cursor: null,
-    current_structures: [],
+    last_db_update: null,
+    structures_cursor     : null,
+    current_structures    : [],
     total_structures_count: null,
-    filters: {
+    filters               : {
         search          : '',
         subunit_presence: null,
         year            : [null, null],
@@ -52,6 +54,9 @@ export const structures_slice = createSlice({
             Object.assign(state, { structures_cursor: action.payload })
         },
 
+        set_last_db_update(state, action: PayloadAction<null|string>) {
+            Object.assign(state, { last_db_update: action.payload })
+        },
     },
     extraReducers: (builder) => {
         //  DONE: Replaced with the POST mutation based approach
@@ -72,7 +77,8 @@ export const {
     set_current_structures,
     set_total_structures_count,
     set_structures_filter,
-    set_structures_cursor
+    set_structures_cursor,
+    set_last_db_update
 
 
 } = structures_slice.actions
