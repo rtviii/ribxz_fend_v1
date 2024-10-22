@@ -1,9 +1,10 @@
 'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum,  LigandTransposition,  Polymer, Protein, RibosomeStructure, ribxz_api, Rna, useRoutersRouterStructFilterListQuery } from '@/store/ribxz_api/ribxz_api'
+import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum,  LigandTransposition,  Polymer, Protein, RibosomeStructure, ribxz_api, Rna  } from '@/store/ribxz_api/ribxz_api'
 
 const PAGE_SIZE_STRUCTURES = 20;
 const PAGE_SIZE_POLYMERS = 50;
+
 export interface FiltersState {
     search          : string | null
     year            : [number | null, number | null]
@@ -15,12 +16,13 @@ export interface FiltersState {
 }
 
 export interface PaginationState {
-    current_polymers_page: number
-    total_polymers_pages: number | null
+    current_polymers_page  : number
+    total_polymers_pages   : number | null
 
     current_structures_page: number
-    total_structures_pages: number | null
+    total_structures_pages : number | null
 }
+
 // array of tuples [{ ligand info }, all structs in which it is present : [ {rcsb id, taxnodeinfo} ]]
 export type LigandInstances = Array<[{
     chemicalId          : string
@@ -70,16 +72,16 @@ export interface UIState {
     },
     data: {
         current_structures: RibosomeStructure[],
-        current_polymers: Array<Polymer | Rna | Protein>,
+        current_polymers  : Array<Polymer | Rna | Protein>,
 
         total_structures_count: number | null,
-        total_polymers_count: number | null
+        total_polymers_count  : number | null
     },
     polymers: {
         current_polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum | null,
     }
 
-    filters: FiltersState,
+    filters   : FiltersState,
     pagination: PaginationState
 }
 
@@ -96,9 +98,10 @@ const initialState: UIState = {
     },
     data: {
         current_structures: [],
-        current_polymers: [],
         total_structures_count: null,
-        total_polymers_count: null
+
+        current_polymers  : [],
+        total_polymers_count  : null
     },
     polymers: { // polymers_page
         current_polymer_class: null
@@ -154,15 +157,18 @@ export const uiSlice = createSlice({
         set_ligand_prediction_data(state, action: PayloadAction<LigandTransposition|null>) {
             state.ligands_page.prediction_data = action.payload
         },
-
-        // !---------------- Ligands
+        // !---------------- Taxonomy
         set_tax_dict(state, action: PayloadAction<Record<number, [string, "Bacteria" | "Eukaryota" | "Archaea"]>>) {
             state.taxid_dict = action.payload
         },
-        set_new_structs(state, action: PayloadAction<RibosomeStructure[]>) {
+        // !---------------- Structures
+        set_current_structures(state, action: PayloadAction<RibosomeStructure[]>) {
             state.data.current_structures = action.payload
         },
-
+        set_total_structures_count(state, action: PayloadAction<number>) {
+            state.data.total_structures_count = action.payload
+        },
+        // !---------------- Polymers
         set_current_polymers(state, action: PayloadAction<Array<Polymer | Rna | Protein>>) {
             state.data.current_polymers = action.payload
         },
@@ -170,10 +176,12 @@ export const uiSlice = createSlice({
             Object.assign(state.polymers, { current_polymer_class: action.payload })
         },
 
+        // !---------------- Filters
         set_filter(state, action: PayloadAction<{ filter_type: keyof FiltersState, value: typeof state.filters[keyof FiltersState] }>) {
             Object.assign(state.filters, { [action.payload.filter_type]: action.payload.value })
         },
 
+        // !---------------- Pagination
         pagination_prev_page(state, action: PayloadAction<{
             slice_name: 'structures' | 'polymers',
         }>) {
@@ -225,15 +233,15 @@ export const uiSlice = createSlice({
             builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchRejected, (state, action) => {
                 state.ligands_page.prediction_pending = false
             });
-        builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
-
-            // @ts-ignore
-            state.data.current_structures = action.payload.structures
-            // @ts-ignore
-            state.data.total_structures_count = action.payload.count
-            // @ts-ignore
-            state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
-        });
+        //  TODO: Replaced with the POST mutation based approach
+        // builder.addMatcher(ribxz_api.endpoints.routersRouterStructFilterList.matchFulfilled, (state, action) => {
+        //     // @ts-ignore
+        //     state.data.current_structures = action.payload.structures
+        //     // @ts-ignore
+        //     state.data.total_structures_count = action.payload.count
+        //     // @ts-ignore
+        //     state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
+        // });
 
         builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
             console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");
@@ -267,15 +275,20 @@ export const {
     set_ligands_radius,
     set_ligand_prediction_data,
 
-    set_tax_dict,
+
     set_current_polymers,
     set_current_polymer_class,
-    set_new_structs,
+
+    set_current_structures,
+    set_total_structures_count,
+
+    set_tax_dict,
     set_filter,
 
     pagination_set_page,
     pagination_next_page,
     pagination_prev_page
+
 } = uiSlice.actions
 export default uiSlice.reducer
 

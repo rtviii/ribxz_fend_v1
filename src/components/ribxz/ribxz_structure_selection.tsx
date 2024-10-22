@@ -124,9 +124,9 @@ const labelRender: LabelRender = (props) => {
 };
 export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentProps<typeof Select>> = {}) => {
 
-    const structs_overview = useAppSelector(state => state.all_structures_overview.structures)
-    const selected = useAppSelector(state => state.all_structures_overview.selected)
-    const dispatch = useAppDispatch();
+    const structs_overview = useAppSelector(state => state.homepage_overview.structures)
+    const selected         = useAppSelector(state => state.homepage_overview.selected)
+    const dispatch         = useAppDispatch();
 
     const filterOption = (input: string, option: any) => {
 
@@ -137,9 +137,9 @@ export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentPr
     return <Select
         {...props}
         labelRender={labelRender}
-
         showSearch   = {true}
         placeholder  = "Select a structure"
+        // @ts-ignore
         onChange     = {(val, struct) => { dispatch(select_structure(struct.S as StructureOverview)) }}
         value        = {selected?.rcsb_id}
         style        = {{ width: '100%' }}
@@ -147,8 +147,8 @@ export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentPr
         options      = {structs_overview.map(struct_overview => ({
             value: struct_overview.rcsb_id,
             label: (
-                <Space direction="vertical" style={{ width: '100%' }}>
-                    <Space style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                <Space direction = "vertical" style = {{ width: '100%' }}>
+                <Space style     = {{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                         <Text strong>{struct_overview.rcsb_id}</Text>
                         <Space>
                             {struct_overview.mitochondrial && (

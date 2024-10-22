@@ -1,6 +1,19 @@
 import { useEffect, useState } from "react";
 import { RibosomeStructure } from "./store/ribxz_api/ribxz_api";
 
+export function parseDateString(dateString: string|null| undefined): { year: number, month: number, day: number } {
+  if (dateString === null || dateString === undefined) {
+    return { year: 0, month: 0, day: 0 };
+  }
+  const date = new Date(dateString);
+  
+  return {
+    year : date.getUTCFullYear(),
+    month: date.getUTCMonth() + 1,   // getUTCMonth() returns 0-11, so we add 1
+    day  : date.getUTCDate()
+  };
+}
+
 export function useDebouncePagination(value: number, delay: number): number {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -19,8 +32,8 @@ export function map_ncbi_tax_id_to_name(taxid: number, taxdict: Record<number, [
 }
 
 export function contract_taxname(name: string) {
-  var name   = name.toLowerCase()
   if (name) {
+    var name = name.toLowerCase()
     return name.split(" ")[0][0].toUpperCase() + ". " + name.split(" ")[1]
   } else {
     return ""

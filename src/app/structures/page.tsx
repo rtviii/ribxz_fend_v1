@@ -4,7 +4,7 @@ import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@
 import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import { StructureCard, StructureStack } from "../../components/ribxz/structure_card"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Filters, useDebounceFilters } from "@/components/ribxz/filters"
 import { PaginationElement } from '@/components/ribxz/pagination_element'
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
@@ -12,35 +12,83 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '@/store/store';
 import { useAppSelector } from "@/store/store"
-import { RibosomeStructure, ribxz_api, useRoutersRouterStructFilterListQuery } from "@/store/ribxz_api/ribxz_api"
-import { pagination_set_page } from "@/store/slices/ui_state"
+import { RibosomeStructure, ribxz_api } from "@/store/ribxz_api/ribxz_api"
+import { FiltersState, pagination_set_page, set_current_structures, set_total_structures_count } from "@/store/slices/ui_state"
 import { useDebouncePagination } from "@/my_utils"
+import { log } from "node:console"
+import { ApiProvider } from '@reduxjs/toolkit/query/react'
+import { structuresApi, useGetStructuresMutation } from '@/store/ribxz_api/structures_api'
+import { debounce } from "lodash"
 
 
 
 export default function StructureCatalogue() {
-  const current_structures         = useAppSelector((state) => state.ui.data.current_structures)
-  const current_page               = useAppSelector(state => state.ui.pagination.current_structures_page)
-  const debounced_page_state       = useDebouncePagination(current_page, 150)
-  const [triggerStructuresRefetch] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
-  const filter_state               = useAppSelector((state) => state.ui.filters)
+  const dispatch = useAppDispatch();
+  const filter_state = useAppSelector((state) => state.ui.filters)
+  const debounced_filters = useDebounceFilters(filter_state, 250)
+  const [hasMore, setHasMore] = useState(true);
+  const [groupByDeposition, setGroupByDeposition] = useState(false);
+
+  const [cursor, setCursor] = useState(null)
+  // const [structures, setStructures]                                                                    = useState<RibosomeStructure[]>([])
+  const [getStructures, { isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error }] = useGetStructuresMutation()
+  const [isLoading, setIsLoading] = useState(false);
+  const current_structures = useAppSelector(state => state.ui.data.current_structures);
+  const total_structures_count = useAppSelector(state => state.ui.data.total_structures_count);
+
+
+
+  const fetchStructures = async (newCursor: string | null = null) => {
+    setIsLoading(true);
+    const payload = {
+      cursor: newCursor,
+      limit: 20,
+      year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
+      search: filter_state.search || null,
+      resolution: filter_state.resolution[0] === null && filter_state.resolution[1] === null ? null : filter_state.resolution,
+      polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
+      source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
+      host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
+      subunit_presence: filter_state.subunit_presence || null,
+    };
+
+    try {
+      const result = await getStructures(payload).unwrap();
+      const { structures: new_structures, next_cursor, total_count } = result;
+
+      if (newCursor === null) {
+        dispatch(set_current_structures(new_structures));
+      } else {
+        dispatch(set_current_structures([...current_structures, ...new_structures]));
+      }
+
+      dispatch(set_total_structures_count(total_count));
+
+      setCursor(next_cursor);
+      setHasMore(next_cursor !== null);
+    } catch (err) {
+      console.error('Error fetching structures:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+
 
   useEffect(() => {
-    triggerStructuresRefetch({
-      page           : current_page,
-      year           : filter_state.year.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      resolution     : filter_state.resolution.map(x => x === null || x === 0 ? null : x.toString()).join(','),
-      hostTaxa       : filter_state.host_taxa.length == 0 ? ''                                                : filter_state.host_taxa.map(x => x === null ? null : x.toString()).join(','),
-      sourceTaxa     : filter_state.source_taxa.length == 0 ? ''                                              : filter_state.source_taxa.map(x => x === null ? null : x.toString()).join(','),
-      polymerClasses : filter_state.polymer_classes.length == 0 ? ''                                          : filter_state.polymer_classes.join(','),
-      search         : filter_state.search === null ? ''                                                      : filter_state.search,
-      subunitPresence: filter_state.subunit_presence == null ? ''                                             : filter_state.subunit_presence
-    }).unwrap()
+    dispatch(set_current_structures([]));
+    setCursor(null);
+    setHasMore(true);
+    fetchStructures();
+  }, [debounced_filters]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debounced_page_state])
+  const loadMore = () => {
+    if (!isLoading && hasMore) {
+      fetchStructures(cursor);
+    }
+  };
 
-  // TODO: this logic should be in the corresponding structure component (keep filters/pagination general)
+
   return (
     <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
       {/* <HoverMenu /> */}
@@ -50,16 +98,28 @@ export default function StructureCatalogue() {
           <div className="col-span-3  flex flex-col min-h-full pr-4">
             <Filters />
             <SidebarMenu />
-            <div className="p-1 my-4 rounded-md border w-full">
-              <PaginationElement slice_type={"structures"} />
-            </div>
           </div>
           <div className="col-span-9 scrollbar-hidden">
-            <ScrollArea className=" max-h-[90vh] overflow-y-scroll scrollbar-hidden" scrollHideDelay={1} >
-              <StructureStack structures={current_structures.slice(0,20)}/>
+
+            <ScrollArea className="flex-grow max-h-[90vh] overflow-y-auto border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2" scrollHideDelay={1} >
+
               <div className=" gap-4 flex  flex-wrap   scrollbar-hidden"  >
-                {current_structures.map((struct: RibosomeStructure) => <StructureCard _={struct} key={struct.rcsb_id} />)}
+                {current_structures.map(structure => (
+                  <StructureCard key={structure.rcsb_id} _={structure} />
+                ))}
+                {isLoading && <p>Loading...</p>}
               </div>
+
+              <Button
+                onClick={loadMore}
+                disabled={isLoading || !hasMore}
+                className=" m-3 py-0 text-sm font-semibold  transition-colors duration-200 ease-in-out"
+              >
+                {isLoading ? 'Loading...' : hasMore ? 'Load More' : 'All structures loaded'}
+                <span className="m-2 text-sm font-normal">
+                  (Showing {current_structures.length} of {total_structures_count} structures)
+                </span>
+              </Button>
             </ScrollArea>
           </div>
         </div>

@@ -11,7 +11,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <StoreProvider>
       <body className={inter.className}>{children}</body>
-        <Toaster />
       </StoreProvider>
     </html>
   )

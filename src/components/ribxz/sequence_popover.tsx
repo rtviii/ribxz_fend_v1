@@ -45,13 +45,13 @@ const ToastDemo = () => {
 
 const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seqType: 'amino' | 'rna', polymer?: Polymer }) => {
 
-  const ctx                           = useContext(MolstarContext)
-  const [isOpen, setIsOpen]           = useState(false);
-  const [selection, setSelection]     = useState({ start: -1, end: -1 });
+  const ctx = useContext(MolstarContext)
+  const [isOpen, setIsOpen] = useState(false);
+  const [selection, setSelection] = useState({ start: -1, end: -1 });
   const [isSelecting, setIsSelecting] = useState(false);
-  const [showToast, setShowToast]     = useState(false);
-  const sequenceRef                   = useRef<HTMLDivElement>(null);
-  const { toast }                     = useToast()
+  const [showToast, setShowToast] = useState(false);
+  const sequenceRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast()
 
   const handleMouseDown = (index: number) => {
     setIsSelecting(true);
@@ -135,7 +135,7 @@ const SequencePopover = ({ sequence, seqType, polymer }: { sequence: string; seq
             copySequence()
 
           }} >
-            <CopyIcon size={16} className="mr-2" />
+            <CopyIcon props={{ "size": 16, "className":"mr-2" }} />
             Copy Sequence
 
           </Button>

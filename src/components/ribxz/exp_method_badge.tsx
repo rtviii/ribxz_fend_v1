@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 
-export const ExpMethodBadge = ({ expMethod, resolution, className }: { expMethod: string | undefined , resolution:number, className?:string}) => {
+export const ExpMethodBadge = ({ expMethod, resolution, className }: { expMethod: string | undefined , resolution:number|string, className?:string}) => {
 
     const [method, setMethod] = useState<string | undefined>(undefined)
     const [methodColor, setMethodColor] = useState<string | undefined>(undefined)

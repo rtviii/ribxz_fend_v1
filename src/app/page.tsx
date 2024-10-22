@@ -2,7 +2,7 @@
 import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
 import Image from 'next/image';
-import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructFilterListQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
+import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
 import { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,6 @@ import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
 import { IconVisibilityOn } from '@/components/ribxz/visibility_icon';
 import * as React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-
 
 const ban_citation = `Nenad Ban, Roland Beckmann, Jamie HD Cate, Jonathan D Dinman, François Dragon, Steven R Ellis, Denis LJ Lafontaine, Lasse Lindahl, Anders Liljas, Jeffrey M Lipton, Michael A McAlear, Peter B Moore, Harry F Noller, Joaquin Ortega, Vikram Govind Panse, V Ramakrishnan, Christian MT Spahn, Thomas A Steitz, Marek Tchorzewski, David Tollervey, Alan J Warren, James R Williamson, Daniel Wilson, Ada Yonath, Marat Yusupov,
 A new system for naming ribosomal proteins,
@@ -62,7 +61,6 @@ function InTextCitation({ number, paper }: CitationProps) {
 const StructuresOverviewPanel = () => {
 
   return (
-    // <div className="  rounded-md relative border border-gray-400 hover:shadow-lg   transition-all ">
 
     <Link href='/structures' className="px-4 py-2 rounded-md relative border hover:border-blue-600  hover:shadow-lg transition-all hover:cursor-pointer">
       {/* <StructStatsTable data={data} /> */}
@@ -228,7 +226,6 @@ const LigandsOverviewPanel = (props: { data: any }) => {
       </div>
     </Link>
   )
-
 }
 
 const StructStatsTable = (props: { data: any }) => {
@@ -267,7 +264,7 @@ const StructStatsTable = (props: { data: any }) => {
 
             <TableCell >LSU
               <AsteriskTooltip className='text-red-500'>
-                <p>LSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA16S,5.8SrRNA,5SrRNA,23SrRNA,25SrRNA,25sRNA </code>] are present.</p>
+                <span>LSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA16S,5.8SrRNA,5SrRNA,23SrRNA,25SrRNA,25sRNA </code>] are present.</span>
               </AsteriskTooltip>
 
 
@@ -282,7 +279,7 @@ const StructStatsTable = (props: { data: any }) => {
             <TableCell >SSU
 
               <AsteriskTooltip className='text-red-500'>
-                <p>SSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA12S,16SrRNA,18SrRNA </code>] are present.</p >
+                <span>SSU is considered present if any of [<code className='bg-gray-300 px-1 text-black rounded-sm'>mtrRNA12S,16SrRNA,18SrRNA </code>] are present.</span >
               </AsteriskTooltip>
 
             </TableCell>
@@ -313,7 +310,6 @@ const StructStatsTable = (props: { data: any }) => {
   )
 }
 
-
 const ToolSection = () => {
 
 
@@ -325,10 +321,6 @@ const citaiton3 = `Ban N, Beckmann R, Cate JH, Dinman JD, Dragon F, Ellis SR, La
 
 export default function Home() {
 
-  const { data, isLoading, isError } = useRoutersRouterStructFilterListQuery({})
-  const [isOpen_structs, setIsOpen_structs] = useState(false)
-  const [isOpen_polymers, setIsOpen_polymers] = useState(false)
-  const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
 
   return (
     <StoreProvider >
@@ -388,14 +380,13 @@ export default function Home() {
                 {
                   [
 
-                    <Link href={"https://www.rcsb.org/"}> <Image src={"/logo_rcsb.png"} alt='ubclogo' width={120} height={120} /> </Link>,
-                    <Link href={"http://hmmer.org/"}> <Image src={"/logo_hmmer.png"} alt='hmmer' width={40} height={40} /> </Link>,
-                    <Link href={"https://molstar.org/"}> <Image src={"/logo_molstar.png"} alt='ubclogo' width={100} height={100} /> </Link>,
-                    <Link href={"https://neo4j.com/"}> <Image src={"/logo_neo4j.png"} alt='ubclogo' width={100} height={100} /> </Link>,
-                    <Link href={"https://www.cgl.ucsf.edu/chimerax/"}> <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40} height={40} /> </Link>,
-
-                  ].map(i => {
-                    return <div className='border p-1 rounded-sm hover:border-blue-700 hover:shadow-lg '>{i}</div>
+                    <Link key={"logo_rcsb"    } href={"https://www.rcsb.org/"             }> <Image src={"/logo_rcsb.png"    } alt='ubclogo' width={120} height={120} /> </Link>,
+                    <Link key={"logo_hmmer"   } href={"http://hmmer.org/"                 }> <Image src={"/logo_hmmer.png"   } alt='hmmer'   width={40 } height={40 } /> </Link>,
+                    <Link key={"logo_molstar" } href={"https://molstar.org/"              }> <Image src={"/logo_molstar.png" } alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link key={"logo_neo4j"   } href={"https://neo4j.com/"                }> <Image src={"/logo_neo4j.png"   } alt='ubclogo' width={100} height={100} /> </Link>,
+                    <Link key={"logo_chimerax"} href={"https://www.cgl.ucsf.edu/chimerax/"}> <Image src={"/logo_chimerax.svg"} alt='ubclogo' width={40 } height={40 } /> </Link>,
+                  ].map((i,k) => {
+                    return <div key={k} className='border p-1 rounded-sm hover:border-blue-700 hover:shadow-lg '>{i}</div>
                   })
 
                 }
@@ -404,8 +395,6 @@ export default function Home() {
               {/* <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>muscle5</code>
               <code className='border ribxz-link border-gray-200 bg-gray-100 rounded-sm my-2'>BioPython</code> */}
               <div>
-
-
               </div>
             </div>
             <Citation />
@@ -416,8 +405,6 @@ export default function Home() {
     </StoreProvider>
   )
 }
-
-
 
 const citation = `@article{kushner2023riboxyz,
   title={RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures},
@@ -454,41 +441,41 @@ function Citation() {
   </div>
 }
 
-function VisualizeRandom() {
+// function VisualizeRandom() {
 
-  const router = useRouter()
-  const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
-  const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
+//   const router = useRouter()
+//   const [refetch_profile, _] = ribxz_api.endpoints.routersRouterStructRandomProfile.useLazyQuery()
+//   const { data: random_profile, isLoading: random_profile_IL, isError: random_profile_IE } = useRoutersRouterStructRandomProfileQuery()
 
 
-  return (
-    <TooltipProvider>
-      <Tooltip delayDuration={0}>
-        <div className="bg-white  rounded-lg border  p-2 group  border-gray-400 ">
-          <TooltipTrigger asChild  >
-            <div className="flex justify-between  ">
-              <div className="flex items-center justify-between w-1/5 ">
-                <Image
-                  onClick={() => { refetch_profile() }}
-                  src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
-                <Separator orientation='vertical' className='ml-4' />
-              </div>
-              <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={() => {
-                router.push(`/structures/${random_profile?.rcsb_id}`)
-              }}>
-                <div className='text-2xl text-center align-middle justify-center items-center flex mr-4 text-blue-700'>{random_profile?.rcsb_id}</div>
-                <div className="flex flex-col text-xs  justify-center w-full">
-                  <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + (random_profile.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : " ") + " et al." : (random_profile?.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : "") + " et al."}</p>
-                  <p>{random_profile?.src_organism_names[0]}</p>
-                </div>
-              </div>
-            </div>
-          </TooltipTrigger>
-        </div>
-        <TooltipContent side="top">
-          <p>Visualize random structure</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
+//   return (
+//     <TooltipProvider>
+//       <Tooltip delayDuration={0}>
+//         <div className="bg-white  rounded-lg border  p-2 group  border-gray-400 ">
+//           <TooltipTrigger asChild  >
+//             <div className="flex justify-between  ">
+//               <div className="flex items-center justify-between w-1/5 ">
+//                 <Image
+//                   onClick={() => { refetch_profile() }}
+//                   src={DiceIcon} className='w-12 h-12 rounded-sm border p-1 dice-image hover:cursor-pointer hover:bg-muted' alt="some" />
+//                 <Separator orientation='vertical' className='ml-4' />
+//               </div>
+//               <div className='flex  rounded-sm   w-full px-4 hover:bg-muted justify-between hover:cursor-pointer' onClick={() => {
+//                 router.push(`/structures/${random_profile?.rcsb_id}`)
+//               }}>
+//                 <div className='text-2xl text-center align-middle justify-center items-center flex mr-4 text-blue-700'>{random_profile?.rcsb_id}</div>
+//                 <div className="flex flex-col text-xs  justify-center w-full">
+//                   <p>{random_profile?.citation_year ? random_profile.citation_year + ", " + (random_profile.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : " ") + " et al." : (random_profile?.citation_rcsb_authors ? random_profile?.citation_rcsb_authors[0] : "") + " et al."}</p>
+//                   <p>{random_profile?.src_organism_names[0]}</p>
+//                 </div>
+//               </div>
+//             </div>
+//           </TooltipTrigger>
+//         </div>
+//         <TooltipContent side="top">
+//           <p>Visualize random structure</p>
+//         </TooltipContent>
+//       </Tooltip>
+//     </TooltipProvider>
+//   )
+// }

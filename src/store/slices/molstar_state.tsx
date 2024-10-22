@@ -12,14 +12,6 @@ declare global {
 }
 
 export const molstarListenerMiddleware = createListenerMiddleware()
-
-// TODO : reimport from separte mstar module
-// export const download_struct         = createAsyncThunk('molstar/download_struct', _download_struct)
-// export const initiatePluginUIContext = createAsyncThunk('molstar/initiatePluginUIContext', createPlugin)
-// export const loadMmcifChain          = createAsyncThunk('molstar/loadMmcifChain', load_mmcif_chain)
-
-
-
 export interface SuperimposeState {
 
   pivot: {
@@ -36,20 +28,20 @@ export interface SuperimposeState {
 
 
 export interface MolstarReduxCore {
-  ui_plugin: PluginUIContext | undefined,
+  ui_plugin     : PluginUIContext | undefined,
   tools_expanded: boolean,
-  count: undefined | number,
-  superimpose: SuperimposeState
+  count         : undefined | number,
+  superimpose   : SuperimposeState
 }
 
 const initialState: MolstarReduxCore = {
-  ui_plugin: undefined,
+  ui_plugin     : undefined,
   tools_expanded: false,
-  count: undefined,
-  superimpose: {
-    chain_search: '',
+  count         : undefined,
+  superimpose   : {
+    chain_search : '',
     struct_search: '',
-    pivot: null,
+    pivot        : null,
     active_chains: []
   }
 }

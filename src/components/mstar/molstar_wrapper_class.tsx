@@ -63,7 +63,7 @@ export class MolstarRibxz {
   async init(parent: HTMLElement) {
     this.ctx = await createPluginUI({
       target: parent,
-      spec  : MySpec,
+      spec: MySpec,
       render: renderReact18
     });
 
@@ -164,12 +164,15 @@ export class MolstarRibxz {
 
 
   renderPLY = async (rcsb_id: string) => {
-    const provider = this.ctx.dataFormats.get('ply')
+    const provider = this.ctx.dataFormats.get('ply')!
     const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
     const parsed = await provider!.parse(this.ctx, data!);
-    await provider.visuals(this.ctx, parsed);
-
+    if (provider.visuals) {
+      await provider.visuals!(this.ctx, parsed);
+    }else{
+      throw Error("provider.visuals is undefined for this `ply` data format")
+    }
 
   }
 

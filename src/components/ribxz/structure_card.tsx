@@ -6,7 +6,7 @@ import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/h
 import Link from "next/link"
 import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
-import { contract_taxname } from "@/my_utils"
+import { contract_taxname, parseDateString } from "@/my_utils"
 import { ExpMethodBadge } from "./exp_method_badge"
 import { useState } from "react"
 
@@ -186,8 +186,8 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
 
   if (!RCSB_IDs.includes(`${_.rcsb_id.toUpperCase()}.png`)) {
     const utf8Encode = new TextEncoder();
-    const byteval = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
-    var pic = RCSB_IDs[byteval % RCSB_IDs.length]
+    const byteval    = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
+    var   pic        = RCSB_IDs[byteval % RCSB_IDs.length]
   }
   else {
     var pic = _.rcsb_id.toUpperCase() + ".png"
@@ -198,15 +198,14 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
   return (
     <Link href={`/structures/${_.rcsb_id}`}>
       <Card className="w-80  max-h-full h-full  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
-        <div className="relative h-[40%] transition-all duration-300 hover:h-[100%] border-b-2 ">
+        <div className="relative h-[50%] transition-all duration-300 hover:h-[100%] border-b-2 ">
           <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
           <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
-
           <ExpMethodBadge expMethod={_.expMethod} resolution={_.resolution.toFixed(2)} className="absolute bottom-4 left-4" />
-
-
           {/* TODO: Replace with `deposition_year` */}
           {_.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null}
+          {_.deposition_date ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{parseDateString(_.deposition_date).year}  </div> : null}
+
           <div className="absolute top-4 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
             {
               _.subunit_presence?.includes("lsu") ? _.subunit_presence?.includes("ssu") ?
@@ -240,7 +239,7 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
                 </span>
               </div>
             </div>
-            <div className="flex justify-between items-center  group relative">
+            {/* <div className="flex justify-between items-center  group relative">
               <span className="text-xs">Proteins:</span>
               <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
                 <span title="List of proteins">{_.proteins.length}</span>
@@ -257,26 +256,26 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
               <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
                 <span title="List of ligands">{_.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")).length}</span>
               </div>
-            </div>
+            </div> */}
             {
               _.citation_rcsb_authors ?
-                <div className="relative flex justify-between items-center mt-1">
+                <div className="relative flex justify-between items-center">
                   <span className="text-xs">Authors:</span>
                   <HoverCard>
                     <HoverCardTrigger asChild>
                       <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors z-10" title="Full list of authors" >
                         <span className="italic text-xs" >{_.citation_rcsb_authors[0]}</span> <span style={{
-                          cursor: "pointer",
-                          display: 'inline-block',
-                          width: '15px',
-                          height: '15px',
-                          borderRadius: '50%',
+                          cursor         : "pointer",
+                          display        : 'inline-block',
+                          width          : '15px',
+                          height         : '15px',
+                          borderRadius   : '50%',
                           backgroundColor: '#cccccc',
-                          textAlign: 'center',
-                          lineHeight: '15px',
-                          fontWeight: 'bold',
-                          fontSize: '14px',
-                          color: 'white'
+                          textAlign      : 'center',
+                          lineHeight     : '15px',
+                          fontWeight     : 'bold',
+                          fontSize       : '14px',
+                          color          : 'white'
                         }}>+</span>
                       </span>
                     </HoverCardTrigger>
@@ -309,7 +308,7 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
 }
 
 
-export const StructureStack = ({ structures }:{structures:RibosomeStructure[]}) => {
+export const StructureStack = ({ structures }: { structures: RibosomeStructure[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const currentStructure = structures[currentIndex];
 
@@ -320,16 +319,15 @@ export const StructureStack = ({ structures }:{structures:RibosomeStructure[]}) 
           {structures.map((structure, index) => (
             <div
               key={structure.rcsb_id}
-              className={`flex-shrink-0 px-1 py-0.5 cursor-pointer text-[0.6rem] leading-tight ${
-                index === currentIndex ? 'bg-blue-500 text-white' : 'bg-gray-200'
-              }`}
+              className={`flex-shrink-0 px-1 py-0.5 cursor-pointer text-[0.6rem] leading-tight ${index === currentIndex ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                }`}
               onClick={() => setCurrentIndex(index)}
             >
               {structure.rcsb_id}
             </div>
           ))}
         </div>
-        <StructureCard _={currentStructure}  />
+        <StructureCard _={currentStructure} />
       </div>
       <div className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded-full text-xs">
         {currentIndex + 1} / {structures.length}

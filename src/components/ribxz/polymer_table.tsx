@@ -16,25 +16,25 @@ interface PolymerTableRowProps {
 }
 
 interface PolymersTableProps {
-    polymers: Polymer[],
+    polymers               : Polymer[],
     connect_to_molstar_ctx?: boolean
-    if_empty_prompt?: React.ReactNode
+    if_empty_prompt       ?: React.ReactNode
 }
 
 export const PolymerTableRow = (props: PolymerTableRowProps) => {
-    const polymer                                          = props.polymer
-    const ctx                                              = useContext(MolstarAppContext)
-    const [trigger, result, lastPromiseInfo]               = ribxz_api.useLazyRoutersRouterStructPolymerClassificationReportQuery();
+    const polymer = props.polymer
+    const ctx = useContext(MolstarAppContext)
+    const [trigger, result, lastPromiseInfo] = ribxz_api.useLazyRoutersRouterStructPolymerClassificationReportQuery();
     const [classification_report, setClassificationReport] = useState()
-    const taxid_dict                                       = useAppSelector(state => state.ui.taxid_dict)
+    const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
 
     return <TableRow
 
 
-        className    = "cursor-pointer h-6"
-        onClick      = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
-        onMouseEnter = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
-        onMouseLeave = {props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
+        className="cursor-pointer h-6"
+        onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.select_chain(polymer.auth_asym_id) } : undefined}
+        onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.highlightChain(polymer.auth_asym_id) } : undefined}
+        onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : ctx.removeHighlight() } : undefined}>
 
         <TableCell className=" py-0.5 px-2 text-xs text-center">{polymer.auth_asym_id}</TableCell>
         <TableCell className=" py-0.5 px-2 text-xs text-center">
@@ -44,10 +44,10 @@ export const PolymerTableRow = (props: PolymerTableRowProps) => {
         </TableCell>
         <TableCell className=" py-0.5 px-2 text-xs whitespace-pre text-center">
             <SequencePopover
-                seqType  = {polymer.entity_poly_polymer_type === 'Protein' ? 'amino' : 'rna'}
-                sequence = {polymer.entity_poly_seq_one_letter_code_can}
-                polymer  = {polymer}
-                />
+                seqType={polymer.entity_poly_polymer_type === 'Protein' ? 'amino' : 'rna'}
+                sequence={polymer.entity_poly_seq_one_letter_code_can}
+                polymer={polymer}
+            />
         </TableCell>
     </TableRow>
 }
@@ -81,7 +81,7 @@ const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
 
 export default function PolymersTable(props: PolymersTableProps) {
     const proteins = props.polymers.filter(p => p.entity_poly_polymer_type == "Protein")
-    const rnas     = props.polymers.filter(p => p.entity_poly_polymer_type == "RNA")
+    const rnas = props.polymers.filter(p => p.entity_poly_polymer_type == "RNA")
     return (
         <div>
             <ScrollArea className="max-h-[80vh] rounded-md border overflow-auto no-scrollbar p-0.5">
@@ -96,9 +96,11 @@ export default function PolymersTable(props: PolymersTableProps) {
                         </TableRow>
                     </TableHeader>
                     <TableBody >
-                        {props.polymers.toSorted(sort_by_polymer_class).map(p =>
-                            <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />
-                        )}
+                        {props.polymers.toSorted(sort_by_polymer_class)
+                            .filter(p => p.assembly_id === 0)
+                            .map(p =>
+                                <PolymerTableRow key={p.parent_rcsb_id + p.auth_asym_id} polymer={p} connect_to_molstar_ctx={props.connect_to_molstar_ctx} />
+                            )}
                     </TableBody>
                 </Table>
             </ScrollArea>

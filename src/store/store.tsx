@@ -5,26 +5,31 @@ import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-
 import { molstarListenerMiddleware, molstarSlice } from './slices/molstar_state'
 import { fetchPredictionData, prefetchLigandsData, uiSlice } from './slices/ui_state'
 import { allStructuresOverviewSlice, prefetchAllStructsOverview } from './slices/all_structs_overview_state'
+import { structuresApi } from './ribxz_api/structures_api'
 
 
 
 export const makeStore = () => {
   const store=  configureStore({
     reducer: {
-      [ribxz_api.reducerPath]: ribxz_api.reducer,
-      molstar                : molstarSlice.reducer,
-      ui                     : uiSlice.reducer,
-      all_structures_overview: allStructuresOverviewSlice.reducer
+      [ribxz_api.reducerPath]    : ribxz_api.reducer,
+      molstar                    : molstarSlice.reducer,
+      ui                         : uiSlice.reducer,
+      homepage_overview    : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
+      [structuresApi.reducerPath]: structuresApi.reducer,
     },
+
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
     .prepend(molstarListenerMiddleware.middleware)
-    .concat(ribxz_api.middleware),
+    .concat(ribxz_api.middleware)
+    .concat(structuresApi.middleware), 
   })
 
   //* All prefetching can happen here via thunks.
   store.dispatch(prefetchLigandsData())
   store.dispatch(prefetchAllStructsOverview())
   //* All prefetching can happen here via thunks.
+
   return store
 }
 
