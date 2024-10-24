@@ -102,7 +102,7 @@ export default function Vis() {
                         <CardHeader>
                             <GlobalStructureSelection />
                             <Button onClick={() => {
-                                ctx?.renderPLY("someurl")
+                                ctx?.tunnel_geoemetry("someurl")
                             }}>Render PLY</Button>
 
                         </CardHeader>

@@ -35,6 +35,9 @@ import { ribxz_api } from '@/store/ribxz_api/ribxz_api';
 import { Shape, ShapeGroup } from 'molstar/lib/mol-model/shape/shape';
 import { ShapeRepresentation } from 'molstar/lib/mol-repr/shape/representation';
 import { Loci } from 'molstar/lib/mol-model/structure/structure/element/loci';
+import { PluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
+import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
+import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
 const { parsed: { DJANGO_URL } } = require("dotenv").config({ path: "./../../../.env.local" });
 
 _.memoize.Cache = WeakMap;
@@ -63,10 +66,10 @@ export class MolstarRibxz {
   ctx: PluginUIContext;
   constructor() { }
 
-  async init(parent: HTMLElement) {
+  async init(parent: HTMLElement, spec:PluginUISpec=MySpec) {
     this.ctx = await createPluginUI({
       target: parent,
-      spec: MySpec,
+      spec  : spec,
       render: renderReact18
     });
 
@@ -164,7 +167,7 @@ export class MolstarRibxz {
   highlihgtLoci = (l: Loci) => {
     this.ctx.managers.camera.focusLoci(l)
   }
-  renderPLY = async (rcsb_id: string): Promise<Loci> => {
+  tunnel_geoemetry = async (rcsb_id: string): Promise<Loci> => {
     const provider = this.ctx.dataFormats.get('ply')!
     const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
@@ -646,6 +649,25 @@ export class MolstarRibxz {
 
     return this
   }
+}
+
+
+interface ViewportControlsState {
+    isSettingsExpanded: boolean,
+    isScreenshotExpanded: boolean,
+    isCameraResetEnabled: boolean
+}
+
+interface ViewportControlsProps {
+}
+
+
+export class MyViewportControls  extends PluginUIComponent<ViewportControlsProps, ViewportControlsState> {
+
+render() {
+        return <div className={'msp-viewport-controls'}> </div>;
+    }
+
 }
 
 // (window as any).MolstarRibxz = new MolstarRibxz();

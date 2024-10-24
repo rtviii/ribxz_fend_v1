@@ -21,6 +21,7 @@ import { useAppSelector } from '@/store/store';
 import { StructureCarousel } from './homepage/structures_carousel';
 import { Footer } from './homepage/footer';
 import { Hero } from './homepage/hero';
+import { TunnelDemo } from './homepage/tunnel_demo';
 
 
 const Homepage = () => {
@@ -28,6 +29,7 @@ const Homepage = () => {
         <div className="container mx-auto px-4 max-w-6xl">
             <Hero />
             <StructureCarousel />
+            <TunnelDemo/>
             <Footer />
         </div>
     );
