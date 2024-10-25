@@ -20,7 +20,6 @@ import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
 import { createPluginUI } from "molstar/lib/mol-plugin-ui";
 import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
-import './mstar.css'
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
 import { MySpec } from "./lib";
@@ -38,7 +37,9 @@ import { Loci } from 'molstar/lib/mol-model/structure/structure/element/loci';
 import { PluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
 import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
+import { Canvas3DParams, Canvas3DProps } from 'molstar/lib/mol-canvas3d/canvas3d';
 const { parsed: { DJANGO_URL } } = require("dotenv").config({ path: "./../../../.env.local" });
+import './mstar.css'
 
 _.memoize.Cache = WeakMap;
 
@@ -66,14 +67,31 @@ export class MolstarRibxz {
   ctx: PluginUIContext;
   constructor() { }
 
-  async init(parent: HTMLElement, spec:PluginUISpec=MySpec) {
+  async init(parent: HTMLElement, spec: PluginUISpec = MySpec) {
     this.ctx = await createPluginUI({
       target: parent,
-      spec  : spec,
-      render: renderReact18
-    });
+      spec: spec,
+      render: renderReact18,
+
+    }
+    );
 
     this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
+    // this.ctx.canvas3d?.setProps({ camera: { helper: { axes: { name: 'off', params: {} } } } })
+
+    // this.ctx.canvas3d?.setProps({
+    //   postprocessing: {
+    //     background: {
+    //       variant: { name: 'off', params: {} },
+    //     }
+    //   }
+    // })
+    // ! set bg color to white
+
+    const rendererParams: any = { backgroundColor : Color.fromRgb(255,255,255), };
+    const renderer = this.ctx.canvas3d?.props.renderer
+    PluginCommands.Canvas3D.SetSettings(this.ctx, { settings: { renderer: { ...renderer, ...rendererParams } } });
+
 
   }
 
@@ -125,9 +143,6 @@ export class MolstarRibxz {
         }
       }
     });
-    // if (this.ctx.canvas3d.props.trackball.animate.name !== 'spin') {
-    //   PluginCommands.Camera.Reset(this.ctx, {});
-    // }
     return this
   }
 
@@ -283,7 +298,7 @@ export class MolstarRibxz {
   }
 
   async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }) {
-    const myUrl = `${DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
+    const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
     await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
@@ -402,8 +417,8 @@ export class MolstarRibxz {
   }
 
 
-  select_multiple_polymers = async (auth_asym_ids: string[],  modifier: 'set' | 'add' | 'remove' | 'intersect')=>{
-    const e         = this.expression_polymers_selection(auth_asym_ids)
+  select_multiple_polymers = async (auth_asym_ids: string[], modifier: 'set' | 'add' | 'remove' | 'intersect') => {
+    const e = this.expression_polymers_selection(auth_asym_ids)
     const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
     if (data === undefined) return;
     const sel = Script.getStructureSelection(e, data);
@@ -413,12 +428,12 @@ export class MolstarRibxz {
 
   create_multiple_polymers = async (auth_asym_ids: string[], object_name: string) => {
 
-    let   structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct     = structures[0];
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
 
-    const e         = this.expression_polymers_selection(auth_asym_ids)
-    const update    = this.ctx.build();
-    const group     = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: object_name }, { ref: `_${object_name}` });
+    const e = this.expression_polymers_selection(auth_asym_ids)
+    const update = this.ctx.build();
+    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: object_name }, { ref: `_${object_name}` });
     const chain_sel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: object_name, expression: e }, { ref: object_name });
     chain_sel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'cartoon' }), { ref: `repr_${object_name}_cartoon` });
     await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
@@ -652,22 +667,6 @@ export class MolstarRibxz {
 }
 
 
-interface ViewportControlsState {
-    isSettingsExpanded: boolean,
-    isScreenshotExpanded: boolean,
-    isCameraResetEnabled: boolean
+export class MyViewportControls extends PluginUIComponent<{}, {}> {
+  render() { return <div className={'msp-viewport-controls'}> </div>; }
 }
-
-interface ViewportControlsProps {
-}
-
-
-export class MyViewportControls  extends PluginUIComponent<ViewportControlsProps, ViewportControlsState> {
-
-render() {
-        return <div className={'msp-viewport-controls'}> </div>;
-    }
-
-}
-
-// (window as any).MolstarRibxz = new MolstarRibxz();

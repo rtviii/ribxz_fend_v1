@@ -139,7 +139,8 @@ export const MySpec: PluginUISpec = {
     },
     remoteState: 'none',
 
-  }
+  },
+  
 }
 
 export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIContext, rcsb_id:string }):Promise<null> {

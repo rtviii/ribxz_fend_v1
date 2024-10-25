@@ -1,4 +1,5 @@
 "use client"
+
 import StoreProvider from './store_provider';
 import DiceIcon from '../../public/dice.svg'
 import Image from 'next/image';
@@ -22,6 +23,7 @@ import { StructureCarousel } from './homepage/structures_carousel';
 import { Footer } from './homepage/footer';
 import { Hero } from './homepage/hero';
 import { TunnelDemo } from './homepage/tunnel_demo';
+import '@/components/mstar/mstar.css';
 
 
 const Homepage = () => {

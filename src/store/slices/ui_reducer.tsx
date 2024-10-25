@@ -206,27 +206,27 @@ export const uiSlice = createSlice({
         //     state.pagination.total_structures_pages = Math.ceil(action.payload.count / PAGE_SIZE_STRUCTURES)
         // });
 
-        builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
-            console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");
-            // @ts-ignore
-            state.data.current_polymers = action.payload.polymers
-            // @ts-ignore
-            state.data.total_polymers_count = action.payload.count
-            // @ts-ignore
-            state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
-        });
+        // builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByStructure.matchFulfilled, (state, action) => {
+        //     console.log("Dispatch fetch polymer BY STRUCTURE matchFulfilled");
+        //     // @ts-ignore
+        //     state.data.current_polymers = action.payload.polymers
+        //     // @ts-ignore
+        //     state.data.total_polymers_count = action.payload.count
+        //     // @ts-ignore
+        //     state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+        // });
 
-        builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.matchFulfilled, (state, action) => {
+        // builder.addMatcher(ribxz_api.endpoints.routersRouterStructPolymersByPolymerClass.matchFulfilled, (state, action) => {
 
-            console.log("Dispatch fetch polymer BY POLYCLASS matchFulfilled");
+        //     console.log("Dispatch fetch polymer BY POLYCLASS matchFulfilled");
 
-            // @ts-ignore
-            state.data.current_polymers = action.payload.polymers
-            // @ts-ignore
-            state.data.total_polymers_count = action.payload.count
-            // @ts-ignore
-            state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
-        })
+        //     // @ts-ignore
+        //     state.data.current_polymers = action.payload.polymers
+        //     // @ts-ignore
+        //     state.data.total_polymers_count = action.payload.count
+        //     // @ts-ignore
+        //     state.pagination.total_polymers_pages = Math.ceil(action.payload.count / PAGE_SIZE_POLYMERS)
+        // })
     }
 })
 
