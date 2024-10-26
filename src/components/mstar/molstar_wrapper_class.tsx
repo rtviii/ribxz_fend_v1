@@ -77,17 +77,9 @@ export class MolstarRibxz {
     );
 
     this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
-    // this.ctx.canvas3d?.setProps({ camera: { helper: { axes: { name: 'off', params: {} } } } })
+    this.ctx.canvas3d?.setProps({ camera: { helper: { axes: { name: 'off', params: {} } } } })
 
-    // this.ctx.canvas3d?.setProps({
-    //   postprocessing: {
-    //     background: {
-    //       variant: { name: 'off', params: {} },
-    //     }
-    //   }
-    // })
     // ! set bg color to white
-
     const rendererParams: any = { backgroundColor : Color.fromRgb(255,255,255), };
     const renderer = this.ctx.canvas3d?.props.renderer
     PluginCommands.Canvas3D.SetSettings(this.ctx, { settings: { renderer: { ...renderer, ...rendererParams } } });

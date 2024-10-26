@@ -28,12 +28,15 @@ import { BoxifyVolumeStreaming, CreateVolumeStreamingBehavior, InitVolumeStreami
 import { StateActions } from 'molstar/lib/mol-plugin-state/actions';
 import { Quat, Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
+import { mode } from 'd3';
 
 
 export const TunnelDemo = () => {
+
     const [ctx, setCtx] = useState<MolstarRibxz | null>(null);
     const rcsb_id = '4UG0'
     const molstarNodeRef = useRef<HTMLDivElement>(null);
+
     // !Autoload structure
     useEffect(() => {
         (async () => {
@@ -78,45 +81,20 @@ export const TunnelDemo = () => {
     }, [])
 
     useEffect(() => {
-        ctx?.load_mmcif_chain({
-            auth_asym_id: 'LC',
-            rcsb_id: '4UG0'
-        })
-        ctx?.load_mmcif_chain({
-            auth_asym_id: 'LP',
-            rcsb_id: '4UG0'
-        })
+        // ctx?.load_mmcif_chain({ auth_asym_id: 'LC', rcsb_id: '4UG0' })
+        // ctx?.load_mmcif_chain({ auth_asym_id: 'LP', rcsb_id: '4UG0' })
         ctx?.tunnel_geoemetry('4UG0')
-        // if (ctx?.ctx) {
+        if (ctx?.ctx) {
 
-        //     const snapshot = ctx?.ctx.canvas3d?.camera.getSnapshot();
+            const snapshot = ctx?.ctx.canvas3d?.camera.getSnapshot();
+            const newSnapshot = {
+                ...snapshot,
+                up: Vec3.create(-1,0,0),
+            };
 
-        //     const q = Quat.setAxisAngle(Quat(), Vec3.create(1, 0, 0), 3 * Math.PI / 2);
-        //     const newSnapshot = {
-        //         ...snapshot,
-        //         position: Vec3.transformQuat(Vec3(), snapshot?.position, q),
-        //         up: Vec3.transformQuat(Vec3(), snapshot?.up, q),
-        //     };
-
-        //     PluginCommands.Camera.Reset(ctx?.ctx, { snapshot: newSnapshot });
-        //     console.log("New snapshot", newSnapshot);
-
-        // }
-
-
-        // const camera_snapshot = ctx?.ctx.canvas3d?.camera.getSnapshot()
-
-
-        // console.log("Got cam snapshot", camera_snapshot);
-
-        //     const diddraw = ctx?.ctx.canvas3d?.didDraw
-        //     console.log(diddraw);
-
-        // // const camera_snapshot:CameraSnapshot = { ...ctx?.ctx.canvas3d?.camera.getSnapshot() , position:[100,0,0], up:[1,0,0]}
-
-
-        // ctx?.ctx.managers.camera.setSnapshot({ ...camera_snapshot, ...{up:Vec3.fromObj({x:0,y:0,z:1})}, position:[0,0,100]}!)
-        // // console.log(camera_snapshot);
+             ctx?.ctx.canvas3d?.camera.setState(newSnapshot,500)
+        }
+        ctx?.toggleSpin()
 
 
     }, [ctx, rcsb_id])
