@@ -29,6 +29,7 @@ import { StateActions } from 'molstar/lib/mol-plugin-state/actions';
 import { Quat, Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
 import { mode } from 'd3';
+import { range } from 'lodash';
 
 
 export const TunnelDemo = () => {
@@ -48,8 +49,8 @@ export const TunnelDemo = () => {
                 ],
                 components: {
                     disableDragOverlay: true,
-                    hideTaskOverlay: true,
-                    viewport: {
+                    hideTaskOverlay   : true,
+                    viewport          : {
                         controls: MyViewportControls
                     },
                     controls: {
@@ -62,13 +63,12 @@ export const TunnelDemo = () => {
                 },
                 layout: {
                     initial: {
-                        // controlsDisplay:'landscape',
                         showControls: false,
                         regionState: {
                             bottom: 'hidden',
-                            left: 'hidden',
-                            right: 'hidden',
-                            top: 'hidden'
+                            left  : 'hidden',
+                            right : 'hidden',
+                            top   : 'hidden'
                         },
                         isExpanded: false
                     }
@@ -81,17 +81,34 @@ export const TunnelDemo = () => {
     }, [])
 
     useEffect(() => {
-        // ctx?.load_mmcif_chain({ auth_asym_id: 'LC', rcsb_id: '4UG0' })
-        // ctx?.load_mmcif_chain({ auth_asym_id: 'LP', rcsb_id: '4UG0' })
+
+        // (async () => {
+        //     const LC = await ctx?.load_mmcif_chain({ auth_asym_id: 'LC', rcsb_id: '4UG0' })
+        //     let LC_residues = []
+        //     for (var i of range(57, 103)) {
+        //         LC_residues.push(i)
+        //     }
+        //     console.log(LC_residues);
+        //     ctx?.select_multiple_residues([['LC', LC_residues]], LC?.data)
+
+        //     ctx?.create_ball_and_stick_representation(LC!, 'some')
+        // }
+
+        // )()
+
+        // const LP = ctx?.load_mmcif_chain({ auth_asym_id: 'LP', rcsb_id: '4UG0' })
+        // // 120-144
+
+        // let LP_residues = []
+        // for (var j in range(120,144)) {
+        //     LP_residues.push( Number.parseInt(j) )
+        // }
+
+
         ctx?.tunnel_geoemetry('4UG0')
         if (ctx?.ctx) {
-
             const snapshot = ctx?.ctx.canvas3d?.camera.getSnapshot();
-            const newSnapshot = {
-                ...snapshot,
-                up: Vec3.create(-1,0,0),
-            };
-
+            const newSnapshot = { ...snapshot, up: Vec3.create(-1,0,0), };
              ctx?.ctx.canvas3d?.camera.setState(newSnapshot,500)
         }
         ctx?.toggleSpin()

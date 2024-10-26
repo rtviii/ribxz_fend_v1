@@ -10,6 +10,7 @@ import { structurePageSlice } from './slices/slice_structure_page'
 import { structures_slice } from './slices/slice_structures'
 import { polymers_slice } from './slices/slice_polymers'
 import { polymersApi } from './ribxz_api/polymers_api'
+import { HomepageSlice } from './slices/slice_homepage'
 
 export const makeStore = () => {
   const store=  configureStore({
@@ -21,6 +22,7 @@ export const makeStore = () => {
       structure_page             : structurePageSlice.reducer,
       structures_page            : structures_slice.reducer,
       polymers_page              : polymers_slice.reducer,
+      homepage                   : HomepageSlice.reducer,
       [structuresApi.reducerPath]: structuresApi.reducer,
       [polymersApi.reducerPath]  : polymersApi.reducer,
     },

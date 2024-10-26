@@ -8,7 +8,7 @@ import { log } from 'console';
 import { RuntimeContext } from 'molstar/lib/mol-task/execution/runtime-context';
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/interactivity';
-import { StateObjectRef } from 'molstar/lib/mol-state/object';
+import { StateObjectRef, StateObjectSelector } from 'molstar/lib/mol-state/object';
 import { compile } from "molstar/lib/mol-script/runtime/query/compiler";
 import { superpose } from 'molstar/lib/mol-model/structure/structure/util/superposition'
 import { QueryContext } from "molstar/lib/mol-model/structure/query/context";
@@ -23,7 +23,7 @@ import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
 import { MySpec } from "./lib";
-import _ from "lodash";
+import _, { range } from "lodash";
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { StateElements } from './functions';
 import { Script } from 'molstar/lib/mol-script/script';
@@ -80,7 +80,7 @@ export class MolstarRibxz {
     this.ctx.canvas3d?.setProps({ camera: { helper: { axes: { name: 'off', params: {} } } } })
 
     // ! set bg color to white
-    const rendererParams: any = { backgroundColor : Color.fromRgb(255,255,255), };
+    const rendererParams: any = { backgroundColor: Color.fromRgb(255, 255, 255), };
     const renderer = this.ctx.canvas3d?.props.renderer
     PluginCommands.Canvas3D.SetSettings(this.ctx, { settings: { renderer: { ...renderer, ...rendererParams } } });
 
@@ -289,16 +289,24 @@ export class MolstarRibxz {
     });
   }
 
-  async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }) {
+  async load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }): Promise<StateObjectSelector | undefined> {
     const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
     const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-    await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
+    // Try chaffing residues out of the trajectory without creating the full preset.
+    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
+    return st?.structure
+  }
+
+  async create_ball_and_stick_representation(selection: StateObjectSelector, label: string) {
+    const update = this.ctx.build();
+    const sel = update.to(selection.ref).apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, selection.data, { type: 'ball-and-stick' }), { ref: 'residues' });
+    await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
+
   }
 
 
-  select_multiple_residues(chain_residues_tuples: [string, number[]][]) {
-
+  select_multiple_residues(chain_residues_tuples: [string, number[]][], structure?: Structure) {
     const groups: Expression[] = [];
     for (var chain_residue_tuple of chain_residues_tuples) {
       for (var res_index of chain_residue_tuple[1]) {
@@ -309,13 +317,18 @@ export class MolstarRibxz {
       }
     }
     this.ctx.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
-    var expression = MS.struct.combinator.merge(groups);
-    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+    const expression = MS.struct.combinator.merge(groups);
 
-    if (data === undefined) return;
+    const data = structure ?? this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
+
+    if (data === undefined) {
+      console.log("Not found data");
+      return;
+    }
 
     const sel = Script.getStructureSelection(expression, data);
     let loci = StructureSelection.toLociWithSourceUnits(sel);
+
 
     this.ctx.managers.structure.selection.clear();
     this.ctx.managers.structure.selection.fromLoci('add', loci);
@@ -478,7 +491,6 @@ export class MolstarRibxz {
   }
 
   create_subcomponent_by_auth_asym_id = async (auth_asym_ids: string[]) => {
-
     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
     const struct = structures[0];
     let expression = MS.struct.generator.atomGroups({ 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), })
@@ -566,7 +578,6 @@ export class MolstarRibxz {
       const ligandSel = group1.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Ligand`, expression: ligand }, { ref: 'ligandSel' });
       ligandSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'ligandBallAndStick' });
       ligandSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'ligandLabel' });
-
       await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
 
       const update2 = this.ctx.build();
