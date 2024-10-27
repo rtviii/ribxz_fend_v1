@@ -40,43 +40,31 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: () => ({ url: `/structures/random_profile` }),
     }),
-    routersRouterStructPolymersByPolymerClass: build.query<
-      RoutersRouterStructPolymersByPolymerClassApiResponse,
-      RoutersRouterStructPolymersByPolymerClassApiArg
-    >({
-      query: (queryArg) => ({
-        url: `/structures/list_polymers_filtered_by_polymer_class`,
-        params: { polymer_class: queryArg.polymerClass, page: queryArg.page },
-      }),
-    }),
-    routersRouterStructPolymersByStructure: build.query<
-      RoutersRouterStructPolymersByStructureApiResponse,
-      RoutersRouterStructPolymersByStructureApiArg
-    >({
-      query: (queryArg) => ({
-        url: `/structures/list_polymers_by_structure`,
-        params: {
-          page: queryArg.page,
-          search: queryArg.search,
-          year: queryArg.year,
-          resolution: queryArg.resolution,
-          polymer_classes: queryArg.polymerClasses,
-          source_taxa: queryArg.sourceTaxa,
-          host_taxa: queryArg.hostTaxa,
-        },
-      }),
-    }),
     routersRouterStructListLigands: build.query<
       RoutersRouterStructListLigandsApiResponse,
       RoutersRouterStructListLigandsApiArg
     >({
       query: () => ({ url: `/structures/list_ligands` }),
     }),
-    routersRouterStructFilterList: build.mutation<
-      RoutersRouterStructFilterListApiResponse,
-      RoutersRouterStructFilterListApiArg
+    routersRouterStructListStructures: build.mutation<
+      RoutersRouterStructListStructuresApiResponse,
+      RoutersRouterStructListStructuresApiArg
     >({
-      query: () => ({ url: `/structures/list`, method: "POST" }),
+      query: (queryArg) => ({
+        url: `/structures/list_structures`,
+        method: "POST",
+        body: queryArg.structureFilterParams,
+      }),
+    }),
+    routersRouterStructListPolymers: build.mutation<
+      RoutersRouterStructListPolymersApiResponse,
+      RoutersRouterStructListPolymersApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/structures/list_polymers`,
+        method: "POST",
+        body: queryArg.polymersFilterParams,
+      }),
     }),
     routersRouterStructOverview: build.query<
       RoutersRouterStructOverviewApiResponse,
@@ -232,303 +220,21 @@ export type RoutersRouterStructStructureCompositionStatsApiArg = void;
 export type RoutersRouterStructRandomProfileApiResponse =
   /** status 200 OK */ RibosomeStructure;
 export type RoutersRouterStructRandomProfileApiArg = void;
-export type RoutersRouterStructPolymersByPolymerClassApiResponse =
-  /** status 200 OK */ object;
-export type RoutersRouterStructPolymersByPolymerClassApiArg = {
-  polymerClass:
-    | "5SrRNA"
-    | "16SrRNA"
-    | "23SrRNA"
-    | "25SrRNA"
-    | "5.8SrRNA"
-    | "18SrRNA"
-    | "28SrRNA"
-    | "mt12SrRNA"
-    | "mt16SrRNA"
-    | "tRNA"
-    | "eEF1A"
-    | "eEF1B"
-    | "eFSec"
-    | "eEF2"
-    | "mtEF4"
-    | "eIF5A"
-    | "eEF3"
-    | "EF-Tu"
-    | "EF-Ts"
-    | "SelB"
-    | "EF-G"
-    | "EF4"
-    | "EF-P"
-    | "Tet_O"
-    | "Tet_M"
-    | "RelA"
-    | "BipA"
-    | "aEF1A"
-    | "aEF2"
-    | "eIF1"
-    | "eIF1A"
-    | "eIF2_alpha"
-    | "eIF2_beta"
-    | "eIF2_gamma"
-    | "eIF2B_alpha"
-    | "eIF2B_beta"
-    | "eIF2B_gamma"
-    | "eIF2B_delta"
-    | "eIF2B_epsilon"
-    | "eIF3_subunitA"
-    | "eIF3_subunitB"
-    | "eIF3_subunitC"
-    | "eIF3_subunitD"
-    | "eIF3_subunitE"
-    | "eIF3_subunitF"
-    | "eIF3_subunitG"
-    | "eIF3_subunitH"
-    | "eIF3_subunitI"
-    | "eIF3_subunitJ"
-    | "eIF3_subunitK"
-    | "eIF3_subunitL"
-    | "eIF3_subunitM"
-    | "eIF4F_4A"
-    | "eIF4F_4G"
-    | "eIF4F_4E"
-    | "eIF4B"
-    | "eIF5B"
-    | "eIF5"
-    | "IF1"
-    | "IF2"
-    | "IF3"
-    | "aIF1A"
-    | "aIF2_alpha"
-    | "aIF2_beta"
-    | "aIF2_gamma"
-    | "aIF2B_alpha"
-    | "aIF2B_beta"
-    | "aIF2B_delta"
-    | "aIF5A"
-    | "aIF5B"
-    | "bS1"
-    | "eS1"
-    | "uS2"
-    | "uS3"
-    | "uS4"
-    | "eS4"
-    | "uS5"
-    | "bS6"
-    | "eS6"
-    | "uS7"
-    | "eS7"
-    | "uS8"
-    | "eS8"
-    | "uS9"
-    | "uS10"
-    | "eS10"
-    | "uS11"
-    | "uS12"
-    | "eS12"
-    | "uS13"
-    | "uS14"
-    | "uS15"
-    | "bS16"
-    | "uS17"
-    | "eS17"
-    | "bS18"
-    | "uS19"
-    | "eS19"
-    | "bS20"
-    | "bS21"
-    | "bTHX"
-    | "eS21"
-    | "eS24"
-    | "eS25"
-    | "eS26"
-    | "eS27"
-    | "eS28"
-    | "eS30"
-    | "eS31"
-    | "RACK1"
-    | "uL1"
-    | "uL2"
-    | "uL3"
-    | "uL4"
-    | "uL5"
-    | "uL6"
-    | "eL6"
-    | "eL8"
-    | "bL9"
-    | "uL10"
-    | "uL11"
-    | "bL12"
-    | "uL13"
-    | "eL13"
-    | "uL14"
-    | "eL14"
-    | "uL15"
-    | "eL15"
-    | "uL16"
-    | "bL17"
-    | "uL18"
-    | "eL18"
-    | "bL19"
-    | "eL19"
-    | "bL20"
-    | "eL20"
-    | "bL21"
-    | "eL21"
-    | "uL22"
-    | "eL22"
-    | "uL23"
-    | "uL24"
-    | "eL24"
-    | "bL25"
-    | "bL27"
-    | "eL27"
-    | "bL28"
-    | "eL28"
-    | "uL29"
-    | "eL29"
-    | "uL30"
-    | "eL30"
-    | "bL31"
-    | "eL31"
-    | "bL32"
-    | "eL32"
-    | "bL33"
-    | "eL33"
-    | "bL34"
-    | "eL34"
-    | "bL35"
-    | "bL36"
-    | "eL36"
-    | "eL37"
-    | "eL38"
-    | "eL39"
-    | "eL40"
-    | "eL41"
-    | "eL42"
-    | "eL43"
-    | "P1P2"
-    | "bS1m"
-    | "uS2m"
-    | "uS3m"
-    | "uS4m"
-    | "uS5m"
-    | "bS6m"
-    | "uS7m"
-    | "uS8m"
-    | "uS9m"
-    | "uS10m"
-    | "uS11m"
-    | "uS12m"
-    | "uS13m"
-    | "uS14m"
-    | "uS15m"
-    | "bS16m"
-    | "uS17m"
-    | "bS18m"
-    | "uS19m"
-    | "bS21m"
-    | "mS22"
-    | "mS23"
-    | "mS25"
-    | "mS26"
-    | "mS27"
-    | "mS29"
-    | "mS31"
-    | "mS33"
-    | "mS34"
-    | "mS35"
-    | "mS37"
-    | "mS38"
-    | "mS39"
-    | "mS40"
-    | "mS41"
-    | "mS42"
-    | "mS43"
-    | "mS44"
-    | "mS45"
-    | "mS46"
-    | "mS47"
-    | "uL1m"
-    | "uL2m"
-    | "uL3m"
-    | "uL4m"
-    | "uL5m"
-    | "uL6m"
-    | "bL9m"
-    | "uL10m"
-    | "uL11m"
-    | "bL12m"
-    | "uL13m"
-    | "uL14m"
-    | "uL15m"
-    | "uL16m"
-    | "bL17m"
-    | "uL18m"
-    | "bL19m"
-    | "bL20m"
-    | "bL21m"
-    | "uL22m"
-    | "uL23m"
-    | "uL24m"
-    | "bL27m"
-    | "bL28m"
-    | "uL29m"
-    | "uL30m"
-    | "bL31m"
-    | "bL32m"
-    | "bL33m"
-    | "bL34m"
-    | "bL35m"
-    | "bL36m"
-    | "mL37"
-    | "mL38"
-    | "mL39"
-    | "mL40"
-    | "mL41"
-    | "mL42"
-    | "mL43"
-    | "mL44"
-    | "mL45"
-    | "mL46"
-    | "mL48"
-    | "mL49"
-    | "mL50"
-    | "mL51"
-    | "mL52"
-    | "mL53"
-    | "mL54"
-    | "mL57"
-    | "mL58"
-    | "mL59"
-    | "mL60"
-    | "mL61"
-    | "mL62"
-    | "mL63"
-    | "mL64"
-    | "mL65"
-    | "mL66"
-    | "mL67";
-  page?: number;
-};
-export type RoutersRouterStructPolymersByStructureApiResponse =
-  /** status 200 OK */ object;
-export type RoutersRouterStructPolymersByStructureApiArg = {
-  page?: number;
-  search?: string;
-  year?: string;
-  resolution?: string;
-  polymerClasses?: string;
-  sourceTaxa?: string;
-  hostTaxa?: string;
-};
 export type RoutersRouterStructListLigandsApiResponse = /** status 200 OK */ [
   object,
   object[]
 ][];
 export type RoutersRouterStructListLigandsApiArg = void;
-export type RoutersRouterStructFilterListApiResponse =
+export type RoutersRouterStructListStructuresApiResponse =
   /** status 200 OK */ object;
-export type RoutersRouterStructFilterListApiArg = void;
+export type RoutersRouterStructListStructuresApiArg = {
+  structureFilterParams: StructureFilterParams;
+};
+export type RoutersRouterStructListPolymersApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterStructListPolymersApiArg = {
+  polymersFilterParams: PolymersFilterParams;
+};
 export type RoutersRouterStructOverviewApiResponse =
   /** status 200 OK */ object[];
 export type RoutersRouterStructOverviewApiArg = void;
@@ -1297,16 +1003,16 @@ export type NonpolymerComp = {
   rcsb_chem_comp_target?: RcsbChemCompTarget[] | null;
 };
 export type NonpolymericLigand = {
-  chemicalId          : string;
-  chemicalName        : string;
-  formula_weight     ?: number | null;
-  pdbx_description    : string;
-  number_of_instances : number;
-  nonpolymer_comp    ?: NonpolymerComp | null;
-  SMILES             ?: string | null;
-  SMILES_stereo      ?: string | null;
-  InChI              ?: string | null;
-  InChIKey           ?: string | null;
+  chemicalId: string;
+  chemicalName: string;
+  formula_weight?: number | null;
+  pdbx_description: string;
+  number_of_instances: number;
+  nonpolymer_comp?: NonpolymerComp | null;
+  SMILES?: string | null;
+  SMILES_stereo?: string | null;
+  InChI?: string | null;
+  InChIKey?: string | null;
 };
 export type Protein = {
   assembly_id: number;
@@ -1355,6 +1061,319 @@ export type RibosomeStructure = {
   other_polymers: Polymer[];
   nonpolymeric_ligands: NonpolymericLigand[];
   proteins: Protein[];
+};
+export type CytosolicRnaClassMitochondrialRnaClasstRnaUnionEnum =
+  | "5SrRNA"
+  | "16SrRNA"
+  | "23SrRNA"
+  | "25SrRNA"
+  | "5.8SrRNA"
+  | "18SrRNA"
+  | "28SrRNA"
+  | "mt12SrRNA"
+  | "mt16SrRNA"
+  | "tRNA";
+export type ElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum =
+
+    | "eEF1A"
+    | "eEF1B"
+    | "eFSec"
+    | "eEF2"
+    | "mtEF4"
+    | "eIF5A"
+    | "eEF3"
+    | "EF-Tu"
+    | "EF-Ts"
+    | "SelB"
+    | "EF-G"
+    | "EF4"
+    | "EF-P"
+    | "Tet_O"
+    | "Tet_M"
+    | "RelA"
+    | "BipA"
+    | "aEF1A"
+    | "aEF2"
+    | "eIF1"
+    | "eIF1A"
+    | "eIF2_alpha"
+    | "eIF2_beta"
+    | "eIF2_gamma"
+    | "eIF2B_alpha"
+    | "eIF2B_beta"
+    | "eIF2B_gamma"
+    | "eIF2B_delta"
+    | "eIF2B_epsilon"
+    | "eIF3_subunitA"
+    | "eIF3_subunitB"
+    | "eIF3_subunitC"
+    | "eIF3_subunitD"
+    | "eIF3_subunitE"
+    | "eIF3_subunitF"
+    | "eIF3_subunitG"
+    | "eIF3_subunitH"
+    | "eIF3_subunitI"
+    | "eIF3_subunitJ"
+    | "eIF3_subunitK"
+    | "eIF3_subunitL"
+    | "eIF3_subunitM"
+    | "eIF4F_4A"
+    | "eIF4F_4G"
+    | "eIF4F_4E"
+    | "eIF4B"
+    | "eIF5B"
+    | "eIF5"
+    | "IF1"
+    | "IF2"
+    | "IF3"
+    | "aIF1A"
+    | "aIF2_alpha"
+    | "aIF2_beta"
+    | "aIF2_gamma"
+    | "aIF2B_alpha"
+    | "aIF2B_beta"
+    | "aIF2B_delta"
+    | "aIF5A"
+    | "aIF5B"
+    | "bS1"
+    | "eS1"
+    | "uS2"
+    | "uS3"
+    | "uS4"
+    | "eS4"
+    | "uS5"
+    | "bS6"
+    | "eS6"
+    | "uS7"
+    | "eS7"
+    | "uS8"
+    | "eS8"
+    | "uS9"
+    | "uS10"
+    | "eS10"
+    | "uS11"
+    | "uS12"
+    | "eS12"
+    | "uS13"
+    | "uS14"
+    | "uS15"
+    | "bS16"
+    | "uS17"
+    | "eS17"
+    | "bS18"
+    | "uS19"
+    | "eS19"
+    | "bS20"
+    | "bS21"
+    | "bTHX"
+    | "eS21"
+    | "eS24"
+    | "eS25"
+    | "eS26"
+    | "eS27"
+    | "eS28"
+    | "eS30"
+    | "eS31"
+    | "RACK1"
+    | "uL1"
+    | "uL2"
+    | "uL3"
+    | "uL4"
+    | "uL5"
+    | "uL6"
+    | "eL6"
+    | "eL8"
+    | "bL9"
+    | "uL10"
+    | "uL11"
+    | "bL12"
+    | "uL13"
+    | "eL13"
+    | "uL14"
+    | "eL14"
+    | "uL15"
+    | "eL15"
+    | "uL16"
+    | "bL17"
+    | "uL18"
+    | "eL18"
+    | "bL19"
+    | "eL19"
+    | "bL20"
+    | "eL20"
+    | "bL21"
+    | "eL21"
+    | "uL22"
+    | "eL22"
+    | "uL23"
+    | "uL24"
+    | "eL24"
+    | "bL25"
+    | "bL27"
+    | "eL27"
+    | "bL28"
+    | "eL28"
+    | "uL29"
+    | "eL29"
+    | "uL30"
+    | "eL30"
+    | "bL31"
+    | "eL31"
+    | "bL32"
+    | "eL32"
+    | "bL33"
+    | "eL33"
+    | "bL34"
+    | "eL34"
+    | "bL35"
+    | "bL36"
+    | "eL36"
+    | "eL37"
+    | "eL38"
+    | "eL39"
+    | "eL40"
+    | "eL41"
+    | "eL42"
+    | "eL43"
+    | "P1P2"
+    | "bS1m"
+    | "uS2m"
+    | "uS3m"
+    | "uS4m"
+    | "uS5m"
+    | "bS6m"
+    | "uS7m"
+    | "uS8m"
+    | "uS9m"
+    | "uS10m"
+    | "uS11m"
+    | "uS12m"
+    | "uS13m"
+    | "uS14m"
+    | "uS15m"
+    | "bS16m"
+    | "uS17m"
+    | "bS18m"
+    | "uS19m"
+    | "bS21m"
+    | "mS22"
+    | "mS23"
+    | "mS25"
+    | "mS26"
+    | "mS27"
+    | "mS29"
+    | "mS31"
+    | "mS33"
+    | "mS34"
+    | "mS35"
+    | "mS37"
+    | "mS38"
+    | "mS39"
+    | "mS40"
+    | "mS41"
+    | "mS42"
+    | "mS43"
+    | "mS44"
+    | "mS45"
+    | "mS46"
+    | "mS47"
+    | "uL1m"
+    | "uL2m"
+    | "uL3m"
+    | "uL4m"
+    | "uL5m"
+    | "uL6m"
+    | "bL9m"
+    | "uL10m"
+    | "uL11m"
+    | "bL12m"
+    | "uL13m"
+    | "uL14m"
+    | "uL15m"
+    | "uL16m"
+    | "bL17m"
+    | "uL18m"
+    | "bL19m"
+    | "bL20m"
+    | "bL21m"
+    | "uL22m"
+    | "uL23m"
+    | "uL24m"
+    | "bL27m"
+    | "bL28m"
+    | "uL29m"
+    | "uL30m"
+    | "bL31m"
+    | "bL32m"
+    | "bL33m"
+    | "bL34m"
+    | "bL35m"
+    | "bL36m"
+    | "mL37"
+    | "mL38"
+    | "mL39"
+    | "mL40"
+    | "mL41"
+    | "mL42"
+    | "mL43"
+    | "mL44"
+    | "mL45"
+    | "mL46"
+    | "mL48"
+    | "mL49"
+    | "mL50"
+    | "mL51"
+    | "mL52"
+    | "mL53"
+    | "mL54"
+    | "mL57"
+    | "mL58"
+    | "mL59"
+    | "mL60"
+    | "mL61"
+    | "mL62"
+    | "mL63"
+    | "mL64"
+    | "mL65"
+    | "mL66"
+    | "mL67";
+export type StructureFilterParams = {
+  cursor?: string | null;
+  limit?: number;
+  year?: [number | null, number | null] | null;
+  search?: string | null;
+  resolution?: [number | null, number | null] | null;
+  polymer_classes?:
+    | (
+        | CytosolicRnaClassMitochondrialRnaClasstRnaUnionEnum
+        | ElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum
+      )[]
+    | null;
+  source_taxa?: number[] | null;
+  host_taxa?: number[] | null;
+  subunit_presence?: ("SSU+LSU" | "LSU" | "SSU") | null;
+};
+export type PolymersFilterParams = {
+  cursor?: [string | null, string | null] | (string | null)[] | string | null;
+  limit?: number;
+  year?: [number | null, number | null] | null;
+  search?: string | null;
+  resolution?: [number | null, number | null] | null;
+  polymer_classes?:
+    | (
+        | CytosolicRnaClassMitochondrialRnaClasstRnaUnionEnum
+        | ElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum
+      )[]
+    | null;
+  source_taxa?: number[] | null;
+  host_taxa?: number[] | null;
+  subunit_presence?: ("SSU+LSU" | "LSU" | "SSU") | null;
+  current_polymer_class?:
+    | CytosolicRnaClassMitochondrialRnaClasstRnaUnionEnum
+    | ElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum
+    | null;
+  uniprot_id?: string | null;
+  has_motif?: string | null;
 };
 export type PolymerByStruct = {
   nomenclature: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[];
@@ -1436,10 +1455,9 @@ export const {
   useRoutersRouterStructPolymerClassificationReportQuery,
   useRoutersRouterStructStructureCompositionStatsQuery,
   useRoutersRouterStructRandomProfileQuery,
-  useRoutersRouterStructPolymersByPolymerClassQuery,
-  useRoutersRouterStructPolymersByStructureQuery,
   useRoutersRouterStructListLigandsQuery,
-  useRoutersRouterStructFilterListMutation,
+  useRoutersRouterStructListStructuresMutation,
+  useRoutersRouterStructListPolymersMutation,
   useRoutersRouterStructOverviewQuery,
   useRoutersRouterStructStructureProfileQuery,
   useRoutersRouterStructStructurePtcQuery,

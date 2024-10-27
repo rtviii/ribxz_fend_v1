@@ -39,9 +39,9 @@ export class CustomStructureTools extends PluginUIComponent {
     </>;
   }
 }
+
 export const MySpec: PluginUISpec = {
   ...DefaultPluginUISpec(),
-
   behaviors: [
     PluginSpec.Behavior(PluginBehaviors.Representation.HighlightLoci, { mark: true }),
     PluginSpec.Behavior(PluginBehaviors.Representation.DefaultLociLabelProvider),
@@ -133,15 +133,14 @@ export const MySpec: PluginUISpec = {
 
   components: {
     structureTools: CustomStructureTools,
-    // TODO: hook up current state to custom sequence viewer
-    // sequenceViewer:
     controls:{
         bottom:'none',
         // left:'none'
     },
     remoteState: 'none',
 
-  }
+  },
+  
 }
 
 export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIContext, rcsb_id:string }):Promise<null> {

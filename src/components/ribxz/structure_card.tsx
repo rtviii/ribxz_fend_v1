@@ -9,9 +9,8 @@ import { useAppSelector } from "@/store/store"
 import { contract_taxname, parseDateString } from "@/my_utils"
 import { ExpMethodBadge } from "./exp_method_badge"
 import { useState } from "react"
-
-export function StructureCard({ _ }: { _: RibosomeStructure }) {
-  const RCSB_IDs = [
+import { ChevronRight } from "lucide-react"
+const RCSB_IDs = [
     "1FFK.png", "4D61.png", "4V75.png", "5IT8.png", "6BZ8.png", "6P4H.png", "6Z6M.png", "7OHQ.png", "7UCJ.png", "8EWB.png",
     "1FJG.png", "4D67.png", "4V76.png", "5IT9.png", "6C0F.png", "6P5I.png", "6Z6N.png", "7OHS.png", "7UCK.png", "8EWC.png",
     "1FKA.png", "4DR1.png", "4V77.png", "5J30.png", "6C4I.png", "6P5J.png", "6ZCE.png", "7OHT.png", "7UG6.png", "8EYQ.png",
@@ -184,6 +183,9 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
     "4D5L.png", "4V73.png", "5IQR.png", "6BZ6.png", "6OXI.png", "6Z6K.png", "7OF7.png", "7U2I.png", "8EVS.png",
     "4D5Y.png", "4V74.png", "5IT7.png", "6BZ7.png", "6P4G.png", "6Z6L.png", "7OH3.png", "7U2J.png", "8EVT.png"]
 
+export function StructureCard({ _ }: { _: RibosomeStructure }) {
+  
+
   if (!RCSB_IDs.includes(`${_.rcsb_id.toUpperCase()}.png`)) {
     const utf8Encode = new TextEncoder();
     const byteval    = utf8Encode.encode(_.rcsb_id).reduce((acc, byte) => acc + byte, 0);
@@ -193,117 +195,98 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
     var pic = _.rcsb_id.toUpperCase() + ".png"
   }
 
+  // const pic = "8WID.gif"
   const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
 
   return (
-    <Link href={`/structures/${_.rcsb_id}`}>
-      <Card className="w-80  max-h-full h-full  bg-white shadow-sm rounded-lg overflow-hidden relative transition   hover:shadow-xl  duration-100">
-        <div className="relative h-[50%] transition-all duration-300 hover:h-[100%] border-b-2 ">
-          <Image alt="Card Image" className="w-full h-full object-cover" height={160} width={400} src={`/ribxz_pics/${pic}`} style={{ aspectRatio: "400/160", objectFit: "revert-layer", }} />
-          <div className="absolute top-4 left-4 transform  bg-muted border rounded-sm px-3 py-1 text-xs "> {_.rcsb_id} </div>
-          <ExpMethodBadge expMethod={_.expMethod} resolution={_.resolution.toFixed(2)} className="absolute bottom-4 left-4" />
-          {/* TODO: Replace with `deposition_year` */}
-          {_.citation_year ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{_.citation_year}  </div> : null}
-          {_.deposition_date ? <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs ">{parseDateString(_.deposition_date).year}  </div> : null}
-
-          <div className="absolute top-4 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
-            {
-              _.subunit_presence?.includes("lsu") ? _.subunit_presence?.includes("ssu") ?
-                <div className="border bg-muted rounded-sm px-1"> SSU+LSU</div> : <div className="border bg-muted rounded-sm px-1"> LSU</div>
-                : <div className="border bg-muted rounded-sm px-1"> SSU</div>
-
-            }
-            {_.mitochondrial ? <div className="border bg-muted rounded-sm px-1 text-orange-500"> Mitochondrion</div> : null}
-
-
-          </div>
-
-          <div className="absolute top-10 right-4 transform flex flex-row gap-1   rounded-sm  py-1 text-xs">
-          </div>
-
+<Link href={`/structures/${_.rcsb_id}`}>
+  <Card className="w-64 max-h-full h-72 bg-white shadow-sm rounded-lg overflow-hidden relative transition hover:shadow-xl duration-100">
+    <div className="relative h-[50%] transition-all duration-300 hover:h-[100%] border-b-2">
+      <Image 
+        alt="Card Image" 
+        className="w-full h-full object-cover" 
+        height={160} 
+        width={400} 
+        src={`/ribxz_pics/${pic}`} 
+        style={{ aspectRatio: "400/160", objectFit: "revert-layer" }} 
+      />
+      <div className="absolute top-4 left-4 transform bg-muted border rounded-sm px-3 py-1 text-xs">
+        {_.rcsb_id}
+      </div>
+      <ExpMethodBadge 
+        expMethod={_.expMethod} 
+        resolution={_.resolution.toFixed(2)} 
+        className="absolute bottom-4 left-4" 
+      />
+      
+      {(_.citation_year || _.deposition_date) && (
+        <div className="absolute bottom-4 right-4 bg-muted border rounded-sm px-3 py-1 text-xs">
+          {_.citation_year || parseDateString(_.deposition_date).year}
         </div>
-        {/* <Popover>
-          <PopoverTrigger asChild> */}
-        <CardContent className="group-hover:hidden pt-4">
-          <div className="text-gray-700 text-sm">
+      )}
 
-            <div className="flex justify-between group relative  rounded-sm">
-              <span className="text-xs">Source Organism:</span>
-              <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md  px-1 py-1 transition-colors">
-                <span className=" text-xs font-medium" >
-                  {_.src_organism_ids.map((taxid) => {
-
-                    // @ts-ignore
-                    return contract_taxname(taxid_dict[taxid])
-                  })}
-                </span>
-              </div>
-            </div>
-            {/* <div className="flex justify-between items-center  group relative">
-              <span className="text-xs">Proteins:</span>
-              <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
-                <span title="List of proteins">{_.proteins.length}</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center  group relative">
-              <span className="text-xs">RNA:</span>
-              <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
-                <span title="List of RNA">{_.rnas.length}</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center  group relative">
-              <span className="text-xs">Ligands:</span>
-              <div className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors text-xs">
-                <span title="List of ligands">{_.nonpolymeric_ligands.filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion")).length}</span>
-              </div>
-            </div> */}
-            {
-              _.citation_rcsb_authors ?
-                <div className="relative flex justify-between items-center">
-                  <span className="text-xs">Authors:</span>
-                  <HoverCard>
-                    <HoverCardTrigger asChild>
-                      <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-2 py-1 transition-colors z-10" title="Full list of authors" >
-                        <span className="italic text-xs" >{_.citation_rcsb_authors[0]}</span> <span style={{
-                          cursor         : "pointer",
-                          display        : 'inline-block',
-                          width          : '15px',
-                          height         : '15px',
-                          borderRadius   : '50%',
-                          backgroundColor: '#cccccc',
-                          textAlign      : 'center',
-                          lineHeight     : '15px',
-                          fontWeight     : 'bold',
-                          fontSize       : '14px',
-                          color          : 'white'
-                        }}>+</span>
-                      </span>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
-                      {
-                        _.citation_rcsb_authors.map((author) => {
-                          return <div key={author} className="flex items-center gap-2">
-                            <div>
-                              <div className="font-medium text-xs">{author}</div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">Co-Author</div>
-                            </div>
-                          </div>
-                        })}
-                    </HoverCardContent>
-                  </HoverCard>
-                </div>
-                : null
-
-            }
-
-            {_.citation_title ? <div className="text-xs text-gray-500 mt-2"> {_.citation_title} </div> : null}
+      <div className="absolute top-4 right-4 transform flex flex-row gap-1 rounded-sm py-1 text-xs">
+        <div className="border bg-muted rounded-sm px-1">
+          {_.subunit_presence?.includes("lsu") 
+            ? _.subunit_presence?.includes("ssu") 
+              ? "SSU+LSU" 
+              : "LSU"
+            : "SSU"
+          }
+        </div>
+        {_.mitochondrial && (
+          <div className="border bg-muted rounded-sm px-1 text-orange-500">
+            Mitochondrion
           </div>
+        )}
+      </div>
+    </div>
 
+    <CardContent className="group-hover:hidden pt-3 px-4">
+      <div className="text-gray-700 flex flex-col min-h-0">
+        {/* Source Organism - Reduced height */}
+        <div className="flex justify-between items-center h-5">
+          <span className="text-[11px] text-gray-500">Source Organism:</span>
+          <span className="text-[11px] font-medium">
+            {_.src_organism_ids.map((taxid) => contract_taxname(taxid_dict[taxid]))}
+          </span>
+        </div>
 
-        </CardContent>
+        {/* Authors - Compact layout */}
+        {_.citation_rcsb_authors && (
+          <div className="flex justify-between items-center h-5">
+            <span className="text-[11px] text-gray-500">Authors:</span>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span className="flex items-center group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md px-1 transition-colors z-10" title="Full list of authors">
+                  <span className="text-[11px] italic">{_.citation_rcsb_authors[0]}</span>
+                  <ChevronRight className="h-3 w-3 ml-0.5 text-gray-400" />
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
+                {_.citation_rcsb_authors.map((author) => (
+                  <div key={author} className="flex items-center gap-2">
+                    <div>
+                      <div className="font-medium text-xs">{author}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Co-Author</div>
+                    </div>
+                  </div>
+                ))}
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+        )}
 
-      </Card>
-    </Link>
+        {/* Citation Title - Fill remaining space */}
+        {_.citation_title && (
+          <div className="text-[11px] text-gray-500 mt-1 break-words line-clamp-3">
+            {_.citation_title}
+          </div>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+</Link>
   )
 }
 

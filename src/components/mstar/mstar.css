@@ -1,30 +1,39 @@
 #molstar-wrapper {
-    width   : 100%;
-    height  : 100%;
-    position: relative;
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 #molstar-wrapper-secondary {
-    width   : 100%;
-    height  : 100%;
-    position: relative;
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 
-.msp-sequence-wrapper-non-empty{
-    background: black;
-    color: aqua;
+.msp-sequence-wrapper-non-empty {
+  background: black;
+  color: aqua;
 }
-.msp-sequence-select{
 
-    background: black;
+.msp-sequence-select {
+
+  background: black;
 }
-.msp-plugin .msp-sequence-select > select {
+
+.msp-plugin .msp-sequence-select>select {
   background-color: #fff;
 }
+
 .msp-plugin .msp-sequence-select {
   background: #fff;
 }
+
 .msp-plugin .msp-sequence-wrapper-non-empty {
   background: #fff;
+}
+
+.msp-plugin .msp-layout-standard {
+  /* border: 1px solid #cec9ba; */
+  border:  none !important;
 }

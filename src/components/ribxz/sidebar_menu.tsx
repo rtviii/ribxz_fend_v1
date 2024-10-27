@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { useRoutersRouterStructTaxDictQuery } from "@/store/ribxz_api/ribxz_api"
-import { set_tax_dict } from "@/store/slices/ui_state"
+import { set_tax_dict } from "@/store/slices/ui_reducer"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { GearIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
@@ -25,13 +25,10 @@ import {
 } from "@/components/ui/accordion"
 
 export function SidebarMenu() {
+
   const dispatch                                   = useAppDispatch()
   const { data: taxdict_data, isLoading, isError } = useRoutersRouterStructTaxDictQuery()
-  useEffect(() => {
-    if (taxdict_data !== undefined) { dispatch(set_tax_dict(taxdict_data as any)) }
-  }, [taxdict_data])
-
-  const current_polymers = useAppSelector((state) => state.ui.data.current_polymers)
+  useEffect(() => { if (taxdict_data !== undefined) { dispatch(set_tax_dict(taxdict_data as any)) } }, [taxdict_data])
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -55,12 +52,10 @@ export function SidebarMenu() {
           {/* <SheetDescription>
             Structures and component chains, nomenclature for polymer classes.
           </SheetDescription> */}
+
         </SheetHeader>
-
         <div className="grid-flow-col   bg-white  ">
-
           <h2 className="text-sm  uppercase text-gray-400 ">Available Data</h2>
-
           <Link className="block py-2 px-2 font-semibold text-sm text-gray-700 hover:bg-muted rounded-sm" href="/structures">
             Structures
           </Link>

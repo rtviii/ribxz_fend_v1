@@ -6,7 +6,7 @@ import { Polymer, RibosomeStructure, ribxz_api, useRoutersRouterStructOverviewQu
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 // import ChainPicker from "@/components/ribxz/chainPicker"
-import { Filters } from "@/components/ribxz/filters"
+import { StructureFiltersComponent } from "@/components/ribxz/structure_filters_component"
 import { Button } from "@/components/ui/button";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
@@ -102,7 +102,7 @@ export default function Vis() {
                         <CardHeader>
                             <GlobalStructureSelection />
                             <Button onClick={() => {
-                                ctx?.renderPLY("someurl")
+                                ctx?.tunnel_geoemetry("someurl")
                             }}>Render PLY</Button>
 
                         </CardHeader>
