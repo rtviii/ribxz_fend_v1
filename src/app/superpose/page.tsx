@@ -7,7 +7,7 @@ import { ChainsByStruct, Polymer, PolymerByStruct, RibosomeStructure, useRouters
 // import { initiatePluginUIContext, download_struct, superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
-import { StructureFiltersComponent } from "@/components/ribxz/structure_filters_component"
+import { StructureFiltersComponent } from "@/components/filters/structure_filters_component"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button";
 import { useRoutersRouterStructChainsByStructQuery } from '@/store/ribxz_api/ribxz_api'
@@ -15,8 +15,8 @@ import { Label } from "@/components/ui/label";
 // import { dynamicSuperimpose } from "@/store/molstar/dynamic_superposition";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
-import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
-import { MolstarContext } from "@/components/ribxz/molstar_context";
+import { MolstarRibxz } from "@/components/mstar/molstar_ribxz";
+import { MolstarContext } from "@/components/mstar/molstar_context";
 import { superimpose_pop_chain, superimpose_select_pivot_chain } from "@/store/slices/molstar_state";
 
 function PlusIcon() {

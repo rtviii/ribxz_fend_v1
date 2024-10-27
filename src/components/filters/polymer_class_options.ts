@@ -62,4 +62,4 @@ export const groupedOptions = (data: {
             options: data['tRNAClass'].map((value) => ({ value,id:value, label: value, color: 'red' })),
         },
     ]
-};
+}

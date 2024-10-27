@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as React from "react"
 import { Card } from '@/components/ui/card';
 import { MolstarNode, MySpec } from '@/components/mstar/lib';
-import { MolstarRibxz, MyViewportControls } from '@/components/mstar/molstar_wrapper_class';
+import { MolstarRibxz, MyViewportControls } from '@/components/mstar/molstar_ribxz';
 import { DefaultPluginUISpec, PluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { Quat, Vec3 } from 'molstar/lib/mol-math/linear-algebra';
 

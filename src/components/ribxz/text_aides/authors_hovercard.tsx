@@ -2,7 +2,6 @@
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 
 export const AuthorsHovercard = ({ authors }: { authors: string[] }) => {
-
     return <HoverCard>
         <HoverCardTrigger asChild>
             <span className="group-hover:bg-gray-100 dark:group-hover:bg-gray-800 rounded-md text-xs   transition-colors z-10" title="Full list of authors"  >
@@ -20,12 +19,9 @@ export const AuthorsHovercard = ({ authors }: { authors: string[] }) => {
                     fontSize: '14px',
                     color: 'white'
                 }}>+</span>
-
-
-
             </span>
-
         </HoverCardTrigger>
+
         <HoverCardContent className="w-80 grid grid-cols-2 gap-2 z-50">
             {
                 authors.map((author) => {

@@ -6,12 +6,12 @@ import { Polymer, RibosomeStructure, ribxz_api, useRoutersRouterStructOverviewQu
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import { useParams } from 'next/navigation'
 // import ChainPicker from "@/components/ribxz/chainPicker"
-import { StructureFiltersComponent } from "@/components/ribxz/structure_filters_component"
+import { StructureFiltersComponent } from "@/components/filters/structure_filters_component"
 import { Button } from "@/components/ui/button";
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
-import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
-import { MolstarContext } from "@/components/ribxz/molstar_context";
+import { MolstarRibxz } from "@/components/mstar/molstar_ribxz";
+import { MolstarContext } from "@/components/mstar/molstar_context";
 import { Structure } from "molstar/lib/mol-model/structure";
 import { Select } from "antd";
 import { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection";
@@ -58,7 +58,7 @@ export default function Vis() {
 
     useEffect(() => {
         console.log("Fired off download struct");
-        ctx?.download_struct("5afi")
+        ctx?.upload_mmcif_structure("5afi")
     }, [ctx])
 
     const [rcsb_id, set_rcsb_id] = useState<string | null>(null)

@@ -14,7 +14,7 @@ import {
 import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
 import { Separator } from "@radix-ui/react-select"
 import { useContext, useEffect, useState } from "react"
-import { MolstarContext } from "@/components/ribxz/molstar_context"
+import { MolstarContext } from "@/components/mstar/molstar_context"
 import { StructureOverview, select_structure } from "@/store/slices/slice_structs_overview"
 
 

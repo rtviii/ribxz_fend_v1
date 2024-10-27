@@ -8,11 +8,11 @@ import PolymersTable  from "@/components/ribxz/polymer_table"
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
-import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class"
+import { MolstarRibxz } from "@/components/mstar/molstar_ribxz"
 import { MolstarNode } from "@/components/mstar/lib"
-import { MolstarContext } from "@/components/ribxz/molstar_context"
+import { MolstarContext } from "@/components/mstar/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
-import { ExpMethodBadge } from "@/components/ribxz/exp_method_badge"
+import { ExpMethodBadge } from "@/components/ribxz/text_aides/exp_method_badge"
 import { Badge } from '@/components/ui/badge';
 import {
     DropdownMenu,
@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { DownloadIcon, EyeIcon, InfoIcon } from "lucide-react"
-import { AuthorsHovercard } from "@/components/ribxz/authors_hovercard"
+import { AuthorsHovercard } from "@/components/ribxz/text_aides/authors_hovercard"
 import { contract_taxname, parseDateString } from "@/my_utils"
 import { Plus, Minus } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
@@ -429,7 +429,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     }, [])
 
     useEffect(() => {
-        ctx?.download_struct(rcsb_id)
+        ctx?.upload_mmcif_structure(rcsb_id)
             .then(({ ctx, struct_representation }) => {
                 if (ligand_param != null) {
                     ctx.create_ligand(ligand_param!)

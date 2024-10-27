@@ -1,6 +1,6 @@
 'use client'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { StructureFiltersComponent, Group, useDebounceFilters } from "@/components/ribxz/structure_filters_component"
+import { StructureFiltersComponent, Group, useDebounceFilters } from "@/components/filters/structure_filters_component"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,7 @@ import { PolymerClassOption, groupedOptions } from "@/components/ribxz/filters_p
 import { Protein, Rna, ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { useSearchParams } from "next/navigation"
-import PolymerFiltersComponent from "@/components/ribxz/polymers_filters_component"
+import PolymerFiltersComponent from "@/components/filters/polymers_filters_component"
 import { useGetPolymersMutation } from "@/store/ribxz_api/polymers_api"
 import { set_current_polymers, set_total_parent_structures_count, set_total_polymers_count } from "@/store/slices/slice_polymers"
 import { Button } from "@/components/ui/button"

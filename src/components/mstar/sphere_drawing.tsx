@@ -1,12 +1,6 @@
-import * as RDC from "react-dom/client";
-import { useEffect, createRef } from "react";
-import { createPluginUI } from "molstar/lib/mol-plugin-ui";
-import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { addSphere } from "molstar/lib/mol-geo/geometry/mesh/builder/sphere";
 import { MeshBuilder } from 'molstar/lib/mol-geo/geometry/mesh/mesh-builder';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra';
-import { Color } from 'molstar/lib/mol-util/color';
-
 import { Interval } from 'molstar/lib/mol-data/int';
 import { Mesh } from 'molstar/lib/mol-geo/geometry/mesh/mesh';
 import { LocationIterator } from "molstar/lib/mol-geo/util/location-iterator";
@@ -22,8 +16,7 @@ import { VisualUpdateState } from 'molstar/lib/mol-repr/util';
 import { VisualContext } from 'molstar/lib/mol-repr/visual';
 import { Theme, ThemeRegistryContext } from 'molstar/lib/mol-theme/theme';
 import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
-
-import "molstar/lib/mol-plugin-ui/skin/light.scss";
+// import "molstar/lib/mol-plugin-ui/skin/light.scss";
 
 const ArbitrarySphereVisuals = {
     'arbitrary-sphere': (ctx: RepresentationContext, getParams: RepresentationParamsGetter<Structure, ArbitrarySphereParams>) =>

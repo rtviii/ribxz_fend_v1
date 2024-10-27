@@ -9,10 +9,10 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup, } from "@/compone
 import { NonpolymericLigand, RibosomeStructure, useRoutersRouterStructStructureProfileQuery, useRoutersRouterStructStructurePtcQuery } from "@/store/ribxz_api/ribxz_api"
 import _ from 'lodash'
 import { createContext, useContext, useEffect, useRef, useState } from "react"
-import { MolstarRibxz, Residue, ResidueList } from "@/components/mstar/molstar_wrapper_class"
+import { MolstarRibxz, Residue, ResidueList } from "@/components/mstar/molstar_ribxz"
 import { MolstarNode, MolstarNode_secondary } from "@/components/mstar/lib"
 import Image from 'next/image'
-import { MolstarContext } from "@/components/ribxz/molstar_context"
+import { MolstarContext } from "@/components/mstar/molstar_context"
 import { ScrollArea } from "@radix-ui/react-scroll-area"
 import { Switch } from "@/components/ui/switch"
 import {
@@ -29,15 +29,15 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { TaxonomyDot } from "@/components/ribxz/taxonomy"
+import { TaxonomyDot } from "@/components/ribxz/icons/taxonomy_dot_icon"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Input, InputNumber, TreeSelect } from "antd"
 import { LigandInstances, fetchPredictionData, set_current_ligand, set_ligand_prediction_data, set_ligands_radius } from "@/store/slices/ui_reducer"
 import { capitalize_only_first_letter_w, yield_nomenclature_map_profile } from "@/my_utils"
-import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/visibility_icon"
-import { ResidueBadge } from "@/components/ribxz/residue_badge"
+import { IconVisibilityOn, IconToggleSpin, IconVisibilityOff, DownloadIcon } from "@/components/ribxz/icons/visibility_icon"
+import { ResidueBadge } from "@/components/ribxz/text_aides/residue_badge"
 import { ImperativePanelHandle } from "react-resizable-panels"
 import  { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection"
 import { Spinner } from "@/components/ui/spinner"
@@ -207,7 +207,10 @@ const DownloadDropdown = ({ residues, disabled, filename }: { residues: Residue[
 
 
 
-const LigandPredictionNucleotides = (lp: LigandTransposition): any[] => {
+const LigandPredictionNucleotides = (lp: LigandTransposition): {
+    auth_asym_id:string,
+    auth_seq_id:number
+}[] => {
     if (lp === null) { return [] }
     var chain_residue_tuples = []
     for (var chain of lp.constituent_chains) {
@@ -303,7 +306,7 @@ export default function Ligands() {
     // -------------------------------------
     useEffect(() => {
         if (current_ligand === undefined) { return }
-        ctx?.download_struct(current_ligand?.parent_structure.rcsb_id!, true)
+        ctx?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, true)
             .then(({
                 ctx: molstar,
                 struct_representation
@@ -367,7 +370,7 @@ export default function Ligands() {
     const current_selected_target = useAppSelector(state => state.homepage_overview.selected)
     useEffect(() => {
         if (current_selected_target !== null) {
-            ctx_secondary?.download_struct(current_selected_target.rcsb_id, true)
+            ctx_secondary?.upload_mmcif_structure(current_selected_target.rcsb_id, true)
 
         }
         dispatch(set_ligand_prediction_data(null))

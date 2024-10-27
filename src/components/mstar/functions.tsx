@@ -34,9 +34,9 @@ import { StructureRepresentation3D } from 'molstar/lib/mol-plugin-state/transfor
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
 
 export enum StateElements {
-  Model = 'model',
+  Model      = 'model',
   ModelProps = 'model-props',
-  Assembly = 'assembly',
+  Assembly   = 'assembly',
 
   VolumeStreaming = 'volume-streaming',
 
@@ -55,125 +55,32 @@ export enum StateElements {
 
 
 
-// export function structure_sel(ctx: PluginContext, assemblyId: string) {
-//   const state = ctx.state.data;
-//   const model = state.build().to(StateElements.Model);
-//   const props = {
-//     type: assemblyId ? {
-//       name: 'assembly' as const,
-//       params: { id: assemblyId }
-//     } : {
-//       name: 'model' as const,
-//       params: {}
-//     }
-//   };
+export function structure_sel(ctx: PluginContext, assemblyId: string) {
+  const state = ctx.state.data;
+  const model = state.build().to(StateElements.Model);
+  const props = {
+    type: assemblyId ? {
+      name: 'assembly' as const,
+      params: { id: assemblyId }
+    } : {
+      name: 'model' as const,
+      params: {}
+    }
+  };
 
-//   const s = model
-//     .apply(StateTransforms.Model.StructureFromModel, props, { ref: StateElements.Assembly });
+  const s = model
+    .apply(StateTransforms.Model.StructureFromModel, props, { ref: StateElements.Assembly });
 
-//   s.apply(StateTransforms.Model.StructureComplexElement, { type: 'atomic-sequence' }, { ref: StateElements.Sequence });
-//   s.apply(StateTransforms.Model.StructureComplexElement, { type: 'atomic-het' }, { ref: StateElements.Het });
-//   s.apply(StateTransforms.Model.StructureComplexElement, { type: 'water' }, { ref: StateElements.Water });
+  s.apply(StateTransforms.Model.StructureComplexElement, { type: 'atomic-sequence' }, { ref: StateElements.Sequence });
+  s.apply(StateTransforms.Model.StructureComplexElement, { type: 'atomic-het' }, { ref: StateElements.Het });
+  s.apply(StateTransforms.Model.StructureComplexElement, { type: 'water' }, { ref: StateElements.Water });
 
-//   console.log("sturcture");
-//   console.log(s);
+  console.log("sturcture");
+  console.log(s);
 
-//   return s;
-// }
-
-export function create_ligand_surroundings(ctx: PluginContext, chemicalId: string) {
-  return ctx.dataTransaction(async () => {
-    const RADIUS = 5
-
-    let structures = ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct = structures[0];
-    const update = ctx.build();
-
-
-    const core = MS.struct.filter.first([
-      MS.struct.generator.atomGroups({
-        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
-        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
-      })
-    ]);
-
-    const surr_sel = MS.struct.modifier.includeSurroundings({ 0: core, radius: RADIUS, 'as-whole-residues': true });
-
-
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'group' }, { ref: StateElements.HetGroupFocusGroup });
-    const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Neighborhood (${RADIUS} Å)`, expression: surr_sel }, { ref: StateElements.HetGroupFocus });
-
-    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
-    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
-
-    await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
-
-    const compiled = compile<StructureSelection>(surr_sel);
-    const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
-    let loci = StructureSelection.toLociWithSourceUnits(selection);
-    ctx.managers.structure.selection.clear();
-    ctx.managers.structure.selection.fromLoci('add', loci);
-    ctx.managers.camera.focusLoci(loci);
-  })
-}
-export function create_ligand(ctx: PluginContext, chemicalId: string) {
-  return ctx.dataTransaction(async () => {
-    console.log("create ligand");
-    console.log("got chemid ", chemicalId);
-
-
-
-    let structures = ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct = structures[0];
-    const update = ctx.build();
-
-    const core = MS.struct.filter.first([
-      MS.struct.generator.atomGroups({
-        'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
-        'group-by': MS.core.str.concat([MS.struct.atomProperty.core.operatorName(), MS.struct.atomProperty.macromolecular.residueKey()])
-      })
-    ]);
-
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: 'ligand_group' }, { ref: StateElements.HetGroupFocusGroup });
-    const coreSel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: chemicalId, expression: core }, { ref: StateElements.HetGroupFocus });
-
-    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }));
-    coreSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }));
-
-    await PluginCommands.State.Update(ctx, { state: ctx.state.data, tree: update });
-
-    const compiled = compile<StructureSelection>(core);
-    const selection = compiled(new QueryContext(struct.structureRef.cell.obj?.data!));
-    let loci = StructureSelection.toLociWithSourceUnits(selection);
-    ctx.managers.structure.selection.clear();
-    ctx.managers.structure.selection.fromLoci('add', loci);
-    ctx.managers.camera.focusLoci(loci);
-
-
-  });
+  return s;
 }
 
-
-export function select_multiple(molstar_plugin: PluginUIContext) {
-  const args = [['A', 10, 15], ['F', 10, 15]]
-
-  const groups: Expression[] = [];
-  for (var chain of args) {
-    groups.push(MS.struct.generator.atomGroups({
-      "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), chain[0]]),
-      "residue-test": MS.core.rel.inRange([MolScriptBuilder.struct.atomProperty.macromolecular.label_seq_id(), chain[1], chain[2]])
-    }));
-  }
-  molstar_plugin.managers.structure.selection.fromSelectionQuery('set', StructureSelectionQuery('multiple', MS.struct.combinator.merge(groups)))
-  return MS.struct.combinator.merge(groups);
-
-}
-
-export function chainSelection(auth_asym_id: string) {
-  return MS.struct.generator.atomGroups({
-    'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id])
-  });
-}
 
 export async function stream_volume() {
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0].cell.obj!
@@ -189,30 +96,16 @@ export async function stream_volume() {
 
 }
 
-export async function download_struct(plugin: PluginUIContext) {
-  const data = await plugin.builders.data.download({ url: "https://files.rcsb.org/download/5AFI.cif" }, { state: { isGhost: true } });
-  const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
-  await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-}
-
 export async function apply_style() {
   var mst = window.molstar!;
   var builder = mst.build()
   builder.toRoot()
-
-
-
-
 }
 
 export const transform = (ctx: PluginContext) => {
 
-  // const b = plugin.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
-
   const structureData = ctx.managers.structure.hierarchy.current.structures[0]
   const cell = structureData.cell
-
-  // const cell = structureData.model?.cell
   const mx = Mat4.rotX90
   const b = ctx.state.data.build().to(cell).insert(StateTransforms.Model.TransformStructureConformation, {
     transform: {
@@ -224,103 +117,17 @@ export const transform = (ctx: PluginContext) => {
   return ctx.runTask(ctx.state.data.updateTree(b));
 }
 
-// export const selectChain = (plugin: PluginUIContext, auth_asym_id: string) => {
-//   console.log("Got context", plugin);
-
-//   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-//   if (!data) return;
-
-//   const sel = Script.getStructureSelection(
-//     Q => Q.struct.generator.atomGroups({
-//       'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-//     }), data);
-
-//   let loci = StructureSelection.toLociWithSourceUnits(sel);
-//   plugin.managers.structure.selection.clear();
-//   plugin.managers.structure.selection.fromLoci('add', loci);
-//   plugin.managers.camera.focusLoci(loci);
-// }
-
-
-
-// const _highlightChain = (plugin: PluginUIContext, auth_asym_id: string) => {
-//   console.log("Hl chain go", auth_asym_id);
-
-//   const data = plugin.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-//   if (!data) {
-//     console.log("no data");
-//     return;
-//   } else {
-//     console.log("data found");
-//   }
-
-//   const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({
-//     // 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-//     'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.label_asym_id(), auth_asym_id]),
-//   }), data);
-//   let loci = StructureSelection.toLociWithSourceUnits(sel);
-//   console.log("loci", loci);
-//   plugin.managers.interactivity.lociHighlights.highlight({ loci });
-
-// }
-// _.memoize.Cache = WeakMap;
-
-// export const highlightChain = _.memoize(_highlightChain =>
-//   _.debounce((ctx, auth_asym_id) => {
-//     _highlightChain(ctx, auth_asym_id)
-//   }, 50, { "leading": true, "trailing": true })
-// )(_highlightChain);
-
-
-
-
-
-// export const removeHighlight = (plugin: PluginUIContext) => {
-//   plugin.managers.interactivity.lociHighlights.clearHighlights();
-// }
 
 export const select_current_struct = (ctx: PluginUIContext) => {
 
 
-  const structureData = ctx.managers.structure.hierarchy.current.structures[0]
-  var components = structureData.components
+  const structureData      = ctx.managers.structure.hierarchy.current.structures[0]
+  var   components         = structureData.components
   const cell_transform_ref = structureData.cell.transform.ref
-  const state_data = ctx.state.data.select(cell_transform_ref)[0].obj as PluginStateObject.Molecule.Structure
+  const state_data         = ctx.state.data.select(cell_transform_ref)[0].obj as PluginStateObject.Molecule.Structure
 
   ctx.managers.structure.selection
-
-
-
-
-  // window.molstar?.managers.structure.selection.fromSelectionQuery('add',StructureSelectionQuery('struct', query));
 }
-
-// const applyStyle = (ctx: PluginUIContext) => {
-
-//   const q = MS.struct.generator.atomGroups({
-//     'chain-test': MS.core.rel.eq([
-//       MS.ammp('label_asym_id'),
-//       'B',
-//     ]),
-//     'residue-test': MS.core.logic.and([
-//       MS.core.rel.gre([
-//         MS.ammp('auth_seq_id'),
-//         330
-//       ]),
-//       MS.core.rel.lte([
-//         MS.ammp('auth_seq_id'),
-//         340
-//       ])
-//     ]),
-//   })
-
-//   const update2 = ctx.build();
-//   update2.to(structure)
-//     .apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(ctx, structure.data, {
-//       type: 'cartoon',
-//       color: 'uniform',
-//     }));
-// }
 
 function next_residue_on_hover() {
   const objdata = window.molstar!.managers.structure.hierarchy.current.structures[0]!.cell.obj!.data;

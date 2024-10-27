@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { CardContent, Card } from "@/components/ui/card"
 import { StructureCard, StructureStack } from "../../components/ribxz/structure_card"
 import { useCallback, useEffect, useState } from "react"
-import { StructureFiltersComponent, useDebounceFilters } from "@/components/ribxz/structure_filters_component"
+import { StructureFiltersComponent, useDebounceFilters } from "@/components/filters/structure_filters_component"
 import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSelector } from 'react-redux';

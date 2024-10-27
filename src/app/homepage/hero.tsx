@@ -18,7 +18,7 @@ import { ImageDown, Plus } from 'lucide-react';
 import { StructureCard } from '@/components/ribxz/structure_card';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useGetStructuresMutation } from '@/store/ribxz_api/structures_api';
-import { useDebounceFilters } from '@/components/ribxz/structure_filters_component';
+import { useDebounceFilters } from '@/components/filters/structure_filters_component';
 import { set_current_structures, set_structures_cursor, set_structures_filter, set_total_structures_count } from '@/store/slices/slice_structures';
 
 const InkscapeOverlay = ({ active }:{ active:boolean }) => {

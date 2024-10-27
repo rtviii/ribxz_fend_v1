@@ -3,10 +3,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { useRef, useEffect } from 'react';
 import { ArrowUpRight } from "lucide-react";
-import { CopyIcon } from './icon_copy';
+import { CopyIcon } from './icons/icon_copy';
 import { useToast } from "@/hooks/use-toast"
 import { Polymer } from '@/store/ribxz_api/ribxz_api';
-import { MolstarContext } from './molstar_context';
+import { MolstarContext } from '../mstar/molstar_context';
 import { range } from 'lodash';
 
 const ArrowIcon = ({ size = 15, color = 'currentColor' }) => (

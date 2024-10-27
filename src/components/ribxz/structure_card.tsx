@@ -7,7 +7,7 @@ import Link from "next/link"
 import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
 import { contract_taxname, parseDateString } from "@/my_utils"
-import { ExpMethodBadge } from "./exp_method_badge"
+import { ExpMethodBadge } from "./text_aides/exp_method_badge"
 import { useState } from "react"
 import { ChevronRight } from "lucide-react"
 const RCSB_IDs = [

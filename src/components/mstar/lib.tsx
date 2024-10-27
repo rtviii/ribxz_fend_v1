@@ -143,22 +143,7 @@ export const MySpec: PluginUISpec = {
   
 }
 
-export async function _download_struct({plugin, rcsb_id}:{ plugin: PluginUIContext, rcsb_id:string }):Promise<null> {
-      const data       = await plugin.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id}.cif` }, { state: { isGhost: true } });
-      const trajectory = await plugin.builders.structure.parseTrajectory(data, "mmcif");
-      await plugin.builders.structure.hierarchy.applyPreset(trajectory, "default");
-      return null
-}
-
-export async function load_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string}) {
-  const myUrl = `${DJANGO_URL}/mmcif/chain?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
-  const data = await window.molstar!.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
-  const trajectory = await window.molstar!.builders.structure.parseTrajectory(data, 'mmcif');
-  await window.molstar!.builders.structure.hierarchy.applyPreset(trajectory, 'default' );
-}
-
 export type QueryParam = {
-
     auth_seq_id                 ?: number,
     entity_id                   ?: string,
     auth_asym_id                ?: string,

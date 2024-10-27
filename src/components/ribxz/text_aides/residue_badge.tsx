@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge"
 // ----------------------------------------------------------------------------------------
 // Shapely Color Table for Amino Acids
 
-import { MolstarRibxz, Residue } from "../mstar/molstar_wrapper_class"
+import { MolstarRibxz, Residue } from "../../mstar/molstar_ribxz"
 
 // name                 color              RGB Values          Hexadecimal
 const AminoAcidColorTable: Record<string, { "color_name": string, "rgb": number[], "hex": string }> = {

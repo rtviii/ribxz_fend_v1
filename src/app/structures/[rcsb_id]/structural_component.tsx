@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { DownloadIcon, EyeIcon, InfoIcon } from 'lucide-react';
-import { MolstarContext } from "@/components/ribxz/molstar_context"
+import { MolstarContext } from "@/components/mstar/molstar_context"
 import ReactJson from 'react-json-view';
 import { useParams } from 'next/navigation';
 import { NonpolymericLigand } from '@/store/ribxz_api/ribxz_api';

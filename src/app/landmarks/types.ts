@@ -1,4 +1,4 @@
-import { MolstarRibxz } from "@/components/mstar/molstar_wrapper_class";
+import { MolstarRibxz } from "@/components/mstar/molstar_ribxz";
 import { extend } from "lodash";
 import { Loci } from "molstar/lib/mol-model/loci";
 

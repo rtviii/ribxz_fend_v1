@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { HoverCard, HoverCardContent, HoverCardTrigger, } from "@/components/ui/hover-card"
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { AsteriskTooltip } from '@/components/ribxz/asterisk_tooltip';
+import { AsteriskTooltip } from '@/components/ribxz/text_aides/asterisk_tooltip';
 import * as React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 

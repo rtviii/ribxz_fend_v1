@@ -10,7 +10,7 @@ import {
   useRoutersRouterStructPolymerClassesNomenclatureQuery,
 } from "@/store/ribxz_api/ribxz_api"
 
-import { groupedOptions, PolymerClassOption } from './filters_protein_class_options';
+import { groupedOptions, PolymerClassOption } from './polymer_class_options'
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { StructureFilters, set_structures_filter } from "@/store/slices/slice_structures";
 import { set_polymer_filter as set_polymers_filter } from "@/store/slices/slice_polymers";
