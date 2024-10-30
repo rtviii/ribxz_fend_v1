@@ -93,10 +93,9 @@ export const TunnelDemo = () => {
 
 
     return (
-        <div className="grid grid-cols-2 gap-8 w-full py-8">
-            <Card className=" space-y-4 h-80 rounded-md p-2 shadow-inner ">
-                <MolstarNode ref={molstarNodeRef} />
-            </Card>
-        </div>
+        <Card className="flex-1 h-80 rounded-md p-2 shadow-inner">
+          <MolstarNode ref={molstarNodeRef} />
+        </Card>
+
     );
 }

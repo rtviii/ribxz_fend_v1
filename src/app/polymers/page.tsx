@@ -8,8 +8,8 @@ import { Suspense, useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "@/store/store"
 import React from 'react';
 import { Select } from 'antd';
-import { PolymerClassOption, groupedOptions } from "@/components/ribxz/filters_protein_class_options"
-import { Protein, Rna, ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymersByPolymerClassQuery } from "@/store/ribxz_api/ribxz_api"
+// import { PolymerClassOption, groupedOptions } from "@/components/filters/polymers_filters_component"
+import { Protein, Rna, ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery } from "@/store/ribxz_api/ribxz_api"
 import PolymersTable from "@/components/ribxz/polymer_table"
 import { useSearchParams } from "next/navigation"
 import PolymerFiltersComponent from "@/components/filters/polymers_filters_component"

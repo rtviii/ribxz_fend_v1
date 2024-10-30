@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
-import { groupedOptions } from './filters_protein_class_options';
+import { groupedOptions } from '@/components/filters/polymer_class_options'
 import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
 import { Group } from '../../components/filters/structure_filters_component';
 import { useAppSelector } from '@/store/store';

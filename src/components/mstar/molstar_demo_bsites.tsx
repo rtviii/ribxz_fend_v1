@@ -1,4 +1,3 @@
-'use client'
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
 import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
 import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure/structure'
@@ -31,31 +30,43 @@ import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
 import './mstar.css'
 import { StructureQueryHelper } from 'molstar/lib/mol-plugin-state/helpers/structure-query';
 import { StructureComponent, StructureFromModel } from 'molstar/lib/mol-plugin-state/transforms/model';
+import { MolstarRibxz } from './molstar_ribxz';
+import { Location } from 'molstar/lib/mol-model/location';
+import { ThemeDataContext } from 'molstar/lib/mol-theme/theme';
+import { PluginContext } from 'molstar/lib/mol-plugin/context';
+import { StateBuilder } from 'molstar/lib/mol-state';
+import { ColorTheme } from 'molstar/lib/mol-theme/color';
+
+import { CustomElementProperty } from 'molstar/lib/mol-model-props/common/custom-element-property';
+import { Model, ElementIndex } from 'molstar/lib/mol-model/structure';
+
+
+export const BsiteResidues = CustomElementProperty.create<number>({
+    label: 'Composite Binding Site',
+    name : 'binding-site-demo',
+    getData(model: Model) {
+        const map          = new Map<ElementIndex, number>();
+        const residueIndex = model.atomicHierarchy.residueAtomSegments.index;
+        for (let i = 0, _i = model.atomicHierarchy.atoms._rowCount; i < _i; i++) {
+            map.set(i as ElementIndex, residueIndex[i] % 2);
+        }
+        return { value: map };
+    },
+    coloring: {
+        getColor(e) { return e === 0 ? Color(0xff0000) : Color(0x0000ff); },
+        defaultColor: Color(0x777777)
+    },
+    getLabel(e) {
+        return e === 0 ? 'Odd stripe' : 'Even stripe';
+    }
+});
 
 _.memoize.Cache = WeakMap;
-
-// declare global {
-//   interface Window {
-//     // molstar?: PluginUIContext;
-//     // molstar_secondary?: PluginUIContext;
-//   }
-// }
-
-export type Residue = {
-  label_seq_id: number | null | undefined,
-  label_comp_id: string | null | undefined,
-  auth_seq_id: number,
-  auth_asym_id: string,
-  rcsb_id: string,
-  polymer_class?: string,
-}
-
-export type ResidueList = Residue[]
-export class MolstarRibxz {
+export class MolstarDemoBsites extends MolstarRibxz {
 
   //@ts-ignore
   ctx: PluginUIContext;
-  constructor() { }
+  constructor() { super() }
   async init(parent: HTMLElement, spec: PluginUISpec = MySpec) {
     this.ctx = await createPluginUI({
       target: parent,
@@ -92,23 +103,111 @@ export class MolstarRibxz {
 
   }
 
-  tunnel_geoemetry = async (rcsb_id: string): Promise<Loci> => {
-    const provider = this.ctx.dataFormats.get('ply')!
-    const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`
-    const data = await this.ctx.builders.data.download({ url: Asset.Url(myurl.toString()), isBinary: false });
-    const parsed = await provider!.parse(this.ctx, data!);
+  bsite_theme = async ()=>{
 
-    if (provider.visuals) {
-      const visual = await provider.visuals!(this.ctx, parsed);
-      const shape_ref = visual.ref;
-      const meshObject = this.ctx.state.data.select(shape_ref)[0]
-      const shape_loci = await meshObject.obj.data.repr.getAllLoci()
-      return shape_loci
-    } else {
-      throw Error("provider.visuals is undefined for this `ply` data format")
-    }
+
+
+      interface ScoredResidue {
+          auth_asym_id: string;
+          auth_seq_id : number;
+          score       : number;
+      }
+
+      interface CustomColorTheme {
+          name: string;
+          color: (location: StructureElement.Location, ctx?: ThemeDataContext) => Color;
+      }
+
+      const createCustomColorTheme = (sites: ScoredResidue[]): CustomColorTheme => {
+          // Create a map of residue identifiers to scores
+          const scoreMap: Map<string, number> = new Map(
+              sites.map(site => [ `${site.auth_asym_id}/${site.auth_seq_id}`, site.score ])
+          );
+
+          return {
+
+              name: 'custom-residue-coloring',
+              color: (location: StructureElement.Location): Color => {
+                  const key = `${location.unit.model.atomicHierarchy.chainAtomSegments.label_asym_id[location.unit.chainIndex]}/${location.residueIndex + 1}`;
+                  const score = scoreMap.get(key);
+                  
+                  if (score !== undefined) {
+                      // Return red with varying opacity based on score
+                      return Color.fromRgb(255, 0, 0, score);
+                  }
+                  // Return transparent for non-highlighted residues
+                  return Color.fromRgb(255, 255, 255, 0);
+              }
+          };
+      };
+
+
+      // Example usage in a class method:
+      class YourClass {
+          private ctx: PluginContext;
+          async updateStructureColoring(sites: ScoredResidue[]): Promise<void> {
+              // const bsiteSel = group1.apply(
+              //     StateTransforms.Model.StructureSelectionFromExpression,
+              //     { 
+              //         label: 'scored-residues',
+              //         expression: bsite 
+              //     },
+              //     { ref: 'residueSel' }
+              // );
+
+              bsiteSel.apply(
+                  StateTransforms.Representation.StructureRepresentation3D,
+                  createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+                      type: 'cartoon',
+                      color: 'custom',
+                      colorParams: createCustomColorTheme(sites),
+                      typeParams: {} 
+                  }),
+                  { ref: 'residueCartoon' }
+              );
+
+          }
+
+      }
 
   }
+
+  bsite_repr = async () => {
+
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
+    const update = this.ctx.build();
+
+    var sites = []
+    for (var i of range(500, 600)) {
+      sites.push(
+        {
+          auth_asym_id: 'A',
+          auth_seq_id: i
+        }
+      )
+
+    }
+
+    const bsite = this.selectionResidueClusterExpression(sites)
+
+    const group1 = update.to(struct.structureRef.cell)
+    const bsiteSel = group1.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `onetwo Ligand`, expression: bsite }, { ref: 'ligandSel' });
+    bsiteSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+      type: 'cartoon',
+      color: 'uniform',
+      colorParams: {
+        value: Color(0xFF0000)
+      },
+      typeParams: {
+        alpha: 0.5,
+      }
+    }), { ref: 'ligandBallAndStick' });
+    await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
+
+  }
+
+
 
   select_residueCluster = (chain_residue_tuples: {
     auth_asym_id: string,
@@ -141,107 +240,35 @@ export class MolstarRibxz {
   }
 
 
-  select_chain = (auth_asym_id: string, modifier: 'set' | 'add' | 'remove' | 'intersect') => {
-    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (!data) return;
-    const sel = Script.getStructureSelection(
-      Q => Q.struct.generator.atomGroups({
-        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-      }), data);
-
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
-    this.ctx.managers.structure.selection.fromLoci(modifier, loci);
-  }
-
-
-  // TODO ============================ Factor Out into separate neamespace
-  removeHighlight = () => {
-    this.ctx.managers.interactivity.lociHighlights.clearHighlights();
-  }
-
-  _highlightChain = (auth_asym_id: string) => {
-    const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (data === undefined) {
-      return
-    }
-    const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({ 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), }), data);
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
-    this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
-  }
-
-  highlightChain = _.memoize(_highlightChain =>
-    _.debounce((auth_asym_id) => {
-      _highlightChain(auth_asym_id)
-    }, 50, { "leading": true, "trailing": true })
-  )(this._highlightChain);
-
-
-  _highlightResidueCluster = (chain_residues_tuples: {
-    auth_asym_id: string,
-    auth_seq_id: number,
-  }[]) => {
-    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (data === undefined) return;
-    const expr = this.selectionResidueClusterExpression(chain_residues_tuples)
-    const sel = Script.getStructureSelection(expr, data);
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
-
-    this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
-  }
-
-  highlightResidueCluster = _.memoize(_highlightResidueCluster =>
-    _.debounce((chain_residues_tuples: {
-      auth_asym_id: string,
-      auth_seq_id: number,
-    }[]) => {
-      _highlightResidueCluster(chain_residues_tuples)
-    }, 50, { "leading": true, "trailing": true })
-  )(this._highlightResidueCluster);
-
-  // TODO ============================ Factor Out
-
-
-
-
-  // TODO:  Try chaffing residues out of the trajectory without creating the full preset (when sub-polymer loading is required, ex. tunnel display case)
-  async upload_mmcif_chain({ rcsb_id, auth_asym_id }: { rcsb_id: string, auth_asym_id: string }): Promise<StateObjectSelector | undefined> {
-    const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`
-    const data = await this.ctx.builders.data.download({ url: Asset.Url(myUrl.toString()), isBinary: false }, { state: { isGhost: true } });
-    const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
-    return st?.structure
-  }
-
-  async upload_mmcif_structure(rcsb_id: string, clear?: boolean): Promise<{ ctx: MolstarRibxz, struct_representation: any }> {
+  async upload_mmcif_structure(rcsb_id: string, clear?: boolean): Promise<{ ctx: MolstarDemoBsites, struct_representation: any }> {
     if (clear) {
       await this.ctx.clear()
     }
 
 
 
-    const data = await this.ctx.builders.data.download({ url: `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`, isBinary: true, },{state: { isGhost: true }});
+    const data = await this.ctx.builders.data.download({ url: `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`, isBinary: true, }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    // const model = await this.ctx.builders.structure.createModel(trajectory);
-    // const structure = await this.ctx.builders.structure.createStructure(model);
+    const model = await this.ctx.builders.structure.createModel(trajectory);
+    const structure = await this.ctx.builders.structure.createStructure(model);
 
-    // const repr = await this.ctx.builders.structure.representation.addRepresentation(
-    //   structure,    // we pass a structure StateObject to apply the representation on the whole structure
-    //   {
-    //     type: "cartoon",
-    //     typeParams: { alpha: 0.01, },    
-    //     color: "sequence-id",
-    //   },
-    //   { tag: "canvas" }  
-    // );
+    const repr = await this.ctx.builders.structure.representation.addRepresentation(
+      structure,    // we pass a structure StateObject to apply the representation on the whole structure
+      {
+        type: "cartoon",
+        typeParams: { alpha: 0.01, },
+        color: "sequence-id",
+      },
+      { tag: "canvas" }
+    );
 
 
 
-    // https://files.rcsb.org/download/1HNZ.cif
     // const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
     // const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-    const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
+    // const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
     await this.stylized()
-    return { ctx: this, struct_representation: st?.representation }
+    return { ctx: this, struct_representation: repr }
   }
 
   // TODO+============== REPRESENTATIONS
@@ -276,16 +303,7 @@ export class MolstarRibxz {
     if (representation['components'] === undefined) { return }
     setSubtreeVisibility(this.ctx.state.data, representation['components']['polymer']['ref'], on_off)
   }
-  async color_all_white() {
 
-    // this.ctx.managers.structure.component
-    const componentGroups = this.ctx.managers.structure.hierarchy.currentComponentGroups;
-    console.log(componentGroups);
-    this.ctx.builders.structure.representation
-
-
-
-  }
 
   async stylized() {
     this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
@@ -361,71 +379,8 @@ export class MolstarRibxz {
     this.ctx.managers.camera.focusLoci(loci);
   }
 
-  expression_polymers_selection = (auth_asym_ids: string[]): Expression => {
-    const groups: Expression[] = [];
-    for (var aaid of auth_asym_ids) {
-      groups.push(MS.struct.generator.atomGroups({
-        "chain-test": MS.core.rel.eq([MolScriptBuilder.struct.atomProperty.macromolecular.auth_asym_id(), aaid]),
-      }));
-    }
-    return MS.struct.combinator.merge(groups);
-  }
 
-  select_multiple_polymers = async (auth_asym_ids: string[], modifier: 'set' | 'add' | 'remove' | 'intersect') => {
-    const e = this.expression_polymers_selection(auth_asym_ids)
-    const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-    if (data === undefined) return;
-    const sel = Script.getStructureSelection(e, data);
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
-    this.ctx.managers.structure.selection.fromLoci(modifier, loci);
-  }
 
-  create_multiple_polymers = async (auth_asym_ids: string[], object_name: string) => {
-
-    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct = structures[0];
-
-    const e = this.expression_polymers_selection(auth_asym_ids)
-    const update = this.ctx.build();
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: object_name }, { ref: `_${object_name}` });
-    const chain_sel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: object_name, expression: e }, { ref: object_name });
-    chain_sel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'cartoon' }), { ref: `repr_${object_name}_cartoon` });
-    await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
-
-    this.ctx.managers.structure.component.setOptions({ ...this.ctx.managers.structure.component.state.options, ignoreLight: true });
-    if (this.ctx.canvas3d) {
-      const pp = this.ctx.canvas3d.props.postprocessing;
-      this.ctx.canvas3d.setProps({
-        postprocessing: {
-          outline: {
-            name: 'on',
-            params: pp.outline.name === 'on'
-              ? pp.outline.params
-              : { scale: 1, color: Color(0x000000), threshold: 0.33 }
-          },
-          occlusion: {
-            name: 'on',
-            params: pp.occlusion.name === 'on'
-              ? pp.occlusion.params
-              : { bias: 0.8, blurKernelSize: 15, radius: 5, samples: 32, resolutionScale: 1 }
-          },
-        }
-      });
-    }
-
-  }
-
-  create_subcomponent_by_auth_asym_id = async (auth_asym_ids: string[]) => {
-    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct = structures[0];
-    let expression = MS.struct.generator.atomGroups({ 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), })
-
-    const update = this.ctx.build();
-    const group = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Chain so and so ` }, { ref: 'chain_so&so' });
-    const chain_sel = group.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `ll`, expression: expression }, { ref: 'chainso&so' });
-    chain_sel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'cartoon' }), { ref: 'surroundingsBallAndStick' });
-    await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
-  }
 
 
   //TODO: REFACTOR =============================================== LIGAND NAMESPACE
@@ -461,6 +416,7 @@ export class MolstarRibxz {
 
 
   }
+
   async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<ResidueList> {
     if (!chemicalId) {
       return []
@@ -502,8 +458,8 @@ export class MolstarRibxz {
           auth_seq_id: StructureProperties.residue.auth_seq_id(loc),
 
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
-          rcsb_id      : StructureProperties.unit.model_entry_id(loc),
+          auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
+          rcsb_id: StructureProperties.unit.model_entry_id(loc),
         });
       },
     });
@@ -628,91 +584,7 @@ export class MolstarRibxz {
   //TODO: REFACTOR =============================================== LIGAND NAMESPACE
 
   // TODO
-  dynamicSuperimpose(pivot_auth_asym_id: string) {
-
-    const transform = (s: StateObjectRef<PSO.Molecule.Structure>, matrix: Mat4) => {
-      const b = this.ctx.state.data.build().to(s).insert(StateTransforms.Model.TransformStructureConformation, { transform: { name: 'matrix', params: { data: matrix, transpose: false } } });
-      return this.ctx.runTask(this.ctx.state.data.updateTree(b));
-    }
-
-    const siteVisual = async (s: StateObjectRef<PSO.Molecule.Structure>, pivot: Expression,) => {
-
-      const center = await this.ctx.builders.structure.tryCreateComponentFromExpression(s, pivot, 'pivot');
-      if (center) await this.ctx.builders.structure.representation.addRepresentation(center, { type: 'ball-and-stick', color: 'residue-name' });
-    }
-    return this.ctx.dataTransaction(async () => {
 
 
 
-
-      const pivot = MS.struct.filter.first([
-        MS.struct.generator.atomGroups({
-          'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), pivot_auth_asym_id]),
-          'group-by': MS.struct.atomProperty.macromolecular.residueKey()
-        })
-      ]);
-
-      const query = compile<StructureSelection>(pivot);
-      const structureRefs = this.ctx.managers.structure.hierarchy.current.structures;
-      const selections = structureRefs.map(s => StructureSelection.toLociWithCurrentUnits(query(new QueryContext(s.cell.obj!.data))));
-      const transforms = superpose(selections);
-      console.log({ ...transforms });
-
-      await siteVisual(structureRefs[0].cell, pivot)
-
-      for (let i = 1; i < selections.length; i++) {
-        await transform(structureRefs[i].cell, transforms[i - 1].bTransform);
-        await siteVisual(structureRefs[i].cell, pivot)
-      }
-    });
-  }
-
-  // makeTransparentStructure(compId: string) {
-
-
-
-  //   const struct = this.ctx.managers.structure.hierarchy.current.structures[0];
-  //   const repr = struct.components[0].representations[0].cell;
-
-
-  //   // Select the whole strucutre by its PDB ID:
-  //   const structure_selection = MS.struct.generator.atomGroups({
-  //     'atom-test': MS.core.rel.eq([MS.ammp('auth_asym_id'), 'A']),
-  //   });
-
-  //   const { selection } = StructureQueryHelper.createAndRun(struct.cell.obj!.data.root, structure_selection);
-  //   const bundle = StructureElement.Bundle.fromSelection(selection);
-
-  //   const update = this.ctx.build();
-  //   // if you have more than one repr to apply this to, do this for each of them
-  //   update.to(repr)
-  //     .apply(StateTransforms.Representation.TransparencyStructureRepresentation3DFromBundle, {
-  //       layers: [{ bundle, value: 0.5 }]
-  //     });
-
-  //   // this.set_stylized()
-  //   return update.commit();
-  // }
-
-  makeTransparent() {
-    const sel = MS.struct.generator.all()
-    const struct = this.ctx.managers.structure.hierarchy.current.structures[0];
-    const repr = struct.components[0].representations[0].cell;
-
-    const { selection } = StructureQueryHelper.createAndRun(struct.cell.obj!.data.root, sel);
-    const bundle = StructureElement.Bundle.fromSelection(selection);
-    const update = this.ctx.build();
-
-    update.to(repr).apply(StateTransforms.Representation.TransparencyStructureRepresentation3DFromBundle, {
-      layers: [{ bundle, value: 0.1 }]
-    });
-
-
-    return update.commit();
-  }
-}
-
-
-export class MyViewportControls extends PluginUIComponent<{}, {}> {
-  render() { return <div className={'msp-viewport-controls'}> </div>; }
 }

@@ -231,7 +231,10 @@ const StructureComponentsTab = ({ data, isLoading }: { data: RibosomeStructure, 
             </TabsList>
 
             <TabsContent value="polymers">
+
+                <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
                 {!isLoading ? <PolymersTable polymers={[...data.proteins, ...data.rnas, ...data.other_polymers]}  /> : null}
+                </ScrollArea>
             </TabsContent>
 
             <TabsContent value="landmarks">
@@ -491,6 +494,8 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
                     </TabsContent>
                   </CardContent>
                 </Tabs>
+                {/* <Button onClick={()=>{ctx?.makeTransparent()}}> make stranpsarent</Button>
+                <Button onClick={()=>{ctx?.color_all_white()}}> white</Button> */}
               </Card>
             </div>
           </ResizablePanel>
