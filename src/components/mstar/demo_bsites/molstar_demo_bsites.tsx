@@ -17,20 +17,20 @@ import { PluginUIContext } from "molstar/lib/mol-plugin-ui/context";
 import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
-import { MySpec } from "./lib";
+import { MySpec } from "../lib";
 import _, { range } from "lodash";
-import { StateElements } from './functions';
+import { StateElements } from '../functions';
 import { Script } from 'molstar/lib/mol-script/script';
 import { Color } from 'molstar/lib/mol-util/color/color';
 import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
-import { ArbitrarySphereRepresentationProvider } from './sphere_drawing';
+import { ArbitrarySphereRepresentationProvider } from '../sphere_drawing';
 import { Loci } from 'molstar/lib/mol-model/structure/structure/element/loci';
 import { PluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
-import './mstar.css'
+import './../mstar.css'
 import { StructureQueryHelper } from 'molstar/lib/mol-plugin-state/helpers/structure-query';
 import { StructureComponent, StructureFromModel } from 'molstar/lib/mol-plugin-state/transforms/model';
-import { MolstarRibxz } from './molstar_ribxz';
+import { MolstarRibxz } from '../molstar_ribxz';
 import { Location } from 'molstar/lib/mol-model/location';
 import { ThemeDataContext } from 'molstar/lib/mol-theme/theme';
 import { PluginContext } from 'molstar/lib/mol-plugin/context';
@@ -39,26 +39,31 @@ import { ColorTheme } from 'molstar/lib/mol-theme/color';
 
 import { CustomElementProperty } from 'molstar/lib/mol-model-props/common/custom-element-property';
 import { Model, ElementIndex } from 'molstar/lib/mol-model/structure';
+import { VaryingResidueColorThemeProvider } from './color-scheme';
 
+
+export interface ScoredBsite {
+  [chain_auth_asym_id: string]: { [auth_seq_id: number]: number }
+}
 
 export const BsiteResidues = CustomElementProperty.create<number>({
-    label: 'Composite Binding Site',
-    name : 'binding-site-demo',
-    getData(model: Model) {
-        const map          = new Map<ElementIndex, number>();
-        const residueIndex = model.atomicHierarchy.residueAtomSegments.index;
-        for (let i = 0, _i = model.atomicHierarchy.atoms._rowCount; i < _i; i++) {
-            map.set(i as ElementIndex, residueIndex[i] % 2);
-        }
-        return { value: map };
-    },
-    coloring: {
-        getColor(e) { return e === 0 ? Color(0xff0000) : Color(0x0000ff); },
-        defaultColor: Color(0x777777)
-    },
-    getLabel(e) {
-        return e === 0 ? 'Odd stripe' : 'Even stripe';
+  label: 'Composite Binding Site',
+  name: 'binding-site-demo',
+  getData(model: Model) {
+    const map = new Map<ElementIndex, number>();
+    const residueIndex = model.atomicHierarchy.residueAtomSegments.index;
+    for (let i = 0, _i = model.atomicHierarchy.atoms._rowCount; i < _i; i++) {
+      map.set(i as ElementIndex, residueIndex[i] % 2);
     }
+    return { value: map };
+  },
+  coloring: {
+    getColor(e) { return e === 0 ? Color(0xff0000) : Color(0x0000ff); },
+    defaultColor: Color(0x777777)
+  },
+  getLabel(e) {
+    return e === 0 ? 'Odd stripe' : 'Even stripe';
+  }
 });
 
 _.memoize.Cache = WeakMap;
@@ -68,12 +73,16 @@ export class MolstarDemoBsites extends MolstarRibxz {
   ctx: PluginUIContext;
   constructor() { super() }
   async init(parent: HTMLElement, spec: PluginUISpec = MySpec) {
+
     this.ctx = await createPluginUI({
       target: parent,
       spec: spec,
       render: renderReact18
     }
     );
+
+
+    this.ctx.representation.structure.themes.colorThemeRegistry.add(VaryingResidueColorThemeProvider);
 
     this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
     this.ctx.canvas3d?.setProps({ camera: { helper: { axes: { name: 'off', params: {} } } } })
@@ -103,111 +112,88 @@ export class MolstarDemoBsites extends MolstarRibxz {
 
   }
 
-  bsite_theme = async ()=>{
+  bsite_theme = async () => {
 
 
 
-      interface ScoredResidue {
-          auth_asym_id: string;
-          auth_seq_id : number;
-          score       : number;
-      }
-
-      interface CustomColorTheme {
-          name: string;
-          color: (location: StructureElement.Location, ctx?: ThemeDataContext) => Color;
-      }
-
-      const createCustomColorTheme = (sites: ScoredResidue[]): CustomColorTheme => {
-          // Create a map of residue identifiers to scores
-          const scoreMap: Map<string, number> = new Map(
-              sites.map(site => [ `${site.auth_asym_id}/${site.auth_seq_id}`, site.score ])
-          );
-
-          return {
-
-              name: 'custom-residue-coloring',
-              color: (location: StructureElement.Location): Color => {
-                  const key = `${location.unit.model.atomicHierarchy.chainAtomSegments.label_asym_id[location.unit.chainIndex]}/${location.residueIndex + 1}`;
-                  const score = scoreMap.get(key);
-                  
-                  if (score !== undefined) {
-                      // Return red with varying opacity based on score
-                      return Color.fromRgb(255, 0, 0, score);
-                  }
-                  // Return transparent for non-highlighted residues
-                  return Color.fromRgb(255, 255, 255, 0);
-              }
-          };
-      };
-
-
-      // Example usage in a class method:
-      class YourClass {
-          private ctx: PluginContext;
-          async updateStructureColoring(sites: ScoredResidue[]): Promise<void> {
-              // const bsiteSel = group1.apply(
-              //     StateTransforms.Model.StructureSelectionFromExpression,
-              //     { 
-              //         label: 'scored-residues',
-              //         expression: bsite 
-              //     },
-              //     { ref: 'residueSel' }
-              // );
-
-              bsiteSel.apply(
-                  StateTransforms.Representation.StructureRepresentation3D,
-                  createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                      type: 'cartoon',
-                      color: 'custom',
-                      colorParams: createCustomColorTheme(sites),
-                      typeParams: {} 
-                  }),
-                  { ref: 'residueCartoon' }
-              );
-
-          }
-
-      }
-
-  }
-
-  bsite_repr = async () => {
-
-    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
-    const struct = structures[0];
-    const update = this.ctx.build();
-
-    var sites = []
-    for (var i of range(500, 600)) {
-      sites.push(
-        {
-          auth_asym_id: 'A',
-          auth_seq_id: i
-        }
-      )
-
+    interface ScoredResidue {
+      auth_asym_id: string;
+      auth_seq_id: number;
+      score: number;
     }
 
-    const bsite = this.selectionResidueClusterExpression(sites)
+    interface CustomColorTheme {
+      name: string;
+      color: (location: StructureElement.Location, ctx?: ThemeDataContext) => Color;
+    }
 
-    const group1 = update.to(struct.structureRef.cell)
-    const bsiteSel = group1.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `onetwo Ligand`, expression: bsite }, { ref: 'ligandSel' });
-    bsiteSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-      type: 'cartoon',
-      color: 'uniform',
-      colorParams: {
-        value: Color(0xFF0000)
-      },
-      typeParams: {
-        alpha: 0.5,
-      }
-    }), { ref: 'ligandBallAndStick' });
-    await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
+    const createCustomColorTheme = (sites: ScoredResidue[]): CustomColorTheme => {
+      // Create a map of residue identifiers to scores
+      const scoreMap: Map<string, number> = new Map(
+        sites.map(site => [`${site.auth_asym_id}/${site.auth_seq_id}`, site.score])
+      );
+
+      return {
+
+        name: 'custom-residue-coloring',
+        color: (location: StructureElement.Location): Color => {
+          const key = `${location.unit.model.atomicHierarchy.chainAtomSegments.label_asym_id[location.unit.chainIndex]}/${location.residueIndex + 1}`;
+          const score = scoreMap.get(key);
+
+          if (score !== undefined) {
+            // Return red with varying opacity based on score
+            return Color.fromRgb(255, 0, 0, score);
+          }
+          // Return transparent for non-highlighted residues
+          return Color.fromRgb(255, 255, 255, 0);
+        }
+      };
+    };
+
 
   }
+//TODO: look at StructureRepresentationPresetProvider for custom alpha
+  applyBsiteColors = async (bsite: ScoredBsite) => {
+    this.ctx.dataTransaction(async () => {
+      for (const s of this.ctx.managers.structure.hierarchy.current.structures) {
+        var sites: { auth_asym_id: string, auth_seq_id: number }[] = []
+
+        for (var chain of Object.keys(bsite)) {
+          console.log('chain', chain);
+          for (var auth_seq_id of Object.keys(bsite[chain])) {
+            sites.push(
+              {
+                auth_asym_id: chain,
+                auth_seq_id: Number.parseInt(auth_seq_id)
+              }
+            )
+          }
+
+        }
 
 
+
+        const expr = this.selectionResidueClusterExpression(sites)
+
+        const update = this.ctx.build();
+        let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+        const struct = structures[0];
+        const group1 = update.to(struct.structureRef.cell)
+        const bsiteSel = group1.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `onetwo Ligand`, expression: expr }, { ref: 'ligandSel' });
+        bsiteSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+          type: 'cartoon',
+          color: VaryingResidueColorThemeProvider.name as any,
+          colorParams: {
+            bsite: bsite
+          },
+          typeParams: {
+            alpha: 1
+          }
+        }), { ref: 'ligandBallAndStick' });
+        await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
+      }
+    });
+  }
 
   select_residueCluster = (chain_residue_tuples: {
     auth_asym_id: string,
