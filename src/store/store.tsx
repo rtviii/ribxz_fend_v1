@@ -13,7 +13,7 @@ import { polymersApi } from './ribxz_api/polymers_api'
 import { HomepageSlice } from './slices/slice_homepage'
 
 export const makeStore = () => {
-  const store=  configureStore({
+  const store =  configureStore({
     reducer: {
       [ribxz_api.reducerPath]    : ribxz_api.reducer,
       molstar                    : molstarSlice.reducer,

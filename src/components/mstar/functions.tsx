@@ -34,21 +34,18 @@ import { StructureRepresentation3D } from 'molstar/lib/mol-plugin-state/transfor
 import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
 
 export enum StateElements {
-  Model      = 'model',
-  ModelProps = 'model-props',
-  Assembly   = 'assembly',
-
-  VolumeStreaming = 'volume-streaming',
-
-  Sequence = 'sequence',
-  SequenceVisual = 'sequence-visual',
-  Het = 'het',
-  HetVisual = 'het-visual',
-  Het3DSNFG = 'het-3dsnfg',
-  Water = 'water',
-  WaterVisual = 'water-visual',
-
-  HetGroupFocus = 'het-group-focus',
+  Model              = 'model',
+  ModelProps         = 'model-props',
+  Assembly           = 'assembly',
+  VolumeStreaming    = 'volume-streaming',
+  Sequence           = 'sequence',
+  SequenceVisual     = 'sequence-visual',
+  Het                = 'het',
+  HetVisual          = 'het-visual',
+  Het3DSNFG          = 'het-3dsnfg',
+  Water              = 'water',
+  WaterVisual        = 'water-visual',
+  HetGroupFocus      = 'het-group-focus',
   HetGroupFocusGroup = 'het-group-focus-group'
 }
 

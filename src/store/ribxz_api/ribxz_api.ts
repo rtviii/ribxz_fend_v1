@@ -198,6 +198,12 @@ const injectedRtkApi = api.injectEndpoints({
     >({
       query: () => ({ url: `/ligand/chemical_classification` }),
     }),
+    routersRouterLigBsiteComposite: build.query<
+      RoutersRouterLigBsiteCompositeApiResponse,
+      RoutersRouterLigBsiteCompositeApiArg
+    >({
+      query: () => ({ url: `/ligand/bsite_composite` }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -638,6 +644,9 @@ export type RoutersRouterLigLigTransposeApiArg = {
 export type RoutersRouterLigLigChemicalCategoriesApiResponse =
   /** status 200 OK */ object;
 export type RoutersRouterLigLigChemicalCategoriesApiArg = void;
+export type RoutersRouterLigBsiteCompositeApiResponse =
+  /** status 200 OK */ object;
+export type RoutersRouterLigBsiteCompositeApiArg = void;
 export type CompositionStats = {
   lsu_only: number;
   ssu_only: number;
@@ -1437,7 +1446,7 @@ export type PredictionTarget = {
   target_bound_residues: ResidueSummary[];
   auth_asym_id: string;
 };
-export type PredictedResiduesPolymer = {
+export type ResiduesMapping = {
   polymer_class: CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum;
   source: PredictionSource;
   target: PredictionTarget;
@@ -1445,7 +1454,7 @@ export type PredictedResiduesPolymer = {
 export type LigandTransposition = {
   source: string;
   target: string;
-  constituent_chains: PredictedResiduesPolymer[];
+  constituent_chains: ResiduesMapping[];
   purported_binding_site: BindingSite;
 };
 export const {
@@ -1473,4 +1482,5 @@ export const {
   useRoutersRouterLigLigNbhdQuery,
   useRoutersRouterLigLigTransposeQuery,
   useRoutersRouterLigLigChemicalCategoriesQuery,
+  useRoutersRouterLigBsiteCompositeQuery,
 } = injectedRtkApi;

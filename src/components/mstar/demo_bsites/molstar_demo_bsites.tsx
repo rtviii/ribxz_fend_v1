@@ -40,6 +40,8 @@ import { ColorTheme } from 'molstar/lib/mol-theme/color';
 import { CustomElementProperty } from 'molstar/lib/mol-model-props/common/custom-element-property';
 import { Model, ElementIndex } from 'molstar/lib/mol-model/structure';
 import { VaryingResidueColorThemeProvider } from './color-scheme';
+import { TransparencySchema } from 'molstar/lib/mol-gl/renderable/schema';
+import { TransparencyStructureRepresentation3DFromBundle } from 'molstar/lib/mol-plugin-state/transforms/representation';
 
 
 export interface ScoredBsite {
@@ -72,7 +74,7 @@ export class MolstarDemoBsites extends MolstarRibxz {
   //@ts-ignore
   ctx: PluginUIContext;
   constructor() { super() }
-  async init(parent: HTMLElement, spec: PluginUISpec = MySpec) {
+  async init(parent: HTMLElement, spec: PluginUISpec ) {
 
     this.ctx = await createPluginUI({
       target: parent,
@@ -152,14 +154,11 @@ export class MolstarDemoBsites extends MolstarRibxz {
 
 
   }
-//TODO: look at StructureRepresentationPresetProvider for custom alpha
   applyBsiteColors = async (bsite: ScoredBsite) => {
     this.ctx.dataTransaction(async () => {
       for (const s of this.ctx.managers.structure.hierarchy.current.structures) {
         var sites: { auth_asym_id: string, auth_seq_id: number }[] = []
-
         for (var chain of Object.keys(bsite)) {
-          console.log('chain', chain);
           for (var auth_seq_id of Object.keys(bsite[chain])) {
             sites.push(
               {
@@ -172,10 +171,9 @@ export class MolstarDemoBsites extends MolstarRibxz {
         }
 
 
-
         const expr = this.selectionResidueClusterExpression(sites)
-
         const update = this.ctx.build();
+        let structure = this.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data;
         let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
         const struct = structures[0];
         const group1 = update.to(struct.structureRef.cell)
@@ -191,6 +189,33 @@ export class MolstarDemoBsites extends MolstarRibxz {
           }
         }), { ref: 'ligandBallAndStick' });
         await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
+
+
+
+
+        const transparency_layers = []
+        for (var chain of Object.keys(bsite)) {
+          for (var kv of Object.entries(bsite[chain])) {
+            var [auth_seq_id, score] = kv;
+            var selection = Script.getStructureSelection((Q) =>
+              Q.struct.generator.atomGroups({
+                'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), chain]),
+                'residue-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_seq_id(), Number.parseInt(auth_seq_id)]),
+              }), structure!);
+
+            transparency_layers.push({ bundle: StructureElement.Bundle.fromSelection(selection), value: 1 - score })
+          }
+
+        }
+
+        const repr = this.ctx.managers.structure.hierarchy.current.structures[0].components[0].representations[0].cell;
+        const update2 = this.ctx.build();
+        update2.to(repr).apply(StateTransforms.Representation.TransparencyStructureRepresentation3DFromBundle, {
+          layers: transparency_layers
+        });
+
+        return update2.commit();
+
       }
     });
   }

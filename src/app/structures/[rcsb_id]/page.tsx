@@ -178,7 +178,6 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
     );
 };
 
-
 const StructureControlTab = ({ data, isLoading }: { data: RibosomeStructure, isLoading: boolean }) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
@@ -297,6 +296,8 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
         dispatch(set_id_to_selection(id))
     };
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt("Enter a name for the new bookmark:");
+    const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt("Enter a name for the binding site object:");
+
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
     const createNewSelection = async () =>{
@@ -304,13 +305,34 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
         await ctx?.create_multiple_polymers(selected_polymers, name)
         dispatch(snapshot_selection({[ name ]:selected_polymers}))
     }
+
+    const createBindingSite = async () =>{
+        const bsite_name = promptForBindingSiteName();
+        selected_polymers
+        const expr = ctx?.expression_polymers_selection(selected_polymers)
+        await ctx?.create_neighborhood_selection_from_expr(expr!)
+
+        // await ctx?.create_multiple_polymers(selected_polymers, name)
+        // dispatch(snapshot_selection({[ name ]:selected_polymers}))
+    }
     return (
         <div className="space-y-4 shadow-inner bg-slate-100 p-2 border-gray-200 rounded-md">
             <h3 className="text-sm  font-semibold"><span>Structure Components</span>
                  </h3>
 
                 <div className="space-x-1">
-   <Button 
+           <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
+          onClick={() => {
+            ctx?.toggle_visibility_by_ref()
+        }}
+        >
+          Toggle Structure
+        </Button>
+
+           <Button 
           variant="outline" 
           size="sm" 
           className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
@@ -326,9 +348,17 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
           variant="outline" 
           size="sm" 
           className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-          onClick={() => {createNewSelection()}}
-        >
+          onClick={() => {createNewSelection()}}>
+
           Create New Selection
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+          onClick={() => {createBindingSite()}}
+        >
+          Create Binding Site
         </Button>
                 
 </div>
@@ -372,7 +402,6 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
                     />
                 ))}
                 {data.other_polymers
-
                 .filter(r=>r.assembly_id===0)
                 .map(component => (
                     <MolecularComponentBadge
@@ -387,6 +416,19 @@ const StructureEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure
             </div>
             <div className="text-xs text-gray-500">
                 Selected: {selected_polymers.length} component(s)
+            </div>
+
+
+
+            <div>
+
+        <Button onClick={()=>{
+            ( async()=>{
+            await ctx?.create_neighborhood_selection_from_expr( ctx?.select_expression('j') )
+            } )()
+            }}></Button>
+
+
             </div>
         </div>
     );
@@ -414,6 +456,7 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
   const [ctx, setCtx]                       = useState<MolstarRibxz | null>(null);
   const { data, isLoading, error }          = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id });
 
+
     const searchParams                                                        = useSearchParams()
     const ligand_param                                                        = searchParams.get('ligand')
     const ptc                                                                 = searchParams.get('ptc')
@@ -434,6 +477,9 @@ export default function StructurePage({ params }: { params: { rcsb_id: string } 
     useEffect(() => {
         ctx?.upload_mmcif_structure(rcsb_id)
             .then(({ ctx, struct_representation }) => {
+
+                setStructRepresentation(struct_representation)
+
                 if (ligand_param != null) {
                     ctx.create_ligand(ligand_param!)
                 }

@@ -255,11 +255,11 @@ export default function Ligands() {
     const lig_state = useAppSelector(state => state.ui.ligands_page)
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand)
 
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([])
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure)
-    const [nomenclatureMap, setNomenclatureMap] = useState<Record<string, string | undefined>>({})
+    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueList>([])
+    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure)
+    const [nomenclatureMap, setNomenclatureMap]           = useState<Record<string, string | undefined>>({})
     const [structRepresentation, setStructRepresentation] = useState<any>({})
-    const [structVisibility, setStructVisibility] = useState<boolean>(true)
+    const [structVisibility, setStructVisibility]         = useState<boolean>(true)
 
 
     useEffect(() => {

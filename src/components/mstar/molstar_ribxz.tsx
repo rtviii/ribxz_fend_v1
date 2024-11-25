@@ -1,8 +1,8 @@
 'use client'
 import { MolScriptBuilder as MS, MolScriptBuilder } from 'molstar/lib/mol-script/language/builder';
-import { Queries, StructureQuery, StructureSelection } from "molstar/lib/mol-model/structure";
+import {  StructureSelection } from "molstar/lib/mol-model/structure";
 import { Structure, StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure/structure'
-import { StructureSelectionQueries, StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
+import {  StructureSelectionQuery } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query'
 import { Asset } from 'molstar/lib/mol-util/assets';
 import { StateObjectRef, StateObjectSelector } from 'molstar/lib/mol-state/object';
 import { compile } from "molstar/lib/mol-script/runtime/query/compiler";
@@ -19,7 +19,7 @@ import { renderReact18 } from "molstar/lib/mol-plugin-ui/react18";
 import "molstar/lib/mol-plugin-ui/skin/light.scss";
 import { StateTransforms } from "molstar/lib/mol-plugin-state/transforms";
 import { MySpec } from "./lib";
-import _, { range } from "lodash";
+import _  from "lodash";
 import { StateElements } from './functions';
 import { Script } from 'molstar/lib/mol-script/script';
 import { Color } from 'molstar/lib/mol-util/color/color';
@@ -30,7 +30,6 @@ import { PluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
 import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
 import './mstar.css'
 import { StructureQueryHelper } from 'molstar/lib/mol-plugin-state/helpers/structure-query';
-import { StructureComponent, StructureFromModel } from 'molstar/lib/mol-plugin-state/transforms/model';
 
 _.memoize.Cache = WeakMap;
 
@@ -42,24 +41,24 @@ _.memoize.Cache = WeakMap;
 // }
 
 export type Residue = {
-  label_seq_id: number | null | undefined,
-  label_comp_id: string | null | undefined,
-  auth_seq_id: number,
-  auth_asym_id: string,
-  rcsb_id: string,
+  label_seq_id  : number | null | undefined,
+  label_comp_id : string | null | undefined,
+  auth_seq_id   : number,
+  auth_asym_id  : string,
+  rcsb_id       : string,
   polymer_class?: string,
 }
 
 export type ResidueList = Residue[]
-export class MolstarRibxz {
 
+export class MolstarRibxz {
   //@ts-ignore
   ctx: PluginUIContext;
   constructor() { }
   async init(parent: HTMLElement, spec: PluginUISpec = MySpec) {
     this.ctx = await createPluginUI({
       target: parent,
-      spec: spec,
+      spec  : spec,
       render: renderReact18
     }
     );
@@ -71,7 +70,6 @@ export class MolstarRibxz {
     const rendererParams: any = { backgroundColor: Color.fromRgb(255, 255, 255), };
     const renderer = this.ctx.canvas3d?.props.renderer
     PluginCommands.Canvas3D.SetSettings(this.ctx, { settings: { renderer: { ...renderer, ...rendererParams } } });
-
 
   }
 
@@ -148,11 +146,49 @@ export class MolstarRibxz {
       Q => Q.struct.generator.atomGroups({
         'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
       }), data);
-
     let loci = StructureSelection.toLociWithSourceUnits(sel);
     this.ctx.managers.structure.selection.fromLoci(modifier, loci);
   }
+  select_expression = (auth_asym_id: string): Expression => {
+    let expression = MS.struct.generator.atomGroups({
+      'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+    })
+    return expression
+  }
 
+  create_neighborhood_selection_from_expr = async (e: Expression) => {
+
+    const RADIUS = 5
+    let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
+    const struct = structures[0];
+
+    // const update = this.ctx.build();
+
+    // const group1 = update.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Surroundings Group` }, { ref: 'surroundings' });
+
+    // // Create ligand selection and representations
+    // const ligandSel = group1.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `${chemicalId} Ligand`, expression: ligand }, { ref: 'ligandSel' });
+    // ligandSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'ligandBallAndStick' });
+    // ligandSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'ligandLabel' });
+    // await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update });
+
+    const surroundings = MS.struct.modifier.includeSurroundings({ 0: e, radius: RADIUS, 'as-whole-residues': true });
+    const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({ 0: surroundings, by: e });
+    const update2 = this.ctx.build();
+    const group2 = update2.to(struct.structureRef.cell).group(StateTransforms.Misc.CreateGroup, { label: `Surroundings group` }, { ref: 'surroundings' });
+    // Create surroundings selection and representations
+    const surroundingsSel = group2.apply(StateTransforms.Model.StructureSelectionFromExpression, { label: `Selection Surroundings (${RADIUS} Å)`, expression: surroundingsWithoutLigand }, { ref: 'surroundingsSel' });
+    surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'ball-and-stick' }), { ref: 'surroundingsBallAndStick' });
+    // surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
+    await PluginCommands.State.Update(this.ctx, { state: this.ctx.state.data, tree: update2 });
+
+    const selection = compile<StructureSelection>(e)(new QueryContext(struct.structureRef.cell.obj?.data!));
+    let loci = StructureSelection.toLociWithSourceUnits(selection);
+    this.ctx.managers.structure.selection.fromLoci('add', loci);
+    this.ctx.managers.camera.focusLoci(loci);
+    return this
+
+  }
 
   // TODO ============================ Factor Out into separate neamespace
   removeHighlight = () => {
@@ -165,7 +201,7 @@ export class MolstarRibxz {
       return
     }
     const sel = Script.getStructureSelection(Q => Q.struct.generator.atomGroups({ 'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]), }), data);
-    let loci = StructureSelection.toLociWithSourceUnits(sel);
+    let loci = StructureSelection.toLociWithSourceUnitts(sel);
     this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
   }
 
@@ -217,9 +253,7 @@ export class MolstarRibxz {
       await this.ctx.clear()
     }
 
-
-
-    const data = await this.ctx.builders.data.download({ url: `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`, isBinary: true, },{state: { isGhost: true }});
+    const data = await this.ctx.builders.data.download({ url: `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`, isBinary: true, }, { state: { isGhost: true } });
     const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
     // const model = await this.ctx.builders.structure.createModel(trajectory);
     // const structure = await this.ctx.builders.structure.createStructure(model);
@@ -254,9 +288,7 @@ export class MolstarRibxz {
   }
 
   toggleSpin() {
-
     if (!this.ctx.canvas3d) return this;
-
     const trackball = this.ctx.canvas3d.props.trackball;
 
     PluginCommands.Canvas3D.SetSettings(this.ctx, {
@@ -277,13 +309,9 @@ export class MolstarRibxz {
     setSubtreeVisibility(this.ctx.state.data, representation['components']['polymer']['ref'], on_off)
   }
   async color_all_white() {
-
-    // this.ctx.managers.structure.component
     const componentGroups = this.ctx.managers.structure.hierarchy.currentComponentGroups;
     console.log(componentGroups);
     this.ctx.builders.structure.representation
-
-
 
   }
 
@@ -502,8 +530,8 @@ export class MolstarRibxz {
           auth_seq_id: StructureProperties.residue.auth_seq_id(loc),
 
           label_comp_id: StructureProperties.atom.label_comp_id(loc),
-          auth_asym_id : StructureProperties.chain.auth_asym_id(loc),
-          rcsb_id      : StructureProperties.unit.model_entry_id(loc),
+          auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
+          rcsb_id: StructureProperties.unit.model_entry_id(loc),
         });
       },
     });
@@ -515,12 +543,11 @@ export class MolstarRibxz {
       return this
     }
     await this.ctx.dataTransaction(async () => {
-      const RADIUS = radius
 
+      const RADIUS = radius
       let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({ structureRef, number: i + 1 }));
       const struct = structures[0];
       const update = this.ctx.build();
-
       const ligand = MS.struct.filter.first([
         MS.struct.generator.atomGroups({
           'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),

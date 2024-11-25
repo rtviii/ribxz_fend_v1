@@ -13,7 +13,6 @@ declare global {
 
 export const molstarListenerMiddleware = createListenerMiddleware()
 export interface SuperimposeState {
-
   pivot: {
     rcsb_id: string,
     polymer: PolymerByStruct

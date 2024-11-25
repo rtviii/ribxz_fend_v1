@@ -9,6 +9,7 @@ import { Location } from 'molstar/lib/mol-model/location';
 import { ParamDefinition as PD } from 'molstar/lib/mol-util/param-definition';
 import { StructureProperties } from 'molstar/lib/mol-model/structure/structure/properties';
 import { ScoredBsite } from './molstar_demo_bsites';
+import { StructureRepresentationPresetProvider } from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 
 export const VaryingResidueColorThemeParams = {
     bsite: PD.Value<ScoredBsite>({}),
@@ -36,19 +37,11 @@ export function VaryingResidueTheme(
         //         return ColorNames.blue
         //     }
         //     else {
-        //         return ColorNames.yellow;
+        //         return ColorNames.gray;
         //     }
-        //     // if (auth_asym_id == 'A') {
-        //     //     return ColorNames.red
-        //     // }
-        //     // if (auth_seq_id <= 20) {
-        //     //     return ColorNames.orange
-        //     // } else {
-        //     //     return ColorNames.olive
-        //     // }
         // }
         // else{
-        //     return ColorNames.yellow
+        //     return ColorNames.gray
         // }
     };
 
@@ -64,11 +57,13 @@ export function VaryingResidueTheme(
 
 
 export const VaryingResidueColorThemeProvider: ColorTheme.Provider<VaryingResidueColorThemeParams, 'varying-residue-theme'> = {
-    name: 'varying-residue-theme',
-    label: 'Custom Color Theme',
-    category: ColorTheme.Category.Misc,
-    factory: VaryingResidueTheme,
+    name         : 'varying-residue-theme',
+    label        : 'Custom Color Theme',
+    category     : ColorTheme.Category.Misc,
+    factory      : VaryingResidueTheme,
     defaultValues: PD.getDefaultValues(VaryingResidueColorThemeParams),
-    getParams: getResidueColorThemeParams,
-    isApplicable: (ctx: ThemeDataContext) => true,
+    getParams    : getResidueColorThemeParams,
+    isApplicable : (ctx: ThemeDataContext) => true,
 }
+
+

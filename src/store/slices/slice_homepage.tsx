@@ -3,10 +3,9 @@ import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction 
 import { ChainsByStruct, PolymerByStruct, ribxz_api } from '../ribxz_api/ribxz_api';
 
 
-
 export interface HomepageSliceState {
-    ref_uL4 : string| null
-    ref_uL22: string| null
+    ref_uL4  : string| null
+    ref_uL22 : string| null
 
 }
 
