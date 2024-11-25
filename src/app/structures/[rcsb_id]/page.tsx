@@ -618,22 +618,26 @@ export default function StructurePage({
       return;
     }
 
-    const nomenclature_map = (
-      [data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]
-    ).reduce((prev: Record<string, string[]>, current: Polymer) => {
-      prev[current.auth_asym_id] = current.nomenclature;
+    
+    // console.log([...data?.proteins, ...data?.rnas, ...data?.other_polymers]);
+    // return
+    
+    const nomenclature_map = ( [...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[] ).reduce((prev: Record<string, string>, current: Polymer) => {
+      prev[current.auth_asym_id] = current.nomenclature.length >0?  current.nomenclature[0] : "";
       return prev;
     }, {});
 
+    console.log("Fired off download struct", nomenclature_map);
+    
     ctx?.ctx.clear();
     ctx
       ?.upload_mmcif_structure(rcsb_id, nomenclature_map)
-      .then(({ ctx, struct_representation }) => {
-        setStructRepresentation(struct_representation);
-        if (ligand_param != null) {
-          ctx.create_ligand(ligand_param!);
-        }
-      });
+      // .then(({ ctx, struct_representation }) => {
+      //   setStructRepresentation(struct_representation);
+      //   if (ligand_param != null) {
+      //     ctx.create_ligand(ligand_param!);
+      //   }
+      // });
   }, [ctx, ligand_param, rcsb_id, data]);
 
   const resizeObserver = useCallback(() => {

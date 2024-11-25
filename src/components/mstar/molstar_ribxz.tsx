@@ -380,7 +380,7 @@ export class MolstarRibxz {
 
   async upload_mmcif_structure(
     rcsb_id: string,
-    nomenclature_map: { [key: string]: string[] },
+    nomenclature_map: { [key: string]: string },
     clear?: boolean
   ): Promise<{ ctx: MolstarRibxz; struct_representation: any }> {
     if (clear) {
@@ -401,11 +401,11 @@ export class MolstarRibxz {
 
     const model = await this.ctx.builders.structure.createModel(trajectory);
     const structure = await this.ctx.builders.structure.createStructure(model);
-    const presetStateObjects =
-      await this.ctx.builders.structure.hierarchy.applyPreset(
-        trajectory,
-        "default"
-      );
+    // const presetStateObjects =
+    //   await this.ctx.builders.structure.hierarchy.applyPreset(
+    //     trajectory,
+    //     "default"
+    //   );
 
     const { components, representations, metadata } =
       await this.ctx.builders.structure.representation.applyPreset(
@@ -413,14 +413,14 @@ export class MolstarRibxz {
         "polymers-ligand-ribxz-theme",
         { structureId: rcsb_id, nomenclature_map }
       );
-    const st = await this.ctx.builders.structure.hierarchy.applyPreset(
-      trajectory,
-      "default"
-    );
+    // const st = await this.ctx.builders.structure.hierarchy.applyPreset(
+    //   trajectory,
+    //   "default"
+    // );
     this.stylized();
 
     // await this.stylized();
-    return { ctx: this, struct_representation: st?.representation };
+    return { ctx: this, struct_representation: null };
   }
 
   // TODO+============== REPRESENTATIONS
