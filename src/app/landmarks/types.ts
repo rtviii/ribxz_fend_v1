@@ -2,19 +2,19 @@ import { MolstarRibxz } from "@/components/mstar/molstar_ribxz";
 import { extend } from "lodash";
 import { Loci } from "molstar/lib/mol-model/loci";
 
-export interface LandmarkActions{
+export interface LandmarkActions {
   download?: (rcsb_id: string) => void;
-  render  ?: (rcsb_id: string, ctx: MolstarRibxz) => void;
+  render?: (rcsb_id: string, ctx: MolstarRibxz) => void;
   on_click?: () => void;
-  seldesel?: (_:boolean) => void;
+  seldesel?: (_: boolean) => void;
 }
 export interface Landmark {
-  landmark_actions : LandmarkActions;
-  title            : string;
-  description      : string;
-  longDescription  : string;
-  imageUrl        ?: string;
-  rcsb_id          : string;
+  landmark_actions: LandmarkActions;
+  title: string;
+  description: string;
+  longDescription: string;
+  imageUrl?: string;
+  rcsb_id: string;
 }
 
 

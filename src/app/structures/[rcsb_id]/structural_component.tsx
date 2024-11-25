@@ -1,33 +1,45 @@
-import React, { useContext } from 'react';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { DownloadIcon, EyeIcon, InfoIcon } from 'lucide-react';
-import { MolstarContext } from "@/components/mstar/molstar_context"
-import ReactJson from 'react-json-view';
-import { useParams } from 'next/navigation';
-import { NonpolymericLigand } from '@/store/ribxz_api/ribxz_api';
-import { Landmark } from '@/app/landmarks/types';
-import { Button } from 'molstar/lib/mol-plugin-ui/controls/common';
+import React, { useContext } from "react";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { DownloadIcon, EyeIcon, InfoIcon } from "lucide-react";
+import { MolstarContext } from "@/components/mstar/molstar_context";
+import ReactJson from "react-json-view";
+import { useParams } from "next/navigation";
+import { NonpolymericLigand } from "@/store/ribxz_api/ribxz_api";
+import { Landmark } from "@/app/landmarks/types";
+import { Button } from "molstar/lib/mol-plugin-ui/controls/common";
 interface StructuralComponentProps {
-  title           : string;
-  description     : string;
-  extendedContent : React.ReactNode;
-  imageUrl?        : string;
-  annotation     ?: string;
-  actions         : React.ReactNode;
+  title: string;
+  description: string;
+  extendedContent: React.ReactNode;
+  imageUrl?: string;
+  annotation?: string;
+  actions: React.ReactNode;
 }
 
-const StructuralComponent:React.FC<StructuralComponentProps> = ({
+const StructuralComponent: React.FC<StructuralComponentProps> = ({
   title,
   description,
   extendedContent,
   imageUrl,
   annotation,
-  actions
+  actions,
 }) => {
   return (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value={title} className="border rounded-md overflow-hidden">
+      <AccordionItem
+        value={title}
+        className="border rounded-md overflow-hidden"
+      >
         <AccordionTrigger className="hover:no-underline py-2 px-4">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center space-x-2 text-left">
@@ -35,7 +47,9 @@ const StructuralComponent:React.FC<StructuralComponentProps> = ({
               <p className="text-xs text-gray-500 italic">{description}</p>
             </div>
             <div className="flex items-center space-x-2 ml-4">
-              {annotation && <span className="text-xs text-green-500">{annotation}</span>}
+              {annotation && (
+                <span className="text-xs text-green-500">{annotation}</span>
+              )}
               {actions}
             </div>
           </div>
@@ -48,27 +62,53 @@ const StructuralComponent:React.FC<StructuralComponentProps> = ({
   );
 };
 
-const LandmarkItem:React.FC<Landmark > = ({ 
+const LandmarkItem: React.FC<Landmark> = ({
   landmark_actions,
   title,
-  description    ,
+  description,
   longDescription,
-  imageUrl       ,
-  rcsb_id
+  imageUrl,
+  rcsb_id,
 }) => {
   const ctx = useContext(MolstarContext);
   const actions = (
     <>
-      {landmark_actions.download && (<DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); landmark_actions.download!(rcsb_id); }} />)}
-      {landmark_actions.render && (<EyeIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); landmark_actions.render!(rcsb_id, ctx!); }} />)}
-            <Button onClick={()=>{ landmark_actions.on_click!() }}>Select</Button>
+      {landmark_actions.download && (
+        <DownloadIcon
+          className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700"
+          onClick={(e) => {
+            e.stopPropagation();
+            landmark_actions.download!(rcsb_id);
+          }}
+        />
+      )}
+      {landmark_actions.render && (
+        <EyeIcon
+          className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700"
+          onClick={(e) => {
+            e.stopPropagation();
+            landmark_actions.render!(rcsb_id, ctx!);
+          }}
+        />
+      )}
+      <Button
+        onClick={() => {
+          landmark_actions.on_click!();
+        }}
+      >
+        Select
+      </Button>
       <Popover>
         <PopoverTrigger asChild>
           <InfoIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" />
         </PopoverTrigger>
-        <PopoverContent className="w-80" >
+        <PopoverContent className="w-80">
           <div className="flex flex-col space-y-2">
-            <img src={imageUrl} alt={title} className="w-full h-40 object-cover rounded" />
+            <img
+              src={imageUrl}
+              alt={title}
+              className="w-full h-40 object-cover rounded"
+            />
             <p className="text-sm text-gray-700">{longDescription}</p>
           </div>
         </PopoverContent>
@@ -82,7 +122,7 @@ const LandmarkItem:React.FC<Landmark > = ({
 
   return (
     <StructuralComponent
-    annotation={""}
+      annotation={""}
       title={title}
       description={description}
       extendedContent={extendedContent}
@@ -92,7 +132,15 @@ const LandmarkItem:React.FC<Landmark > = ({
   );
 };
 
-const LigandItem = ({ title, description, ligandData }: { title: string, description: string, ligandData: NonpolymericLigand }) => {
+const LigandItem = ({
+  title,
+  description,
+  ligandData,
+}: {
+  title: string;
+  description: string;
+  ligandData: NonpolymericLigand;
+}) => {
   const ctx = useContext(MolstarContext);
   const { rcsb_id } = useParams();
 
@@ -101,11 +149,10 @@ const LigandItem = ({ title, description, ligandData }: { title: string, descrip
       {/* <DownloadIcon className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700" onClick={(e) => { e.stopPropagation(); ctx?.renderLigand(rcsb_id, title); }} /> */}
       <EyeIcon
         className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-700 "
-
         onClick={(e) => {
           e.stopPropagation();
-          ctx?.create_ligand_and_surroundings(ligandData.chemicalId, 5)
-          ctx?.select_focus_ligand(ligandData.chemicalId, ['select', 'focus']);
+          ctx?.create_ligand_and_surroundings(ligandData.chemicalId, 5);
+          ctx?.select_focus_ligand(ligandData.chemicalId, ["select", "focus"]);
         }}
       />
     </>
@@ -135,4 +182,4 @@ const LigandItem = ({ title, description, ligandData }: { title: string, descrip
   );
 };
 
-export { StructuralComponent, LandmarkItem, LigandItem }
+export { StructuralComponent, LandmarkItem, LigandItem };

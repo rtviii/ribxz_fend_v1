@@ -1,22 +1,32 @@
-"use client"
-import { Button } from "@/components/ui/button"
-import { HoverCardTrigger, HoverCardContent, HoverCard } from "@/components/ui/hover-card"
-import { useAppDispatch, useAppSelector } from "@/store/store"
-import { Input } from "@/components/ui/input"
-import { Select, Space, Tag, Typography } from 'antd';
+"use client";
+import { Button } from "@/components/ui/button";
 import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination"
-import { ChainsByStruct, PolymerByStruct, RibosomeStructure } from "@/store/ribxz_api/ribxz_api"
-import { Separator } from "@radix-ui/react-select"
-import { useContext, useEffect, useState } from "react"
-import { MolstarContext } from "@/components/mstar/molstar_context"
-import { StructureOverview, select_structure } from "@/store/slices/slice_structs_overview"
-
+  HoverCardTrigger,
+  HoverCardContent,
+  HoverCard,
+} from "@/components/ui/hover-card";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { Input } from "@/components/ui/input";
+import { Select, Space, Tag, Typography } from "antd";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  ChainsByStruct,
+  PolymerByStruct,
+  RibosomeStructure,
+} from "@/store/ribxz_api/ribxz_api";
+import { Separator } from "@radix-ui/react-select";
+import { useContext, useEffect, useState } from "react";
+import { MolstarContext } from "@/components/mstar/molstar_context";
+import {
+  StructureOverview,
+  select_structure,
+} from "@/store/slices/slice_structs_overview";
 
 // const StructureComponentsSelection = ({ structure }: { structure: RibosomeStructure }) => {
 
@@ -67,8 +77,6 @@ import { StructureOverview, select_structure } from "@/store/slices/slice_struct
 //     </div>
 // }
 
-
-
 // export default function StructurePicker({ children }: { children?: React.ReactNode }) {
 
 //     const dispatch = useAppDispatch();
@@ -103,15 +111,13 @@ import { StructureOverview, select_structure } from "@/store/slices/slice_struct
 //     )
 // }
 
-
 //! Do "Coordinate" double dropdown for chains
-// It's an input field with its own state 
+// It's an input field with its own state
 // and that can be parametrized by filters but isn't by default
 const { Text } = Typography;
 
-
-import type { SelectProps } from 'antd';
-type LabelRender = SelectProps['labelRender'];
+import type { SelectProps } from "antd";
+type LabelRender = SelectProps["labelRender"];
 const labelRender: LabelRender = (props) => {
   const { label, value } = props;
 
@@ -120,50 +126,72 @@ const labelRender: LabelRender = (props) => {
   }
   return <span>No option match</span>;
 };
-export const GlobalStructureSelection = ({ ...props }: Partial<React.ComponentProps<typeof Select>> = {}) => {
+export const GlobalStructureSelection = ({
+  ...props
+}: Partial<React.ComponentProps<typeof Select>> = {}) => {
+  const structs_overview = useAppSelector(
+    (state) => state.homepage_overview.structures
+  );
+  const selected = useAppSelector((state) => state.homepage_overview.selected);
+  const dispatch = useAppDispatch();
 
-    const structs_overview = useAppSelector(state => state.homepage_overview.structures)
-    const selected         = useAppSelector(state => state.homepage_overview.selected)
-    const dispatch         = useAppDispatch();
+  const filterOption = (input: string, option: any) => {
+    const { S } = option;
+    return (
+      S.rcsb_id.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
+      S.tax_name.toLowerCase().indexOf(input.toLowerCase()) >= 0
+    );
+  };
 
-    const filterOption = (input: string, option: any) => {
-
-        const { S } = option;
-        return (S.rcsb_id.toLowerCase().indexOf(input.toLowerCase()) >= 0 || S.tax_name.toLowerCase().indexOf(input.toLowerCase()) >= 0);
-    };
-
-    return <Select
-        {...props}
-        labelRender={labelRender}
-        showSearch   = {true}
-        placeholder  = "Select a structure"
-        // @ts-ignore
-        onChange     = {(val, struct) => { dispatch(select_structure(struct.S as StructureOverview)) }}
-        value        = {selected?.rcsb_id}
-        style        = {{ width: '100%' }}
-        filterOption = {filterOption}
-        options      = {structs_overview.map(struct_overview => ({
-            value: struct_overview.rcsb_id,
-            label: (
-                <Space direction = "vertical" style = {{ width: '100%' }}>
-                <Space style     = {{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                        <Text strong>{struct_overview.rcsb_id}</Text>
-                        <Space>
-                            {struct_overview.mitochondrial && (
-                                <Text strong style={{ color: 'orange', fontSize: '1em', marginRight: '4px' }}>
-                                    mt
-                                </Text>
-                            )}
-                            <Text>{struct_overview.tax_name}</Text>
-                        </Space>
-                    </Space>
-                    <Text style={{ fontSize: '0.9em', color: '#666' }}>
-                        {struct_overview.title}
-                    </Text>
-                </Space>
-            ),
-            S: struct_overview
-        }))
-        }
+  return (
+    <Select
+      {...props}
+      labelRender={labelRender}
+      showSearch={true}
+      placeholder="Select a structure"
+      // @ts-ignore
+      onChange={(val, struct) => {
+        dispatch(select_structure(struct.S as StructureOverview));
+      }}
+      value={selected?.rcsb_id}
+      style={{ width: "100%" }}
+      filterOption={filterOption}
+      options={structs_overview.map((struct_overview) => ({
+        value: struct_overview.rcsb_id,
+        label: (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Space
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%",
+                alignItems: "center",
+              }}
+            >
+              <Text strong>{struct_overview.rcsb_id}</Text>
+              <Space>
+                {struct_overview.mitochondrial && (
+                  <Text
+                    strong
+                    style={{
+                      color: "orange",
+                      fontSize: "1em",
+                      marginRight: "4px",
+                    }}
+                  >
+                    mt
+                  </Text>
+                )}
+                <Text>{struct_overview.tax_name}</Text>
+              </Space>
+            </Space>
+            <Text style={{ fontSize: "0.9em", color: "#666" }}>
+              {struct_overview.title}
+            </Text>
+          </Space>
+        ),
+        S: struct_overview,
+      }))}
     />
-}
+  );
+};
