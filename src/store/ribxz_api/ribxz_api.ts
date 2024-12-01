@@ -1418,7 +1418,7 @@ export type BindingSiteChain = {
   parent_rcsb_id: string;
   src_organism_names: string[];
   host_organism_names: string[];
-  src_organism_ids: number[];
+  src_organism_ids: number[];// Change this to mutation
   host_organism_ids: number[];
   rcsb_pdbx_description?: string | null;
   entity_poly_strand_id: string;

@@ -47,18 +47,18 @@ import { chainSelectionPreset as ribxzPolymersPreset } from "./providers/polymer
 _.memoize.Cache = WeakMap;
 
 export enum StateElements {
-  Model = "model",
-  ModelProps = "model-props",
-  Assembly = "assembly",
-  VolumeStreaming = "volume-streaming",
-  Sequence = "sequence",
-  SequenceVisual = "sequence-visual",
-  Het = "het",
-  HetVisual = "het-visual",
-  Het3DSNFG = "het-3dsnfg",
-  Water = "water",
-  WaterVisual = "water-visual",
-  HetGroupFocus = "het-group-focus",
+  Model              = "model",
+  ModelProps         = "model-props",
+  Assembly           = "assembly",
+  VolumeStreaming    = "volume-streaming",
+  Sequence           = "sequence",
+  SequenceVisual     = "sequence-visual",
+  Het                = "het",
+  HetVisual          = "het-visual",
+  Het3DSNFG          = "het-3dsnfg",
+  Water              = "water",
+  WaterVisual        = "water-visual",
+  HetGroupFocus      = "het-group-focus",
   HetGroupFocusGroup = "het-group-focus-group",
 }
 
@@ -87,13 +87,8 @@ export class MolstarRibxz {
     this.ctx.representation.structure.registry.add(
       ArbitrarySphereRepresentationProvider
     );
-    this.ctx.builders.structure.representation.registerPreset(
-      ribxzPolymersPreset
-    );
-    this.ctx.canvas3d?.setProps({
-      camera: { helper: { axes: { name: "off", params: {} } } },
-    });
-
+    this.ctx.builders.structure.representation.registerPreset( ribxzPolymersPreset );
+    this.ctx.canvas3d?.setProps({ camera: { helper: { axes: { name: "off", params: {} } } }, });
     // ! set bg color to white
     const rendererParams: any = {
       backgroundColor: Color.fromRgb(255, 255, 255),
@@ -106,12 +101,11 @@ export class MolstarRibxz {
   }
 
   async renderPTC(rcsb_id: string) {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`
-    );
-    const data = await response.json();
-    let [x, y, z] = data["midpoint_coordinates"];
-    let sphere = { x: x, y: y, z: z, radius: 5, color: "blue" };
+
+    const response  = await fetch( `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}` );
+    const data      = await response.json();
+    let   [x, y, z] = data["midpoint_coordinates"];
+    let   sphere    = { x: x, y: y, z: z, radius: 5, color: "blue" };
 
     const structureRef =
       this.ctx.managers.structure.hierarchy.current.structures[0]?.cell
@@ -401,11 +395,6 @@ export class MolstarRibxz {
 
     const model = await this.ctx.builders.structure.createModel(trajectory);
     const structure = await this.ctx.builders.structure.createStructure(model);
-    // const presetStateObjects =
-    //   await this.ctx.builders.structure.hierarchy.applyPreset(
-    //     trajectory,
-    //     "default"
-    //   );
 
     const { components, representations, metadata } =
       await this.ctx.builders.structure.representation.applyPreset(
@@ -413,13 +402,7 @@ export class MolstarRibxz {
         "polymers-ligand-ribxz-theme",
         { structureId: rcsb_id, nomenclature_map }
       );
-    // const st = await this.ctx.builders.structure.hierarchy.applyPreset(
-    //   trajectory,
-    //   "default"
-    // );
     this.stylized();
-
-    // await this.stylized();
     return { ctx: this, struct_representation: null };
   }
 
@@ -1193,9 +1176,9 @@ export class MolstarRibxz {
   // }
 
   makeTransparent() {
-    const sel = MS.struct.generator.all();
+    const sel    = MS.struct.generator.all();
     const struct = this.ctx.managers.structure.hierarchy.current.structures[0];
-    const repr = struct.components[0].representations[0].cell;
+    const repr   = struct.components[0].representations[0].cell;
 
     const { selection } = StructureQueryHelper.createAndRun(
       struct.cell.obj!.data.root,

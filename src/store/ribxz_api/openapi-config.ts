@@ -1,5 +1,4 @@
 import type { ConfigFile } from '@rtk-query/codegen-openapi'
-
 const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../../.env.local" });
 
 const config: ConfigFile = {

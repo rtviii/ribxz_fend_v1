@@ -49,7 +49,6 @@ import { Button } from "@/components/ui/button";
 import { DownloadIcon, EyeIcon, InfoIcon } from "lucide-react";
 import { AuthorsHovercard } from "@/components/ribxz/text_aides/authors_hovercard";
 import { contract_taxname, parseDateString } from "@/my_utils";
-import { Plus, Minus } from "lucide-react";
 import {
   Accordion,
   AccordionItem,
@@ -123,6 +122,7 @@ const InfoRow = ({ title, value }: { title: string; value: ReactNode }) => (
     <div className="text-xs text-gray-800">{value}</div>
   </div>
 );
+
 const StructureHeader = ({
   data,
   isLoading,
@@ -722,102 +722,3 @@ export default function StructurePage({
     </div>
   );
 }
-
-// export default function StructurePage({ params }: { params: { rcsb_id: string } }) {
-
-//     const { rcsb_id } = useParams<{ rcsb_id: string; }>()
-//     const searchParams = useSearchParams()
-//     const ligand_param = searchParams.get('ligand')
-//     const ptc = searchParams.get('ptc')
-//     const { data: ptc_data, isLoading: ptc_data_IsLoading, error: ptc_error } = useRoutersRouterStructStructurePtcQuery({ rcsbId: rcsb_id })
-//     const { data, isLoading, error } = useRoutersRouterStructStructureProfileQuery({ rcsbId: rcsb_id })
-//     const [method, setMethod] = useState<undefined | string>()
-
-//     const molstarNodeRef = useRef<HTMLDivElement>(null);
-//     const [ctx, setCtx] = useState<MolstarRibxz | null>(null)
-
-//     // !Autoload structure
-//     useEffect(() => {
-//         (async () => {
-//             const x = new MolstarRibxz
-//             await x.init(molstarNodeRef.current!)
-//             setCtx(x)
-//         })()
-//     }, [])
-
-//     useEffect(() => {
-//         console.log("Fired off download struct");
-//         ctx?.download_struct(rcsb_id)
-//             .then(({ ctx, struct_representation }) => {
-//                 if (ligand_param != null) {
-//                     ctx.create_ligand(ligand_param!)
-//                 }
-//             })
-//     }, [ctx, ligand_param, rcsb_id])
-
-//     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-//     const leftPanelRef                        = useRef<HTMLDivElement>(null);
-
-//     useEffect(() => {
-//         const resizeObserver = new ResizeObserver((entries) => {
-//             for (let entry of entries) {
-//                 if (entry.target === leftPanelRef.current) {
-//                     setLeftPanelWidth(entry.contentRect.width);
-//                 }
-//             }
-//         });
-
-//         if (leftPanelRef.current) {
-//             resizeObserver.observe(leftPanelRef.current);
-//         }
-
-//         return () => {
-//             resizeObserver.disconnect();
-//         };
-//     }, []);
-//     return (
-//         <div className="flex flex-col h-screen w-screen overflow-hidden">
-//             <div
-//                 className="absolute top-0 left-0 z-10 flex space-x-2"
-//                 style={{ transform: `translateX(${leftPanelWidth}px)` }}
-//             >
-//                 <BookmarkTab label="Bookmark 1" />
-//                 <BookmarkTab label="Bookmark 2" />
-//                 <BookmarkTab label="Bookmark 3" />
-//             </div>
-//             <MolstarContext.Provider value={ctx}>
-//                 <ResizablePanelGroup direction="horizontal">
-//                     <ResizablePanel defaultSize={25} >
-
-//             <div ref={leftPanelRef} className="h-full">
-
-//                         <Card className="h-full flex flex-col border-0 rounded-none">
-//                             <Tabs defaultValue="info" className="w-full">
-
-//                                 <StructureHeader data={data!} isLoading />
-//                                 <CardContent className="flex-grow overflow-hidden p-0 pt-2">
-//                                     <TabsContent value="components">
-//                                         <StructureComponentsTab data={data!} isLoading={isLoading} />
-//                                     </TabsContent>
-
-//                                     <TabsContent value="info" className="px-3">
-//                                         <StructureControlTab data={data!} isLoading={isLoading} />
-//                                     </TabsContent>
-//                                 </CardContent>
-//                             </Tabs>
-//                         </Card>
-// </div>
-//                     </ResizablePanel>
-
-//                     <ResizableHandle className="w-px bg-gray-200" />
-
-//                     <ResizablePanel defaultSize={75}>
-//                         <MolstarNode ref={molstarNodeRef} />
-//                     </ResizablePanel>
-//                 </ResizablePanelGroup>
-
-//             </MolstarContext.Provider>
-//             <SidebarMenu />
-//         </div>
-//     )
-// }

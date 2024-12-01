@@ -6,12 +6,12 @@ import { Loci } from 'molstar/lib/mol-model/structure/structure/element/loci';
 
 type auth_asym_id = string;
 export interface StructurePageState {
-  selected: auth_asym_id[],
-  saved_selections: { [name: string]: auth_asym_id[] },
+  selected                         : auth_asym_id[],
+  saved_selections                 : { [name: string]: auth_asym_id[] },
   current_struct_representation_ref: string | null,
-  tunnel: {
+  tunnel                           : {
     loci: Loci | null
-    ptc: any
+    ptc : any
   },
 }
 

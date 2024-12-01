@@ -193,17 +193,6 @@ type LigandRowProps = [
   LigandAssociatedStructure[],
   LigandAssociatedTaxa
 ];
-const LigandTableRow = (props: LigandRowProps) => {
-  const ctx = useAppSelector((state) => state.molstar.ui_plugin);
-  return (
-    <TableRow
-      className=" hover:bg-slate-100 "
-      // onClick={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : selectChain(ctx!, polymer.auth_asym_id) } : undefined}
-      // onMouseEnter={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : highlightChain(ctx, polymer.asym_ids[0]) } : undefined}
-      // onMouseLeave={props.connect_to_molstar_ctx ? () => { ctx == undefined ? console.log("Plugin is still loading") : removeHighlight(ctx!) } : undefined}
-    ></TableRow>
-  );
-};
 
 const lig_data_to_tree = (lig_data: LigandInstances) => {
   return lig_data.map(([lig, structs]) => ({

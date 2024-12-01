@@ -36,10 +36,7 @@ const StructuralComponent: React.FC<StructuralComponentProps> = ({
 }) => {
   return (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem
-        value={title}
-        className="border rounded-md overflow-hidden"
-      >
+      <AccordionItem value={title} className="border rounded-md overflow-hidden" >
         <AccordionTrigger className="hover:no-underline py-2 px-4">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center space-x-2 text-left">
@@ -47,9 +44,7 @@ const StructuralComponent: React.FC<StructuralComponentProps> = ({
               <p className="text-xs text-gray-500 italic">{description}</p>
             </div>
             <div className="flex items-center space-x-2 ml-4">
-              {annotation && (
-                <span className="text-xs text-green-500">{annotation}</span>
-              )}
+              {annotation && ( <span className="text-xs text-green-500">{annotation}</span> )}
               {actions}
             </div>
           </div>

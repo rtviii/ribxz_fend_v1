@@ -2,7 +2,7 @@
 import { configureStore, createAsyncThunk, createListenerMiddleware } from '@reduxjs/toolkit'
 import { ribxz_api } from './ribxz_api/ribxz_api'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'
-import { molstarListenerMiddleware, molstarSlice } from './slices/slice_molstar'
+// import { molstarListenerMiddleware, molstarSlice } from './slices/slice_molstar'
 import { fetchPredictionData, prefetchLigandsData, uiSlice } from './slices/ui_reducer'
 import { allStructuresOverviewSlice, prefetchAllStructsOverview } from './slices/slice_structs_overview'
 import { prefetchStructuresData, structuresApi } from './ribxz_api/structures_api'
@@ -16,7 +16,7 @@ export const makeStore = () => {
   const store =  configureStore({
     reducer: {
       [ribxz_api.reducerPath]    : ribxz_api.reducer,
-      molstar                    : molstarSlice.reducer,
+      // molstar                    : molstarSlice.reducer,
       ui                         : uiSlice.reducer,
       homepage_overview          : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
       structure_page             : structurePageSlice.reducer,
@@ -28,7 +28,7 @@ export const makeStore = () => {
     },
 
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
-    .prepend(molstarListenerMiddleware.middleware)
+    // .prepend(molstarListenerMiddleware.middleware)
     .concat(ribxz_api.middleware)
     .concat(structuresApi.middleware), 
   })

@@ -102,11 +102,9 @@ const initialState: UIState = {
 // -   dispatch update the moment any set_filter changes (that means set new count, set page to 1)
 // -   dispatch pagination update the moment a page changes 
 
-
 // Create the middleware instance and methods
 const UIUpdateListenerMiddelware = createListenerMiddleware()
 
-// const [triggerRefetch, { data, error }] = ribxz_api.endpoints.routersRouterStructFilterList.useLazyQuery()
 export const uiSlice = createSlice({
     name: 'ui',
     initialState,
@@ -254,10 +252,6 @@ export const {
 
 } = uiSlice.actions
 export default uiSlice.reducer
-
-
-
-
 
 
 
