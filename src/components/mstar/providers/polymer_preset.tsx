@@ -293,7 +293,6 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             );
 
             if (component) {
-                components[`chain-${chainId}`] = component;
                 const representation = await plugin.builders.structure.representation.addRepresentation(component, {
                     type: 'cartoon',
                     color: 'uniform',
@@ -302,7 +301,8 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                     }
                 });
 
-                representations[`chain-${chainId}`] = representation;
+                components[`${chainId}`]      = component;
+                representations[`${chainId}`] = representation;
             }
         }
 
@@ -324,7 +324,6 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             );
 
             if (component) {
-                components[`ligand-${ligandId}`] = component;
 
                 const representation = await plugin.builders.structure.representation.addRepresentation(component, {
                     type: 'ball-and-stick',
@@ -335,7 +334,8 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                     }
                 });
 
-                representations[`ligand-${ligandId}`] = representation;
+                components[`${ligandId}`] = component;
+                representations[`${ligandId}`] = representation;
             }
         }
 

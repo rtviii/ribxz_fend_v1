@@ -71,10 +71,7 @@ export class ribxzMstarv2 {
         ): Promise<{
             root_ref: string;
             repr_ref: string;
-            components: {
-                ligand: LigandComponent[];
-                polymer: PolymerComponent[];
-            };
+            components: Record<string, PolymerComponent | LigandComponent>;
         }> => {
             let asset_url: string;
             asset_url = `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`;

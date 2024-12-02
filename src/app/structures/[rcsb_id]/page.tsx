@@ -457,14 +457,14 @@ const BookmarkTab = ({label, onClick}: {label: string; onClick: () => void}) => 
 );
 
 export default function StructurePage({params}: {params: {rcsb_id: string}}) {
-    const molstarNodeRef                      = useRef<HTMLDivElement>(null);
-    const {rcsb_id}                           = params;
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const {rcsb_id} = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-    const state                               = useAppSelector(state => state);
-    const dispatch                            = useAppDispatch();
+    const state = useAppSelector(state => state);
+    const dispatch = useAppDispatch();
 
-    const [ctx, setCtx]                       = useState<ribxzMstarv2 | null>(null);
-    const [msc, setMsc]                       = useState<MolstarStateController | null>(null);
+    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
+    const [msc, setMsc] = useState<MolstarStateController | null>(null);
 
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
 
@@ -497,16 +497,15 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
         if (data === undefined) {
             return;
         }
-        console.log("Running this usefeeftct");
-        
+        console.log('Running this usefeeftct');
 
         const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
             (prev: Record<string, string>, current: Polymer) => {
                 prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
                 return prev;
-            }, {}
+            },
+            {}
         );
-
         msc?.loadStructure(dispatch, rcsb_id, nomenclature_map);
     }, [ctx, data]);
 

@@ -17,7 +17,7 @@ export type SubComponent = PolymerComponent | LigandComponent;
 interface HandleReferencesState {
     handle_root_ref_map: Record<string, string>;
     handle_repr_ref_map: Record<string, string>;
-    handle_model_components_map: Record<string, { polymer: PolymerComponent[]; ligand: LigandComponent[] }>;
+    handle_model_components_map: Record<string, Record<string, LigandComponent |PolymerComponent>>;
 }
 
 const initialState: HandleReferencesState = {
@@ -48,11 +48,11 @@ export const handleReferencesSlice = createSlice({
             state,
             action: PayloadAction<{
                 handle: string;
-                components: { polymer: PolymerComponent[]; ligand: LigandComponent[] };
+                components: Record<string, LigandComponent |PolymerComponent>
             }>
         ) => {
-            console.log("got some payload");
-
+            console.log("Received components", action.payload.components);
+            
             return {
                 ...state,
                 handle_model_components_map: {
@@ -67,18 +67,37 @@ export const handleReferencesSlice = createSlice({
         mapAssetModelComponentsDeleteAll: (state, action: PayloadAction<string>) => {
             delete state.handle_model_components_map[action.payload];
         },
+
         mapAssetModelComponentsPop: (
             state,
             action: PayloadAction<{ handle: string; component: SubComponent }>
         ) => {
             const currentComponents = state.handle_model_components_map[action.payload.handle];
             if (currentComponents) {
-                state.handle_model_components_map[action.payload.handle] = {
-                    polymer: currentComponents.polymer.filter(c => c !== action.payload.component),
-                    ligand: currentComponents.ligand.filter(c => c !== action.payload.component)
-                };
+                state.handle_model_components_map[action.payload.handle] =
+                    Object.fromEntries(
+                        Object.entries(currentComponents)
+                            .map(([key, components]) => [
+                                key,
+                                Array.isArray(components)
+                                    ? components.filter(c => c !== action.payload.component)
+                                    : components
+                            ])
+                    );
             }
         }
+        // mapAssetModelComponentsPop: (
+        //     state,
+        //     action: PayloadAction<{ handle: string; component: SubComponent }>
+        // ) => {
+        //     const currentComponents = state.handle_model_components_map[action.payload.handle];
+        //     if (currentComponents) {
+        //         state.handle_model_components_map[action.payload.handle] = {
+        //             polymer: currentComponents.polymer.filter(c => c !== action.payload.component),
+        //             ligand: currentComponents.ligand.filter(c => c !== action.payload.component)
+        //         };
+        //     }
+        // }
     }
 });
 
@@ -89,7 +108,7 @@ export const {
     mapAssetReprRefDelete,
     mapAssetModelComponentsAdd,
     mapAssetModelComponentsDeleteAll,
-    mapAssetModelComponentsPop
+    // mapAssetModelComponentsPop
 } = handleReferencesSlice.actions;
 
 export default handleReferencesSlice.reducer;
