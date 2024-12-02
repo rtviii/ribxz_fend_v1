@@ -101,13 +101,12 @@ export class ribxzMstarv2 {
                     structureId: rcsb_id,
                     nomenclature_map 
                 });
-
             structure_components = metadata;
             this.representations.stylized_lighting();
             return {
                 root_ref: structure.ref,
                 repr_ref: structure.ref,
-                components: structure_components
+                components
             };
         }
     };

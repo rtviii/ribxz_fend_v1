@@ -1,9 +1,9 @@
 'use client'
 import { createContext , useState} from "react";
-import { MolstarRibxz } from "./molstar_ribxz";
+import { ribxzMstarv2 } from "./mstarv2";
 
-export const MolstarContext = createContext<null | MolstarRibxz>(null);
-export default function MolstarContextProvider({ children, value }:{children:React.ReactNode, value: null | MolstarRibxz}) {
+export const MolstarContext = createContext<null | ribxzMstarv2>(null);
+export default function MolstarContextProvider({ children, value }:{children:React.ReactNode, value: null | ribxzMstarv2}) {
   return (
     <MolstarContext.Provider value={value}>
       {children}

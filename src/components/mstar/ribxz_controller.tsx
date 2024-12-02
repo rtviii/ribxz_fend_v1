@@ -1,6 +1,13 @@
 import { mapAssetModelComponentsAdd, mapAssetReprRefAdd, mapAssetRootRefAdd } from "@/store/molstar/slice_refs";
 import { ribxzMstarv2 } from "./mstarv2";
 import { AppDispatch } from "@/store/store";
+import { v5 as uuidv5 } from 'uuid';
+
+export function createAssetHandle(asset_value: string): string {
+    //just random hash
+    const namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+    return uuidv5(asset_value, namespace);
+}
 
 
 export class MolstarStateController {
@@ -13,11 +20,16 @@ export class MolstarStateController {
     this.dispatch      = dispatch
   }
 
-  async loadStructure(asset: { handle: string; rcsb_id: string }, nomenclature_map: Record<string, string>) {
-    const { root_ref, repr_ref, components } = await this.molstarViewer.components.upload_mmcif_structure(asset.rcsb_id, nomenclature_map);
-    this.dispatch(mapAssetModelComponentsAdd({ handle: asset.handle, components }));
-    this.dispatch(mapAssetRootRefAdd([asset.handle, root_ref]));
-    this.dispatch(mapAssetReprRefAdd([asset.handle, repr_ref]));
+  async loadStructure(rcsb_id:string, nomenclature_map: Record<string, string>) {
+    const handle = createAssetHandle(rcsb_id);
+    const { root_ref, repr_ref, components } = await this.molstarViewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
+    console.log("Got components");
+    console.log(components);
+    
+    
+    this.dispatch(mapAssetModelComponentsAdd({ handle: handle, components }));
+    this.dispatch(mapAssetRootRefAdd([handle, root_ref]));
+    this.dispatch(mapAssetReprRefAdd([handle, repr_ref]));
     return { root_ref, repr_ref, components };
   }
 

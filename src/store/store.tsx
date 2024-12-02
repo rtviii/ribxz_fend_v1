@@ -12,6 +12,9 @@ import { polymers_slice } from './slices/slice_polymers'
 import { polymersApi } from './ribxz_api/polymers_api'
 import { HomepageSlice } from './slices/slice_homepage'
 
+import { handleReferencesSlice } from './molstar/slice_refs'
+import { sequenceViewerSlice } from './molstar/slice_seq_viewer'
+
 export const makeStore = () => {
   const store =  configureStore({
     reducer: {
@@ -24,6 +27,9 @@ export const makeStore = () => {
       homepage                   : HomepageSlice.reducer,
       [structuresApi.reducerPath]: structuresApi.reducer,
       [polymersApi.reducerPath]  : polymersApi.reducer,
+
+      mstar_refs                 : handleReferencesSlice.reducer,
+      mstar_seq_viewer           : sequenceViewerSlice.reducer,
     },
 
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })

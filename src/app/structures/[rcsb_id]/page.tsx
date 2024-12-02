@@ -272,7 +272,7 @@ const availableLandmarks = {
 
 const TunnelLandmarkComponent: React.FC<{
     rcsb_id: string;
-    ctx: MolstarRibxz;
+    ctx: ribxzMstarv2;
 }> = ({rcsb_id, ctx}) => {
     const tunnel_loci = useAppSelector(state => state.structure_page.tunnel.loci);
     const dispatch = useAppDispatch();
@@ -461,6 +461,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     const {rcsb_id} = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
     const dispatch = useAppDispatch();
+    const mosltar_state = useAppSelector(state=>state)
     const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
     const [msc, setMsc] = useState<MolstarStateController | null>(null);
 
@@ -501,7 +502,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
             {}
         );
 
-        msc?.loadStructure({handle: rcsb_id, rcsb_id: rcsb_id}, nomenclature_map);
+        msc?.loadStructure(rcsb_id, nomenclature_map);
         // console.log('Fired off download struct', nomenclature_map);
         // ctx?.ctx.clear();
         // const {root_ref, repr_ref, components } = await ctx?.components.upload_mmcif_structure(data.rcsb_id, nomenclature_map)!;
@@ -562,6 +563,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                         <div ref={leftPanelRef} className="h-full">
                             <Card className="h-full flex flex-col border-0 rounded-none">
                                 <Tabs defaultValue="info" className="w-full">
+                                  <Button onClick={()=>{console.log(mosltar_state)}}> log state</Button>
                                     <StructureHeader data={data!} isLoading={isLoading} />
                                     <CardContent className="flex-grow overflow-hidden p-0 pt-2">
                                         <TabsContent value="components">
