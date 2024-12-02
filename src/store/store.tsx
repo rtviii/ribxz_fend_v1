@@ -16,7 +16,6 @@ export const makeStore = () => {
   const store =  configureStore({
     reducer: {
       [ribxz_api.reducerPath]    : ribxz_api.reducer,
-      // molstar                    : molstarSlice.reducer,
       ui                         : uiSlice.reducer,
       homepage_overview          : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
       structure_page             : structurePageSlice.reducer,
@@ -28,7 +27,6 @@ export const makeStore = () => {
     },
 
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
-    // .prepend(molstarListenerMiddleware.middleware)
     .concat(ribxz_api.middleware)
     .concat(structuresApi.middleware), 
   })

@@ -248,9 +248,9 @@ function getLigands(structure: Structure) {
 export const chainSelectionPreset = StructureRepresentationPresetProvider({
   id: "polymers-ligand-ribxz-theme",
   display: {
-    name: "Split Components",
-    group: "ribxz",
-    description:
+    name       : "Split Components",
+    group      : "ribxz",
+    description: 
       "Shows each polymer chain and ligand as separate selectable components.",
   },
   params: () => ({
@@ -272,9 +272,6 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
       );
     const idPrefix = params.structureId ? `${params.structureId}-` : "";
     const nommap = params.nomenclature_map;
-    console.log("Got nomenclature_map, " ,nommap);
-    
-
     const chains = new Set<string>();
 
     for (const unit of structure.units) {
@@ -315,9 +312,7 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
         );
 
       if (component) {
-        console.log("nommap chainid: , ", chainId, "->",nommap[chainId]);
         
-        console.log("Will paint ", chainId, " color: " ,ribxzPolymerColorScheme[nommap[chainId]]);
         
         components[`chain-${chainId}`] = component;
         const representation =
