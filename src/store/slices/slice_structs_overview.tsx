@@ -33,11 +33,6 @@ export const allStructuresOverviewSlice = createSlice({
         Object.assign(state, {selected: action.payload})
     }
   },
-  extraReducers: (builder) => {
-    // builder.addCase(initiatePluginUIContext.fulfilled, (state, action) => {
-    //   Object.assign(state, { ui_plugin: action.payload })
-    // })
-  }
 })
 
 export const {

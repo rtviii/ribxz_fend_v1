@@ -50,11 +50,6 @@ export const structurePageSlice = createSlice({
     }
 
   },
-  extraReducers: (builder) => {
-    // builder.addCase(initiatePluginUIContext.fulfilled, (state, action) => {
-    //   Object.assign(state, { ui_plugin: action.payload })
-    // })
-  }
 })
 
 export const {
