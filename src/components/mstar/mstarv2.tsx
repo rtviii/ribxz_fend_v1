@@ -77,12 +77,6 @@ export class ribxzMstarv2 {
             };
         }> => {
             let asset_url: string;
-            let structure_components = {
-                ligand: [],
-                polymer: []
-            };
-
-
             asset_url = `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`;
             const data = await this.ctx.builders.data.download(
                 {
@@ -96,12 +90,10 @@ export class ribxzMstarv2 {
             const model      = await this.ctx.builders.structure.createModel(trajectory);
             const structure  = await this.ctx.builders.structure.createStructure(model);
 
-            console.log(this.ctx.builders.structure.representation);
-            const {components, representations, metadata} = await this.ctx.builders.structure.representation.applyPreset(structure.ref, 'polymers-ligand-ribxz-theme', {
+            const {components, representations} = await this.ctx.builders.structure.representation.applyPreset(structure.ref, 'polymers-ligand-ribxz-theme', {
                     structureId: rcsb_id,
                     nomenclature_map 
                 });
-            structure_components = metadata;
             this.representations.stylized_lighting();
             return {
                 root_ref: structure.ref,

@@ -10,9 +10,9 @@ import {
     useRoutersRouterStructStructureProfileQuery,
     useRoutersRouterStructStructurePtcQuery
 } from '@/store/ribxz_api/ribxz_api';
-import { useSearchParams} from 'next/navigation';
+import {useSearchParams} from 'next/navigation';
 import PolymersTable from '@/components/ribxz/polymer_table';
-import { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 import {MolstarRibxz} from '@/components/mstar/molstar_ribxz';
 import {MolstarNode} from '@/components/mstar/lib';
@@ -29,7 +29,7 @@ import {
 import {Button} from '@/components/ui/button';
 import {DownloadIcon, EyeIcon, InfoIcon} from 'lucide-react';
 import {AuthorsHovercard} from '@/components/ribxz/text_aides/authors_hovercard';
-import { parseDateString} from '@/my_utils';
+import {parseDateString} from '@/my_utils';
 import {Accordion} from '@/components/ui/accordion';
 import {LandmarkItem, LigandItem} from './structural_component';
 import {LandmarkActions, downloadPlyFile} from '@/app/landmarks/types';
@@ -42,8 +42,8 @@ import {
 } from '@/store/slices/slice_structure_page';
 import {cn} from '@/components/utils';
 import {useUserInputPrompt} from './user_input_prompt';
-import { ribxzMstarv2 } from '@/components/mstar/mstarv2';
-import { MolstarStateController } from '@/components/mstar/ribxz_controller';
+import {ribxzMstarv2} from '@/components/mstar/mstarv2';
+import {MolstarStateController} from '@/components/mstar/ribxz_controller';
 
 const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
     if (a.nomenclature.length === 0 || b.nomenclature.length === 0) {
@@ -290,8 +290,8 @@ const TunnelLandmarkComponent: React.FC<{
         },
         on_click: () => {
             console.log(tunnel_loci);
-            ctx.ctx.managers.structure.selection.fromLoci('add', tunnel_loci[0]);
-            ctx.ctx.managers.camera.focusLoci(tunnel_loci);
+            // ctx.ctx.managers.structure.selection.fromLoci('add', tunnel_loci[0]);
+            // ctx.ctx.managers.camera.focusLoci(tunnel_loci);
         }
     };
     return <LandmarkItem {...availableLandmarks['NPET']} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions} />;
@@ -311,15 +311,15 @@ const StructureEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; i
 
     const createNewSelection = async () => {
         const name = promptForNewBookmark();
-        await ctx?.create_multiple_polymers(selected_polymers, name);
+        // await ctx?.create_multiple_polymers(selected_polymers, name);
         dispatch(snapshot_selection({[name]: selected_polymers}));
     };
 
     const createBindingSite = async () => {
         const bsite_name = promptForBindingSiteName();
         selected_polymers;
-        const expr = ctx?.expression_polymers_selection(selected_polymers);
-        await ctx?.create_neighborhood_selection_from_expr(expr!);
+        // const expr = ctx?.expression_polymers_selection(selected_polymers);
+        // await ctx?.create_neighborhood_selection_from_expr(expr!);
 
         // await ctx?.create_multiple_polymers(selected_polymers, name)
         // dispatch(snapshot_selection({[ name ]:selected_polymers}))
@@ -336,7 +336,7 @@ const StructureEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; i
                     size="sm"
                     className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
                     onClick={() => {
-                        ctx?.toggle_visibility_by_ref();
+                        // ctx?.toggle_visibility_by_ref();
                     }}>
                     Toggle Structure
                 </Button>
@@ -346,7 +346,7 @@ const StructureEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; i
                     size="sm"
                     className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
                     onClick={() => {
-                        ctx?.select_multiple_polymers(selected_polymers, 'remove');
+                        // ctx?.select_multiple_polymers(selected_polymers, 'remove');
                         dispatch(clear_selection(null));
                         ctx?.ctx.managers.structure.selection.clear();
                     }}>
@@ -383,13 +383,13 @@ const StructureEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; i
                             isSelected={selected_polymers.includes(component.auth_asym_id)}
                             onClick={() => {
                                 toggleComponent(component.auth_asym_id);
-                                ctx?.select_chain(
-                                    component.auth_asym_id,
-                                    selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add'
-                                );
+                                // ctx?.select_chain(
+                                //     component.auth_asym_id,
+                                //     selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add'
+                                // );
                             }}
-                            onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
-                            onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
+                            // onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
+                            // onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
                         />
                     ))}
 
@@ -405,11 +405,11 @@ const StructureEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; i
                             type={'protein'}
                             isSelected={selected_polymers.includes(component.auth_asym_id)}
                             onClick={() => {
-                                toggleComponent(component.auth_asym_id);
-                                ctx?.select_chain(
-                                    component.auth_asym_id,
-                                    selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add'
-                                );
+                                // toggleComponent(component.auth_asym_id);
+                                // ctx?.select_chain(
+                                //     component.auth_asym_id,
+                                //     selected_polymers.includes(component.auth_asym_id) ? 'remove' : 'add'
+                                // );
                             }}
                             onMouseEnter={ctx ? () => ctx.highlightChain(component.auth_asym_id) : undefined}
                             onMouseLeave={ctx ? () => ctx.removeHighlight() : undefined}
@@ -434,7 +434,7 @@ const StructureEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; i
                 <Button
                     onClick={() => {
                         (async () => {
-                            await ctx?.create_neighborhood_selection_from_expr(ctx?.select_expression('j'));
+                            // await ctx?.create_neighborhood_selection_from_expr(ctx?.select_expression('j'));
                         })();
                     }}></Button>
             </div>
@@ -457,13 +457,14 @@ const BookmarkTab = ({label, onClick}: {label: string; onClick: () => void}) => 
 );
 
 export default function StructurePage({params}: {params: {rcsb_id: string}}) {
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const {rcsb_id} = params;
+    const molstarNodeRef                      = useRef<HTMLDivElement>(null);
+    const {rcsb_id}                           = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-    const dispatch = useAppDispatch();
-    const mosltar_state = useAppSelector(state=>state)
-    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
-    const [msc, setMsc] = useState<MolstarStateController | null>(null);
+    const state                               = useAppSelector(state => state);
+    const dispatch                            = useAppDispatch();
+
+    const [ctx, setCtx]                       = useState<ribxzMstarv2 | null>(null);
+    const [msc, setMsc]                       = useState<MolstarStateController | null>(null);
 
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
 
@@ -477,14 +478,18 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     } = useRoutersRouterStructStructurePtcQuery({rcsbId: rcsb_id});
     const [method, setMethod] = useState<undefined | string>();
 
+    const selections = useAppSelector(state => state.structure_page.saved_selections);
+
+    const bookmarks = Object.keys(selections);
 
     // !Autoload structure
     useEffect(() => {
         (async () => {
             const x = new ribxzMstarv2();
             await x.init(molstarNodeRef.current!);
-            setMsc(new MolstarStateController(x,dispatch));
+            const y = new MolstarStateController(x);
             setCtx(x);
+            setMsc(y);
         })();
     }, []);
 
@@ -492,25 +497,18 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
         if (data === undefined) {
             return;
         }
+        console.log("Running this usefeeftct");
         
 
         const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
             (prev: Record<string, string>, current: Polymer) => {
                 prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
                 return prev;
-            },
-            {}
+            }, {}
         );
 
-        msc?.loadStructure(rcsb_id, nomenclature_map);
-        // console.log('Fired off download struct', nomenclature_map);
-        // ctx?.ctx.clear();
-        // const {root_ref, repr_ref, components } = await ctx?.components.upload_mmcif_structure(data.rcsb_id, nomenclature_map)!;
-
-
-
-
-    }, [ctx, ligand_param, rcsb_id, data]);
+        msc?.loadStructure(dispatch, rcsb_id, nomenclature_map);
+    }, [ctx, data]);
 
     const resizeObserver = useCallback(() => {
         return new ResizeObserver(entries => {
@@ -533,13 +531,6 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
         [resizeObserver]
     );
 
-    const selections = useAppSelector(state => state.structure_page.saved_selections);
-    useEffect(() => {
-        console.log(selections);
-    }, [selections]);
-
-    const bookmarks = Object.keys(selections);
-
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <div
@@ -551,7 +542,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                         label={bookmark}
                         onClick={() => {
                             ctx?.ctx.managers.structure.selection.clear();
-                            ctx?.select_multiple_polymers(selections[bookmark], 'add');
+                            // ctx?.select_multiple_polymers(selections[bookmark], 'add');
                         }}
                     />
                 ))}
@@ -563,7 +554,13 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                         <div ref={leftPanelRef} className="h-full">
                             <Card className="h-full flex flex-col border-0 rounded-none">
                                 <Tabs defaultValue="info" className="w-full">
-                                  <Button onClick={()=>{console.log(mosltar_state)}}> log state</Button>
+                                    <Button
+                                        onClick={() => {
+                                            console.log(state);
+                                        }}>
+                                        {' '}
+                                        log state
+                                    </Button>
                                     <StructureHeader data={data!} isLoading={isLoading} />
                                     <CardContent className="flex-grow overflow-hidden p-0 pt-2">
                                         <TabsContent value="components">

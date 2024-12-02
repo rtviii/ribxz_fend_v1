@@ -2,22 +2,22 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ResidueData } from './slice_seq_viewer';
 
 export interface PolymerComponent {
-    type        : 'Polymer';
-    ref         : string;
+    type: 'Polymer';
+    ref: string;
     auth_asym_id: string;
-    sequence    : ResidueData[];
+    sequence: ResidueData[];
 }
 export interface LigandComponent {
-    type      : 'Ligand';
+    type: 'Ligand';
     chemicalId: string;
-    ref       : string;
+    ref: string;
 }
 
 export type SubComponent = PolymerComponent | LigandComponent;
 interface HandleReferencesState {
     handle_root_ref_map: Record<string, string>;
     handle_repr_ref_map: Record<string, string>;
-    handle_model_components_map: Record<string,{ polymer: PolymerComponent[]; ligand: LigandComponent[] }>;
+    handle_model_components_map: Record<string, { polymer: PolymerComponent[]; ligand: LigandComponent[] }>;
 }
 
 const initialState: HandleReferencesState = {
@@ -32,6 +32,8 @@ export const handleReferencesSlice = createSlice({
     reducers: {
         mapAssetRootRefAdd: (state, action: PayloadAction<[string, string]>) => {
             state.handle_root_ref_map[action.payload[0]] = action.payload[1];
+            console.log("Added root ref", action.payload[0], action.payload[1]);
+
         },
         mapAssetRootRefDelete: (state, action: PayloadAction<string>) => {
             delete state.handle_root_ref_map[action.payload];
@@ -43,19 +45,30 @@ export const handleReferencesSlice = createSlice({
             delete state.handle_repr_ref_map[action.payload];
         },
         mapAssetModelComponentsAdd: (
-            state, 
+            state,
             action: PayloadAction<{
                 handle: string;
                 components: { polymer: PolymerComponent[]; ligand: LigandComponent[] };
             }>
         ) => {
-            state.handle_model_components_map[action.payload.handle] = action.payload.components;
+            console.log("got some payload");
+
+            return {
+                ...state,
+                handle_model_components_map: {
+                    ...state.handle_model_components_map,
+                    [action.payload.handle]: {
+                        ligand: action.payload.components.ligand,
+                        polymer: action.payload.components.polymer
+                    }
+                }
+            }
         },
         mapAssetModelComponentsDeleteAll: (state, action: PayloadAction<string>) => {
             delete state.handle_model_components_map[action.payload];
         },
         mapAssetModelComponentsPop: (
-            state, 
+            state,
             action: PayloadAction<{ handle: string; component: SubComponent }>
         ) => {
             const currentComponents = state.handle_model_components_map[action.payload.handle];

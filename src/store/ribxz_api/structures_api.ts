@@ -7,7 +7,7 @@ export const structuresApi = createApi({
   reducerPath: 'structures_api',
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_DJANGO_URL }),
   endpoints: (builder) => ({
-    getStructures: builder.mutation({  
+    getStructures: builder.mutation({
       query: (args) => ({
         url: 'structures/list_structures',
         method: 'POST',
@@ -28,14 +28,13 @@ export const prefetchStructuresData = createAsyncThunk('prefetch_structures_data
 
     if ('data' in result) {
       const { next_cursor, structures, total_count } = result.data;
-      const last_date  = structures.filter(( x:RibosomeStructure )=>x.deposition_date !== undefined)[0].deposition_date
-      
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-      year : 'numeric',
-      month: 'long',
-      day  : 'numeric'
-  }).format(new Date(last_date));
+      const last_date = structures.filter((x: RibosomeStructure) => x.deposition_date !== undefined)[0].deposition_date
 
+      const formattedDate = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(new Date(last_date));
       dispatch(set_last_db_update(formattedDate));
       dispatch(set_current_structures(structures));
       dispatch(set_structures_cursor(next_cursor));

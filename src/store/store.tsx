@@ -20,6 +20,7 @@ export const makeStore = () => {
     reducer: {
       [ribxz_api.reducerPath]    : ribxz_api.reducer,
       ui                         : uiSlice.reducer,
+
       homepage_overview          : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
       structure_page             : structurePageSlice.reducer,
       structures_page            : structures_slice.reducer,
