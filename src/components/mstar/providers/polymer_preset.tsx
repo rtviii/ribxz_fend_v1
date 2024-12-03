@@ -301,7 +301,7 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                     }
                 });
 
-                components[`${chainId}`]      = component;
+                components[`${chainId}`]      = component
                 representations[`${chainId}`] = representation;
             }
         }
@@ -334,7 +334,7 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                     }
                 });
 
-                components[`${ligandId}`] = component;
+                components[`${ligandId}`] = component
                 representations[`${ligandId}`] = representation;
             }
         }

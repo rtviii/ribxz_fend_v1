@@ -23,6 +23,7 @@ import {LigandComponent, PolymerComponent} from '@/store/molstar/slice_refs';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {compile} from 'molstar/lib/mol-script/runtime/query/base';
 import {StateElements} from './molstar_ribxz';
+import {StateObjectSelector} from 'molstar/lib/mol-state';
 
 // How should the objects be stored? What kind of selections and operations do we like to make a lot?
 
@@ -67,7 +68,7 @@ export class ribxzMstarv2 {
     components = {
         upload_mmcif_structure: async (
             rcsb_id: string,
-            nomenclature_map:Record<string,string>
+            nomenclature_map: Record<string, string>
         ): Promise<{
             root_ref: string;
             repr_ref: string;
@@ -84,18 +85,23 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model      = await this.ctx.builders.structure.createModel(trajectory);
-            const structure  = await this.ctx.builders.structure.createStructure(model);
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
 
-            const {components, representations} = await this.ctx.builders.structure.representation.applyPreset(structure.ref, 'polymers-ligand-ribxz-theme', {
+            const {components, representations} = await this.ctx.builders.structure.representation.applyPreset(
+                structure.ref,
+                'polymers-ligand-ribxz-theme',
+                {
                     structureId: rcsb_id,
-                    nomenclature_map 
-                });
+                    nomenclature_map
+                }
+            );
+
             this.representations.stylized_lighting();
             return {
                 root_ref: structure.ref,
                 repr_ref: structure.ref,
-                components
+                components: Object.fromEntries(Object.entries(components).map(([k, v]) => [k, v.ref]))
             };
         }
     };

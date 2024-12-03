@@ -17,7 +17,7 @@ export type SubComponent = PolymerComponent | LigandComponent;
 interface HandleReferencesState {
     handle_root_ref_map: Record<string, string>;
     handle_repr_ref_map: Record<string, string>;
-    handle_model_components_map: Record<string, Record<string, LigandComponent | PolymerComponent>>;
+    handle_model_components_map: Record<string, Record<string, string>>;
 }
 
 const initialState: HandleReferencesState = {
@@ -48,43 +48,17 @@ export const handleReferencesSlice = createSlice({
             state,
             action: PayloadAction<{
                 handle: string;
-                components: Record<string, LigandComponent | PolymerComponent>
+                components: Record<string, string>;
             }>
         ) => {
 
-            return {
-                ...state,
-                handle_model_components_map: {
-                    ...state.handle_model_components_map,
-                    [action.payload.handle]: {
-                        ligand: action.payload.components.ligand,
-                        polymer: action.payload.components.polymer
-                    }
-                }
-            }
+
+            state.handle_model_components_map[action.payload.handle] = action.payload.components;
         },
         mapAssetModelComponentsDeleteAll: (state, action: PayloadAction<string>) => {
             delete state.handle_model_components_map[action.payload];
         },
 
-        mapAssetModelComponentsPop: (
-            state,
-            action: PayloadAction<{ handle: string; component: SubComponent }>
-        ) => {
-            const currentComponents = state.handle_model_components_map[action.payload.handle];
-            if (currentComponents) {
-                state.handle_model_components_map[action.payload.handle] =
-                    Object.fromEntries(
-                        Object.entries(currentComponents)
-                            .map(([key, components]) => [
-                                key,
-                                Array.isArray(components)
-                                    ? components.filter(c => c !== action.payload.component)
-                                    : components
-                            ])
-                    );
-            }
-        }
         // mapAssetModelComponentsPop: (
         //     state,
         //     action: PayloadAction<{ handle: string; component: SubComponent }>
