@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {cn} from '@/components/utils';
 
 import {Eye, EyeOff, Square, CheckSquare} from 'lucide-react';
 import {Polymer} from '@/store/ribxz_api/ribxz_api';
 import ribxzPolymerColorScheme from '@/components/mstar/providers/colorscheme';
 import {Color} from 'molstar/lib/mol-util/color';
+import {MolstarContext} from '@/components/mstar/molstar_context';
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
@@ -20,6 +21,7 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({
     onToggleVisibility
 }) => {
     const [showContent, setShowContent] = useState(false);
+    const ctx = useContext(MolstarContext);
 
     const color = polymer.nomenclature.length > 0 ? ribxzPolymerColorScheme[polymer.nomenclature[0]] : 'gray';
     const hexcol = Color.toHexStyle(color);
@@ -34,7 +36,9 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({
                 <div className="flex items-center space-x-2">
                     <div
                         style={{backgroundColor: hexcol}}
-                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold transition-colors ${color === 'gray' ? "text-black":'text-white'}`}>
+                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold transition-colors ${
+                            color === 'gray' ? 'text-black' : 'text-white'
+                        }`}>
                         {polymer.nomenclature.length > 0 ? polymer.nomenclature[0] : polymer.auth_asym_id}
                     </div>
                 </div>

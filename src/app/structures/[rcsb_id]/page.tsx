@@ -165,32 +165,32 @@ const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
     );
 };
 
-const StructureControlTab = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
+const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
     return (
-        <Accordion type="multiple" defaultValue={['info']} className="w-full space-y-2">
-            <div className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
-                <h3 className="text-sm  font-semibold mb-2">
-                    <span>Info</span>
-                </h3>
-                <p className="text-xs text-gray-500 mb-1 ">{data?.citation_title}</p>
-                <div className="space-y-0">
-                    {data?.citation_rcsb_authors && (
-                        <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
-                    )}
-                    <InfoRow title="Deposition Year" value={parseDateString(data.deposition_date).year} />
-                    <InfoRow
-                        title="Experimental Method"
-                        value={<ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />}
-                    />
-                    <InfoRow title="Resolution" value={`${data?.resolution} Å`} />
-                    <InfoRow title="Source Organism" value={data?.src_organism_names.join(', ')} />
-                    {data?.host_organism_names?.length > 0 && (
-                        <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
-                    )}
-                </div>
+        // <Accordion type="multiple" defaultValue={['info']} className="w-full space-y-2">
+        <div className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
+            <h3 className="text-sm  font-semibold mb-2">
+                <span>Info</span>
+            </h3>
+            <p className="text-xs text-gray-500 mb-1 ">{data?.citation_title}</p>
+            <div className="space-y-0">
+                {data?.citation_rcsb_authors && (
+                    <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
+                )}
+                <InfoRow title="Deposition Year" value={parseDateString(data.deposition_date).year} />
+                <InfoRow
+                    title="Experimental Method"
+                    value={<ExpMethodBadge expMethod={data?.expMethod} resolution={data.resolution} />}
+                />
+                <InfoRow title="Resolution" value={`${data?.resolution} Å`} />
+                <InfoRow title="Source Organism" value={data?.src_organism_names.join(', ')} />
+                {data?.host_organism_names?.length > 0 && (
+                    <InfoRow title="Host Organism" value={data.host_organism_names[0]} />
+                )}
             </div>
-        </Accordion>
+        </div>
+        // </Accordion>
     );
 };
 const StructureComponentsTab = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
@@ -354,15 +354,16 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const ctx = useContext(MolstarContext);
     const dispatch = useAppDispatch();
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
+
     const toggleComponent = (id: string) => {
         dispatch(set_id_to_selection(id));
     };
 
     if (isLoading) return <div className="text-xs">Loading components...</div>;
+
     return (
-        <div className="space-y-4 shadow-inner bg-slate-100 p-2 border-gray-200 rounded-md">
-            <h3 className="text-sm font-semibold">Structure Components</h3>
-            <div className="space-y-2">
+        <ScrollArea className="overflow-auto h-full">
+            <div className="space-y-1">
                 {[...data.rnas, ...data.proteins, ...data.other_polymers]
                     .filter(r => r.assembly_id === 0)
                     .map(component => (
@@ -375,17 +376,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         />
                     ))}
             </div>
-            <div className="text-xs text-gray-500">Selected: {selected_polymers.length} component(s)</div>
-
-            <div>
-                <Button
-                    onClick={() => {
-                        (async () => {
-                            // await ctx?.create_neighborhood_selection_from_expr(ctx?.select_expression('j'));
-                        })();
-                    }}></Button>
-            </div>
-        </div>
+        </ScrollArea>
     );
 };
 
@@ -465,17 +456,20 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
             <MolstarContext.Provider value={ctx}>
                 <ResizablePanelGroup direction="horizontal">
                     <ResizablePanel defaultSize={25}>
-                        <div ref={leftPanelRef} className="h-full">
-                            <Card className="h-full flex flex-col border-0 rounded-none p-2">
-                                <StructureHeader data={data!} isLoading={isLoading} />
-                                <CardContent className="flex-grow overflow-hidden p-0 pt-2 space-y-2">
-                                    <StructureControlTab data={data!} isLoading={isLoading} />
+                        {/* <div ref={leftPanelRef} className="h-full flex flex-col  p-2 overflow-hidden"> */}
+                            <Card className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4" ref={leftPanelRef}>
+                                <div className="sticky top-0 space-y-2  ">
+                                    <StructureHeader data={data!} isLoading={isLoading} />
                                     <SelectionAndStructureActions />
+                                    <StructureInfoTab data={data!} isLoading={isLoading} />
+                                </div>
+                                <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
+                                    {/* <div className="flex-grow overflow-auto max-h-[calc(100vh-240px)]"> */}
                                     <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
-                                    {/* <StructureComponentsTab data={data!} isLoading={isLoading} /> */}
-                                </CardContent>
+                                    {/* </div> */}
+                                </div>
                             </Card>
-                        </div>
+                        {/* </div> */}
                     </ResizablePanel>
                     <ResizableHandle className="w-px bg-gray-200" />
                     <ResizablePanel defaultSize={75}>
