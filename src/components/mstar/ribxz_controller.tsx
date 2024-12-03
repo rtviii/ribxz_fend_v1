@@ -35,9 +35,9 @@ export class MolstarStateController {
   }
 
 
-  async selectPolymerComponent(auth_asym_id: string) {
-    console.log(this.state);
-    
+  async selectPolymerComponent(structure_ref:string, auth_asym_id: string) {
+    const polymer_ref = this.state.mstar_refs.handle_model_components_map[structure_ref][auth_asym_id];
+
 
   }
 

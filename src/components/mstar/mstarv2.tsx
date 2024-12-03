@@ -23,7 +23,9 @@ import {LigandComponent, PolymerComponent} from '@/store/molstar/slice_refs';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {compile} from 'molstar/lib/mol-script/runtime/query/base';
 import {StateElements} from './molstar_ribxz';
-import {StateObjectSelector} from 'molstar/lib/mol-state';
+import {StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
+import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
+import {ResidueData} from '@/store/molstar/slice_seq_viewer';
 
 // How should the objects be stored? What kind of selections and operations do we like to make a lot?
 
@@ -72,7 +74,7 @@ export class ribxzMstarv2 {
         ): Promise<{
             root_ref: string;
             repr_ref: string;
-            components: Record<string, PolymerComponent | LigandComponent>;
+            components: Record<string, string>;
         }> => {
             let asset_url: string;
             asset_url = `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`;
@@ -101,7 +103,9 @@ export class ribxzMstarv2 {
             return {
                 root_ref: structure.ref,
                 repr_ref: structure.ref,
-                components: Object.fromEntries(Object.entries(components).map(([k, v]) => [k, v.ref]))
+                components: Object.fromEntries(
+                    Object.entries(components as Record<string, StateObjectSelector>).map(([k, v]) => [k, v.ref])
+                )
             };
         }
     };
@@ -168,7 +172,7 @@ export class ribxzMstarv2 {
         }
     };
 
-    async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<ResidueList> {
+    async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<any[]> {
         if (!chemicalId) {
             return [];
         }
@@ -237,7 +241,7 @@ export class ribxzMstarv2 {
         const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
         const loci = StructureSelection.toLociWithSourceUnits(selection2);
 
-        const residueList: ResidueList = [];
+        const residueList: any[] = [];
 
         const struct_Element = StructureElement.Loci.toStructure(loci);
         Structure.eachAtomicHierarchyElement(struct_Element, {
@@ -540,6 +544,74 @@ export class ribxzMstarv2 {
                     }
                 });
             }
+        }
+    };
+
+    interactions = {
+        // remove_structure(ref: string): Promise<void> {
+        //     PluginCommands.State.RemoveObject(this.plugin, { state: this.plugin.state.data, ref });
+        // }
+
+        toggle_visibility: (ref: string, on_off: boolean) => {
+            setSubtreeVisibility(this.ctx.state.data, ref, on_off);
+        },
+
+        focus: (ref: string) => {
+            const state = this.ctx.state.data;
+            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+            if (!cell?.obj) return;
+            const loci = Structure.toStructureElementLoci(cell.obj.data);
+            this.ctx.managers.camera.focusLoci(loci);
+            return;
+        },
+        highlight: (ref: string) => {
+            const state = this.ctx.state.data;
+            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+            if (!cell?.obj) return;
+            const loci = Structure.toStructureElementLoci(cell.obj.data);
+            this.ctx.managers.interactivity.lociHighlights.highlight({loci});
+            return;
+        },
+        selection: (ref: string, modifier: 'add' | 'remove') => {
+            const state = this.ctx.state.data;
+            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+            if (!cell?.obj) return;
+            const loci = Structure.toStructureElementLoci(cell.obj.data);
+            this.ctx.managers.structure.selection.fromLoci(modifier, loci);
+            return;
+        },
+        select_residues: (parent_ref: string, residues: ResidueData[], modifier: 'add' | 'remove' | 'set') => {
+            type ResiduesByParent = Map<string, ResidueData[]>;
+            function groupResiduesByParent(residues: ResidueData[]): ResiduesByParent {
+                return residues.reduce((groups, residue) => {
+                    const existing = groups.get(parent_ref) || [];
+                    groups.set(parent_ref, [...existing, residue]);
+                    return groups;
+                }, new Map<string, ResidueData[]>());
+            }
+            const res_grouped_by_ref = groupResiduesByParent(residues);
+            res_grouped_by_ref.forEach((residues, parentComponentRef) => {
+                const groups: Expression[] = [];
+                for (var residue of residues) {
+                    groups.push(
+                        MolScriptBuilder.struct.generator.atomGroups({
+                            'residue-test': MolScriptBuilder.core.rel.eq([
+                                MolScriptBuilder.struct.atomProperty.macromolecular.auth_seq_id(),
+                                residue[1]
+                            ])
+                        })
+                    );
+                }
+                const expression = MolScriptBuilder.struct.combinator.merge(groups);
+                const cell = this.ctx.state.data.select(StateSelection.Generators.byRef(parentComponentRef))[0];
+                const data = cell.obj?.data!;
+                const sel = Script.getStructureSelection(expression, data);
+                let loci = StructureSelection.toLociWithSourceUnits(sel);
+                this.ctx.managers.structure.selection.fromLoci(modifier, loci);
+                if (data === undefined) {
+                    return;
+                }
+            });
         }
     };
 }

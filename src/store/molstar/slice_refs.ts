@@ -59,18 +59,6 @@ export const handleReferencesSlice = createSlice({
             delete state.handle_model_components_map[action.payload];
         },
 
-        // mapAssetModelComponentsPop: (
-        //     state,
-        //     action: PayloadAction<{ handle: string; component: SubComponent }>
-        // ) => {
-        //     const currentComponents = state.handle_model_components_map[action.payload.handle];
-        //     if (currentComponents) {
-        //         state.handle_model_components_map[action.payload.handle] = {
-        //             polymer: currentComponents.polymer.filter(c => c !== action.payload.component),
-        //             ligand: currentComponents.ligand.filter(c => c !== action.payload.component)
-        //         };
-        //     }
-        // }
     }
 });
 
