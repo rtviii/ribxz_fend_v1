@@ -17,7 +17,7 @@ export type SubComponent = PolymerComponent | LigandComponent;
 interface HandleReferencesState {
     handle_root_ref_map: Record<string, string>;
     handle_repr_ref_map: Record<string, string>;
-    handle_model_components_map: Record<string, Record<string, LigandComponent |PolymerComponent>>;
+    handle_model_components_map: Record<string, Record<string, LigandComponent | PolymerComponent>>;
 }
 
 const initialState: HandleReferencesState = {
@@ -48,11 +48,10 @@ export const handleReferencesSlice = createSlice({
             state,
             action: PayloadAction<{
                 handle: string;
-                components: Record<string, LigandComponent |PolymerComponent>
+                components: Record<string, LigandComponent | PolymerComponent>
             }>
         ) => {
-            console.log("Received components", action.payload.components);
-            
+
             return {
                 ...state,
                 handle_model_components_map: {

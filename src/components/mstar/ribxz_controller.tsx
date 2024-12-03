@@ -14,21 +14,19 @@ export function createAssetHandle(asset_value: string): string {
 export class MolstarStateController {
 
   private molstarViewer: ribxzMstarv2;
+  private dispatch: AppDispatch
 
-  constructor(molstarViewer: ribxzMstarv2) {
+  constructor(molstarViewer: ribxzMstarv2, dispatch:AppDispatch) {
     this.molstarViewer = molstarViewer;
+    this.dispatch = dispatch
   }
 
-  async loadStructure(dispatch:any, rcsb_id:string, nomenclature_map: Record<string, string>) {
-    console.log("Ran 1");
-    
+  async loadStructure( rcsb_id:string, nomenclature_map: Record<string, string>) {
     const handle = createAssetHandle(rcsb_id);
     const { root_ref, repr_ref, components } = await this.molstarViewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
-    dispatch(mapAssetRootRefAdd([handle, root_ref]));
-    dispatch(mapAssetReprRefAdd([handle, repr_ref]));
-    dispatch(mapAssetModelComponentsAdd({ handle, components }));
-    console.log("Returned successfully");
-    
+    this.dispatch(mapAssetRootRefAdd([handle, root_ref]));
+    this.dispatch(mapAssetReprRefAdd([handle, repr_ref]));
+    this.dispatch(mapAssetModelComponentsAdd({ handle, components }));
     return { root_ref, repr_ref, components };
   }
 
