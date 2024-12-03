@@ -1,8 +1,7 @@
-import { mapAssetModelComponentsAdd, mapAssetReprRefAdd, mapAssetRootRefAdd } from "@/store/molstar/slice_refs";
-import { ribxzMstarv2 } from "./mstarv2";
-import { AppDispatch, AppStore, RootState } from "@/store/store";
-import { v5 as uuidv5 } from 'uuid';
-
+import {mapAssetModelComponentsAdd, mapAssetReprRefAdd, mapAssetRootRefAdd} from '@/store/molstar/slice_refs';
+import {ribxzMstarv2} from './mstarv2';
+import {AppDispatch, AppStore, RootState} from '@/store/store';
+import {v5 as uuidv5} from 'uuid';
 
 export function createAssetHandle(asset_value: string): string {
     //just random hash
@@ -10,43 +9,60 @@ export function createAssetHandle(asset_value: string): string {
     return uuidv5(asset_value, namespace);
 }
 
-
 export class MolstarStateController {
+    private viewer: ribxzMstarv2;
+    private dispatch: AppDispatch;
+    private state: RootState;
 
-  private molstarViewer: ribxzMstarv2;
-  private dispatch: AppDispatch
-  private state:RootState
+    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, state: RootState) {
+        this.viewer = molstarViewer;
+        this.dispatch = dispatch;
+        this.state = state;
+    }
 
+    async loadStructure(rcsb_id: string, nomenclature_map: Record<string, string>) {
+        rcsb_id = rcsb_id.toUpperCase();
+        const {root_ref, repr_ref, components} = await this.viewer.components.upload_mmcif_structure(
+            rcsb_id,
+            nomenclature_map
+        );
+        this.dispatch(mapAssetRootRefAdd([rcsb_id, root_ref]));
+        this.dispatch(mapAssetReprRefAdd([rcsb_id, repr_ref]));
+        this.dispatch(mapAssetModelComponentsAdd({handle: rcsb_id, components}));
+        return {root_ref, repr_ref, components};
+    }
 
-  constructor(molstarViewer: ribxzMstarv2, dispatch:AppDispatch, store:RootState) {
-    this.molstarViewer = molstarViewer;
-    this.dispatch      = dispatch
-    this.state         = store
-  }
+    retrievePolymerRef(rcsb_id: string, auth_asym_id: string): string | undefined {
+        if (this.state.mstar_refs.handle_model_components_map[rcsb_id] === undefined) {
+            return;
+        }
+        return this.state.mstar_refs.handle_model_components_map[rcsb_id][auth_asym_id];
+    }
 
+    polymers = {
+        selectPolymerComponent: async (rcsb_id: string, auth_asym_id: string, isSelected: boolean) => {
+            var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            ref && this.viewer.interactions.selection(ref, isSelected ? 'add' : 'remove');
+        },
+        focusPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
+            var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            ref && this.viewer.interactions.focus(ref);
+        },
+        highlightPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
+            var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            ref && this.viewer.interactions.highlight(ref);
+        },
+        togglePolymerComponent: async (rcsb_id: string, auth_asym_id: string, isSelected: boolean) => {
+            var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            ref && this.viewer.interactions.toggle_visibility(ref, isSelected);
+        }
+    };
 
-  async loadStructure( rcsb_id:string, nomenclature_map: Record<string, string>) {
-    const handle                             = createAssetHandle(rcsb_id);
-    const { root_ref, repr_ref, components } = await this.molstarViewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
-    this.dispatch(mapAssetRootRefAdd([handle, root_ref]));
-    this.dispatch(mapAssetReprRefAdd([handle, repr_ref]));
-    this.dispatch(mapAssetModelComponentsAdd({ handle, components }));
-    return { root_ref, repr_ref, components };
-  }
+    async selectLigandAndSurroundings(chemicalId: string, radius: number = 5) {
+        await this.viewer.ligands.create_ligand_and_surroundings(chemicalId, radius);
+    }
 
-
-  async selectPolymerComponent(structure_ref:string, auth_asym_id: string) {
-    const polymer_ref = this.state.mstar_refs.handle_model_components_map[structure_ref][auth_asym_id];
-
-
-  }
-
-
-  async selectLigandAndSurroundings(chemicalId: string, radius: number = 5) {
-    await this.molstarViewer.ligands.create_ligand_and_surroundings(chemicalId, radius);
-  }
-
-  async applyStylizedLighting() {
-    await this.molstarViewer.representations.stylized_lighting();
-  }
+    async applyStylizedLighting() {
+        await this.viewer.representations.stylized_lighting();
+    }
 }

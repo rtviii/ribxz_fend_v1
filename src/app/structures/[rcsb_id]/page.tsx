@@ -407,7 +407,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
         (async () => {
             const x = new ribxzMstarv2();
             await x.init(molstarNodeRef.current!);
-            const y = new MolstarStateController(x, dispatch);
+            const y = new MolstarStateController(x, dispatch, state);
             setCtx(x);
             setMsc(y);
         })();
@@ -460,6 +460,9 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                             <Card className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4" ref={leftPanelRef}>
                                 <div className="sticky top-0 space-y-2  ">
                                     <StructureHeader data={data!} isLoading={isLoading} />
+                                    <Button onClick={()=>{
+                                        console.log(state)
+                                    }}> Log statre</Button>
                                     <SelectionAndStructureActions />
                                     <StructureInfoTab data={data!} isLoading={isLoading} />
                                 </div>

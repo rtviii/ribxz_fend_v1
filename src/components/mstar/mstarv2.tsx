@@ -573,6 +573,7 @@ export class ribxzMstarv2 {
             return;
         },
         selection: (ref: string, modifier: 'add' | 'remove') => {
+            console.log('selection', ref, modifier);
             const state = this.ctx.state.data;
             const cell = state.select(StateSelection.Generators.byRef(ref))[0];
             if (!cell?.obj) return;

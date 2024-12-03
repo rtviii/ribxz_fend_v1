@@ -6,8 +6,8 @@ import {Polymer} from '@/store/ribxz_api/ribxz_api';
 import ribxzPolymerColorScheme from '@/components/mstar/providers/colorscheme';
 import {Color} from 'molstar/lib/mol-util/color';
 import {MolstarContext} from '@/components/mstar/molstar_context';
-import { MolstarStateController } from '@/components/mstar/ribxz_controller';
-import { useAppDispatch, useAppSelector } from '@/store/store';
+import {MolstarStateController} from '@/components/mstar/ribxz_controller';
+import {useAppDispatch, useAppSelector} from '@/store/store';
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
@@ -16,35 +16,44 @@ interface PolymerComponentRowProps {
     onToggleVisibility: (id: string) => void;
 }
 
-const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({
-    polymer,
-    isSelected,
-}) => {
+const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const [showContent, setShowContent] = useState(false);
-    const dispatch = useAppDispatch()
-    const state = useAppSelector(state=>state)
+    const dispatch = useAppDispatch();
+    const state = useAppSelector(state => state);
     const ctx = useContext(MolstarContext);
     const msc = new MolstarStateController(ctx!, dispatch, state);
 
-    const onMouseLeave       = () => { }
-    const onMouseEnter       = () => { }
-    const onClick            = () => { }
-    const onToggleVisibility = () => { }
+    const [isSelected, setIsSelected] = useState(false);
+    const [visible, setVisible] = useState(true);
 
+    const onSelect = () => {
+        ctx && msc.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !isSelected);
+        setIsSelected(!isSelected);
+    };
+    const onToggleVisibility = () => {
+        ctx && msc.polymers.togglePolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, visible);
+        setVisible(!visible);
+    };
+    const onClick = () => {
+        ctx && msc.polymers.focusPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
+    };
 
-    const onSelect           = () => {
-        msc.selectPolymerComponent('a')
-     }
-
-    
-
-
+    const onMouseEnter = () => {
+        ctx && msc.polymers.highlightPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
+    };
+    const onMouseLeave = () => {
+        ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
+    };
 
     const color = polymer.nomenclature.length > 0 ? ribxzPolymerColorScheme[polymer.nomenclature[0]] : 'gray';
     const hexcol = Color.toHexStyle(color);
 
     return (
-        <div className="border-b border-gray-200 last:border-b-0 py-1" >
+        <div
+            className="border-b border-gray-200 last:border-b-0 py-1"
+            onMouseLeave={onMouseLeave}
+            onMouseEnter={onMouseEnter}
+            onClick={onClick}>
             <div
                 className={cn(
                     'flex items-center justify-between rounded-md px-2 transition-colors',
@@ -65,21 +74,26 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({
                             'rounded-full p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700',
                             showContent ? 'text-blue-500' : ''
                         )}
-                        onClick={() => setShowContent(prev => !prev)}>
-                        {showContent ? <EyeOff size={14} /> : <Eye size={14} />}
+                        onClick={e => {
+                            e.stopPropagation();
+
+                            onToggleVisibility();
+                        }}>
+                        {visible ? <Eye size={14} /> : <EyeOff size={14} />}
                     </button>
                     <button
                         className={cn(
                             'rounded-full p-1 text-gray-500 hover:bg-gray-200 hover:text-gray-700',
                             isSelected ? 'text-blue-500' : ''
                         )}
-                        onClick={() => onSelect()}
-                        >
+                        onClick={e => {
+                            e.stopPropagation();
+                            onSelect();
+                        }}>
                         {isSelected ? <CheckSquare size={14} /> : <Square size={14} />}
                     </button>
                 </div>
             </div>
-            {showContent && <div className="mt-2">{/* Render the "content" view here */}</div>}
         </div>
     );
 };
