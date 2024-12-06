@@ -45,8 +45,9 @@ import {useUserInputPrompt} from './user_input_prompt';
 import {ribxzMstarv2} from '@/components/mstar/mstarv2';
 import {MolstarStateController} from '@/components/mstar/ribxz_controller';
 import {BookmarkedSelections} from './bookmarked_selections.wip';
-import PolymerComponentRow from './molecular_component';
+import PolymerComponentRow from './polymer_component';
 import {InteractionProvider, useStructureInteraction} from '@/store/molstar/context_interactions';
+import ComponentsEasyAccessPanel from './components_easy_access_panel';
 
 const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
     if (a.nomenclature.length === 0 || b.nomenclature.length === 0) {
@@ -172,7 +173,7 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
         // <Accordion type="multiple" defaultValue={['info']} className="w-full space-y-2">
         <div className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
             <h3 className="text-sm  font-semibold mb-2">
-                <span>Info</span>
+                <span>{data.rcsb_id.toUpperCase()}</span>
             </h3>
             <p className="text-xs text-gray-500 mb-1 ">{data?.citation_title}</p>
             <div className="space-y-0">
@@ -389,35 +390,35 @@ const SelectionAndStructureActions = ({}: {}) => {
     );
 };
 
-const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
-    const ctx = useContext(MolstarContext);
-    const dispatch = useAppDispatch();
-    const selected_polymers = useAppSelector(state => state.structure_page.selected);
+// const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
+//     const ctx = useContext(MolstarContext);
+//     const dispatch = useAppDispatch();
+//     const selected_polymers = useAppSelector(state => state.structure_page.selected);
 
-    const toggleComponent = (id: string) => {
-        dispatch(set_id_to_selection(id));
-    };
+//     const toggleComponent = (id: string) => {
+//         dispatch(set_id_to_selection(id));
+//     };
 
-    if (isLoading) return <div className="text-xs">Loading components...</div>;
+//     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
-    return (
-        <ScrollArea className="overflow-auto h-full">
-            <div className="space-y-1">
-                {[...data.rnas, ...data.proteins, ...data.other_polymers]
-                    .filter(r => r.assembly_id === 0)
-                    .map(component => (
-                        <PolymerComponentRow
-                            polymer={component}
-                            key={component.auth_asym_id}
-                            isSelected={selected_polymers.includes(component.auth_asym_id)}
-                            onToggleSelect={toggleComponent}
-                            onToggleVisibility={() => {}}
-                        />
-                    ))}
-            </div>
-        </ScrollArea>
-    );
-};
+//     return (
+//         <ScrollArea className="overflow-auto h-full">
+//             <div className="space-y-1">
+//                 {[...data.rnas, ...data.proteins, ...data.other_polymers]
+//                     .filter(r => r.assembly_id === 0)
+//                     .map(component => (
+//                         <PolymerComponentRow
+//                             polymer={component}
+//                             key={component.auth_asym_id}
+//                             isSelected={selected_polymers.includes(component.auth_asym_id)}
+//                             onToggleSelect={toggleComponent}
+//                             onToggleVisibility={() => {}}
+//                         />
+//                     ))}
+//             </div>
+//         </ScrollArea>
+//     );
+// };
 
 const MolstarInteractionListener = () => {
     const {setHovered} = useStructureInteraction();
@@ -443,11 +444,11 @@ const MolstarInteractionListener = () => {
     return null;
 };
 export default function StructurePage({params}: {params: {rcsb_id: string}}) {
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const {rcsb_id} = params;
+    const molstarNodeRef                      = useRef<HTMLDivElement>(null);
+    const {rcsb_id}                           = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-    const state = useAppSelector(state => state);
-    const dispatch = useAppDispatch();
+    const state                               = useAppSelector(state => state);
+    const dispatch                            = useAppDispatch();
 
     const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
     const [msc, setMsc] = useState<MolstarStateController | null>(null);
@@ -479,7 +480,6 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
         if (data === undefined) {
             return;
         }
-        console.log('Running this usefeeftct');
 
         const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
             (prev: Record<string, string>, current: Polymer) => {
@@ -520,30 +520,18 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                     <MolstarInteractionListener />
                     <ResizablePanelGroup direction="horizontal">
                         <ResizablePanel defaultSize={25}>
-                            {/* <div ref={leftPanelRef} className="h-full flex flex-col  p-2 overflow-hidden"> */}
                             <Card
                                 className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
                                 ref={leftPanelRef}>
                                 <div className="sticky top-0 space-y-2  ">
-                                    <StructureHeader data={data!} isLoading={isLoading} />
-                                    <Button
-                                        onClick={() => {
-                                            console.log(state);
-                                        }}>
-                                        {' '}
-                                        Log statre
-                                    </Button>
-                                    <SelectionAndStructureActions />
+                                    {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
+                                    {/* <SelectionAndStructureActions /> */}
                                     <StructureInfoTab data={data!} isLoading={isLoading} />
                                 </div>
                                 <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
-                                    {/* <div className="flex-grow overflow-auto max-h-[calc(100vh-240px)]"> */}
-
                                     <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
-                                    {/* </div> */}
                                 </div>
                             </Card>
-                            {/* </div> */}
                         </ResizablePanel>
                         <ResizableHandle className="w-px bg-gray-200" />
                         <ResizablePanel defaultSize={75}>

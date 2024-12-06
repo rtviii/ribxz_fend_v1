@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {cn} from '@/components/utils';
 
 import {Eye, EyeOff, Square, CheckSquare} from 'lucide-react';
@@ -9,6 +9,12 @@ import {MolstarContext} from '@/components/mstar/molstar_context';
 import {MolstarStateController} from '@/components/mstar/ribxz_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
+
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
@@ -54,6 +60,23 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const hexcol = Color.toHexStyle(color);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200'
 
+
+    const [isHoveringSeq, setIsHoveringSeq] = useState(false);
+
+    const popoverTimer = useRef<NodeJS.Timeout>();
+const handleSequenceHover = (isEntering: boolean) => {
+        setIsHoveringSeq(isEntering);
+        if (popoverTimer.current) {
+            clearTimeout(popoverTimer.current);
+        }
+        
+        if (!isEntering) {
+            popoverTimer.current = setTimeout(() => {
+                setShowContent(false);
+            }, 300); // Delay before hiding
+        }
+    };
+
     return (
         <div
             className="border-b border-gray-200 last:border-b-0 "
@@ -74,6 +97,45 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                         }`}>
                         {polymer.nomenclature.length > 0 ? polymer.nomenclature[0] : polymer.auth_asym_id}
                     </div>
+{polymer.entity_poly_seq_one_letter_code_can && (
+                        <Popover open={showContent}>
+                            <PopoverTrigger asChild>
+                                <button
+                                    className={cn(
+                                        'font-mono text-xs px-2 py-0.5 rounded hover:bg-gray-100',
+                                        showContent ? 'bg-gray-100' : ''
+                                    )}
+                                    onMouseEnter={() => {
+                                        setShowContent(true);
+                                        handleSequenceHover(true);
+                                    }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowContent(!showContent);
+                                    }}>
+                                    seq
+                                </button>
+                            </PopoverTrigger>
+                            <PopoverContent 
+                                className="w-[400px] p-0" 
+                                onMouseEnter={() => handleSequenceHover(true)}
+                                onMouseLeave={() => handleSequenceHover(false)}>
+                                <div className="p-2">
+                                    <SequenceViewer
+                                        sequence={polymer.sequence}
+                                        auth_asym_id={polymer.auth_asym_id}
+                                        metadata={polymer.metadata}
+                                        onSelectionChange={(selection) => {
+                                            // Handle selection changes
+                                            console.log('Selection changed:', selection);
+                                        }}
+                                    />
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    )}
+
+
                 </div>
                 <div className="flex items-center space-x-2">
                     <button

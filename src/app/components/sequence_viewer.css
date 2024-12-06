@@ -1,0 +1,48 @@
+.sequence-viewer {
+    font-family: monospace;
+    border: 1px solid #ccc;
+    padding: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sequence-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.sequence-content {
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.residue {
+    display: inline-block;
+    width: 1.2em;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.residue.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.position-marker {
+    color: #666;
+    font-size: 0.8em;
+    user-select: none;
+    margin: 0 2px;
+}
+
+.clear-button {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}

@@ -818,7 +818,7 @@ export class ribxzMstarv2 {
             }
             return undefined;
         }
-        ctx.behaviors.interaction.hover.pipe(debounceTime(50)).subscribe((e: InteractivityManager.HoverEvent) => {
+        ctx.behaviors.interaction.hover.pipe(debounceTime(200)).subscribe((e: InteractivityManager.HoverEvent) => {
             if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
                 const eventData = getLociDetails(e.current.loci);
                 if (eventData) {
@@ -826,7 +826,6 @@ export class ribxzMstarv2 {
                     targetElement.dispatchEvent(hoverEvent);
                 }
             } else {
-                // When loci is empty or undefined, dispatch mouseout event
                 targetElement.dispatchEvent(mouseOutEvent);
             }
         });
