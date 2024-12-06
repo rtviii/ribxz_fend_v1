@@ -8,6 +8,7 @@ import {Color} from 'molstar/lib/mol-util/color';
 import {MolstarContext} from '@/components/mstar/molstar_context';
 import {MolstarStateController} from '@/components/mstar/ribxz_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
+import { useStructureHover, useStructureSelection } from '@/store/molstar/context_interactions';
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
@@ -20,6 +21,12 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const [showContent, setShowContent] = useState(false);
     const dispatch                      = useAppDispatch();
     const state                         = useAppSelector(state => state);
+
+    const { isChainHovered } = useStructureHover(polymer.auth_asym_id);
+  const { isChainSelected } = useStructureSelection(polymer.auth_asym_id);
+
+
+
     const ctx                           = useContext(MolstarContext);
     const msc                           = new MolstarStateController(ctx!, dispatch, state);
 
@@ -56,8 +63,11 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
             onClick={onClick}>
             <div
                 className={cn(
+
                     'flex items-center justify-between rounded-md px-2 transition-colors hover:cursor-pointer',
-                    isSelected ? 'bg-blue-50' : 'hover:bg-gray-100'
+                    isSelected ? 'bg-blue-50' : 'hover:bg-gray-100',
+                isChainHovered ? 'bg-blue-700' : ''
+
                 )}>
                 <div className="flex items-center space-x-2">
                     <div
