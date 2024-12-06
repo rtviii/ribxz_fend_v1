@@ -18,10 +18,10 @@ interface PolymerComponentRowProps {
 
 const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const [showContent, setShowContent] = useState(false);
-    const dispatch = useAppDispatch();
-    const state = useAppSelector(state => state);
-    const ctx = useContext(MolstarContext);
-    const msc = new MolstarStateController(ctx!, dispatch, state);
+    const dispatch                      = useAppDispatch();
+    const state                         = useAppSelector(state => state);
+    const ctx                           = useContext(MolstarContext);
+    const msc                           = new MolstarStateController(ctx!, dispatch, state);
 
     const [isSelected, setIsSelected] = useState(false);
     const [visible, setVisible] = useState(true);
@@ -56,7 +56,7 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
             onClick={onClick}>
             <div
                 className={cn(
-                    'flex items-center justify-between rounded-md px-2 transition-colors',
+                    'flex items-center justify-between rounded-md px-2 transition-colors hover:cursor-pointer',
                     isSelected ? 'bg-blue-50' : 'hover:bg-gray-100'
                 )}>
                 <div className="flex items-center space-x-2">

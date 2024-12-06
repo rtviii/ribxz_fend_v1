@@ -26,7 +26,19 @@ import {StateElements} from './molstar_ribxz';
 import {StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
 import {ResidueData} from '@/store/molstar/slice_seq_viewer';
+import {
+    StructureSelectionQueries,
+    StructureSelectionQuery
+} from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 
+import {debounceTime} from 'rxjs/operators';
+import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
+
+export interface HoverEventDetail {
+    residueNumber?: number;
+    chainId?: string;
+    structureId?: string;
+}
 // How should the objects be stored? What kind of selections and operations do we like to make a lot?
 
 // - toggle/ select/highligh/focus/get nbhd for objects
@@ -65,7 +77,32 @@ export class ribxzMstarv2 {
         PluginCommands.Canvas3D.SetSettings(this.ctx, {
             settings: {renderer: {...renderer, ...rendererParams}}
         });
+
+        this.setupHoverEvent(this.ctx, parent);
     }
+    landmarks = {
+        ptc: async (xyz: number[]) => {
+            let [x, y, z] = xyz;
+            let sphere = {x: x, y: y, z: z, radius: 3, color: 'blue'};
+            const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+            this.ctx.builders.structure.representation.addRepresentation(structureRef, {
+                type: 'arbitrary-sphere' as any,
+                typeParams: sphere,
+                colorParams: sphere.color ? {value: sphere.color} : void 0
+            });
+            this.ligands.create_surroundings(structureRef);
+        },
+        constriction_site: (xyz: number[]) => {
+            let [x, y, z] = xyz;
+            let sphere = {x: x, y: y, z: z, radius: 3, color: 'red'};
+            const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+            this.ctx.builders.structure.representation.addRepresentation(structureRef, {
+                type: 'arbitrary-sphere' as any,
+                typeParams: sphere,
+                colorParams: sphere.color ? {value: sphere.color} : void 0
+            });
+        }
+    };
 
     components = {
         upload_mmcif_structure: async (
@@ -89,6 +126,17 @@ export class ribxzMstarv2 {
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
             const model = await this.ctx.builders.structure.createModel(trajectory);
             const structure = await this.ctx.builders.structure.createStructure(model);
+            // const traj = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
+
+            // const repr       = await this.ctx.builders.structure.representation.addRepresentation(
+            //     structure,
+            //     {
+            //         type: 'cartoon',
+            //         typeParams: {alpha: 0.01},
+            //         color: 'sequence-id'
+            //     },
+            //     {tag: 'canvas'}
+            // );
 
             const {components, representations} = await this.ctx.builders.structure.representation.applyPreset(
                 structure.ref,
@@ -260,6 +308,52 @@ export class ribxzMstarv2 {
     }
 
     ligands = {
+        create_surroundings: async (ref: string) => {
+            const state = this.ctx.state.data;
+            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+            if (!cell?.obj) return;
+            const loci = Structure.toStructureElementLoci(cell.obj.data);
+
+            const x = StructureSelectionQueries.surroundings.expression;
+
+            const surroundings = MS.struct.modifier.includeSurroundings({
+                0: x,
+                radius: 5,
+                'as-whole-residues': true
+            });
+
+            let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
+                structureRef,
+                number: i + 1
+            }));
+
+            const struct = structures[0];
+            const update2 = this.ctx.build();
+            const group2 = update2
+                .to(struct.structureRef.cell)
+                .group(StateTransforms.Misc.CreateGroup, {label: ` Surroundins Group`}, {ref: 'surroundings'});
+            // Create surroundings selection and representations
+            const surroundingsSel = group2.apply(
+                StateTransforms.Model.StructureSelectionFromExpression,
+                {
+                    label: ` PTC Surroundings (5 Å)`,
+                    expression: surroundings
+                },
+                {ref: 'surroundingsSel'}
+            );
+            surroundingsSel.apply(
+                StateTransforms.Representation.StructureRepresentation3D,
+                createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+                    type: 'ball-and-stick'
+                }),
+                {ref: 'surroundingsBallAndStick'}
+            );
+            // surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
+            await PluginCommands.State.Update(this.ctx, {
+                state: this.ctx.state.data,
+                tree: update2
+            });
+        },
         create_ligand_and_surroundings: async (chemicalId: string | undefined, radius: number) => {
             if (!chemicalId) {
                 return this;
@@ -284,6 +378,7 @@ export class ribxzMstarv2 {
                         ])
                     })
                 ]);
+
                 const surroundings = MS.struct.modifier.includeSurroundings({
                     0: ligand,
                     radius: radius,
@@ -298,7 +393,6 @@ export class ribxzMstarv2 {
                 const group1 = update
                     .to(struct.structureRef.cell)
                     .group(StateTransforms.Misc.CreateGroup, {label: `${chemicalId} Ligand Group`}, {ref: 'ligand'});
-
                 // Create ligand selection and representations
                 const ligandSel = group1.apply(
                     StateTransforms.Model.StructureSelectionFromExpression,
@@ -615,4 +709,119 @@ export class ribxzMstarv2 {
             });
         }
     };
+    experimental = {
+        cylinder_residues: async (struct_ref: string, data: {[chain: string]: number[]}) => {
+            const cluster = [];
+            for (var chain in data) {
+                for (var residue of data[chain]) {
+                    cluster.push({auth_asym_id: chain, auth_seq_id: residue});
+                }
+            }
+
+            // const state = this.ctx.state.data;
+            // const cell = state.select(StateSelection.Generators.byRef(struct_ref))[0];
+            const expr = this.residues.selectionResidueClusterExpression(cluster);
+
+            // await this.ctx.builders.structure.tryCreateComponentFromExpression(cell.obj?.data.ref, expr, 'residue-cluster');
+
+            let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
+                structureRef,
+                number: i + 1
+            }));
+            const struct = structures[0];
+            const update = this.ctx.build();
+            const group = update
+                .to(struct.structureRef.cell)
+                .group(StateTransforms.Misc.CreateGroup, {label: 'somelavle'}, {ref: `somelalb`});
+
+            const chain_sel = group.apply(
+                StateTransforms.Model.StructureSelectionFromExpression,
+                {label: 'some', expression: expr},
+                {ref: 'any'}
+            );
+            chain_sel.apply(
+                StateTransforms.Representation.StructureRepresentation3D,
+                createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {type: 'cartoon'}),
+                {ref: `repr_any_cartoon`}
+            );
+            await PluginCommands.State.Update(this.ctx, {
+                state: this.ctx.state.data,
+                tree: update
+            });
+
+            this.ctx.managers.structure.component.setOptions({
+                ...this.ctx.managers.structure.component.state.options,
+                ignoreLight: true
+            });
+            if (this.ctx.canvas3d) {
+                const pp = this.ctx.canvas3d.props.postprocessing;
+                this.ctx.canvas3d.setProps({
+                    postprocessing: {
+                        outline: {
+                            name: 'on',
+                            params:
+                                pp.outline.name === 'on'
+                                    ? pp.outline.params
+                                    : {scale: 1, color: Color(0x000000), threshold: 0.33}
+                        },
+                        occlusion: {
+                            name: 'on',
+                            params:
+                                pp.occlusion.name === 'on'
+                                    ? pp.occlusion.params
+                                    : {
+                                          bias: 0.8,
+                                          blurKernelSize: 15,
+                                          radius: 5,
+                                          samples: 32,
+                                          resolutionScale: 1
+                                      }
+                        }
+                    }
+                });
+            }
+        }
+    };
+
+    setupHoverEvent(ctx: PluginUIContext, targetElement: HTMLElement) {
+        const hoverEvent = new MouseEvent('molstar.hover', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+        });
+        function getElementDetails(location: StructureElement.Location) {
+            return {
+                entity_id: StructureProperties.chain.label_entity_id(location),
+                label_asym_id: StructureProperties.chain.label_asym_id(location),
+                auth_asym_id: StructureProperties.chain.auth_asym_id(location),
+                seq_id: StructureProperties.residue.label_seq_id(location),
+                auth_seq_id: StructureProperties.residue.auth_seq_id(location),
+                comp_id: StructureProperties.atom.label_comp_id(location)
+            };
+        }
+
+        function getLociDetails(loci: any) {
+            if (loci.kind === 'element-loci') {
+                const stats = StructureElement.Stats.ofLoci(loci);
+                const {elementCount, residueCount, chainCount} = stats;
+
+                if (elementCount === 1 && residueCount === 0 && chainCount === 0) {
+                    return getElementDetails(stats.firstElementLoc);
+                } else if (elementCount === 0 && residueCount === 1 && chainCount === 0) {
+                    return getElementDetails(stats.firstResidueLoc);
+                }
+            }
+            return undefined;
+        }
+        ctx.behaviors.interaction.hover.pipe(debounceTime(50)).subscribe((e: InteractivityManager.HoverEvent) => {
+            if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+                const eventData = getLociDetails(e.current.loci);
+                if (eventData) {
+                    
+                    (hoverEvent as any).eventData = eventData;
+                    targetElement.dispatchEvent(hoverEvent);
+                }
+            }
+        });
+    }
 }

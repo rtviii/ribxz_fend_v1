@@ -82,7 +82,7 @@ function ArbitrarySphereVisual(materialId: number): UnitsVisual<ArbitrarySphereP
 
                 // Function that creates a label for the Loci. The label is displayed in the UI when the user hovers over
                 // the graphical object represented by this Loci.
-                () => ""
+                () => "PTC"
             );
 
             // You may also just return EmptyLoci. This will make the sphere non-interactable
@@ -112,22 +112,21 @@ function ArbitrarySphereVisual(materialId: number): UnitsVisual<ArbitrarySphereP
 
 export type ArbitrarySphereRepresentation = StructureRepresentation<ArbitrarySphereParams>;
 
-export function ConfalPyramidsRepresentation(ctx: RepresentationContext,
-    getParams: RepresentationParamsGetter<Structure, ArbitrarySphereParams>): ArbitrarySphereRepresentation {
+export function ConfalPyramidsRepresentation(ctx: RepresentationContext, getParams: RepresentationParamsGetter<Structure, ArbitrarySphereParams>): ArbitrarySphereRepresentation {
     const repr = Representation.createMulti('Confal Pyramids', ctx, getParams, StructureRepresentationStateBuilder, ArbitrarySphereVisuals as unknown as Representation.Def<Structure, ArbitrarySphereParams>);
     return repr;
 }
 
 export const ArbitrarySphereRepresentationProvider = StructureRepresentationProvider({
-    name: 'arbitrary-sphere',
-    label: 'Arbitrary sphere',
-    description: 'Displays an arbitrary sphere at given coordinates',
-    factory: ConfalPyramidsRepresentation,
-    getParams: (ctx: ThemeRegistryContext, structure: Structure) => PD.clone(ArbitrarySphereParams),
-    defaultValues: PD.getDefaultValues(ArbitrarySphereParams),
+    name             : 'arbitrary-sphere',
+    label            : 'Arbitrary sphere',
+    description      : 'Displays an arbitrary sphere at given coordinates',
+    factory          : ConfalPyramidsRepresentation,
+    getParams        : (ctx: ThemeRegistryContext, structure: Structure) => PD.clone(ArbitrarySphereParams),
+    defaultValues    : PD.getDefaultValues(ArbitrarySphereParams),
     defaultColorTheme: { name: 'uniform' },
-    defaultSizeTheme: { name: 'uniform' },
-    isApplicable: (structure: Structure) => true,                                                         // Assume that we can always draw a sphere
+    defaultSizeTheme : { name: 'uniform' },
+    isApplicable     : (structure: Structure) => true,                                                         // Assume that we can always draw a sphere
 });
 
 function createArbitrarySphereMesh(ctx: VisualContext, unit: Unit, structure: Structure, theme: Theme, props: PD.Values<ArbitrarySphereParams>, mesh?: Mesh) {

@@ -46,6 +46,7 @@ import {ribxzMstarv2} from '@/components/mstar/mstarv2';
 import {MolstarStateController} from '@/components/mstar/ribxz_controller';
 import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './molecular_component';
+import {InteractionProvider, useStructureInteraction} from '@/store/molstar/context_interactions';
 
 const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
     if (a.nomenclature.length === 0 || b.nomenclature.length === 0) {
@@ -291,16 +292,18 @@ const TunnelLandmarkComponent: React.FC<{
 };
 
 const SelectionAndStructureActions = ({}: {}) => {
+    const dispatch = useAppDispatch();
+    const state = useAppSelector(s => s);
     const ctx = useContext(MolstarContext);
+    const rcsb_id = Object.keys(state.mstar_refs.handle_model_components_map)[0];
+    const msc = new MolstarStateController(ctx!, dispatch, state);
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
-    const dispatch = useAppDispatch();
     const createNewSelection = async () => {
         const name = promptForNewBookmark();
         dispatch(snapshot_selection({[name]: selected_polymers}));
     };
-
     const createBindingSite = async () => {
         const bsite_name = promptForBindingSiteName();
         selected_polymers;
@@ -346,6 +349,42 @@ const SelectionAndStructureActions = ({}: {}) => {
                 }}>
                 Create Binding Site
             </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+                onClick={() => {
+                    msc.landmarks.ptc(rcsb_id);
+                }}>
+                Render PTC
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+                onClick={() => {
+                    msc.landmarks.constriction_site(rcsb_id);
+                }}>
+                Render Constriction
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+                onClick={() => {
+                    msc.mute_polymers(rcsb_id);
+                }}>
+                Mute Polymers
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+                onClick={() => {
+                    msc.experimental.cylinder_residues();
+                }}>
+                Cylinder Residues
+            </Button>
         </div>
     );
 };
@@ -380,6 +419,20 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     );
 };
 
+const MolstarInteractionListener = () => {
+    const {setHovered} = useStructureInteraction();
+
+    useEffect(() => {
+        const handleHover = (event: any) => {
+            setHovered(event.eventData || null);
+        };
+
+        document.addEventListener('molstar.hover', handleHover);
+        return () => document.removeEventListener('molstar.hover', handleHover);
+    }, [setHovered]);
+
+    return null;
+};
 export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const {rcsb_id} = params;
@@ -452,35 +505,45 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
-            <MolstarContext.Provider value={ctx}>
-                <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={25}>
-                        {/* <div ref={leftPanelRef} className="h-full flex flex-col  p-2 overflow-hidden"> */}
-                            <Card className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4" ref={leftPanelRef}>
+            <InteractionProvider>
+                <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
+                <MolstarContext.Provider value={ctx}>
+                    <MolstarInteractionListener />
+                    <ResizablePanelGroup direction="horizontal">
+                        <ResizablePanel defaultSize={25}>
+                            {/* <div ref={leftPanelRef} className="h-full flex flex-col  p-2 overflow-hidden"> */}
+                            <Card
+                                className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
+                                ref={leftPanelRef}>
                                 <div className="sticky top-0 space-y-2  ">
                                     <StructureHeader data={data!} isLoading={isLoading} />
-                                    <Button onClick={()=>{
-                                        console.log(state)
-                                    }}> Log statre</Button>
+                                    <Button
+                                        onClick={() => {
+                                            console.log(state);
+                                        }}>
+                                        {' '}
+                                        Log statre
+                                    </Button>
                                     <SelectionAndStructureActions />
                                     <StructureInfoTab data={data!} isLoading={isLoading} />
                                 </div>
                                 <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
                                     {/* <div className="flex-grow overflow-auto max-h-[calc(100vh-240px)]"> */}
+
                                     <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
                                     {/* </div> */}
                                 </div>
                             </Card>
-                        {/* </div> */}
-                    </ResizablePanel>
-                    <ResizableHandle className="w-px bg-gray-200" />
-                    <ResizablePanel defaultSize={75}>
-                        <MolstarNode ref={molstarNodeRef} />
-                    </ResizablePanel>
-                </ResizablePanelGroup>
-            </MolstarContext.Provider>
-            <SidebarMenu />
+                            {/* </div> */}
+                        </ResizablePanel>
+                        <ResizableHandle className="w-px bg-gray-200" />
+                        <ResizablePanel defaultSize={75}>
+                            <MolstarNode ref={molstarNodeRef} />
+                        </ResizablePanel>
+                    </ResizablePanelGroup>
+                </MolstarContext.Provider>
+                <SidebarMenu />
+            </InteractionProvider>
         </div>
     );
 }
