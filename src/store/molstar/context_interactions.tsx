@@ -29,6 +29,8 @@ export const InteractionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   });
 
   const setHovered = useCallback((element: StructureElement | null) => {
+    console.log('setHovered', element);
+    
     setState(prev => ({ ...prev, hover: element }));
   }, []);
 

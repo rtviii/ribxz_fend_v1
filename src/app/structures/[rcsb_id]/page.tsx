@@ -427,8 +427,17 @@ const MolstarInteractionListener = () => {
             setHovered(event.eventData || null);
         };
 
+        const handleMouseOut = () => {
+            setHovered(null);
+        };
+
         document.addEventListener('molstar.hover', handleHover);
-        return () => document.removeEventListener('molstar.hover', handleHover);
+        document.addEventListener('molstar.mouseout', handleMouseOut);
+
+        return () => {
+            document.removeEventListener('molstar.hover', handleHover);
+            document.removeEventListener('molstar.mouseout', handleMouseOut);
+        };
     }, [setHovered]);
 
     return null;

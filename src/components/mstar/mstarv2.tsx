@@ -789,6 +789,11 @@ export class ribxzMstarv2 {
             bubbles: true,
             cancelable: true
         });
+        const mouseOutEvent = new MouseEvent('molstar.mouseout', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+        });
         function getElementDetails(location: StructureElement.Location) {
             return {
                 entity_id: StructureProperties.chain.label_entity_id(location),
@@ -817,10 +822,12 @@ export class ribxzMstarv2 {
             if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
                 const eventData = getLociDetails(e.current.loci);
                 if (eventData) {
-                    
                     (hoverEvent as any).eventData = eventData;
                     targetElement.dispatchEvent(hoverEvent);
                 }
+            } else {
+                // When loci is empty or undefined, dispatch mouseout event
+                targetElement.dispatchEvent(mouseOutEvent);
             }
         });
     }
