@@ -521,9 +521,11 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                     <ResizablePanelGroup direction="horizontal">
                         <ResizablePanel defaultSize={25}>
                             <Card
+                           
                                 className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
                                 ref={leftPanelRef}>
                                 <div className="sticky top-0 space-y-2  ">
+                                    <Button onClick={()=>{console.log(state)}}>log state</Button>
                                     {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
                                     {/* <SelectionAndStructureActions /> */}
                                     <StructureInfoTab data={data!} isLoading={isLoading} />

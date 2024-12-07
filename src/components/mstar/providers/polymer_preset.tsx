@@ -6,6 +6,32 @@ import {StructureRepresentationPresetProvider} from 'molstar/lib/mol-plugin-stat
 import {ParamDefinition as PD} from 'molstar/lib/mol-util/param-definition';
 import {Color} from 'molstar/lib/mol-util/color';
 import ribxzPolymerColorScheme from './colorscheme';
+import {ResidueData} from '@/app/components/sequence_viewer';
+
+export const AMINO_ACIDS_3_TO_1_CODE = {
+    ALA: 'A',
+    ARG: 'R',
+    ASN: 'N',
+    ASP: 'D',
+    ASX: 'B',
+    CYS: 'C',
+    GLU: 'E',
+    GLN: 'Q',
+    GLX: 'Z',
+    GLY: 'G',
+    HIS: 'H',
+    ILE: 'I',
+    LEU: 'L',
+    LYS: 'K',
+    MET: 'M',
+    PHE: 'F',
+    PRO: 'P',
+    SER: 'S',
+    THR: 'T',
+    TRP: 'W',
+    TYR: 'Y',
+    VAL: 'V'
+};
 
 export const IonNames = new Set([
     '118',
@@ -237,6 +263,32 @@ function getLigands(structure: Structure) {
     return non_ion_ligands;
 }
 
+function getResidueSequence(component: StateObjectSelector, chainId: string, rcsb_id: string): ResidueData[] {
+    const sequence: ResidueData[] = [];
+    const structure = component.obj?.data as Structure;
+
+    const {_rowCount: residueCount} = structure.model.atomicHierarchy.residues;
+    const {offsets: residueOffsets} = structure.model.atomicHierarchy.residueAtomSegments;
+    const chainIndex = structure.model.atomicHierarchy.chainAtomSegments.index;
+
+    for (let rI = 0 as ResidueIndex; rI < residueCount; rI++) {
+        const offset = residueOffsets[rI];
+        const cI = chainIndex[offset];
+
+        const residueChainId = structure.model.atomicHierarchy.chains.auth_asym_id.value(chainIndex[offset]);
+
+        if (residueChainId !== chainId) continue;
+
+        const label_comp_id = structure.model.atomicHierarchy.atoms.label_comp_id.value(offset);
+        const auth_seq_id = structure.model.atomicHierarchy.residues.auth_seq_id.value(rI);
+
+        sequence.push([
+            label_comp_id in AMINO_ACIDS_3_TO_1_CODE ? AMINO_ACIDS_3_TO_1_CODE[label_comp_id] : label_comp_id,
+            auth_seq_id
+        ]);
+    }
+    return sequence;
+}
 export const chainSelectionPreset = StructureRepresentationPresetProvider({
     id: 'polymers-ligand-ribxz-theme',
     display: {
@@ -278,6 +330,9 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
         const components: {[k: string]: StateObjectSelector | undefined} = {};
         const representations: {[k: string]: StateObjectSelector | undefined} = {};
 
+        const objects_polymer: {[k: string]: {ref: string; seq: ResidueData[]}} = {};
+        const objects_ligand: {[k: string]: {ref: string}} = {};
+
         for (const chainId of Array.from(chains)) {
             const chainSelection = MS.struct.generator.atomGroups({
                 'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), chainId])
@@ -301,8 +356,13 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                     }
                 });
 
-                components[`${chainId}`]      = component
+                components[`${chainId}`] = component;
                 representations[`${chainId}`] = representation;
+
+                objects_polymer[chainId] = {
+                    ref: component.ref,
+                    seq: getResidueSequence(component, chainId, params.structureId.toUpperCase())
+                };
             }
         }
 
@@ -324,7 +384,6 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             );
 
             if (component) {
-
                 const representation = await plugin.builders.structure.representation.addRepresentation(component, {
                     type: 'ball-and-stick',
                     colorParams: {
@@ -334,8 +393,11 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                     }
                 });
 
-                components[`${ligandId}`] = component
+                components[`${ligandId}`] = component;
                 representations[`${ligandId}`] = representation;
+                objects_ligand[ligandId] = {
+                    ref: component.ref,
+                }
             }
         }
 
@@ -343,7 +405,9 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
 
         return {
             components,
-            representations
+            representations,
+            objects_polymer,
+            objects_ligand
         };
     }
 });

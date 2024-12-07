@@ -25,7 +25,6 @@ import {compile} from 'molstar/lib/mol-script/runtime/query/base';
 import {StateElements} from './molstar_ribxz';
 import {StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
-import {ResidueData} from '@/store/molstar/slice_seq_viewer';
 import {
     StructureSelectionQueries,
     StructureSelectionQuery
@@ -33,6 +32,7 @@ import {
 
 import {debounceTime} from 'rxjs/operators';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
+import {ResidueData} from '@/app/components/sequence_viewer';
 
 export interface HoverEventDetail {
     residueNumber?: number;
@@ -60,11 +60,7 @@ export class ribxzMstarv2 {
     ctx: PluginUIContext;
     constructor() {}
     async init(parent: HTMLElement, spec: PluginUISpec = ribxzSpec) {
-        this.ctx = await createPluginUI({
-            target: parent,
-            spec: spec,
-            render: renderReact18
-        });
+        this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
         this.ctx.builders.structure.representation.registerPreset(chainSelectionPreset);
         this.ctx.canvas3d?.setProps({
@@ -111,7 +107,8 @@ export class ribxzMstarv2 {
         ): Promise<{
             root_ref: string;
             repr_ref: string;
-            components: Record<string, string>;
+            objects_polymer: Record<string, {ref: string; seq: ResidueData[]}>;
+            objects_ligand: Record<string, {ref: string}>;
         }> => {
             let asset_url: string;
             asset_url = `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`;
@@ -124,10 +121,10 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model = await this.ctx.builders.structure.createModel(trajectory);
-            const structure = await this.ctx.builders.structure.createStructure(model);
-            // const traj = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
+            const model      = await this.ctx.builders.structure.createModel(trajectory);
+            const structure  = await this.ctx.builders.structure.createStructure(model);
 
+            // const traj = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
             // const repr       = await this.ctx.builders.structure.representation.addRepresentation(
             //     structure,
             //     {
@@ -138,22 +135,24 @@ export class ribxzMstarv2 {
             //     {tag: 'canvas'}
             // );
 
-            const {components, representations} = await this.ctx.builders.structure.representation.applyPreset(
-                structure.ref,
-                'polymers-ligand-ribxz-theme',
-                {
-                    structureId: rcsb_id,
-                    nomenclature_map
-                }
-            );
+            const {components, representations, objects_polymer, objects_ligand} =
+                await this.ctx.builders.structure.representation.applyPreset(
+                    structure.ref,
+                    'polymers-ligand-ribxz-theme',
+                    {
+                        structureId: rcsb_id,
+                        nomenclature_map
+                    }
+                );
+
+            console.log(objects_polymer);
 
             this.representations.stylized_lighting();
             return {
                 root_ref: structure.ref,
                 repr_ref: structure.ref,
-                components: Object.fromEntries(
-                    Object.entries(components as Record<string, StateObjectSelector>).map(([k, v]) => [k, v.ref])
-                )
+                objects_polymer,
+                objects_ligand
             };
         }
     };
@@ -709,6 +708,7 @@ export class ribxzMstarv2 {
             });
         }
     };
+
     experimental = {
         cylinder_residues: async (struct_ref: string, data: {[chain: string]: number[]}) => {
             const cluster = [];

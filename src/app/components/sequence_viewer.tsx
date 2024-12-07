@@ -35,9 +35,9 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({
     const selectedResidues = useAppSelector(state => state.sequenceViewer.selections[auth_asym_id] || []);
 
     // Local state for drag selection
-    const [dragStart, setDragStart] = useState<number | null>(null);
-    const [dragEnd, setDragEnd] = useState<number | null>(null);
-    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+    const [dragStart, setDragStart]                   = useState<number | null>(null);
+    const [dragEnd, setDragEnd]                       = useState<number | null>(null);
+    const [isCtrlPressed, setIsCtrlPressed]           = useState(false);
     const [temporarySelection, setTemporarySelection] = useState<ResidueData[]>([]);
 
     // Handle keyboard events

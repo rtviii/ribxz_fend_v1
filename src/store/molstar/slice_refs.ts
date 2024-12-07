@@ -1,11 +1,11 @@
+import { ResidueData } from '@/app/components/sequence_viewer';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ResidueData } from './slice_seq_viewer';
 
 export interface PolymerComponent {
-    type: 'Polymer';
-    ref: string;
+    type        : 'Polymer';
+    ref         : string;
     auth_asym_id: string;
-    sequence: ResidueData[];
+    sequence    : ResidueData[];
 }
 export interface LigandComponent {
     type: 'Ligand';
@@ -17,7 +17,7 @@ export type SubComponent = PolymerComponent | LigandComponent;
 interface HandleReferencesState {
     handle_root_ref_map: Record<string, string>;
     handle_repr_ref_map: Record<string, string>;
-    handle_model_components_map: Record<string, Record<string, string>>;
+    handle_model_components_map: Record<string, Record<string, PolymerStateObject | LigandStateObject>>;
 }
 
 const initialState: HandleReferencesState = {
@@ -48,11 +48,9 @@ export const handleReferencesSlice = createSlice({
             state,
             action: PayloadAction<{
                 handle: string;
-                components: Record<string, string>;
+                components: Record<string, PolymerStateObject | LigandStateObject>;
             }>
         ) => {
-
-
             state.handle_model_components_map[action.payload.handle] = action.payload.components;
         },
         mapAssetModelComponentsDeleteAll: (state, action: PayloadAction<string>) => {
@@ -61,7 +59,14 @@ export const handleReferencesSlice = createSlice({
 
     }
 });
+export interface LigandStateObject{
+    ref:string,
+}
 
+export interface PolymerStateObject{
+    ref:string,
+    seq:ResidueData[]
+}
 export const {
     mapAssetRootRefAdd,
     mapAssetRootRefDelete,
