@@ -11,6 +11,8 @@ import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
 
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
+import {PolymerStateObject} from '@/store/molstar/slice_refs';
+import SequenceViewer from '@/app/components/sequence_viewer';
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
@@ -21,9 +23,11 @@ interface PolymerComponentRowProps {
 
 const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const [showContent, setShowContent] = useState(false);
-    const parent_map                    = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
-    const dispatch                      = useAppDispatch();
-    const state                         = useAppSelector(state => state);
+    const parent_map = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
+    const poly_state_obj: PolymerStateObject = parent_map && parent_map[polymer.auth_asym_id];
+
+    const dispatch = useAppDispatch();
+    const state = useAppSelector(state => state);
 
     const {isChainHovered} = useStructureHover(polymer.auth_asym_id);
     const {isChainSelected} = useStructureSelection(polymer.auth_asym_id);
@@ -116,15 +120,19 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                                 onMouseEnter={() => handleSequenceHover(true)}
                                 onMouseLeave={() => handleSequenceHover(false)}>
                                 <div className="p-2">
-                                    {/* <SequenceViewer
-                                        sequence={polymer.entity_poly_seq_one_letter_code_can}
-                                        auth_asym_id={polymer.auth_asym_id}
-                                        metadata={polymer.metadata}
-                                        onSelectionChange={(selection) => {
-                                            // Handle selection changes
-                                            console.log('Selection changed:', selection);
-                                        }}
-                                    /> */}
+                                    {poly_state_obj === undefined ? (
+                                        <div>Loading...</div>
+                                    ) : (
+                                        <SequenceViewer
+                                            sequence={poly_state_obj.seq}
+                                            auth_asym_id={polymer.auth_asym_id}
+                                            // metadata={{type: 'Polypeptide', chain_title: polymer.auth_asym_id}}
+                                            onSelectionChange={(selection: any) => {
+                                                // Handle selection changes
+                                                console.log('Selection changed:', selection);
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             </PopoverContent>
                         </Popover>

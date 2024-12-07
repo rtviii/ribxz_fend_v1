@@ -52,7 +52,6 @@ export class MolstarStateController {
         this.dispatch(mapAssetReprRefAdd([rcsb_id, repr_ref]));
         this.dispatch(mapAssetModelComponentsAdd({handle: rcsb_id, components}));
         console.log("Created ref", root_ref, repr_ref, components);
-        
         return {root_ref, repr_ref, components};
     }
 
@@ -86,22 +85,16 @@ export class MolstarStateController {
         await this.viewer.ligands.create_ligand_and_surroundings(chemicalId, radius);
     }
 
-
-
     async applyStylizedLighting() {
         await this.viewer.representations.stylized_lighting();
     }
 
     experimental = {
-
         cylinder_residues: async () => {
             const response   = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
             const data       = await response.json();
             const struct_ref = Object.values(this.state.mstar_refs.handle_root_ref_map)[0]
-
             console.log("Got struct ref", struct_ref);
-
-
             this.viewer.experimental.cylinder_residues(struct_ref,data);
             console.log(data);
             
