@@ -20,6 +20,18 @@ const initialState: PolymerStatesState = {
     states: {}
 };
 
+interface PolymerVisibilityUpdate {
+    rcsb_id: string;
+    auth_asym_id: string;
+    visible: boolean;
+}
+
+interface BatchVisibilityPayload {
+    rcsb_id: string;
+    visible: boolean;
+    auth_asym_ids?: string[]; // Optional - if not provided, affects all polymers for the rcsb_id
+}
+
 export const polymerStatesSlice = createSlice({
     name: 'polymerStates',
     initialState,
@@ -50,8 +62,19 @@ export const polymerStatesSlice = createSlice({
             if (state.states[rcsb_id]?.[auth_asym_id]) {
                 state.states[rcsb_id][auth_asym_id].visible = visible;
             }
-            
         },
+
+     setBatchPolymerVisibility: (
+            state,
+            action: PayloadAction<PolymerVisibilityUpdate[]>
+        ) => {
+            action.payload.forEach(({ rcsb_id, auth_asym_id, visible }) => {
+                if (state.states[rcsb_id]?.[auth_asym_id]) {
+                    state.states[rcsb_id][auth_asym_id].visible = visible;
+                }
+            });
+        },
+
         setPolymerSelected: (
             state,
             action: PayloadAction<{
@@ -81,7 +104,7 @@ export const polymerStatesSlice = createSlice({
     }
 });
 
-export const {initializePolymerStates, setPolymerVisibility, setPolymerSelected, setPolymerIsolated} =
+export const {initializePolymerStates, setBatchPolymerVisibility,setPolymerVisibility, setPolymerSelected, setPolymerIsolated} =
     polymerStatesSlice.actions;
 
 export default polymerStatesSlice.reducer;

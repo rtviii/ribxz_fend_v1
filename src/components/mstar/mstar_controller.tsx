@@ -3,7 +3,12 @@ import {ribxzMstarv2} from './mstar_v2';
 import {AppDispatch, AppStore, RootState} from '@/store/store';
 import {v5 as uuidv5} from 'uuid';
 import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
-import {initializePolymerStates, setPolymerSelected, setPolymerVisibility} from '@/store/slices/slice_polymer_states';
+import {
+    initializePolymerStates,
+    setBatchPolymerVisibility,
+    setPolymerSelected,
+    setPolymerVisibility
+} from '@/store/slices/slice_polymer_states';
 
 export function createAssetHandle(asset_value: string): string {
     //just random hash
@@ -71,10 +76,6 @@ export class MolstarStateController {
     }
 
     polymers = {
-        // selectPolymerComponent: async (rcsb_id: string, auth_asym_id: string, isSelected: boolean) => {
-        //     var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
-        //     ref && this.viewer.interactions.selection(ref, isSelected ? 'add' : 'remove');
-        // },
         focusPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
             var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
@@ -83,22 +84,32 @@ export class MolstarStateController {
             var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
             ref && this.viewer.interactions.highlight(ref);
         },
-        // togglePolymerComponent: async (rcsb_id: string, auth_asym_id: string, isSelected: boolean) => {
-        //     var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
-        //     ref && this.viewer.interactions.toggle_visibility(ref, isSelected);
-        // },
         isolatePolymer: async (rcsb_id: string, target_auth_asym_id: string) => {
-            console.log('Isolating polymer', target_auth_asym_id);
-            for (const auth_asym_id of Object.keys(this.state.mstar_refs.handle_model_components_map[rcsb_id])) {
-                const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
-                if (ref) {
-                    this.viewer.interactions.setSubtreeVisibility(ref, auth_asym_id == target_auth_asym_id);
+            await this.viewer.ctx.dataTransaction(async () => {
+                const components = this.state.mstar_refs.handle_model_components_map[rcsb_id];
+                const visibilityUpdates = Object.keys(components).map(auth_asym_id => ({
+                    rcsb_id,
+                    auth_asym_id,
+                    visible: auth_asym_id === target_auth_asym_id
+                }));
+
+                // Batch update Molstar state
+                visibilityUpdates.forEach(({auth_asym_id, visible}) => {
+                    const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+                    if (ref) {
+                        this.viewer.interactions.setSubtreeVisibility(ref, visible);
+                    }
+                });
+
+                // Batch update Redux state
+                this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
+
+                // Focus after all visibility changes
+                const targetRef = this.retrievePolymerRef(rcsb_id, target_auth_asym_id);
+                if (targetRef) {
+                    this.viewer.interactions.focus(targetRef);
                 }
-            }
-            const targetRef = this.retrievePolymerRef(rcsb_id, target_auth_asym_id);
-            if (targetRef) {
-                this.viewer.interactions.focus(targetRef);
-            }
+            });
         },
         setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
             const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
@@ -114,6 +125,25 @@ export class MolstarStateController {
                 this.viewer.interactions.selection(ref, selected ? 'add' : 'remove');
                 this.dispatch(setPolymerSelected({rcsb_id, auth_asym_id, selected}));
             }
+        },
+        restoreAllVisibility: async (rcsb_id: string) => {
+            const components = this.state.mstar_refs.handle_model_components_map[rcsb_id];
+            const visibilityUpdates = Object.keys(components).map(auth_asym_id => ({
+                rcsb_id,
+                auth_asym_id,
+                visible: true
+            }));
+
+            // Batch update Molstar state
+            visibilityUpdates.forEach(({auth_asym_id, visible}) => {
+                const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+                if (ref) {
+                    this.viewer.interactions.setSubtreeVisibility(ref, visible);
+                }
+            });
+
+            // Batch update Redux state
+            this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
         }
     };
 

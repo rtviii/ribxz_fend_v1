@@ -36,6 +36,29 @@ interface PolymerComponentRowProps {
     onToggleVisibility: (id: string) => void;
 }
 
+const RestoreVisibilityButton = () => {
+    const dispatch = useAppDispatch();
+    const ctx      = useContext(MolstarContext);
+    const state    = useAppSelector(state => state);
+    const rcsb_id  = Object.keys( state.mstar_refs.handle_model_components_map )[0]
+
+    const onRestoreAll = () => {
+        if (ctx) {
+            const msc = new MolstarStateController(ctx, dispatch, state);
+            msc.polymers.restoreAllVisibility(rcsb_id);
+        }
+    };
+
+    return (
+        <button 
+            onClick={onRestoreAll}
+            className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100"
+        >
+            Show All Polymers
+        </button>
+    );
+};
+
 const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const [showContent, setShowContent] = useState(false);
     const parent_map = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
@@ -51,13 +74,9 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const msc = new MolstarStateController(ctx!, dispatch, state);
 
     const {isChainHovered} = useStructureHover(polymer.auth_asym_id);
-    const {isChainSelected} = useStructureSelection(polymer.auth_asym_id);
 
     const [isVisible, setIsVisible] = useState(true);
 
-    // const onToggleVisibility = () => {
-    //     ctx && msc.polymers.togglePolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, visible);
-    // };
     const onToggleVisibility = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
@@ -107,6 +126,7 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                     isChainHovered ? on_hover_styling : ''
                 )}>
                 <div className="flex items-center space-x-2">
+
                     <div
                         style={{backgroundColor: hexcol}}
                         className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold transition-colors ${
@@ -114,7 +134,10 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                         }`}>
                         {polymer.nomenclature.length > 0 ? polymer.nomenclature[0] : polymer.auth_asym_id}
                     </div>
+                    <RestoreVisibilityButton/>
+
                 </div>
+
                 <div className="flex items-center space-x-2">
                     {poly_state_obj && (
                         <SequenceViewerTrigger
@@ -130,7 +153,7 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                     </button>
 
                     <button className={cn('rounded-full p-1 text-gray-500')} onClick={onToggleVisibility}>
-                        {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+                        {polymerState?.visible ? <Eye size={14} /> : <EyeOff size={14} />}
                     </button>
 
                     <button
