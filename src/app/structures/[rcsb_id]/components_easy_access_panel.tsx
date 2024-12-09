@@ -10,31 +10,14 @@ import {MolstarContext} from '@/components/mstar/molstar_context';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 
-const RestoreVisibilityButton = () => {
-    const dispatch = useAppDispatch();
-    const ctx = useContext(MolstarContext);
-    const state = useAppSelector(state => state);
-    const rcsb_id = Object.keys(state.mstar_refs.handle_model_components_map)[0];
-
-    const onRestoreAll = () => {
-        if (ctx) {
-            const msc = new MolstarStateController(ctx, dispatch, state);
-            msc.polymers.restoreAllVisibility(rcsb_id);
-        }
-    };
-
-    return (
-        <button onClick={onRestoreAll} className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100">
-            <Eye size={16} />
-        </button>
-    );
-};
-
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [currentView, setCurrentView] = useState<'Polymers' | 'Landmarks' | 'Ligands'>('Polymers');
     const ctx = useContext(MolstarContext);
     const dispatch = useAppDispatch();
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
+
+    const state = useAppSelector(state => state);
+    const rcsb_id = Object.keys(state.mstar_refs.handle_model_components_map)[0];
 
     const toggleComponent = (id: string) => {
         dispatch(set_id_to_selection(id));
@@ -107,7 +90,16 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         </Tooltip> */}
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <RestoreVisibilityButton />
+                                <button
+                                    onClick={() => {
+                                        if (ctx) {
+                                            const msc = new MolstarStateController(ctx, dispatch, state);
+                                            msc.polymers.restoreAllVisibility(rcsb_id);
+                                        }
+                                    }}
+                                    className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100">
+                                    <Eye size={16} />
+                                </button>
                             </TooltipTrigger>
                             <TooltipContent>Show all components</TooltipContent>
                         </Tooltip>
