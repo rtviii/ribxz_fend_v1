@@ -12,7 +12,22 @@ import {useStructureHover, useStructureSelection} from '@/store/molstar/context_
 
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import {PolymerStateObject} from '@/store/molstar/slice_refs';
-import SequenceViewer from '@/app/components/sequence_viewer';
+import SequenceViewer, {PopoverProvider, SequenceViewerTrigger} from '@/app/components/sequence_viewer';
+export type ResidueData = [string, number];
+
+export interface SequenceViewerProps {
+    sequence: ResidueData[];
+    auth_asym_id: string;
+    metadata?: {
+        chain_title: string;
+        structure_id: string;
+        length: number;
+        type: 'Polypeptide' | 'Polynucleotide';
+        struct_ref: string;
+        polymer_ref: string;
+    };
+    onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
+}
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
@@ -96,49 +111,26 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                         }`}>
                         {polymer.nomenclature.length > 0 ? polymer.nomenclature[0] : polymer.auth_asym_id}
                     </div>
-                    {polymer.entity_poly_seq_one_letter_code_can && (
-                        <Popover open={showContent}>
-                            <PopoverTrigger asChild>
-                                <button
-                                    className={cn(
-                                        'font-mono text-xs px-2 py-0.5 rounded hover:bg-gray-100',
-                                        showContent ? 'bg-gray-100' : ''
-                                    )}
-                                    onMouseEnter={() => {
-                                        setShowContent(true);
-                                        handleSequenceHover(true);
-                                    }}
-                                    onClick={e => {
-                                        e.stopPropagation();
-                                        setShowContent(!showContent);
-                                    }}>
-                                    seq
-                                </button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-[400px] p-0"
-                                onMouseEnter={() => handleSequenceHover(true)}
-                                onMouseLeave={() => handleSequenceHover(false)}>
-                                <div className="p-2">
-                                    {poly_state_obj === undefined ? (
-                                        <div>Loading...</div>
-                                    ) : (
-                                        <SequenceViewer
-                                            sequence={poly_state_obj.seq}
-                                            auth_asym_id={polymer.auth_asym_id}
-                                            // metadata={{type: 'Polypeptide', chain_title: polymer.auth_asym_id}}
-                                            onSelectionChange={(selection: any) => {
-                                                // Handle selection changes
-                                                console.log('Selection changed:', selection);
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                    )}
                 </div>
                 <div className="flex items-center space-x-2">
+                    {poly_state_obj && (
+                        <PopoverProvider>
+                            <SequenceViewerTrigger
+                           
+
+                           
+                                auth_asym_id={polymer.auth_asym_id}
+                                sequence={poly_state_obj.seq}
+                                // metadata={{
+                                //     type: 'Polypeptide',
+                                //     chain_title: polymer.auth_asym_id
+                                // }}
+                                onSelectionChange={selection => {
+                                    console.log('Selection changed:', selection);
+                                }}
+                            />
+                        </PopoverProvider>
+                    )}
                     <button
                         className={cn('rounded-full p-1 text-gray-500 ', showContent ? 'text-blue-500' : '')}
                         onClick={e => {
