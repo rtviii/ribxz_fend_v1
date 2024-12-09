@@ -5,7 +5,7 @@ import {useAppSelector} from '@/store/store';
 import {cn} from '@/components/utils';
 import './sequence_viewer.css';
 import {DraggableWindow} from './draggable_window';
-
+import {BrickWall} from 'lucide-react';
 export type ResidueData = [string, number];
 
 interface SequenceViewerProps {
@@ -215,31 +215,30 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
             }
         }
     };
-    const handleMouseUp = () => {
-        if (dragStart !== null && dragEnd !== null && !isCtrlPressed) {
-            if (isDragDeselecting) {
-                dispatch(removeSelection({auth_asym_id, residues: temporarySelection}));
-            } else {
-                dispatch(addSelection({auth_asym_id, residues: temporarySelection}));
-            }
+    // const handleMouseUp = () => {
+    //     if (dragStart !== null && dragEnd !== null && !isCtrlPressed) {
+    //         if (isDragDeselecting) {
+    //             dispatch(removeSelection({auth_asym_id, residues: temporarySelection}));
+    //         } else {
+    //             dispatch(addSelection({auth_asym_id, residues: temporarySelection}));
+    //         }
 
-            if (onSelectionChange) {
-                const indices = temporarySelection.map(residue =>
-                    sequence.findIndex(seq => seq[0] === residue[0] && seq[1] === residue[1])
-                );
-                onSelectionChange({indices, residues: temporarySelection});
-            }
-        }
+    //         if (onSelectionChange) {
+    //             const indices = temporarySelection.map(residue =>
+    //                 sequence.findIndex(seq => seq[0] === residue[0] && seq[1] === residue[1])
+    //             );
+    //             onSelectionChange({indices, residues: temporarySelection});
+    //         }
+    //     }
 
-        setDragStart(null);
-        setDragEnd(null);
-        setTemporarySelection([]);
-        setIsDragDeselecting(false);
-    };
+    //     setDragStart(null);
+    //     setDragEnd(null);
+    //     setTemporarySelection([]);
+    //     setIsDragDeselecting(false);
+    // };
 
     const visibleSequence = sequence.slice(visibleRange.start, visibleRange.end);
 
-    // Inside your SequenceViewer component, replace the render section:
 
     const renderResidueBlocks = () => {
         const blocks = [];
@@ -397,7 +396,8 @@ export const SequenceViewerTrigger: React.FC<{
 
     return (
         <button onClick={handleClick} className="font-mono text-xs px-2 py-0.5 rounded hover:bg-gray-100">
-            seq
+
+    <BrickWall size={14} />
         </button>
     );
 };

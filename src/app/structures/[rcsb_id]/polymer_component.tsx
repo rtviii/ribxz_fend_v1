@@ -1,7 +1,8 @@
 import React, {useContext, useRef, useState} from 'react';
 import {cn} from '@/components/utils';
 
-import {Eye, EyeOff, Square, CheckSquare} from 'lucide-react';
+import { Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch } from 'lucide-react';
+
 import {Polymer} from '@/store/ribxz_api/ribxz_api';
 import ribxzPolymerColorScheme from '@/components/mstar/providers/colorscheme';
 import {Color} from 'molstar/lib/mol-util/color';
@@ -9,10 +10,9 @@ import {MolstarContext} from '@/components/mstar/molstar_context';
 import {MolstarStateController} from '@/components/mstar/ribxz_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
-
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import {PolymerStateObject} from '@/store/molstar/slice_refs';
-import { SequenceViewerTrigger } from '@/app/components/sequence_viewer';
+import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 export type ResidueData = [string, number];
 
 export interface SequenceViewerProps {
@@ -122,6 +122,17 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                             }}
                         />
                     )}
+<button
+    className={cn('rounded-full p-1 text-gray-500')}
+    onClick={e => {
+        e.stopPropagation();
+        msc.polymers.isolatePolymer(polymer.parent_rcsb_id, polymer.auth_asym_id)
+        // Call your isolate function here
+    }}
+    title="Isolate view">
+    <ScanSearch size={14} />
+</button>
+
                     <button
                         className={cn('rounded-full p-1 text-gray-500 ', showContent ? 'text-blue-500' : '')}
                         onClick={e => {

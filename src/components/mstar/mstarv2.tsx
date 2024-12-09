@@ -32,7 +32,7 @@ import {
 
 import {debounceTime} from 'rxjs/operators';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
-import {ResidueData} from '@/app/components/_sequence_viewer';
+import { ResidueData } from '@/app/components/sequence_viewer';
 
 export interface HoverEventDetail {
     residueNumber?: number;
