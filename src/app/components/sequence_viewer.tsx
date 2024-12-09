@@ -1,10 +1,10 @@
-import React, {useState, useCallback, useEffect, useContext, useRef, createContext} from 'react';
+import React, {useState, useCallback, useEffect, useRef, createContext, useContext} from 'react';
 import {useDispatch} from 'react-redux';
 import {addSelection, removeSelection, clearSelections} from '@/store/molstar/sequence_viewer';
 import {useAppSelector} from '@/store/store';
 import {cn} from '@/components/utils';
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import './sequence_viewer.css';
+import {DraggableWindow} from './draggable_window';
 
 export type ResidueData = [string, number];
 
@@ -12,18 +12,17 @@ interface SequenceViewerProps {
     sequence: ResidueData[];
     auth_asym_id: string;
     metadata?: {
-        chain_title: string;
-        structure_id: string;
-        length: number;
-        type: 'Polypeptide' | 'Polynucleotide';
-        struct_ref: string;
-        polymer_ref: string;
+        chain_title?: string;
+        structure_id?: string;
+        length?: number;
+        type?: 'Polypeptide' | 'Polynucleotide';
+        struct_ref?: string;
+        polymer_ref?: string;
     };
     onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
 }
 
 const CHUNK_SIZE = 200;
-const BUFFER_SIZE = 50;
 
 const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, metadata, onSelectionChange}) => {
     const dispatch = useDispatch();
@@ -63,25 +62,22 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
                 entries.forEach(entry => {
                     if (!entry.isIntersecting) return;
 
-                    const elem = entry.target as HTMLElement;
-                    const index = parseInt(elem.dataset.index || '0');
-
-                    // Only load more content, don't reset the viewport
-                    if (elem.dataset.type === 'bottom' && visibleRange.end < sequence.length) {
+                    if (entry.target.dataset.type === 'bottom' && visibleRange.end < sequence.length) {
                         setVisibleRange(prev => ({
-                            start: prev.start, // Keep the current start
+                            start: prev.start,
                             end: Math.min(sequence.length, prev.end + CHUNK_SIZE)
                         }));
-                    } else if (elem.dataset.type === 'top' && visibleRange.start > 0) {
+                    } else if (entry.target.dataset.type === 'top' && visibleRange.start > 0) {
                         setVisibleRange(prev => ({
                             start: Math.max(0, prev.start - CHUNK_SIZE),
-                            end: prev.end // Keep the current end
+                            end: prev.end
                         }));
                     }
                 });
             },
             {threshold: 0.1, root: container}
         );
+
         const topSentinel = container.querySelector('[data-type="top"]');
         const bottomSentinel = container.querySelector('[data-type="bottom"]');
 
@@ -97,13 +93,11 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
             const isPermanentlySelected = selectedResidues.some(sel => sel[0] === residue[0] && sel[1] === residue[1]);
 
             if (isDragDeselecting) {
-                // If we're drag-deselecting, check if this residue is being deselected
                 return (
                     isPermanentlySelected &&
                     !temporarySelection.some(sel => sel[0] === residue[0] && sel[1] === residue[1])
                 );
             } else {
-                // Normal selection behavior
                 return (
                     isPermanentlySelected ||
                     temporarySelection.some(sel => sel[0] === residue[0] && sel[1] === residue[1])
@@ -117,12 +111,10 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
         setDragStart(index);
         setDragEnd(index);
 
-        // Check if we're starting on a selected residue
         const residue = sequence[index];
         const isStartingOnSelected = isSelected(index);
 
         if (!isCtrlPressed) {
-            // If starting on a selected residue, prepare for deselection
             if (isStartingOnSelected) {
                 setTemporarySelection([]);
                 setIsDragDeselecting(true);
@@ -131,7 +123,6 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
                 setIsDragDeselecting(false);
             }
         } else {
-            // Ctrl+click behavior remains the same
             if (isSelected(index)) {
                 dispatch(removeSelection({auth_asym_id, residues: [residue]}));
             } else {
@@ -149,12 +140,10 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
             const affectedResidues = sequence.slice(start, end + 1);
 
             if (isDragDeselecting) {
-                // When drag-deselecting, temporarySelection represents residues to remove
                 setTemporarySelection(
                     selectedResidues.filter(sel => affectedResidues.some(res => res[0] === sel[0] && res[1] === sel[1]))
                 );
             } else {
-                // Normal selection behavior
                 setTemporarySelection(affectedResidues);
             }
         }
@@ -163,31 +152,16 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
     const handleMouseUp = () => {
         if (dragStart !== null && dragEnd !== null && !isCtrlPressed) {
             if (isDragDeselecting) {
-                // Remove the temporary selection
-                dispatch(
-                    removeSelection({
-                        auth_asym_id,
-                        residues: temporarySelection
-                    })
-                );
+                dispatch(removeSelection({auth_asym_id, residues: temporarySelection}));
             } else {
-                // Add the temporary selection
-                dispatch(
-                    addSelection({
-                        auth_asym_id,
-                        residues: temporarySelection
-                    })
-                );
+                dispatch(addSelection({auth_asym_id, residues: temporarySelection}));
             }
 
             if (onSelectionChange) {
                 const indices = temporarySelection.map(residue =>
                     sequence.findIndex(seq => seq[0] === residue[0] && seq[1] === residue[1])
                 );
-                onSelectionChange({
-                    indices,
-                    residues: temporarySelection
-                });
+                onSelectionChange({indices, residues: temporarySelection});
             }
         }
 
@@ -239,69 +213,106 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
     );
 };
 
-// Context and Trigger
-interface PopoverContextType {
-    activePopover: string | null;
-    setActivePopover: (id: string | null) => void;
+interface SequenceViewerState {
+    isOpen: boolean;
+    sequence: ResidueData[] | null;
+    auth_asym_id: string | null;
+    metadata?: {
+        chain_title?: string;
+        structure_id?: string;
+        length?: number;
+        type?: 'Polypeptide' | 'Polynucleotide';
+        struct_ref?: string;
+        polymer_ref?: string;
+    };
+    onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
 }
 
-const PopoverContext = createContext<PopoverContextType>({
-    activePopover: null,
-    setActivePopover: () => {}
-});
+export const FloatingSequenceViewerWindow: React.FC = () => {
+    const {isOpen, sequence, auth_asym_id, metadata, onSelectionChange, closeViewer} = useSequenceViewer();
 
-export const PopoverProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
-    const [activePopover, setActivePopover] = useState<string | null>(null);
-    return <PopoverContext.Provider value={{activePopover, setActivePopover}}>{children}</PopoverContext.Provider>;
+    if (!isOpen || !sequence || !auth_asym_id) return null;
+
+    return (
+        <DraggableWindow
+            isOpen={isOpen}
+            onClose={closeViewer}
+            title={`Sequence Viewer - ${metadata?.chain_title || 'Chain'}`}>
+            <SequenceViewer sequence={sequence} auth_asym_id={auth_asym_id} onSelectionChange={onSelectionChange} />
+        </DraggableWindow>
+    );
 };
 
-export const SequenceViewerTrigger: React.FC<SequenceViewerProps> = props => {
-    const {activePopover, setActivePopover} = useContext(PopoverContext);
-    const isOpen = activePopover === props.auth_asym_id;
+interface SequenceViewerContextType extends SequenceViewerState {
+    openViewer: (config: Omit<SequenceViewerState, 'isOpen'>) => void;
+    closeViewer: () => void;
+}
+const SequenceViewerContext = createContext<SequenceViewerContextType | null>(null);
 
-    const handleMouseEnter = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setActivePopover(props.auth_asym_id);
-    };
+export const SequenceViewerProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
+    const [viewerState, setViewerState] = useState<SequenceViewerState>({
+        isOpen: false,
+        sequence: null,
+        auth_asym_id: null
+    });
 
-    const handleMouseLeave = (e: React.MouseEvent) => {
+    const openViewer = useCallback((config: Omit<SequenceViewerState, 'isOpen'>) => {
+        setViewerState({
+            ...config,
+            isOpen: true
+        });
+    }, []);
+
+    const closeViewer = useCallback(() => {
+        setViewerState(prev => ({
+            ...prev,
+            isOpen: false
+        }));
+    }, []);
+
+    return (
+        <SequenceViewerContext.Provider
+            value={{
+                ...viewerState,
+                openViewer,
+                closeViewer
+            }}>
+            {children}
+            <FloatingSequenceViewerWindow />
+        </SequenceViewerContext.Provider>
+    );
+};
+
+export const useSequenceViewer = () => {
+    const context = useContext(SequenceViewerContext);
+    if (!context) {
+        throw new Error('useSequenceViewer must be used within a SequenceViewerProvider');
+    }
+    return context;
+};
+// Simplified trigger button component
+export const SequenceViewerTrigger: React.FC<{
+    sequence: ResidueData[];
+    auth_asym_id: string;
+    metadata?: SequenceViewerState['metadata'];
+    onSelectionChange?: SequenceViewerState['onSelectionChange'];
+}> = ({sequence, auth_asym_id, metadata, onSelectionChange}) => {
+    const {openViewer} = useSequenceViewer();
+
+    const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!e.relatedTarget || !(e.relatedTarget as Element).closest('.sequence-viewer-content')) {
-            setActivePopover(null);
-        }
+        openViewer({
+            sequence,
+            auth_asym_id,
+            metadata,
+            onSelectionChange
+        });
     };
 
     return (
-        <Popover open={isOpen} onOpenChange={() => {}}>
-            <PopoverTrigger asChild>
-                <button
-                    className={cn(
-                        'font-mono text-xs px-2 py-0.5 rounded hover:bg-gray-100',
-                        isOpen ? 'bg-gray-100' : ''
-                    )}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                    onClick={e => e.stopPropagation()}>
-                    seq
-                </button>
-            </PopoverTrigger>
-            <PopoverContent
-                className="w-[400px] p-0"
-                side="right"
-                align="start"
-                onMouseEnter={e => {
-                    e.stopPropagation();
-                    setActivePopover(props.auth_asym_id);
-                }}
-                onMouseLeave={e => {
-                    e.stopPropagation();
-                    setActivePopover(null);
-                }}>
-                <div className="sequence-viewer-content p-2" onClick={e => e.stopPropagation()}>
-                    <SequenceViewer {...props} />
-                </div>
-            </PopoverContent>
-        </Popover>
+        <button onClick={handleClick} className="font-mono text-xs px-2 py-0.5 rounded hover:bg-gray-100">
+            seq
+        </button>
     );
 };
 

@@ -1,11 +1,11 @@
-import { ResidueData } from '@/app/components/sequence_viewer';
+import { ResidueData } from '@/app/components/_sequence_viewer';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface PolymerComponent {
-    type        : 'Polymer';
-    ref         : string;
+    type: 'Polymer';
+    ref: string;
     auth_asym_id: string;
-    sequence    : ResidueData[];
+    sequence: ResidueData[];
 }
 export interface LigandComponent {
     type: 'Ligand';
@@ -59,13 +59,13 @@ export const handleReferencesSlice = createSlice({
 
     }
 });
-export interface LigandStateObject{
-    ref:string,
+export interface LigandStateObject {
+    ref: string,
 }
 
-export interface PolymerStateObject{
-    ref:string,
-    seq:ResidueData[]
+export interface PolymerStateObject {
+    ref: string,
+    seq: ResidueData[]
 }
 export const {
     mapAssetRootRefAdd,

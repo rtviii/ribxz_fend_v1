@@ -32,7 +32,7 @@ import {
 
 import {debounceTime} from 'rxjs/operators';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
-import {ResidueData} from '@/app/components/sequence_viewer';
+import {ResidueData} from '@/app/components/_sequence_viewer';
 
 export interface HoverEventDetail {
     residueNumber?: number;
@@ -121,8 +121,8 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model      = await this.ctx.builders.structure.createModel(trajectory);
-            const structure  = await this.ctx.builders.structure.createStructure(model);
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
 
             // const traj = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
             // const repr       = await this.ctx.builders.structure.representation.addRepresentation(

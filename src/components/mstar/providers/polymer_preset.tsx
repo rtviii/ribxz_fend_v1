@@ -6,7 +6,7 @@ import {StructureRepresentationPresetProvider} from 'molstar/lib/mol-plugin-stat
 import {ParamDefinition as PD} from 'molstar/lib/mol-util/param-definition';
 import {Color} from 'molstar/lib/mol-util/color';
 import ribxzPolymerColorScheme from './colorscheme';
-import {ResidueData} from '@/app/components/sequence_viewer';
+import {ResidueData} from '@/app/components/_sequence_viewer';
 
 export const AMINO_ACIDS_3_TO_1_CODE = {
     ALA: 'A',
@@ -396,8 +396,8 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                 components[`${ligandId}`] = component;
                 representations[`${ligandId}`] = representation;
                 objects_ligand[ligandId] = {
-                    ref: component.ref,
-                }
+                    ref: component.ref
+                };
             }
         }
 

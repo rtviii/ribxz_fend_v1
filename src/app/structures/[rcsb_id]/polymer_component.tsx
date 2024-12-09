@@ -12,7 +12,7 @@ import {useStructureHover, useStructureSelection} from '@/store/molstar/context_
 
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import {PolymerStateObject} from '@/store/molstar/slice_refs';
-import SequenceViewer, {PopoverProvider, SequenceViewerTrigger} from '@/app/components/sequence_viewer';
+import { SequenceViewerTrigger } from '@/app/components/sequence_viewer';
 export type ResidueData = [string, number];
 
 export interface SequenceViewerProps {
@@ -114,22 +114,13 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                 </div>
                 <div className="flex items-center space-x-2">
                     {poly_state_obj && (
-                        <PopoverProvider>
-                            <SequenceViewerTrigger
-                           
-
-                           
-                                auth_asym_id={polymer.auth_asym_id}
-                                sequence={poly_state_obj.seq}
-                                // metadata={{
-                                //     type: 'Polypeptide',
-                                //     chain_title: polymer.auth_asym_id
-                                // }}
-                                onSelectionChange={selection => {
-                                    console.log('Selection changed:', selection);
-                                }}
-                            />
-                        </PopoverProvider>
+                        <SequenceViewerTrigger
+                            auth_asym_id={polymer.auth_asym_id}
+                            sequence={poly_state_obj.seq}
+                            onSelectionChange={selection => {
+                                console.log('Selection changed:', selection);
+                            }}
+                        />
                     )}
                     <button
                         className={cn('rounded-full p-1 text-gray-500 ', showContent ? 'text-blue-500' : '')}
