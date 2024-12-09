@@ -322,7 +322,7 @@ export const FloatingSequenceViewerWindow: React.FC = () => {
         <DraggableWindow
             isOpen={isOpen}
             onClose={closeViewer}
-            title={`Sequence Viewer - ${metadata?.chain_title || 'Chain'}`}>
+            title={`${metadata?.chain_title || 'Chain'}`}>
             <SequenceViewer sequence={sequence} auth_asym_id={auth_asym_id} onSelectionChange={onSelectionChange} />
         </DraggableWindow>
     );

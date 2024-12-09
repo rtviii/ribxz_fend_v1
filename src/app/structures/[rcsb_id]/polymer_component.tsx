@@ -36,7 +36,6 @@ interface PolymerComponentRowProps {
     onToggleVisibility: (id: string) => void;
 }
 
-
 const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const [showContent, setShowContent] = useState(false);
     const parent_map = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
@@ -115,6 +114,11 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                         <SequenceViewerTrigger
                             auth_asym_id={polymer.auth_asym_id}
                             sequence={poly_state_obj.seq}
+                            metadata={{
+                                type: polymer.entity_poly_polymer_type === 'RNA' ? 'Polynucleotide' : 'Polypeptide',
+                                chain_title:
+                                    polymer.nomenclature.length > 1 ? polymer.nomenclature[0] : polymer.auth_asym_id
+                            }}
                             onSelectionChange={selection => {
                                 console.log('Selection changed:', selection);
                             }}
