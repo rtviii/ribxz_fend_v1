@@ -147,7 +147,7 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
             }}>
             {/* Title Bar */}
             <div
-                className="bg-gray-100 px-4 py-2 cursor-move flex items-center justify-between select-none"
+                className="bg-gray-100 p-2   cursor-move flex items-center justify-between select-none"
                 onMouseDown={handleMouseDown}>
                 <span className="font-medium">{title}</span>
                 <div className="flex items-center space-x-2">
@@ -161,7 +161,9 @@ export const DraggableWindow: React.FC<DraggableWindowProps> = ({
             </div>
 
             {/* Content */}
-            <div className={isMinimized ? 'hidden' : 'p-4 h-[calc(100%-3rem)] overflow-auto'}>{children}</div>
+<div className={isMinimized ? 'hidden' : 'h-[calc(100%-1rem)] overflow-auto flex flex-col'}>
+    {children}
+</div>
 
             {/* Resize Handles */}
             {!isMinimized && (

@@ -277,7 +277,7 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
 
     return (
         <div className="sequence-viewer">
-            <div className="sequence-header">
+            {/* <div className="sequence-header">
                 <span>
                     {metadata?.chain_title || 'Chain'} ({sequence.length} residues)
                     {sequence.length > CHUNK_SIZE && ` - Showing ${visibleRange.start + 1}-${visibleRange.end}`}
@@ -285,7 +285,7 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
                 <button onClick={() => dispatch(clearSelections(auth_asym_id))} className="clear-button">
                     Clear
                 </button>
-            </div>
+            </div> */}
             <div className="sequence-content">
                 {visibleRange.start > 0 && <div data-type="top" data-index={visibleRange.start} className="h-4" />}
 
