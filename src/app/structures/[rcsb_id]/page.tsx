@@ -42,8 +42,8 @@ import {
 } from '@/store/slices/slice_structure_page';
 import {cn} from '@/components/utils';
 import {useUserInputPrompt} from './user_input_prompt';
-import {ribxzMstarv2} from '@/components/mstar/mstarv2';
-import {MolstarStateController} from '@/components/mstar/ribxz_controller';
+import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
+import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import {InteractionProvider, useStructureInteraction} from '@/store/molstar/context_interactions';
@@ -444,11 +444,11 @@ const MolstarInteractionListener = () => {
     return null;
 };
 export default function StructurePage({params}: {params: {rcsb_id: string}}) {
-    const molstarNodeRef                      = useRef<HTMLDivElement>(null);
-    const {rcsb_id}                           = params;
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const {rcsb_id} = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-    const state                               = useAppSelector(state => state);
-    const dispatch                            = useAppDispatch();
+    const state = useAppSelector(state => state);
+    const dispatch = useAppDispatch();
 
     const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
     const [msc, setMsc] = useState<MolstarStateController | null>(null);
@@ -521,11 +521,15 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                     <ResizablePanelGroup direction="horizontal">
                         <ResizablePanel defaultSize={25}>
                             <Card
-                           
                                 className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
                                 ref={leftPanelRef}>
                                 <div className="sticky top-0 space-y-2  ">
-                                    <Button onClick={()=>{console.log(state)}}>log state</Button>
+                                    <Button
+                                        onClick={() => {
+                                            console.log(state);
+                                        }}>
+                                        log state
+                                    </Button>
                                     {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
                                     {/* <SelectionAndStructureActions /> */}
                                     <StructureInfoTab data={data!} isLoading={isLoading} />

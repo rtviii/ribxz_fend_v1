@@ -934,7 +934,6 @@ export class MolstarRibxz {
     }
 
     //TODO: REFACTOR =============================================== LIGAND NAMESPACE
-
     // TODO
     dynamicSuperimpose(pivot_auth_asym_id: string) {
         const transform = (s: StateObjectRef<PSO.Molecule.Structure>, matrix: Mat4) => {

@@ -1,7 +1,6 @@
-import { ribxzMstarv2 } from "@/components/mstar/mstarv2";
-import { useAppSelector } from "@/store/store";
-import { useState } from "react";
-
+import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
+import {useAppSelector} from '@/store/store';
+import {useState} from 'react';
 
 const BookmarkTab = ({label, onClick}: {label: string; onClick: () => void}) => (
     <div className="group">
@@ -18,11 +17,8 @@ const BookmarkTab = ({label, onClick}: {label: string; onClick: () => void}) => 
     </div>
 );
 export const BookmarkedSelections: React.FC<{
-    leftPanelWidth:number
-}> = ({
-    leftPanelWidth
-}) => {
-
+    leftPanelWidth: number;
+}> = ({leftPanelWidth}) => {
     const selections = useAppSelector(state => state.structure_page.saved_selections);
     const bookmarks = Object.keys(selections);
     const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);

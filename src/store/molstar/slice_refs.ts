@@ -1,4 +1,4 @@
-import { ResidueData } from '@/app/components/_sequence_viewer';
+import { ResidueData } from '@/app/components/sequence_viewer';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface PolymerComponent {
@@ -14,6 +14,7 @@ export interface LigandComponent {
 }
 
 export type SubComponent = PolymerComponent | LigandComponent;
+
 interface HandleReferencesState {
     handle_root_ref_map: Record<string, string>;
     handle_repr_ref_map: Record<string, string>;

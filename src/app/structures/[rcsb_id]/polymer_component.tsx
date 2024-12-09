@@ -1,13 +1,13 @@
 import React, {useContext, useRef, useState} from 'react';
 import {cn} from '@/components/utils';
 
-import { Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch } from 'lucide-react';
+import {Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch} from 'lucide-react';
 
 import {Polymer} from '@/store/ribxz_api/ribxz_api';
 import ribxzPolymerColorScheme from '@/components/mstar/providers/colorscheme';
 import {Color} from 'molstar/lib/mol-util/color';
 import {MolstarContext} from '@/components/mstar/molstar_context';
-import {MolstarStateController} from '@/components/mstar/ribxz_controller';
+import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
@@ -42,25 +42,43 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const poly_state_obj: PolymerStateObject = parent_map && parent_map[polymer.auth_asym_id];
 
     const dispatch = useAppDispatch();
+    const polymerState = useAppSelector(
+        state => state.polymer_states.states[polymer.parent_rcsb_id]?.[polymer.auth_asym_id]
+    );
+
     const state = useAppSelector(state => state);
+    const ctx = useContext(MolstarContext);
+    const msc = new MolstarStateController(ctx!, dispatch, state);
 
     const {isChainHovered} = useStructureHover(polymer.auth_asym_id);
     const {isChainSelected} = useStructureSelection(polymer.auth_asym_id);
 
-    const ctx = useContext(MolstarContext);
-    const msc = new MolstarStateController(ctx!, dispatch, state);
+    const [isVisible, setIsVisible] = useState(true);
 
-    const [isSelected, setIsSelected] = useState(false);
-    const [visible, setVisible] = useState(true);
+    // const onToggleVisibility = () => {
+    //     ctx && msc.polymers.togglePolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, visible);
+    // };
+    const onToggleVisibility = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (ctx) {
+            msc.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !isVisible);
+            setIsVisible(!isVisible);
+        }
+    };
 
-    const onSelect = () => {
-        ctx && msc.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !isSelected);
-        setIsSelected(!isSelected);
+    const onToggleSelection = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (ctx) {
+            msc.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState?.selected);
+        }
     };
-    const onToggleVisibility = () => {
-        ctx && msc.polymers.togglePolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, visible);
-        setVisible(!visible);
+    const onIsolate = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (ctx) {
+            msc.polymers.isolatePolymer(polymer.parent_rcsb_id, polymer.auth_asym_id);
+        }
     };
+
     const onClick = () => {
         ctx && msc.polymers.focusPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
     };
@@ -75,21 +93,6 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const color = polymer.nomenclature.length > 0 ? ribxzPolymerColorScheme[polymer.nomenclature[0]] : 'gray';
     const hexcol = Color.toHexStyle(color);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200';
-    const [isHoveringSeq, setIsHoveringSeq] = useState(false);
-
-    const popoverTimer = useRef<NodeJS.Timeout>();
-    const handleSequenceHover = (isEntering: boolean) => {
-        setIsHoveringSeq(isEntering);
-        if (popoverTimer.current) {
-            clearTimeout(popoverTimer.current);
-        }
-
-        if (!isEntering) {
-            popoverTimer.current = setTimeout(() => {
-                setShowContent(false);
-            }, 300); // Delay before hiding
-        }
-    };
 
     return (
         <div
@@ -122,33 +125,18 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                             }}
                         />
                     )}
-<button
-    className={cn('rounded-full p-1 text-gray-500')}
-    onClick={e => {
-        e.stopPropagation();
-        msc.polymers.isolatePolymer(polymer.parent_rcsb_id, polymer.auth_asym_id)
-        // Call your isolate function here
-    }}
-    title="Isolate view">
-    <ScanSearch size={14} />
-</button>
-
-                    <button
-                        className={cn('rounded-full p-1 text-gray-500 ', showContent ? 'text-blue-500' : '')}
-                        onClick={e => {
-                            e.stopPropagation();
-
-                            onToggleVisibility();
-                        }}>
-                        {visible ? <Eye size={14} /> : <EyeOff size={14} />}
+                    <button className={cn('rounded-full p-1 text-gray-500')} onClick={onIsolate} title="Isolate view">
+                        <ScanSearch size={14} />
                     </button>
+
+                    <button className={cn('rounded-full p-1 text-gray-500')} onClick={onToggleVisibility}>
+                        {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
+                    </button>
+
                     <button
-                        className={cn('rounded-full p-1 text-gray-500 ', isSelected ? 'text-blue-500' : '')}
-                        onClick={e => {
-                            e.stopPropagation();
-                            onSelect();
-                        }}>
-                        {isSelected ? <CheckSquare size={14} /> : <Square size={14} />}
+                        className={cn('rounded-full p-1 text-gray-500', polymerState?.selected ? 'text-blue-500' : '')}
+                        onClick={onToggleSelection}>
+                        {polymerState?.selected ? <CheckSquare size={14} /> : <Square size={14} />}
                     </button>
                 </div>
             </div>

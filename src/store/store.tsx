@@ -14,6 +14,7 @@ import { HomepageSlice } from './slices/slice_homepage'
 
 import { handleReferencesSlice } from './molstar/slice_refs'
 import { sequenceViewerSlice } from './molstar/sequence_viewer'
+import { polymerStatesSlice } from './slices/slice_polymer_states'
 
 export const makeStore = () => {
   const store =  configureStore({
@@ -31,6 +32,7 @@ export const makeStore = () => {
 
       mstar_refs    : handleReferencesSlice.reducer,
       sequenceViewer: sequenceViewerSlice.reducer,
+      polymer_states: polymerStatesSlice.reducer
       // mstar_seq_viewer           : sequenceViewerSlice.reducer,
     },
 

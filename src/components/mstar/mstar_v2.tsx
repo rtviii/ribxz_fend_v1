@@ -32,7 +32,7 @@ import {
 
 import {debounceTime} from 'rxjs/operators';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
-import { ResidueData } from '@/app/components/sequence_viewer';
+import {ResidueData} from '@/app/components/sequence_viewer';
 
 export interface HoverEventDetail {
     residueNumber?: number;
@@ -641,14 +641,9 @@ export class ribxzMstarv2 {
     };
 
     interactions = {
-        // remove_structure(ref: string): Promise<void> {
-        //     PluginCommands.State.RemoveObject(this.plugin, { state: this.plugin.state.data, ref });
-        // }
-
-        toggle_visibility: (ref: string, on_off: boolean) => {
-            setSubtreeVisibility(this.ctx.state.data, ref, on_off);
+        setSubtreeVisibility: (ref: string, is_visible: boolean) => {
+            setSubtreeVisibility(this.ctx.state.data, ref, !is_visible);
         },
-
         focus: (ref: string) => {
             const state = this.ctx.state.data;
             const cell = state.select(StateSelection.Generators.byRef(ref))[0];
