@@ -2,7 +2,7 @@
 import {Inter} from 'next/font/google';
 import './globals.css';
 import StoreProvider from './store_provider';
-import {SequenceViewerProvider} from './components/draggable_window';
+import { SequenceViewerProvider } from './components/sequence_viewer';
 
 const inter = Inter({subsets: ['latin']});
 
