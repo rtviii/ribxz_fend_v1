@@ -5,7 +5,7 @@ import {useAppSelector} from '@/store/store';
 import {cn} from '@/components/utils';
 import './sequence_viewer.css';
 import {DraggableWindow} from './draggable_window';
-import {BrickWall} from 'lucide-react';
+import { BrickWall, Dna, Shapes } from 'lucide-react';
 export type ResidueData = [string, number];
 
 interface SequenceViewerProps {
@@ -375,12 +375,19 @@ export const useSequenceViewer = () => {
     }
     return context;
 };
-// Simplified trigger button component
+
 export const SequenceViewerTrigger: React.FC<{
     sequence: ResidueData[];
     auth_asym_id: string;
-    metadata?: SequenceViewerState['metadata'];
-    onSelectionChange?: SequenceViewerState['onSelectionChange'];
+    metadata?: {
+        chain_title?: string;
+        structure_id?: string;
+        length?: number;
+        type?: 'Polypeptide' | 'Polynucleotide';
+        struct_ref?: string;
+        polymer_ref?: string;
+    };
+    onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
 }> = ({sequence, auth_asym_id, metadata, onSelectionChange}) => {
     const {openViewer} = useSequenceViewer();
 
@@ -394,10 +401,20 @@ export const SequenceViewerTrigger: React.FC<{
         });
     };
 
-    return (
-        <button onClick={handleClick} className="font-mono text-xs px-2 py-0.5 rounded hover:bg-gray-100">
+    // Determine if sequence is nucleotides or amino acids based on first residue
+    const isNucleotide =  metadata?.type ===  'Polynucleotide' 
 
-    <BrickWall size={14} />
+    return (
+        <button 
+            onClick={handleClick} 
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-colors"
+        >
+            {isNucleotide ? (
+                <Dna size={12} className="text-gray-500" />
+            ) : (
+                <Shapes size={12} className="text-gray-500" />
+            )}
+            <span>{sequence.length} {isNucleotide ? 'NTs' : 'AAs'}</span>
         </button>
     );
 };
