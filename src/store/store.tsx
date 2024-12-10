@@ -11,7 +11,7 @@ import { structures_slice } from './slices/slice_structures'
 import { polymers_slice } from './slices/slice_polymers'
 import { polymersApi } from './ribxz_api/polymers_api'
 import { HomepageSlice } from './slices/slice_homepage'
-
+import { createLogger } from 'redux-logger'
 import { handleReferencesSlice } from './molstar/slice_refs'
 import { sequenceViewerSlice } from './molstar/sequence_viewer'
 import { polymerStatesSlice } from './slices/slice_polymer_states'
@@ -38,8 +38,27 @@ export const makeStore = () => {
 
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
     .concat(ribxz_api.middleware)
-    .concat(structuresApi.middleware), 
+    .concat(structuresApi.middleware)
+    .concat(createLogger({
+      predicate: (getState, action) => action.type.includes('polymerStates'),
+      duration: true,
+      timestamp: true,
+    }))
+    .concat(
+      createLogger({
+        predicate: (_, action) => action.type.includes('polymerStates'),
+        actionTransformer: (action) => {
+          console.time('subscription-cycle');
+          return action;
+        },
+        stateTransformer: (state) => {
+          console.timeEnd('subscription-cycle');
+          return state;
+        }
+      })
+    ), 
   })
+
 
   //* All prefetching can happen here via thunks.
   store.dispatch(prefetchLigandsData())

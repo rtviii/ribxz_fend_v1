@@ -642,7 +642,9 @@ export class ribxzMstarv2 {
 
     interactions = {
         setSubtreeVisibility: (ref: string, is_visible: boolean) => {
-            setSubtreeVisibility(this.ctx.state.data, ref, !is_visible);
+            console.time('subtree-visibility');
+            setSubtreeVisibility(this.ctx.state.data, ref, !is_visible); // Note the inversion
+            console.timeEnd('subtree-visibility');
         },
         focus: (ref: string) => {
             const state = this.ctx.state.data;

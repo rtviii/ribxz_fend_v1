@@ -48,6 +48,8 @@ import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import {InteractionProvider, useStructureInteraction} from '@/store/molstar/context_interactions';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
+import {MolstarService} from '@/components/mstar/service';
+import { useStore } from 'react-redux';
 
 const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
     if (a.nomenclature.length === 0 || b.nomenclature.length === 0) {
@@ -420,67 +422,90 @@ const SelectionAndStructureActions = ({}: {}) => {
 //     );
 // };
 
-const MolstarInteractionListener = () => {
-    const {setHovered} = useStructureInteraction();
+// const MolstarInteractionListener = () => {
+//     const {setHovered} = useStructureInteraction();
 
-    useEffect(() => {
-        const handleHover = (event: any) => {
-            setHovered(event.eventData || null);
-        };
+//     useEffect(() => {
+//         const handleHover = (event: any) => {
+//             setHovered(event.eventData || null);
+//         };
 
-        const handleMouseOut = () => {
-            setHovered(null);
-        };
+//         const handleMouseOut = () => {
+//             setHovered(null);
+//         };
 
-        document.addEventListener('molstar.hover', handleHover);
-        document.addEventListener('molstar.mouseout', handleMouseOut);
+//         document.addEventListener('molstar.hover', handleHover);
+//         document.addEventListener('molstar.mouseout', handleMouseOut);
 
-        return () => {
-            document.removeEventListener('molstar.hover', handleHover);
-            document.removeEventListener('molstar.mouseout', handleMouseOut);
-        };
-    }, [setHovered]);
+//         return () => {
+//             document.removeEventListener('molstar.hover', handleHover);
+//             document.removeEventListener('molstar.mouseout', handleMouseOut);
+//         };
+//     }, [setHovered]);
 
-    return null;
-};
+//     return null;
+// };
 export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const {rcsb_id} = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-    const state = useAppSelector(state => state);
+    // const state = useAppSelector(state => state);
     const dispatch = useAppDispatch();
 
-    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
-    const [msc, setMsc] = useState<MolstarStateController | null>(null);
+    // const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
+    // const [msc, setMsc] = useState<MolstarStateController | null>(null);
 
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
 
     const searchParams = useSearchParams();
-    const ligand_param = searchParams.get('ligand');
-    const ptc = searchParams.get('ptc');
-    const {
-        data: ptc_data,
-        isLoading: ptc_data_IsLoading,
-        error: ptc_error
-    } = useRoutersRouterStructStructurePtcQuery({rcsbId: rcsb_id});
-    const [method, setMethod] = useState<undefined | string>();
+    // const ligand_param = searchParams.get('ligand');
+    // const ptc = searchParams.get('ptc');
+    // const {
+    //     data: ptc_data,
+    //     isLoading: ptc_data_IsLoading,
+    //     error: ptc_error
+    // } = useRoutersRouterStructStructurePtcQuery({rcsbId: rcsb_id});
+    // const [method, setMethod] = useState<undefined | string>();
 
-    // !Autoload structure
+    // // !Autoload structure
+    // useEffect(() => {
+    //     (async () => {
+    //         const x = new ribxzMstarv2();
+    //         await x.init(molstarNodeRef.current!);
+    //         const y = new MolstarStateController(x, dispatch, state);
+    //         setCtx(x);
+    //         setMsc(y);
+    //     })();
+    // }, []);
+
+    // useEffect(() => {
+    //     if (data === undefined) {
+    //         return;
+    //     }
+    //     const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
+    //         (prev: Record<string, string>, current: Polymer) => {
+    //             prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+    //             return prev;
+    //         },
+    //         {}
+    //     );
+    //     msc?.loadStructure(rcsb_id, nomenclature_map);
+    // }, [ctx, data]);
+
+
+    const store = useStore();  // Import from react-redux
+
     useEffect(() => {
-        (async () => {
-            const x = new ribxzMstarv2();
-            await x.init(molstarNodeRef.current!);
-            const y = new MolstarStateController(x, dispatch, state);
-            setCtx(x);
-            setMsc(y);
-        })();
+        const service = MolstarService.getInstance();
+        service.initialize(molstarNodeRef.current!, dispatch, store.getState);
     }, []);
 
+
     useEffect(() => {
+        const service = MolstarService.getInstance();
         if (data === undefined) {
             return;
         }
-
         const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
             (prev: Record<string, string>, current: Polymer) => {
                 prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
@@ -488,8 +513,8 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
             },
             {}
         );
-        msc?.loadStructure(rcsb_id, nomenclature_map);
-    }, [ctx, data]);
+        service.getController()?.loadStructure(rcsb_id, nomenclature_map);
+    }, [data]);
 
     const resizeObserver = useCallback(() => {
         return new ResizeObserver(entries => {
@@ -514,22 +539,22 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <InteractionProvider>
+            {/* <InteractionProvider> */}
                 <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
-                <MolstarContext.Provider value={ctx}>
-                    <MolstarInteractionListener />
+                {/* <MolstarContext.Provider value={ctx}> */}
+                    {/* <MolstarInteractionListener /> */}
                     <ResizablePanelGroup direction="horizontal">
                         <ResizablePanel defaultSize={25}>
                             <Card
                                 className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
                                 ref={leftPanelRef}>
                                 <div className="sticky top-0 space-y-2  ">
-                                    <Button
+                                    {/* <Button
                                         onClick={() => {
                                             console.log(state);
                                         }}>
                                         log state
-                                    </Button>
+                                    </Button> */}
                                     {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
                                     {/* <SelectionAndStructureActions /> */}
                                     <StructureInfoTab data={data!} isLoading={isLoading} />
@@ -544,9 +569,9 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                             <MolstarNode ref={molstarNodeRef} />
                         </ResizablePanel>
                     </ResizablePanelGroup>
-                </MolstarContext.Provider>
+                {/* </MolstarContext.Provider> */}
                 <SidebarMenu />
-            </InteractionProvider>
+            {/* </InteractionProvider> */}
         </div>
     );
 }

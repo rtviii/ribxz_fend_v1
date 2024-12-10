@@ -1,4 +1,4 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {memo, useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {cn} from '@/components/utils';
 
 import {Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch} from 'lucide-react';
@@ -13,6 +13,7 @@ import {useStructureHover, useStructureSelection} from '@/store/molstar/context_
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import {PolymerStateObject} from '@/store/molstar/slice_refs';
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
+import {useMolstarService} from '@/components/mstar/service';
 export type ResidueData = [string, number];
 
 export interface SequenceViewerProps {
@@ -36,52 +37,86 @@ interface PolymerComponentRowProps {
     onToggleVisibility: (id: string) => void;
 }
 
-const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
+const usePolymerRowData = (polymer: Polymer) => {
+    return useAppSelector(state => ({
+        parent_map: state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id],
+        polymerState: state.polymer_states.states[polymer.parent_rcsb_id]?.[polymer.auth_asym_id]
+    }));
+};
+const PolymerComponentRow: React.FC<PolymerComponentRowProps> = memo(({polymer}) => {
+    console.time('component-render');
+//     useEffect(() => {
+//         console.timeEnd('component-render');
+//     });
+//     const state = useAppSelector(state=>state)
+// console.log('State size:', 
+//     JSON.stringify(state.polymer_states.states).length
+// );
+
+
+
+
+
     const [showContent, setShowContent] = useState(false);
-    const parent_map = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
+
+    const {parent_map, polymerState} = usePolymerRowData(polymer);
+    // const parent_map                         = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
+    // const polymerState                       = useAppSelector( state => state.polymer_states.states[polymer.parent_rcsb_id]?.[polymer.auth_asym_id] );
     const poly_state_obj: PolymerStateObject = parent_map && parent_map[polymer.auth_asym_id];
 
     const dispatch = useAppDispatch();
-    const polymerState = useAppSelector(
-        state => state.polymer_states.states[polymer.parent_rcsb_id]?.[polymer.auth_asym_id]
+    const {service, interactionState} = useMolstarService();
+
+    // const state = useAppSelector(state => state);
+    // const ctx = useContext(MolstarContext);
+    // const msc = new MolstarStateController(ctx!, dispatch, state);
+
+    // const {isChainHovered} = useStructureHover(polymer.auth_asym_id);
+    const isChainHovered = interactionState.hover?.auth_asym_id === polymer.auth_asym_id;
+
+    // const onToggleVisibility = (e: React.MouseEvent) => {
+    //     e.stopPropagation();
+    //     if (ctx) {
+    //         msc.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState.visible);
+    //     }
+    // };
+    const onToggleVisibility = useCallback(
+        (e: React.MouseEvent) => {
+            console.time('visibility-toggle');
+
+            e.stopPropagation();
+            service
+                .getController()
+                ?.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState.visible);
+
+            console.timeEnd('visibility-toggle');
+        },
+        [polymer, polymerState?.visible]
     );
 
-    const state = useAppSelector(state => state);
-    const ctx = useContext(MolstarContext);
-    const msc = new MolstarStateController(ctx!, dispatch, state);
+    // const onToggleSelection = (e: React.MouseEvent) => {
+    //     e.stopPropagation();
+    //     if (ctx) {
+    //         msc.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState?.selected);
+    //     }
+    // };
+    // const onIsolate = (e: React.MouseEvent) => {
+    //     e.stopPropagation();
+    //     if (ctx) {
+    //         msc.polymers.isolatePolymer(polymer.parent_rcsb_id, polymer.auth_asym_id);
+    //     }
+    // };
 
-    const {isChainHovered} = useStructureHover(polymer.auth_asym_id);
+    // const onClick = () => {
+    //     ctx && msc.polymers.focusPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
+    // };
 
-    const onToggleVisibility = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (ctx) {
-            msc.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState.visible);
-        }
-    };
-
-    const onToggleSelection = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (ctx) {
-            msc.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState?.selected);
-        }
-    };
-    const onIsolate = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (ctx) {
-            msc.polymers.isolatePolymer(polymer.parent_rcsb_id, polymer.auth_asym_id);
-        }
-    };
-
-    const onClick = () => {
-        ctx && msc.polymers.focusPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
-    };
-
-    const onMouseEnter = () => {
-        ctx && msc.polymers.highlightPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
-    };
-    const onMouseLeave = () => {
-        ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
-    };
+    // const onMouseEnter = () => {
+    //     ctx && msc.polymers.highlightPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
+    // };
+    // const onMouseLeave = () => {
+    //     ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
+    // };
 
     const color = polymer.nomenclature.length > 0 ? ribxzPolymerColorScheme[polymer.nomenclature[0]] : 'gray';
     const hexcol = Color.toHexStyle(color);
@@ -90,9 +125,10 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     return (
         <div
             className="border-b border-gray-200 last:border-b-0 "
-            onMouseLeave={onMouseLeave}
-            onMouseEnter={onMouseEnter}
-            onClick={onClick}>
+            // onMouseLeave={onMouseLeave}
+            // onMouseEnter={onMouseEnter}
+            // onClick={onClick}
+        >
             <div
                 className={cn(
                     'flex items-center justify-between rounded-md px-2 transition-colors hover:cursor-pointer py-1  hover:border-l-4 hover:border-l-slate-400 hover:bg-slate-200',
@@ -124,7 +160,10 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                             }}
                         />
                     )}
-                    <button className={cn('rounded-full p-1 text-gray-500')} onClick={onIsolate} title="Isolate view">
+                    <button
+                        className={cn('rounded-full p-1 text-gray-500')}
+                        // onClick={onIsolate}
+                        title="Isolate view">
                         <ScanSearch size={14} />
                     </button>
 
@@ -134,13 +173,15 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
 
                     <button
                         className={cn('rounded-full p-1 text-gray-500', polymerState?.selected ? 'text-blue-500' : '')}
-                        onClick={onToggleSelection}>
+                        // onClick={onToggleSelection}
+                    >
                         {polymerState?.selected ? <CheckSquare size={14} /> : <Square size={14} />}
                     </button>
                 </div>
             </div>
         </div>
     );
-};
+});
 
+PolymerComponentRow.displayName = 'PolymerComponentRow';
 export default PolymerComponentRow;

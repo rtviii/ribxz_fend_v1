@@ -50,19 +50,14 @@ export const polymerStatesSlice = createSlice({
                 }
             });
         },
-        setPolymerVisibility: (
-            state,
-            action: PayloadAction<{
-                rcsb_id: string;
-                auth_asym_id: string;
-                visible: boolean;
-            }>
-        ) => {
-            const {rcsb_id, auth_asym_id, visible} = action.payload;
-            if (state.states[rcsb_id]?.[auth_asym_id]) {
-                state.states[rcsb_id][auth_asym_id].visible = visible;
-            }
-        },
+setPolymerVisibility: (state, action) => {
+    console.time('reducer-internal');
+    const {rcsb_id, auth_asym_id, visible} = action.payload;
+    if (state.states[rcsb_id]?.[auth_asym_id]) {
+        state.states[rcsb_id][auth_asym_id].visible = visible;
+    }
+    console.timeEnd('reducer-internal');
+},
 
      setBatchPolymerVisibility: (
             state,

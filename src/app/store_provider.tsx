@@ -8,6 +8,15 @@ export default function StoreProvider({ children }: { children: React.ReactNode 
   if (!storeRef.current) {
     storeRef.current = makeStore()
   }
+  const store = storeRef.current
+
+  let subscriberCount = 0;
+  const originalSubscribe = store.subscribe;
+  store.subscribe = (listener) => {
+    subscriberCount++;
+    console.log('Current subscriber count:', subscriberCount);
+    return originalSubscribe(listener);
+  };
   return <Provider store={storeRef.current}>{children}</Provider>
 }
 

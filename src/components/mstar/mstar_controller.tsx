@@ -19,12 +19,13 @@ export function createAssetHandle(asset_value: string): string {
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
     private dispatch: AppDispatch;
-    private state: RootState;
+    // private state   : RootState;
+    private getState: () => RootState;
 
-    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, state: RootState) {
+    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, getState: () => RootState) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
-        this.state = state;
+        this.getState = getState;
     }
     mute_polymers = async (rcsb_id: string) => {
         for (const auth_asym_id of Object.keys(this.state.mstar_refs.handle_model_components_map[rcsb_id])) {
@@ -68,11 +69,9 @@ export class MolstarStateController {
         return {root_ref, repr_ref, components};
     }
 
-    retrievePolymerRef(rcsb_id: string, auth_asym_id: string): string | undefined {
-        if (this.state.mstar_refs.handle_model_components_map[rcsb_id] === undefined) {
-            return;
-        }
-        return this.state.mstar_refs.handle_model_components_map[rcsb_id][auth_asym_id].ref;
+    retrievePolymerRef(rcsb_id: string, auth_asym_id: string) {
+        const state = this.getState();
+        return state.mstar_refs.handle_model_components_map[rcsb_id]?.[auth_asym_id]?.ref;
     }
 
     polymers = {
@@ -111,12 +110,29 @@ export class MolstarStateController {
                 }
             });
         },
+        // setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
+        //     console.log("got visibliety trigger");
+
+        //     const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+        //     console.log("Got ref", ref);
+
+        //     if (ref) {
+
+        //         this.viewer.interactions.setSubtreeVisibility(ref, is_visible);
+        //         this.dispatch(setPolymerVisibility({rcsb_id, auth_asym_id, visible: is_visible}));
+        //     }
+        // },
         setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
+            console.time('molstar-update');
             const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
             if (ref) {
                 this.viewer.interactions.setSubtreeVisibility(ref, is_visible);
-                this.dispatch(setPolymerVisibility({rcsb_id, auth_asym_id, visible: is_visible}));
             }
+            console.timeEnd('molstar-update');
+
+            console.time('redux-update');
+            this.dispatch(setPolymerVisibility({rcsb_id, auth_asym_id, visible: is_visible}));
+            console.timeEnd('redux-update');
         },
 
         selectPolymerComponent: async (rcsb_id: string, auth_asym_id: string, selected: boolean) => {
