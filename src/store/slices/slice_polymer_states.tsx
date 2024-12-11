@@ -10,7 +10,6 @@ interface PolymerIdentifier {
     auth_asym_id: string;
 }
 
-// Flattened state structure
 interface PolymerStatesState {
     statesByPolymer: Record<string, PolymerUIState>; // key is `${rcsb_id}_${auth_asym_id}`
 }
@@ -57,7 +56,7 @@ export const polymerStatesSlice = createSlice({
         },
 
         setBatchPolymerVisibility: (state, action: PayloadAction<PolymerVisibilityUpdate[]>) => {
-            action.payload.forEach(({ auth_asym_id, visible}) => {
+            action.payload.forEach(({auth_asym_id, visible}) => {
                 if (state.statesByPolymer[auth_asym_id]) {
                     state.statesByPolymer[auth_asym_id].visible = visible;
                 }

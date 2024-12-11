@@ -8,16 +8,99 @@ import {
     setPolymerSelected,
     setPolymerVisibility
 } from '@/store/slices/slice_polymer_states';
+import {InteractionManagerConfig, MolstarEventHandlers} from './mstar_interactions';
+import {StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure';
+import {debounceTime} from 'rxjs';
+import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
     private dispatch: AppDispatch;
     private getState: () => RootState;
 
-    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, getState: () => RootState) {
+    private eventHandlers: MolstarEventHandlers = {};
+
+    constructor(
+        molstarViewer: ribxzMstarv2,
+        dispatch: AppDispatch,
+        getState: () => RootState,
+
+        config?: InteractionManagerConfig
+    ) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
         this.getState = getState;
+
+        this.setupInteractions(config);
+    }
+
+    setEventHandlers(handlers: MolstarEventHandlers) {
+        this.eventHandlers = {...this.eventHandlers, ...handlers};
+    }
+
+    private setupInteractions(config: InteractionManagerConfig = {}) {
+        const {debounceTime: debounceDuration = 200, enableHover = true, enableSelection = true} = config;
+
+        if (enableHover) {
+            this.setupHoverHandling(debounceDuration);
+        }
+
+        if (enableSelection) {
+            this.setupSelectionHandling();
+        }
+    }
+
+    private getElementDetails(location: StructureElement.Location) {
+        return {
+            entity_id: StructureProperties.chain.label_entity_id(location),
+            label_asym_id: StructureProperties.chain.label_asym_id(location),
+            auth_asym_id: StructureProperties.chain.auth_asym_id(location),
+            seq_id: StructureProperties.residue.label_seq_id(location),
+            auth_seq_id: StructureProperties.residue.auth_seq_id(location),
+            comp_id: StructureProperties.atom.label_comp_id(location)
+        };
+    }
+
+    private getLociDetails(loci: any) {
+        if (loci.kind === 'element-loci') {
+            const stats = StructureElement.Stats.ofLoci(loci);
+            const {elementCount, residueCount, chainCount} = stats;
+
+            if (elementCount === 1 && residueCount === 0 && chainCount === 0) {
+                return this.getElementDetails(stats.firstElementLoc);
+            } else if (elementCount === 0 && residueCount === 1 && chainCount === 0) {
+                return this.getElementDetails(stats.firstResidueLoc);
+            }
+        }
+        return null;
+    }
+
+    private setupHoverHandling(debounceDuration: number) {
+        this.viewer.ctx.behaviors.interaction.hover
+            .pipe(debounceTime(debounceDuration))
+            .subscribe((e: InteractivityManager.HoverEvent) => {
+                if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+                    const element = this.getLociDetails(e.current.loci);
+                    if (element) {
+                        this.eventHandlers.onHover?.(element);
+                    }
+                } else {
+                    this.eventHandlers.onClearHover?.();
+                }
+            });
+    }
+
+    private setupSelectionHandling() {
+        this.viewer.ctx.behaviors.interaction.click.subscribe((e: InteractivityManager.HoverEvent) => {
+            if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+                const element = this.getLociDetails(e.current.loci);
+                if (element) {
+                    this.eventHandlers.onSelect?.(element);
+                }
+            } else {
+                this.eventHandlers.onClearSelection?.();
+            }
+        });
     }
 
     mute_polymers = async (rcsb_id: string) => {

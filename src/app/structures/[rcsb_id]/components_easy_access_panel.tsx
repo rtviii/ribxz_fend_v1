@@ -4,11 +4,8 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/c
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 import {Settings, Eye, Download, Filter} from 'lucide-react';
 import PolymerComponentRow from './polymer_component';
-import {set_id_to_selection} from '@/store/slices/slice_structure_page';
 import {useAppDispatch, useAppSelector} from '@/store/store';
-import {MolstarContext} from '@/components/mstar/molstar_context';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
-import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {molstarServiceInstance} from '@/components/mstar/mstar_service';
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {

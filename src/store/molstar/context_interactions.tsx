@@ -77,7 +77,6 @@ export const useStructureHover = (auth_asym_id?: string, auth_seq_id?: number) =
 
 export const useStructureSelection = (auth_asym_id?: string, auth_seq_id?: number) => {
     const {state} = useStructureInteraction();
-
     return {
         isChainSelected: auth_asym_id ? state.selected?.auth_asym_id === auth_asym_id : false,
         isResidueSelected: auth_seq_id ? state.selected?.auth_seq_id === auth_seq_id : false,
