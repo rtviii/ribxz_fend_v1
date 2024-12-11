@@ -11,26 +11,26 @@ interface MolstarService {
 }
 
 // Create a singleton instance outside of the hook
-export let molstarInstance: MolstarService | null = null;
-export const useMolstarViewer = (containerRef: React.RefObject<HTMLDivElement>) => {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const dispatch = useAppDispatch();
-  const store = useStore<AppStore>();
-  
-  // Explicitly type the getState function
-  const getState = useCallback((): RootState => {
-    return store.getState();
-  }, [store]);
+export let molstarServiceInstance: MolstarService | null = null;
+export const useMolstarService = (containerRef: React.RefObject<HTMLDivElement>) => {
+    const [isInitialized, setIsInitialized] = useState(false);
+    const dispatch = useAppDispatch();
+    const store = useStore<AppStore>();
+
+    // Explicitly type the getState function
+    const getState = useCallback((): RootState => {
+        return store.getState();
+    }, [store]);
 
     useEffect(() => {
         const initMolstar = async () => {
-            if (!containerRef.current || molstarInstance) return;
+            if (!containerRef.current || molstarServiceInstance) return;
 
             const viewer = new ribxzMstarv2();
             await viewer.init(containerRef.current);
             const controller = new MolstarStateController(viewer, dispatch, getState);
 
-            molstarInstance = {viewer, controller};
+            molstarServiceInstance = {viewer, controller};
             setIsInitialized(true);
         };
 
@@ -38,19 +38,19 @@ export const useMolstarViewer = (containerRef: React.RefObject<HTMLDivElement>) 
 
         return () => {
             // Cleanup if needed
-            if (molstarInstance) {
+            if (molstarServiceInstance) {
                 // Add any necessary cleanup
-                molstarInstance = null;
+                molstarServiceInstance = null;
             }
         };
     }, [containerRef.current]);
 
     return {
-        viewer: molstarInstance?.viewer ?? null,
-        controller: molstarInstance?.controller ?? null,
+        viewer: molstarServiceInstance?.viewer ?? null,
+        controller: molstarServiceInstance?.controller ?? null,
         isInitialized
     };
 };
 
 // Optional: Create a context for components that need direct access
-export const MolstarContext = React.createContext<MolstarService | null>(null);
+export const MolstarServiceContext = React.createContext<MolstarService | null>(null);

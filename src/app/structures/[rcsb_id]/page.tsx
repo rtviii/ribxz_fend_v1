@@ -48,7 +48,7 @@ import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import {InteractionProvider, useStructureInteraction} from '@/store/molstar/context_interactions';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
-import {molstarInstance, useMolstarViewer} from '@/components/mstar/mstar_service';
+import {MolstarServiceContext,  molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
 
 const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
     if (a.nomenclature.length === 0 || b.nomenclature.length === 0) {
@@ -450,7 +450,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     const {rcsb_id} = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
 
-    const {viewer, controller, isInitialized} = useMolstarViewer(molstarNodeRef);
+    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
 
     const searchParams = useSearchParams();
@@ -497,40 +497,41 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
         [resizeObserver]
     );
 
+    const state= useAppSelector(s=>s)
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <InteractionProvider>
                 <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
 
-                <MolstarContext.Provider value={molstarInstance}>
-                    <MolstarInteractionListener />
-                    <ResizablePanelGroup direction="horizontal">
-                        <ResizablePanel defaultSize={25}>
-                            <Card
-                                className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
-                                ref={leftPanelRef}>
-                                <div className="sticky top-0 space-y-2  ">
-                                    <Button
-                                        onClick={() => {
-                                            console.log(state);
-                                        }}>
-                                        log state
-                                    </Button>
-                                    {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
-                                    {/* <SelectionAndStructureActions /> */}
-                                    <StructureInfoTab data={data!} isLoading={isLoading} />
-                                </div>
-                                <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
-                                    <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
-                                </div>
-                            </Card>
-                        </ResizablePanel>
-                        <ResizableHandle className="w-px bg-gray-200" />
-                        <ResizablePanel defaultSize={75}>
-                            <MolstarNode ref={molstarNodeRef} />
-                        </ResizablePanel>
-                    </ResizablePanelGroup>
-                </MolstarContext.Provider>
+                <MolstarServiceContext.Provider value={molstarServiceInstance}>
+                <MolstarInteractionListener />
+                <ResizablePanelGroup direction="horizontal">
+                    <ResizablePanel defaultSize={25}>
+                        <Card
+                            className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
+                            ref={leftPanelRef}>
+                            <div className="sticky top-0 space-y-2  ">
+                                <Button
+                                    onClick={() => {
+                                        console.log(state);
+                                    }}>
+                                    log state
+                                </Button>
+                                {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
+                                {/* <SelectionAndStructureActions /> */}
+                                <StructureInfoTab data={data!} isLoading={isLoading} />
+                            </div>
+                            <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
+                                <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
+                            </div>
+                        </Card>
+                    </ResizablePanel>
+                    <ResizableHandle className="w-px bg-gray-200" />
+                    <ResizablePanel defaultSize={75}>
+                        <MolstarNode ref={molstarNodeRef} />
+                    </ResizablePanel>
+                </ResizablePanelGroup>
+                </MolstarServiceContext.Provider>
                 <SidebarMenu />
             </InteractionProvider>
         </div>

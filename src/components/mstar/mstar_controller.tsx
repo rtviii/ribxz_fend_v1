@@ -17,7 +17,6 @@ export class MolstarStateController {
     constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, getState: () => RootState) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
-
         this.getState = getState;
     }
 
@@ -136,6 +135,7 @@ export class MolstarStateController {
 
         restoreAllVisibility: async (rcsb_id: string) => {
             const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+
             const visibilityUpdates = componentIds.map(localId => ({
                 rcsb_id,
                 auth_asym_id: localId,

@@ -10,25 +10,17 @@ import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
 import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
-import { molstarInstance, useMolstarViewer } from '@/components/mstar/mstar_service';
+import {molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
 export type ResidueData = [string, number];
 
-interface PolymerComponentRowProps {
-    polymer           : Polymer;
-    isSelected        : boolean;
-    onToggleSelect    : (id: string) => void;
-    onToggleVisibility: (id: string) => void;
-}
 
-const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
-  const polyComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id) ) as PolymerComponent;
-  const polymerState = useAppSelector(state => state.polymer_states.statesByPolymer[polymer.auth_asym_id] );
-  
-  // Use the shared instance from context
-  const molstar = useContext(MolstarContext);
-  const {controller:msc, viewer:ctx} =  molstarInstance!
+const PolymerComponentRow: React.FC<{polymer:Polymer}> = ({polymer}) => {
+    const polyComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
+    const polymerState = useAppSelector(state => state.polymer_states.statesByPolymer[polymer.auth_asym_id]);
 
-
+    // Use the shared instance from context
+    const molstar = useContext(MolstarContext);
+    const {controller: msc, viewer: ctx} = molstarServiceInstance!;
 
     const {isChainHovered} = useStructureHover(polymer.auth_asym_id);
 
