@@ -98,31 +98,31 @@ export class MolstarStateController {
             const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
             ref && this.viewer.interactions.highlight(ref);
         },
-
         isolatePolymer: async (rcsb_id: string, target_auth_asym_id: string) => {
             await this.viewer.ctx.dataTransaction(async () => {
                 const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+
+                // Update to match new polymer state structure
                 const visibilityUpdates = componentIds.map(localId => ({
-                    rcsb_id,
                     auth_asym_id: localId,
                     visible: localId === target_auth_asym_id
                 }));
 
-                // Batch update Molstar state
+                // Batch update Molstar state using new component structure
                 visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                    const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
-                    if (ref) {
-                        this.viewer.interactions.setSubtreeVisibility(ref, visible);
+                    const component = this.state.mstar_refs.components[auth_asym_id];
+                    if (component?.ref) {
+                        this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
                     }
                 });
 
-                // Batch update Redux state
+                // Batch update Redux state with new structure
                 this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
 
-                // Focus after all visibility changes
-                const targetRef = this.retrievePolymerRef(rcsb_id, target_auth_asym_id);
-                if (targetRef) {
-                    this.viewer.interactions.focus(targetRef);
+                // Focus using new component structure
+                const targetComponent = this.state.mstar_refs.components[target_auth_asym_id];
+                if (targetComponent?.ref) {
+                    this.viewer.interactions.focus(targetComponent.ref);
                 }
             });
         },

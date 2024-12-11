@@ -20,7 +20,6 @@ const initialState: PolymerStatesState = {
 };
 
 interface PolymerVisibilityUpdate {
-    rcsb_id: string;
     auth_asym_id: string;
     visible: boolean;
 }
@@ -58,7 +57,7 @@ export const polymerStatesSlice = createSlice({
         },
 
         setBatchPolymerVisibility: (state, action: PayloadAction<PolymerVisibilityUpdate[]>) => {
-            action.payload.forEach(({rcsb_id, auth_asym_id, visible}) => {
+            action.payload.forEach(({ auth_asym_id, visible}) => {
                 if (state.statesByPolymer[auth_asym_id]) {
                     state.statesByPolymer[auth_asym_id].visible = visible;
                 }

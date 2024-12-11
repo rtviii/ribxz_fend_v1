@@ -11,23 +11,11 @@ import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
-import {PolymerComponent, PolymerStateObject, selectComponentById} from '@/store/molstar/slice_refs';
+import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 export type ResidueData = [string, number];
 
-export interface SequenceViewerProps {
-    sequence: ResidueData[];
-    auth_asym_id: string;
-    metadata?: {
-        chain_title: string;
-        structure_id: string;
-        length: number;
-        type: 'Polypeptide' | 'Polynucleotide';
-        struct_ref: string;
-        polymer_ref: string;
-    };
-    onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
-}
+
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
@@ -37,10 +25,9 @@ interface PolymerComponentRowProps {
 }
 
 const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
-    const [showContent, setShowContent]   = useState(false);
-    const polyComponent: PolymerComponent = useAppSelector( state=>selectComponentById(state, polymer.auth_asym_id))
-    const dispatch                        = useAppDispatch();
-    const polymerState                    = useAppSelector(state => state.polymer_states.statesByPolymer[polymer.auth_asym_id]);
+    const polyComponent: PolymerComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
+    const dispatch = useAppDispatch();
+    const polymerState = useAppSelector(state => state.polymer_states.statesByPolymer[polymer.auth_asym_id]);
 
     const state = useAppSelector(state => state);
     const ctx = useContext(MolstarContext);
