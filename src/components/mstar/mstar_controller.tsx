@@ -32,63 +32,9 @@ export class MolstarStateController {
         this.dispatch = dispatch;
         this.getState = getState;
 
-        this.setupInteractions(config);
+        // this.setupInteractions(config);
     }
 
-    setEventHandlers(handlers: MolstarEventHandlers) {
-        this.eventHandlers = {...this.eventHandlers, ...handlers};
-    }
-
-    private setupInteractions(config: InteractionManagerConfig = {}) {
-        const {debounceTime: debounceDuration = 100, enableHover = true, enableSelection = true} = config;
-
-        if (enableHover) {
-            this.setupHoverHandling(debounceDuration);
-        }
-
-        if (enableSelection) {
-            this.setupSelectionHandling();
-        }
-    }
-
-    private setupHoverHandling(debounceDuration: number) {
-        this.viewer.ctx.behaviors.interaction.hover
-            .pipe(debounceTime(debounceDuration))
-            .subscribe((e: InteractivityManager.HoverEvent) => {
-                if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
-                    const element = this.getLociDetails(e.current.loci);
-                    if (element?.auth_asym_id) {
-                        const state = this.getState();
-                        const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
-
-                        this.dispatch(
-                            setPolymerHovered({
-                                rcsb_id,
-                                auth_asym_id: element.auth_asym_id,
-                                hovered: true
-                            })
-                        );
-                    }
-                } else {
-                    const state = this.getState();
-                    const hoveredPolymer = Object.entries(state.polymer_states.statesByPolymer).find(
-                        ([_, state]) => state.hovered
-                    );
-
-                    if (hoveredPolymer) {
-                        const [auth_asym_id] = hoveredPolymer;
-                        const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
-                        this.dispatch(
-                            setPolymerHovered({
-                                rcsb_id,
-                                auth_asym_id,
-                                hovered: false
-                            })
-                        );
-                    }
-                }
-            });
-    }
 
     private setupSelectionHandling() {
         this.viewer.ctx.behaviors.interaction.click.subscribe((e: InteractivityManager.HoverEvent) => {
@@ -324,5 +270,72 @@ export class MolstarStateController {
             const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
             this.viewer.experimental.cylinder_residues(struct_ref, data);
         }
+    };
+
+    molstarEvents = {
+        // setEventHandlers(handlers: MolstarEventHandlers) {
+        //     this.eventHandlers = {...this.eventHandlers, ...handlers};
+        // },
+
+        // setupInteractions(config: InteractionManagerConfig = {}) {
+        //     const {debounceTime: debounceDuration = 200, enableHover = true, enableSelection = false} = config;
+
+        //     if (enableHover) {
+        //         this.setupHoverHandling(debounceDuration);
+        //     }
+
+        //     if (enableSelection) {
+        //         this.setupSelectionHandling();
+        //     }
+        // },
+
+        // setupHoverHandling(debounceDuration: number) {
+        //     this.viewer.ctx.behaviors.interaction.hover
+        //         .pipe(debounceTime(debounceDuration))
+        //         .subscribe((e: InteractivityManager.HoverEvent) => {
+        //             const state = this.getState();
+        //             const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+
+        //             if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+        //                 const element = this.getLociDetails(e.current.loci);
+        //                 if (element?.auth_asym_id) {
+        //                     // First, clear any existing hover states
+        //                     Object.entries(state.polymer_states.statesByPolymer)
+        //                         .filter(([_, state]) => state.hovered)
+        //                         .forEach(([auth_asym_id]) => {
+        //                             this.dispatch(
+        //                                 setPolymerHovered({
+        //                                     rcsb_id,
+        //                                     auth_asym_id,
+        //                                     hovered: false
+        //                                 })
+        //                             );
+        //                         });
+
+        //                     // Then set the new hover state
+        //                     this.dispatch(
+        //                         setPolymerHovered({
+        //                             rcsb_id,
+        //                             auth_asym_id: element.auth_asym_id,
+        //                             hovered: true
+        //                         })
+        //                     );
+        //                 }
+        //             } else {
+        //                 // Clear all hover states when we get an empty loci
+        //                 Object.entries(state.polymer_states.statesByPolymer)
+        //                     .filter(([_, state]) => state.hovered)
+        //                     .forEach(([auth_asym_id]) => {
+        //                         this.dispatch(
+        //                             setPolymerHovered({
+        //                                 rcsb_id,
+        //                                 auth_asym_id,
+        //                                 hovered: false
+        //                             })
+        //                         );
+        //                     });
+        //             }
+        //         });
+        // }
     };
 }
