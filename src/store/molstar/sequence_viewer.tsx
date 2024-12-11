@@ -1,4 +1,4 @@
-import {ResidueData} from '@/app/components/_sequence_viewer';
+import { ResidueData } from '@/app/components/sequence_viewer';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 export interface SequenceSelectionState {

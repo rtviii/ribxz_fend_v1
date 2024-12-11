@@ -1,4 +1,4 @@
-import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
+    import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
 import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
 import {ArbitrarySphereRepresentationProvider} from './providers/sphere_provider';
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
@@ -107,7 +107,7 @@ export class ribxzMstarv2 {
         ): Promise<{
             root_ref: string;
             repr_ref: string;
-            objects_polymer: Record<string, {ref: string; seq: ResidueData[]}>;
+            objects_polymer: Record<string, {ref: string; sequence: ResidueData[]}>;
             objects_ligand: Record<string, {ref: string}>;
         }> => {
             let asset_url: string;
@@ -765,10 +765,10 @@ export class ribxzMstarv2 {
                                 pp.occlusion.name === 'on'
                                     ? pp.occlusion.params
                                     : {
-                                          bias: 0.8,
-                                          blurKernelSize: 15,
-                                          radius: 5,
-                                          samples: 32,
+                                          bias           : 0.8,
+                                          blurKernelSize : 15,
+                                          radius         : 5,
+                                          samples        : 32,
                                           resolutionScale: 1
                                       }
                         }
@@ -791,12 +791,12 @@ export class ribxzMstarv2 {
         });
         function getElementDetails(location: StructureElement.Location) {
             return {
-                entity_id: StructureProperties.chain.label_entity_id(location),
+                entity_id    : StructureProperties.chain.label_entity_id(location),
                 label_asym_id: StructureProperties.chain.label_asym_id(location),
-                auth_asym_id: StructureProperties.chain.auth_asym_id(location),
-                seq_id: StructureProperties.residue.label_seq_id(location),
-                auth_seq_id: StructureProperties.residue.auth_seq_id(location),
-                comp_id: StructureProperties.atom.label_comp_id(location)
+                auth_asym_id : StructureProperties.chain.auth_asym_id(location),
+                seq_id       : StructureProperties.residue.label_seq_id(location),
+                auth_seq_id  : StructureProperties.residue.auth_seq_id(location),
+                comp_id      : StructureProperties.atom.label_comp_id(location)
             };
         }
 

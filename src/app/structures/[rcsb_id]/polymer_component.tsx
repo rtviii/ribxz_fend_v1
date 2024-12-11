@@ -1,56 +1,27 @@
-import React, {useContext, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {cn} from '@/components/utils';
-
 import {Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch} from 'lucide-react';
-
 import {Polymer} from '@/store/ribxz_api/ribxz_api';
 import ribxzPolymerColorScheme from '@/components/mstar/providers/colorscheme';
 import {Color} from 'molstar/lib/mol-util/color';
 import {MolstarContext} from '@/components/mstar/molstar_context';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
-import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
-import {PolymerStateObject} from '@/store/molstar/slice_refs';
+import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
+import {molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
+import { selectPolymerStateByAuthId } from '@/store/slices/slice_polymer_states';
 export type ResidueData = [string, number];
 
-export interface SequenceViewerProps {
-    sequence: ResidueData[];
-    auth_asym_id: string;
-    metadata?: {
-        chain_title: string;
-        structure_id: string;
-        length: number;
-        type: 'Polypeptide' | 'Polynucleotide';
-        struct_ref: string;
-        polymer_ref: string;
-    };
-    onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
-}
 
-interface PolymerComponentRowProps {
-    polymer: Polymer;
-    isSelected: boolean;
-    onToggleSelect: (id: string) => void;
-    onToggleVisibility: (id: string) => void;
-}
+const PolymerComponentRow: React.FC<{polymer:Polymer}> = ({polymer}) => {
+    const polyComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
+    const polymerState = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
 
-const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
-    const [showContent, setShowContent] = useState(false);
-    const parent_map = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
-    const poly_state_obj: PolymerStateObject = parent_map && parent_map[polymer.auth_asym_id];
+    // Use the shared instance from context
+    const molstar = useContext(MolstarContext);
+    const {controller: msc, viewer: ctx} = molstarServiceInstance!;
 
-    const dispatch = useAppDispatch();
-    const polymerState = useAppSelector(
-        state => state.polymer_states.states[polymer.parent_rcsb_id]?.[polymer.auth_asym_id]
-    );
-
-    const state = useAppSelector(state => state);
-    const ctx = useContext(MolstarContext);
-    const msc = new MolstarStateController(ctx!, dispatch, state);
-
-    const {isChainHovered} = useStructureHover(polymer.auth_asym_id);
 
     const onToggleVisibility = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -87,6 +58,8 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const hexcol = Color.toHexStyle(color);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200';
 
+
+
     return (
         <div
             className="border-b border-gray-200 last:border-b-0 "
@@ -96,8 +69,7 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
             <div
                 className={cn(
                     'flex items-center justify-between rounded-md px-2 transition-colors hover:cursor-pointer py-1  hover:border-l-4 hover:border-l-slate-400 hover:bg-slate-200',
-                    // isSelected ? 'bg-blue-50' : 'hover:bg-gray-100',
-                    isChainHovered ? on_hover_styling : ''
+                    polymerState?.hovered ? on_hover_styling : ''
                 )}>
                 <div className="flex items-center space-x-2">
                     <div
@@ -110,10 +82,10 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    {poly_state_obj && (
+                    {polyComponent && (
                         <SequenceViewerTrigger
                             auth_asym_id={polymer.auth_asym_id}
-                            sequence={poly_state_obj.seq}
+                            sequence={polyComponent.sequence}
                             metadata={{
                                 type: polymer.entity_poly_polymer_type === 'RNA' ? 'Polynucleotide' : 'Polypeptide',
                                 chain_title:

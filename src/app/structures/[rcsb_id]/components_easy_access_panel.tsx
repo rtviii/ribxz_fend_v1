@@ -4,26 +4,24 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/c
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 import {Settings, Eye, Download, Filter} from 'lucide-react';
 import PolymerComponentRow from './polymer_component';
-import {set_id_to_selection} from '@/store/slices/slice_structure_page';
 import {useAppDispatch, useAppSelector} from '@/store/store';
-import {MolstarContext} from '@/components/mstar/molstar_context';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
-import {MolstarStateController} from '@/components/mstar/mstar_controller';
+import {molstarServiceInstance} from '@/components/mstar/mstar_service';
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [currentView, setCurrentView] = useState<'Polymers' | 'Landmarks' | 'Ligands'>('Polymers');
-    const ctx = useContext(MolstarContext);
-    const dispatch = useAppDispatch();
-    const selected_polymers = useAppSelector(state => state.structure_page.selected);
-
+    const molstarService = molstarServiceInstance; // Get the service
     const state = useAppSelector(state => state);
-    const rcsb_id = Object.keys(state.mstar_refs.handle_model_components_map)[0];
-
-    const toggleComponent = (id: string) => {
-        dispatch(set_id_to_selection(id));
-    };
+    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
 
     if (isLoading) return <div className="text-xs">Loading components...</div>;
+
+    // Add check for molstar service availability
+    if (!molstarService?.viewer || !molstarService?.controller) {
+        return <div className="text-xs">Initializing viewer...</div>;
+    }
+
+    const {controller: msc, viewer: ctx} = molstarService;
 
     const renderContent = () => {
         switch (currentView) {
@@ -33,13 +31,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         {[...data.rnas, ...data.proteins, ...data.other_polymers]
                             .filter(r => r.assembly_id === 0)
                             .map(component => (
-                                <PolymerComponentRow
-                                    polymer={component}
-                                    key={component.auth_asym_id}
-                                    isSelected={selected_polymers.includes(component.auth_asym_id)}
-                                    onToggleSelect={toggleComponent}
-                                    onToggleVisibility={() => {}}
-                                />
+                                <PolymerComponentRow polymer={component} key={component.auth_asym_id} />
                             ))}
                     </div>
                 );
@@ -92,10 +84,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                             <TooltipTrigger asChild>
                                 <button
                                     onClick={() => {
-                                        if (ctx) {
-                                            const msc = new MolstarStateController(ctx, dispatch, state);
-                                            msc.polymers.restoreAllVisibility(rcsb_id);
-                                        }
+                                        msc.polymers.restoreAllVisibility(rcsb_id);
                                     }}
                                     className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100">
                                     <Eye size={16} />
