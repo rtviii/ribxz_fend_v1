@@ -48,6 +48,7 @@ import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import {InteractionProvider, useStructureInteraction} from '@/store/molstar/context_interactions';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
+import {molstarInstance, useMolstarViewer} from '@/components/mstar/mstar_service';
 
 const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
     if (a.nomenclature.length === 0 || b.nomenclature.length === 0) {
@@ -448,12 +449,8 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const {rcsb_id} = params;
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-    const state = useAppSelector(state => state);
-    const dispatch = useAppDispatch();
 
-    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
-    const [msc, setMsc] = useState<MolstarStateController | null>(null);
-
+    const {viewer, controller, isInitialized} = useMolstarViewer(molstarNodeRef);
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
 
     const searchParams = useSearchParams();
@@ -466,22 +463,8 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     } = useRoutersRouterStructStructurePtcQuery({rcsbId: rcsb_id});
     const [method, setMethod] = useState<undefined | string>();
 
-    // !Autoload structure
     useEffect(() => {
-        (async () => {
-            const x = new ribxzMstarv2();
-            await x.init(molstarNodeRef.current!);
-            const y = new MolstarStateController(x, dispatch, state);
-            setCtx(x);
-            setMsc(y);
-        })();
-    }, []);
-
-    useEffect(() => {
-        if (data === undefined) {
-            return;
-        }
-
+        if (!isInitialized || !data) return;
         const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
             (prev: Record<string, string>, current: Polymer) => {
                 prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
@@ -489,8 +472,9 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
             },
             {}
         );
-        msc?.loadStructure(rcsb_id, nomenclature_map);
-    }, [ctx, data]);
+
+        controller?.loadStructure(rcsb_id, nomenclature_map);
+    }, [isInitialized, data]);
 
     const resizeObserver = useCallback(() => {
         return new ResizeObserver(entries => {
@@ -517,7 +501,8 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <InteractionProvider>
                 <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
-                <MolstarContext.Provider value={ctx}>
+
+                <MolstarContext.Provider value={molstarInstance}>
                     <MolstarInteractionListener />
                     <ResizablePanelGroup direction="horizontal">
                         <ResizablePanel defaultSize={25}>

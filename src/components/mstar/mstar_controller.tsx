@@ -12,19 +12,19 @@ import {
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
     private dispatch: AppDispatch;
-    private state: RootState;
+    private getState: () => RootState;
 
-    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, state: RootState) {
+    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, getState: () => RootState) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
-        this.state = state;
+
+        this.getState = getState;
     }
 
-
     mute_polymers = async (rcsb_id: string) => {
-        const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+        const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
         for (const localId of componentIds) {
-            const ref = this.retrievePolymerRef(rcsb_id, localId);
+            const ref = this.retrievePolymerRef(localId);
             ref && this.viewer.interactions.setSubtreeVisibility(ref, true);
         }
     };
@@ -53,7 +53,7 @@ export class MolstarStateController {
         const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
             acc[localId] = {
                 ...component,
-                rcsb_id,
+                rcsb_id
             };
             return acc;
         }, {} as Record<string, any>);
@@ -76,25 +76,24 @@ export class MolstarStateController {
         return {root_ref, repr_ref, components: normalizedComponents};
     }
 
-    retrievePolymerRef(rcsb_id: string, localId: string): string | undefined {
-        return this.state.mstar_refs.components[localId]?.ref;
+    retrievePolymerRef(localId: string): string | undefined {
+        return this.getState().mstar_refs.components[localId]?.ref;
     }
 
     polymers = {
         focusPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
         },
 
         highlightPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.highlight(ref);
         },
         isolatePolymer: async (rcsb_id: string, target_auth_asym_id: string) => {
             await this.viewer.ctx.dataTransaction(async () => {
-                const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+                const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
 
-                // Update to match new polymer state structure
                 const visibilityUpdates = componentIds.map(localId => ({
                     auth_asym_id: localId,
                     visible: localId === target_auth_asym_id
@@ -102,7 +101,7 @@ export class MolstarStateController {
 
                 // Batch update Molstar state using new component structure
                 visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                    const component = this.state.mstar_refs.components[auth_asym_id];
+                    const component = this.getState().mstar_refs.components[auth_asym_id];
                     if (component?.ref) {
                         this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
                     }
@@ -112,7 +111,7 @@ export class MolstarStateController {
                 this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
 
                 // Focus using new component structure
-                const targetComponent = this.state.mstar_refs.components[target_auth_asym_id];
+                const targetComponent = this.getState().mstar_refs.components[target_auth_asym_id];
                 if (targetComponent?.ref) {
                     this.viewer.interactions.focus(targetComponent.ref);
                 }
@@ -120,7 +119,7 @@ export class MolstarStateController {
         },
 
         setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             if (ref) {
                 this.viewer.interactions.setSubtreeVisibility(ref, is_visible);
                 this.dispatch(setPolymerVisibility({rcsb_id, auth_asym_id, visible: is_visible}));
@@ -128,7 +127,7 @@ export class MolstarStateController {
         },
 
         selectPolymerComponent: async (rcsb_id: string, auth_asym_id: string, selected: boolean) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             if (ref) {
                 this.viewer.interactions.selection(ref, selected ? 'add' : 'remove');
                 this.dispatch(setPolymerSelected({rcsb_id, auth_asym_id, selected}));
@@ -136,7 +135,7 @@ export class MolstarStateController {
         },
 
         restoreAllVisibility: async (rcsb_id: string) => {
-            const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+            const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
             const visibilityUpdates = componentIds.map(localId => ({
                 rcsb_id,
                 auth_asym_id: localId,
@@ -145,7 +144,7 @@ export class MolstarStateController {
 
             // Batch update Molstar state
             visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+                const ref = this.retrievePolymerRef(auth_asym_id);
                 if (ref) {
                     this.viewer.interactions.setSubtreeVisibility(ref, visible);
                 }
@@ -169,7 +168,7 @@ export class MolstarStateController {
         cylinder_residues: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
             const data = await response.json();
-            const struct_ref = Object.values(this.state.mstar_refs.rcsb_id_root_ref_map)[0];
+            const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
             console.log('Got struct ref', struct_ref);
             this.viewer.experimental.cylinder_residues(struct_ref, data);
             console.log(data);
