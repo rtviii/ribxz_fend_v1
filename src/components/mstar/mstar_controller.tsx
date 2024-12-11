@@ -20,9 +20,6 @@ export class MolstarStateController {
         this.state = state;
     }
 
-    private makeComponentId(rcsbId: string, localId: string): string {
-        return `${rcsbId}_${localId}`;
-    }
 
     mute_polymers = async (rcsb_id: string) => {
         const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
@@ -53,14 +50,10 @@ export class MolstarStateController {
             await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
 
         const components = {...objects_polymer, ...objects_ligand};
-
-        // Add RCSB ID and type to each component
         const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
-            const isPolymer = 'sequence' in component;
-            acc[this.makeComponentId(rcsb_id, localId)] = {
+            acc[localId] = {
                 ...component,
                 rcsb_id,
-                type: isPolymer ? 'polymer' : 'ligand'
             };
             return acc;
         }, {} as Record<string, any>);
@@ -84,8 +77,7 @@ export class MolstarStateController {
     }
 
     retrievePolymerRef(rcsb_id: string, localId: string): string | undefined {
-        const componentId = this.makeComponentId(rcsb_id, localId);
-        return this.state.mstar_refs.components[componentId]?.ref;
+        return this.state.mstar_refs.components[localId]?.ref;
     }
 
     polymers = {

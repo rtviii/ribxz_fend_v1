@@ -15,8 +15,6 @@ import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs'
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 export type ResidueData = [string, number];
 
-
-
 interface PolymerComponentRowProps {
     polymer: Polymer;
     isSelected: boolean;
@@ -25,7 +23,9 @@ interface PolymerComponentRowProps {
 }
 
 const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
-    const polyComponent: PolymerComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
+    const polyComponent: PolymerComponent = useAppSelector(state =>
+        selectComponentById(state, polymer.auth_asym_id)
+    ) as PolymerComponent;
     const dispatch = useAppDispatch();
     const polymerState = useAppSelector(state => state.polymer_states.statesByPolymer[polymer.auth_asym_id]);
 

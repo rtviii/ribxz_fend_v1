@@ -107,7 +107,7 @@ export class ribxzMstarv2 {
         ): Promise<{
             root_ref: string;
             repr_ref: string;
-            objects_polymer: Record<string, {ref: string; seq: ResidueData[]}>;
+            objects_polymer: Record<string, {ref: string; sequence: ResidueData[]}>;
             objects_ligand: Record<string, {ref: string}>;
         }> => {
             let asset_url: string;
