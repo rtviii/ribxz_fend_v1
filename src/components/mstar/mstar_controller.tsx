@@ -5,26 +5,140 @@ import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
 import {
     initializePolymerStates,
     setBatchPolymerVisibility,
+    setPolymerHovered,
     setPolymerSelected,
     setPolymerVisibility
 } from '@/store/slices/slice_polymer_states';
+import {InteractionManagerConfig, MolstarEventHandlers} from './mstar_interactions';
+import {StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure';
+import {debounceTime} from 'rxjs';
+import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
     private dispatch: AppDispatch;
-    private state: RootState;
+    private getState: () => RootState;
 
-    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, state: RootState) {
+    private eventHandlers: MolstarEventHandlers = {};
+
+    constructor(
+        molstarViewer: ribxzMstarv2,
+        dispatch: AppDispatch,
+        getState: () => RootState,
+
+        config?: InteractionManagerConfig
+    ) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
-        this.state = state;
+        this.getState = getState;
+
+        this.setupInteractions(config);
     }
 
+    setEventHandlers(handlers: MolstarEventHandlers) {
+        this.eventHandlers = {...this.eventHandlers, ...handlers};
+    }
+
+    private setupInteractions(config: InteractionManagerConfig = {}) {
+        const {debounceTime: debounceDuration = 100, enableHover = true, enableSelection = true} = config;
+
+        if (enableHover) {
+            this.setupHoverHandling(debounceDuration);
+        }
+
+        if (enableSelection) {
+            this.setupSelectionHandling();
+        }
+    }
+
+    private setupHoverHandling(debounceDuration: number) {
+        this.viewer.ctx.behaviors.interaction.hover
+            .pipe(debounceTime(debounceDuration))
+            .subscribe((e: InteractivityManager.HoverEvent) => {
+                if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+                    const element = this.getLociDetails(e.current.loci);
+                    if (element?.auth_asym_id) {
+                        const state = this.getState();
+                        const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+
+                        this.dispatch(
+                            setPolymerHovered({
+                                rcsb_id,
+                                auth_asym_id: element.auth_asym_id,
+                                hovered: true
+                            })
+                        );
+                    }
+                } else {
+                    const state = this.getState();
+                    const hoveredPolymer = Object.entries(state.polymer_states.statesByPolymer).find(
+                        ([_, state]) => state.hovered
+                    );
+
+                    if (hoveredPolymer) {
+                        const [auth_asym_id] = hoveredPolymer;
+                        const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+                        this.dispatch(
+                            setPolymerHovered({
+                                rcsb_id,
+                                auth_asym_id,
+                                hovered: false
+                            })
+                        );
+                    }
+                }
+            });
+    }
+
+    private setupSelectionHandling() {
+        this.viewer.ctx.behaviors.interaction.click.subscribe((e: InteractivityManager.HoverEvent) => {
+            if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+                const element = this.getLociDetails(e.current.loci);
+                if (element?.auth_asym_id) {
+                    const state = this.getState();
+                    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+
+                    this.dispatch(
+                        setPolymerSelected({
+                            rcsb_id,
+                            auth_asym_id: element.auth_asym_id,
+                            selected: true
+                        })
+                    );
+                }
+            }
+        });
+    }
+
+    private getElementDetails(location: StructureElement.Location) {
+        return {
+            entity_id: StructureProperties.chain.label_entity_id(location),
+            label_asym_id: StructureProperties.chain.label_asym_id(location),
+            auth_asym_id: StructureProperties.chain.auth_asym_id(location),
+            seq_id: StructureProperties.residue.label_seq_id(location),
+            auth_seq_id: StructureProperties.residue.auth_seq_id(location),
+            comp_id: StructureProperties.atom.label_comp_id(location)
+        };
+    }
+
+    private getLociDetails(loci: any) {
+        if (loci.kind === 'element-loci') {
+            const stats = StructureElement.Stats.ofLoci(loci);
+            const {elementCount, residueCount, chainCount} = stats;
+
+            if (elementCount === 1 && residueCount === 0 && chainCount === 0) {
+                return this.getElementDetails(stats.firstElementLoc);
+            } else if (elementCount === 0 && residueCount === 1 && chainCount === 0) {
+                return this.getElementDetails(stats.firstResidueLoc);
+            }
+        }
+        return null;
+    }
 
     mute_polymers = async (rcsb_id: string) => {
-        const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+        const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
         for (const localId of componentIds) {
-            const ref = this.retrievePolymerRef(rcsb_id, localId);
+            const ref = this.retrievePolymerRef(localId);
             ref && this.viewer.interactions.setSubtreeVisibility(ref, true);
         }
     };
@@ -53,7 +167,7 @@ export class MolstarStateController {
         const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
             acc[localId] = {
                 ...component,
-                rcsb_id,
+                rcsb_id
             };
             return acc;
         }, {} as Record<string, any>);
@@ -76,43 +190,39 @@ export class MolstarStateController {
         return {root_ref, repr_ref, components: normalizedComponents};
     }
 
-    retrievePolymerRef(rcsb_id: string, localId: string): string | undefined {
-        return this.state.mstar_refs.components[localId]?.ref;
+    retrievePolymerRef(localId: string): string | undefined {
+        return this.getState().mstar_refs.components[localId]?.ref;
     }
 
     polymers = {
         focusPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
         },
 
         highlightPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.highlight(ref);
         },
         isolatePolymer: async (rcsb_id: string, target_auth_asym_id: string) => {
             await this.viewer.ctx.dataTransaction(async () => {
-                const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+                const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
 
-                // Update to match new polymer state structure
                 const visibilityUpdates = componentIds.map(localId => ({
                     auth_asym_id: localId,
                     visible: localId === target_auth_asym_id
                 }));
 
-                // Batch update Molstar state using new component structure
                 visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                    const component = this.state.mstar_refs.components[auth_asym_id];
+                    const component = this.getState().mstar_refs.components[auth_asym_id];
                     if (component?.ref) {
                         this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
                     }
                 });
 
-                // Batch update Redux state with new structure
                 this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
 
-                // Focus using new component structure
-                const targetComponent = this.state.mstar_refs.components[target_auth_asym_id];
+                const targetComponent = this.getState().mstar_refs.components[target_auth_asym_id];
                 if (targetComponent?.ref) {
                     this.viewer.interactions.focus(targetComponent.ref);
                 }
@@ -120,7 +230,7 @@ export class MolstarStateController {
         },
 
         setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             if (ref) {
                 this.viewer.interactions.setSubtreeVisibility(ref, is_visible);
                 this.dispatch(setPolymerVisibility({rcsb_id, auth_asym_id, visible: is_visible}));
@@ -128,7 +238,7 @@ export class MolstarStateController {
         },
 
         selectPolymerComponent: async (rcsb_id: string, auth_asym_id: string, selected: boolean) => {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(auth_asym_id);
             if (ref) {
                 this.viewer.interactions.selection(ref, selected ? 'add' : 'remove');
                 this.dispatch(setPolymerSelected({rcsb_id, auth_asym_id, selected}));
@@ -136,7 +246,8 @@ export class MolstarStateController {
         },
 
         restoreAllVisibility: async (rcsb_id: string) => {
-            const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+            const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+
             const visibilityUpdates = componentIds.map(localId => ({
                 rcsb_id,
                 auth_asym_id: localId,
@@ -145,7 +256,7 @@ export class MolstarStateController {
 
             // Batch update Molstar state
             visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+                const ref = this.retrievePolymerRef(auth_asym_id);
                 if (ref) {
                     this.viewer.interactions.setSubtreeVisibility(ref, visible);
                 }
@@ -153,10 +264,51 @@ export class MolstarStateController {
 
             // Batch update Redux state
             this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
+        },
+
+        handleUIHover: async (rcsb_id: string, auth_asym_id: string, isHovered: boolean) => {
+            if (isHovered) {
+                const ref = this.retrievePolymerRef(auth_asym_id);
+                ref && this.viewer.interactions.highlight(ref);
+
+                this.dispatch(
+                    setPolymerHovered({
+                        rcsb_id,
+                        auth_asym_id,
+                        hovered: true
+                    })
+                );
+            } else {
+                const ref = this.retrievePolymerRef(auth_asym_id);
+                if (ref) {
+                    this.viewer.ctx.managers.interactivity.lociHighlights.clearHighlights();
+
+                    this.dispatch(
+                        setPolymerHovered({
+                            rcsb_id,
+                            auth_asym_id,
+                            hovered: false
+                        })
+                    );
+                }
+            }
+        },
+
+        handleUISelect: async (rcsb_id: string, auth_asym_id: string, isSelected: boolean) => {
+            const ref = this.retrievePolymerRef(auth_asym_id);
+            if (ref) {
+                this.viewer.interactions.selection(ref, isSelected ? 'add' : 'remove');
+                this.dispatch(
+                    setPolymerSelected({
+                        rcsb_id,
+                        auth_asym_id,
+                        selected: isSelected
+                    })
+                );
+            }
         }
     };
 
-    // Rest of the methods remain the same
     async selectLigandAndSurroundings(chemicalId: string, radius: number = 5) {
         await this.viewer.ligands.create_ligand_and_surroundings(chemicalId, radius);
     }
@@ -169,10 +321,8 @@ export class MolstarStateController {
         cylinder_residues: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
             const data = await response.json();
-            const struct_ref = Object.values(this.state.mstar_refs.rcsb_id_root_ref_map)[0];
-            console.log('Got struct ref', struct_ref);
+            const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
             this.viewer.experimental.cylinder_residues(struct_ref, data);
-            console.log(data);
         }
     };
 }

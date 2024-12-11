@@ -1,4 +1,4 @@
-import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
+    import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
 import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
 import {ArbitrarySphereRepresentationProvider} from './providers/sphere_provider';
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';

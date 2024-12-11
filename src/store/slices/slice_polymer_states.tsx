@@ -4,13 +4,13 @@ interface PolymerUIState {
     visible: boolean;
     selected: boolean;
     isolated: boolean;
+    hovered: boolean;
 }
 
 interface PolymerIdentifier {
     auth_asym_id: string;
 }
 
-// Flattened state structure
 interface PolymerStatesState {
     statesByPolymer: Record<string, PolymerUIState>; // key is `${rcsb_id}_${auth_asym_id}`
 }
@@ -30,12 +30,12 @@ export const polymerStatesSlice = createSlice({
     reducers: {
         initializePolymerStates: (state, action: PayloadAction<PolymerIdentifier[]>) => {
             action.payload.forEach(({auth_asym_id}) => {
-                // Initialize polymer state if it doesn't exist
                 if (!state.statesByPolymer[auth_asym_id]) {
                     state.statesByPolymer[auth_asym_id] = {
                         visible: true,
                         selected: false,
-                        isolated: false
+                        isolated: false,
+                        hovered: false // Initialize the new state
                     };
                 }
             });
@@ -55,9 +55,22 @@ export const polymerStatesSlice = createSlice({
                 state.statesByPolymer[auth_asym_id].visible = visible;
             }
         },
+        setPolymerHovered: (
+            state,
+            action: PayloadAction<{
+                rcsb_id: string;
+                auth_asym_id: string;
+                hovered: boolean;
+            }>
+        ) => {
+            const {rcsb_id, auth_asym_id, hovered} = action.payload;
+            if (state.statesByPolymer[auth_asym_id]) {
+                state.statesByPolymer[auth_asym_id].hovered = hovered;
+            }
+        },
 
         setBatchPolymerVisibility: (state, action: PayloadAction<PolymerVisibilityUpdate[]>) => {
-            action.payload.forEach(({ auth_asym_id, visible}) => {
+            action.payload.forEach(({auth_asym_id, visible}) => {
                 if (state.statesByPolymer[auth_asym_id]) {
                     state.statesByPolymer[auth_asym_id].visible = visible;
                 }
@@ -99,7 +112,8 @@ export const {
     setBatchPolymerVisibility,
     setPolymerVisibility,
     setPolymerSelected,
-    setPolymerIsolated
+    setPolymerIsolated,
+    setPolymerHovered
 } = polymerStatesSlice.actions;
 
 export default polymerStatesSlice.reducer;
@@ -126,4 +140,9 @@ export const selectPolymerStatesForRCSB = createSelector(
             return acc;
         }, {} as Record<string, PolymerUIState>);
     }
+);
+
+export const selectPolymerStateByAuthId = createSelector(
+    [(state: RootState) => state.polymer_states.statesByPolymer, (_: RootState, authId: string) => authId],
+    (polymerStates, authId) => polymerStates[authId]
 );
