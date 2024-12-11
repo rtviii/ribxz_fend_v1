@@ -16,12 +16,9 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const dispatch = useAppDispatch();
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
 
-    const state = useAppSelector(state => state);
-    const rcsb_id = Object.keys(state.mstar_refs.handle_model_components_map)[0];
+    const state   = useAppSelector(state => state);
+    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
 
-    const toggleComponent = (id: string) => {
-        dispatch(set_id_to_selection(id));
-    };
 
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
@@ -37,8 +34,6 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                     polymer={component}
                                     key={component.auth_asym_id}
                                     isSelected={selected_polymers.includes(component.auth_asym_id)}
-                                    onToggleSelect={toggleComponent}
-                                    onToggleVisibility={() => {}}
                                 />
                             ))}
                     </div>

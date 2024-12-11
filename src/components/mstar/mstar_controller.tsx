@@ -1,7 +1,6 @@
-import {mapAssetModelComponentsAdd, mapAssetReprRefAdd, mapAssetRootRefAdd} from '@/store/molstar/slice_refs';
+import {mapAssetModelComponentsAdd, mapAssetRootRefAdd} from '@/store/molstar/slice_refs';
 import {ribxzMstarv2} from './mstar_v2';
-import {AppDispatch, AppStore, RootState} from '@/store/store';
-import {v5 as uuidv5} from 'uuid';
+import {AppDispatch, RootState} from '@/store/store';
 import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
 import {
     initializePolymerStates,
@@ -9,12 +8,6 @@ import {
     setPolymerSelected,
     setPolymerVisibility
 } from '@/store/slices/slice_polymer_states';
-
-export function createAssetHandle(asset_value: string): string {
-    //just random hash
-    const namespace = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
-    return uuidv5(asset_value, namespace);
-}
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
@@ -26,9 +19,15 @@ export class MolstarStateController {
         this.dispatch = dispatch;
         this.state = state;
     }
+
+    private makeComponentId(rcsbId: string, localId: string): string {
+        return `${rcsbId}_${localId}`;
+    }
+
     mute_polymers = async (rcsb_id: string) => {
-        for (const auth_asym_id of Object.keys(this.state.mstar_refs.handle_model_components_map[rcsb_id])) {
-            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+        const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+        for (const localId of componentIds) {
+            const ref = this.retrievePolymerRef(rcsb_id, localId);
             ref && this.viewer.interactions.setSubtreeVisibility(ref, true);
         }
     };
@@ -54,43 +53,59 @@ export class MolstarStateController {
             await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
 
         const components = {...objects_polymer, ...objects_ligand};
+
+        // Add RCSB ID and type to each component
+        const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
+            const isPolymer = 'sequence' in component;
+            acc[this.makeComponentId(rcsb_id, localId)] = {
+                ...component,
+                rcsb_id,
+                type: isPolymer ? 'polymer' : 'ligand'
+            };
+            return acc;
+        }, {} as Record<string, any>);
+
         this.dispatch(mapAssetRootRefAdd([rcsb_id, root_ref]));
-        this.dispatch(mapAssetReprRefAdd([rcsb_id, repr_ref]));
-        this.dispatch(mapAssetModelComponentsAdd({handle: rcsb_id, components}));
         this.dispatch(
-            initializePolymerStates(
-                Object.keys(components).map(k => ({
-                    auth_asym_id: k,
-                    rcsb_id
-                }))
-            )
+            mapAssetModelComponentsAdd({
+                rcsbId: rcsb_id,
+                components: normalizedComponents
+            })
         );
-        return {root_ref, repr_ref, components};
+
+        // Initialize polymer states with local IDs
+        const polymerComponents = Object.keys(objects_polymer).map(localId => ({
+            auth_asym_id: localId,
+            rcsb_id
+        }));
+        this.dispatch(initializePolymerStates(polymerComponents));
+
+        return {root_ref, repr_ref, components: normalizedComponents};
     }
 
-    retrievePolymerRef(rcsb_id: string, auth_asym_id: string): string | undefined {
-        if (this.state.mstar_refs.handle_model_components_map[rcsb_id] === undefined) {
-            return;
-        }
-        return this.state.mstar_refs.handle_model_components_map[rcsb_id][auth_asym_id].ref;
+    retrievePolymerRef(rcsb_id: string, localId: string): string | undefined {
+        const componentId = this.makeComponentId(rcsb_id, localId);
+        return this.state.mstar_refs.components[componentId]?.ref;
     }
 
     polymers = {
         focusPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
-            var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
         },
+
         highlightPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
-            var ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
+            const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
             ref && this.viewer.interactions.highlight(ref);
         },
+
         isolatePolymer: async (rcsb_id: string, target_auth_asym_id: string) => {
             await this.viewer.ctx.dataTransaction(async () => {
-                const components = this.state.mstar_refs.handle_model_components_map[rcsb_id];
-                const visibilityUpdates = Object.keys(components).map(auth_asym_id => ({
+                const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+                const visibilityUpdates = componentIds.map(localId => ({
                     rcsb_id,
-                    auth_asym_id,
-                    visible: auth_asym_id === target_auth_asym_id
+                    auth_asym_id: localId,
+                    visible: localId === target_auth_asym_id
                 }));
 
                 // Batch update Molstar state
@@ -111,6 +126,7 @@ export class MolstarStateController {
                 }
             });
         },
+
         setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
             const ref = this.retrievePolymerRef(rcsb_id, auth_asym_id);
             if (ref) {
@@ -126,11 +142,12 @@ export class MolstarStateController {
                 this.dispatch(setPolymerSelected({rcsb_id, auth_asym_id, selected}));
             }
         },
+
         restoreAllVisibility: async (rcsb_id: string) => {
-            const components = this.state.mstar_refs.handle_model_components_map[rcsb_id];
-            const visibilityUpdates = Object.keys(components).map(auth_asym_id => ({
+            const componentIds = this.state.mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+            const visibilityUpdates = componentIds.map(localId => ({
                 rcsb_id,
-                auth_asym_id,
+                auth_asym_id: localId,
                 visible: true
             }));
 
@@ -147,6 +164,7 @@ export class MolstarStateController {
         }
     };
 
+    // Rest of the methods remain the same
     async selectLigandAndSurroundings(chemicalId: string, radius: number = 5) {
         await this.viewer.ligands.create_ligand_and_surroundings(chemicalId, radius);
     }
@@ -159,7 +177,7 @@ export class MolstarStateController {
         cylinder_residues: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
             const data = await response.json();
-            const struct_ref = Object.values(this.state.mstar_refs.handle_root_ref_map)[0];
+            const struct_ref = Object.values(this.state.mstar_refs.rcsb_id_root_ref_map)[0];
             console.log('Got struct ref', struct_ref);
             this.viewer.experimental.cylinder_residues(struct_ref, data);
             console.log(data);

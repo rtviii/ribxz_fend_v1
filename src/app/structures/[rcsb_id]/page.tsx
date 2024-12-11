@@ -296,7 +296,8 @@ const SelectionAndStructureActions = ({}: {}) => {
     const dispatch = useAppDispatch();
     const state = useAppSelector(s => s);
     const ctx = useContext(MolstarContext);
-    const rcsb_id = Object.keys(state.mstar_refs.handle_model_components_map)[0];
+
+    const rcsb_id = Object.keys(state.mstar_refs.polymer_ids_by_handle)[0];
     const msc = new MolstarStateController(ctx!, dispatch, state);
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');

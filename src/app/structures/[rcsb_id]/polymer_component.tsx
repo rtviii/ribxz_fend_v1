@@ -11,7 +11,7 @@ import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useStructureHover, useStructureSelection} from '@/store/molstar/context_interactions';
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
-import {PolymerStateObject} from '@/store/molstar/slice_refs';
+import {PolymerComponent, PolymerStateObject, selectComponentById} from '@/store/molstar/slice_refs';
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 export type ResidueData = [string, number];
 
@@ -37,14 +37,10 @@ interface PolymerComponentRowProps {
 }
 
 const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
-    const [showContent, setShowContent] = useState(false);
-    const parent_map = useAppSelector(state => state.mstar_refs.handle_model_components_map[polymer.parent_rcsb_id]);
-    const poly_state_obj: PolymerStateObject = parent_map && parent_map[polymer.auth_asym_id];
-
-    const dispatch = useAppDispatch();
-    const polymerState = useAppSelector(
-        state => state.polymer_states.states[polymer.parent_rcsb_id]?.[polymer.auth_asym_id]
-    );
+    const [showContent, setShowContent]   = useState(false);
+    const polyComponent: PolymerComponent = useAppSelector( state=>selectComponentById(state, polymer.auth_asym_id))
+    const dispatch                        = useAppDispatch();
+    const polymerState                    = useAppSelector(state => state.polymer_states.statesByPolymer[polymer.auth_asym_id]);
 
     const state = useAppSelector(state => state);
     const ctx = useContext(MolstarContext);
@@ -110,10 +106,10 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    {poly_state_obj && (
+                    {polyComponent && (
                         <SequenceViewerTrigger
                             auth_asym_id={polymer.auth_asym_id}
-                            sequence={poly_state_obj.seq}
+                            sequence={polyComponent.sequence}
                             metadata={{
                                 type: polymer.entity_poly_polymer_type === 'RNA' ? 'Polynucleotide' : 'Polypeptide',
                                 chain_title:
