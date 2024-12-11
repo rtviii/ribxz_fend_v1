@@ -19,7 +19,13 @@ import {MolstarNode} from '@/components/mstar/lib';
 import {MolstarContext} from '@/components/mstar/molstar_context';
 import {ScrollArea} from '@radix-ui/react-scroll-area';
 import {ExpMethodBadge} from '@/components/ribxz/text_aides/exp_method_badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import {Button} from '@/components/ui/button';
 import {DownloadIcon, EyeIcon, InfoIcon} from 'lucide-react';
 import {AuthorsHovercard} from '@/components/ribxz/text_aides/authors_hovercard';
@@ -27,14 +33,13 @@ import {parseDateString} from '@/my_utils';
 import {LandmarkItem, LigandItem} from './structural_component';
 import {LandmarkActions, downloadPlyFile} from '@/app/landmarks/types';
 import {useAppDispatch, useAppSelector} from '@/store/store';
-import { clear_selection, set_tunnel_shape_loci, snapshot_selection } from '@/store/slices/slice_structure_page';
+import {clear_selection, set_tunnel_shape_loci, snapshot_selection} from '@/store/slices/slice_structure_page';
 import {cn} from '@/components/utils';
 import {useUserInputPrompt} from './user_input_prompt';
 import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
-import {InteractionProvider, useStructureInteraction} from '@/store/molstar/context_interactions';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
 import {MolstarServiceContext, molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
 
@@ -410,29 +415,6 @@ const SelectionAndStructureActions = ({}: {}) => {
 //     );
 // };
 
-const MolstarInteractionListener = () => {
-    const {setHovered} = useStructureInteraction();
-
-    useEffect(() => {
-        const handleHover = (event: any) => {
-            setHovered(event.eventData || null);
-        };
-
-        const handleMouseOut = () => {
-            setHovered(null);
-        };
-
-        document.addEventListener('molstar.hover', handleHover);
-        document.addEventListener('molstar.mouseout', handleMouseOut);
-
-        return () => {
-            document.removeEventListener('molstar.hover', handleHover);
-            document.removeEventListener('molstar.mouseout', handleMouseOut);
-        };
-    }, [setHovered]);
-
-    return null;
-};
 export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const {rcsb_id} = params;
@@ -440,26 +422,6 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
 
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
-
-
-    const {setHovered, setSelected, clearHover, clearSelection} = useStructureInteraction();
-    
-    useEffect(() => {
-        if (!controller) return;
-        
-        controller.setEventHandlers({
-            onHover: (element) => {
-                setHovered(element);
-            },
-            onSelect: (element) => {
-                setSelected(element);
-            },
-            onClearHover: clearHover,
-            onClearSelection: clearSelection
-        });
-    }, [controller]);
-
-
 
     const searchParams = useSearchParams();
     const ligand_param = searchParams.get('ligand');
@@ -508,40 +470,37 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
     const state = useAppSelector(s => s);
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <InteractionProvider>
-                <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
+            <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
 
-                <MolstarServiceContext.Provider value={molstarServiceInstance}>
-                    <MolstarInteractionListener />
-                    <ResizablePanelGroup direction="horizontal">
-                        <ResizablePanel defaultSize={25}>
-                            <Card
-                                className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
-                                ref={leftPanelRef}>
-                                <div className="sticky top-0 space-y-2  ">
-                                    <Button
-                                        onClick={() => {
-                                            console.log(state);
-                                        }}>
-                                        log state
-                                    </Button>
-                                    {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
-                                    {/* <SelectionAndStructureActions /> */}
-                                    <StructureInfoTab data={data!} isLoading={isLoading} />
-                                </div>
-                                <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
-                                    <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
-                                </div>
-                            </Card>
-                        </ResizablePanel>
-                        <ResizableHandle className="w-px bg-gray-200" />
-                        <ResizablePanel defaultSize={75}>
-                            <MolstarNode ref={molstarNodeRef} />
-                        </ResizablePanel>
-                    </ResizablePanelGroup>
-                </MolstarServiceContext.Provider>
-                <SidebarMenu />
-            </InteractionProvider>
+            <MolstarServiceContext.Provider value={molstarServiceInstance}>
+                <ResizablePanelGroup direction="horizontal">
+                    <ResizablePanel defaultSize={25}>
+                        <Card
+                            className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
+                            ref={leftPanelRef}>
+                            <div className="sticky top-0 space-y-2  ">
+                                <Button
+                                    onClick={() => {
+                                        console.log(state);
+                                    }}>
+                                    log state
+                                </Button>
+                                {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
+                                {/* <SelectionAndStructureActions /> */}
+                                <StructureInfoTab data={data!} isLoading={isLoading} />
+                            </div>
+                            <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
+                                <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
+                            </div>
+                        </Card>
+                    </ResizablePanel>
+                    <ResizableHandle className="w-px bg-gray-200" />
+                    <ResizablePanel defaultSize={75}>
+                        <MolstarNode ref={molstarNodeRef} />
+                    </ResizablePanel>
+                </ResizablePanelGroup>
+            </MolstarServiceContext.Provider>
+            <SidebarMenu />
         </div>
     );
 }

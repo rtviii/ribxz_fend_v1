@@ -5,6 +5,7 @@ import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
 import {
     initializePolymerStates,
     setBatchPolymerVisibility,
+    setPolymerHovered,
     setPolymerSelected,
     setPolymerVisibility
 } from '@/store/slices/slice_polymer_states';
@@ -39,7 +40,7 @@ export class MolstarStateController {
     }
 
     private setupInteractions(config: InteractionManagerConfig = {}) {
-        const {debounceTime: debounceDuration = 200, enableHover = true, enableSelection = true} = config;
+        const {debounceTime: debounceDuration = 100, enableHover = true, enableSelection = true} = config;
 
         if (enableHover) {
             this.setupHoverHandling(debounceDuration);
@@ -48,6 +49,65 @@ export class MolstarStateController {
         if (enableSelection) {
             this.setupSelectionHandling();
         }
+    }
+
+    private setupHoverHandling(debounceDuration: number) {
+        this.viewer.ctx.behaviors.interaction.hover
+            .pipe(debounceTime(debounceDuration))
+            .subscribe((e: InteractivityManager.HoverEvent) => {
+                if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+                    const element = this.getLociDetails(e.current.loci);
+                    if (element?.auth_asym_id) {
+                        const state = this.getState();
+                        const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+
+                        this.dispatch(
+                            setPolymerHovered({
+                                rcsb_id,
+                                auth_asym_id: element.auth_asym_id,
+                                hovered: true
+                            })
+                        );
+                    }
+                } else {
+                    const state = this.getState();
+                    const hoveredPolymer = Object.entries(state.polymer_states.statesByPolymer).find(
+                        ([_, state]) => state.hovered
+                    );
+
+                    if (hoveredPolymer) {
+                        const [auth_asym_id] = hoveredPolymer;
+                        const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+                        this.dispatch(
+                            setPolymerHovered({
+                                rcsb_id,
+                                auth_asym_id,
+                                hovered: false
+                            })
+                        );
+                    }
+                }
+            });
+    }
+
+    private setupSelectionHandling() {
+        this.viewer.ctx.behaviors.interaction.click.subscribe((e: InteractivityManager.HoverEvent) => {
+            if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
+                const element = this.getLociDetails(e.current.loci);
+                if (element?.auth_asym_id) {
+                    const state = this.getState();
+                    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+
+                    this.dispatch(
+                        setPolymerSelected({
+                            rcsb_id,
+                            auth_asym_id: element.auth_asym_id,
+                            selected: true
+                        })
+                    );
+                }
+            }
+        });
     }
 
     private getElementDetails(location: StructureElement.Location) {
@@ -73,34 +133,6 @@ export class MolstarStateController {
             }
         }
         return null;
-    }
-
-    private setupHoverHandling(debounceDuration: number) {
-        this.viewer.ctx.behaviors.interaction.hover
-            .pipe(debounceTime(debounceDuration))
-            .subscribe((e: InteractivityManager.HoverEvent) => {
-                if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
-                    const element = this.getLociDetails(e.current.loci);
-                    if (element) {
-                        this.eventHandlers.onHover?.(element);
-                    }
-                } else {
-                    this.eventHandlers.onClearHover?.();
-                }
-            });
-    }
-
-    private setupSelectionHandling() {
-        this.viewer.ctx.behaviors.interaction.click.subscribe((e: InteractivityManager.HoverEvent) => {
-            if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
-                const element = this.getLociDetails(e.current.loci);
-                if (element) {
-                    this.eventHandlers.onSelect?.(element);
-                }
-            } else {
-                this.eventHandlers.onClearSelection?.();
-            }
-        });
     }
 
     mute_polymers = async (rcsb_id: string) => {
@@ -181,7 +213,6 @@ export class MolstarStateController {
                     visible: localId === target_auth_asym_id
                 }));
 
-                // Batch update Molstar state using new component structure
                 visibilityUpdates.forEach(({auth_asym_id, visible}) => {
                     const component = this.getState().mstar_refs.components[auth_asym_id];
                     if (component?.ref) {
@@ -189,10 +220,8 @@ export class MolstarStateController {
                     }
                 });
 
-                // Batch update Redux state with new structure
                 this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
 
-                // Focus using new component structure
                 const targetComponent = this.getState().mstar_refs.components[target_auth_asym_id];
                 if (targetComponent?.ref) {
                     this.viewer.interactions.focus(targetComponent.ref);
@@ -235,10 +264,51 @@ export class MolstarStateController {
 
             // Batch update Redux state
             this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
+        },
+
+        handleUIHover: async (rcsb_id: string, auth_asym_id: string, isHovered: boolean) => {
+            if (isHovered) {
+                const ref = this.retrievePolymerRef(auth_asym_id);
+                ref && this.viewer.interactions.highlight(ref);
+
+                this.dispatch(
+                    setPolymerHovered({
+                        rcsb_id,
+                        auth_asym_id,
+                        hovered: true
+                    })
+                );
+            } else {
+                const ref = this.retrievePolymerRef(auth_asym_id);
+                if (ref) {
+                    this.viewer.ctx.managers.interactivity.lociHighlights.clearHighlights();
+
+                    this.dispatch(
+                        setPolymerHovered({
+                            rcsb_id,
+                            auth_asym_id,
+                            hovered: false
+                        })
+                    );
+                }
+            }
+        },
+
+        handleUISelect: async (rcsb_id: string, auth_asym_id: string, isSelected: boolean) => {
+            const ref = this.retrievePolymerRef(auth_asym_id);
+            if (ref) {
+                this.viewer.interactions.selection(ref, isSelected ? 'add' : 'remove');
+                this.dispatch(
+                    setPolymerSelected({
+                        rcsb_id,
+                        auth_asym_id,
+                        selected: isSelected
+                    })
+                );
+            }
         }
     };
 
-    // Rest of the methods remain the same
     async selectLigandAndSurroundings(chemicalId: string, radius: number = 5) {
         await this.viewer.ligands.create_ligand_and_surroundings(chemicalId, radius);
     }
@@ -252,9 +322,7 @@ export class MolstarStateController {
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
             const data = await response.json();
             const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
-            console.log('Got struct ref', struct_ref);
             this.viewer.experimental.cylinder_residues(struct_ref, data);
-            console.log(data);
         }
     };
 }
