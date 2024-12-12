@@ -1,11 +1,12 @@
 import React, {useState, useCallback, useEffect, useRef, createContext, useContext} from 'react';
-import {useDispatch} from 'react-redux';
-import {addSelection, removeSelection, clearSelections} from '@/store/molstar/sequence_viewer';
-import {useAppSelector} from '@/store/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {addSelection, removeSelection, clearSelections} from '@/store/molstar/slice_seq_viewer';
+import {RootState, useAppSelector} from '@/store/store';
 import {cn} from '@/components/utils';
 import './sequence_viewer.css';
 import {DraggableWindow} from './draggable_window';
-import { BrickWall, Dna, Shapes } from 'lucide-react';
+import {BrickWall, Dna, Shapes} from 'lucide-react';
+import {molstarServiceInstance} from '@/components/mstar/mstar_service';
 export type ResidueData = [string, number];
 
 interface SequenceViewerProps {
@@ -239,7 +240,6 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
 
     const visibleSequence = sequence.slice(visibleRange.start, visibleRange.end);
 
-
     const renderResidueBlocks = () => {
         const blocks = [];
         for (let i = 0; i < visibleSequence.length; i += 10) {
@@ -258,10 +258,14 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
                                 className="residue-wrapper">
                                 <span
                                     className={cn('residue', isSelected(absoluteIndex) && 'selected')}
-                                    onMouseDown={() => handleMouseDown(absoluteIndex)}
-                                    onMouseMove={() => handleMouseMove(absoluteIndex)}
-                                    // Remove onMouseUp here since we're handling it globally
-                                >
+                                    onMouseDown={e => {
+                                        e.stopPropagation();
+                                        handleMouseDown(absoluteIndex);
+                                    }}
+                                    onMouseMove={e => {
+                                        e.stopPropagation();
+                                        handleMouseMove(absoluteIndex);
+                                    }}>
                                     {residue[0]}
                                 </span>
                                 {showMarker && <span className="residue-marker">{residue[1]}</span>}
@@ -319,10 +323,7 @@ export const FloatingSequenceViewerWindow: React.FC = () => {
     if (!isOpen || !sequence || !auth_asym_id) return null;
 
     return (
-        <DraggableWindow
-            isOpen={isOpen}
-            onClose={closeViewer}
-            title={`${metadata?.chain_title || 'Chain'}`}>
+        <DraggableWindow isOpen={isOpen} onClose={closeViewer} title={`${metadata?.chain_title || 'Chain'}`}>
             <SequenceViewer sequence={sequence} auth_asym_id={auth_asym_id} onSelectionChange={onSelectionChange} />
         </DraggableWindow>
     );
@@ -402,21 +403,73 @@ export const SequenceViewerTrigger: React.FC<{
     };
 
     // Determine if sequence is nucleotides or amino acids based on first residue
-    const isNucleotide =  metadata?.type ===  'Polynucleotide' 
+    const isNucleotide = metadata?.type === 'Polynucleotide';
 
     return (
-        <button 
-            onClick={handleClick} 
-            className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-colors"
-        >
+        <button
+            onClick={handleClick}
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-colors">
             {isNucleotide ? (
                 <Dna size={12} className="text-gray-500" />
             ) : (
                 <Shapes size={12} className="text-gray-500" />
             )}
-            <span>{sequence.length} {isNucleotide ? 'NTs' : 'AAs'}</span>
+            <span>
+                {sequence.length} {isNucleotide ? 'NTs' : 'AAs'}
+            </span>
         </button>
     );
 };
 
 export default SequenceViewer;
+
+export const SequenceMolstarSync: React.FC = () => {
+    const selections = useSelector((state: RootState) => state.sequenceViewer.selections);
+    const prevSelectionsRef = React.useRef<typeof selections>({});
+    const {viewer, controller} = molstarServiceInstance!;
+
+    useEffect(() => {
+        if (!molstarServiceInstance?.viewer) return;
+        if (selections === prevSelectionsRef.current) return;
+
+        // Process changes per chain
+        Object.entries(selections).forEach(([auth_asym_id, residues]) => {
+            const prevResidues = prevSelectionsRef.current[auth_asym_id] || [];
+
+            // Find newly added residues
+            const addedResidues = residues.filter(
+                current => !prevResidues.some(prev => prev[0] === current[0] && prev[1] === current[1])
+            );
+
+            // Find removed residues
+            const removedResidues = prevResidues.filter(
+                prev => !residues.some(current => current[0] === prev[0] && current[1] === prev[1])
+            );
+            const parent_ref = controller.retrievePolymerRef(auth_asym_id) as string;
+
+            if (addedResidues.length > 0) {
+                molstarServiceInstance!.viewer.interactions.select_residues(parent_ref, addedResidues, 'add');
+            }
+
+            if (removedResidues.length > 0) {
+                molstarServiceInstance!.viewer.interactions.select_residues(parent_ref, removedResidues, 'remove');
+            }
+        });
+
+        // Handle completely deselected chains
+        Object.keys(prevSelectionsRef.current).forEach(auth_asym_id => {
+            if (!selections[auth_asym_id]) {
+                // Chain was completely deselected
+                molstarServiceInstance!.viewer.interactions.select_residues(
+                    auth_asym_id,
+                    prevSelectionsRef.current[auth_asym_id],
+                    'remove'
+                );
+            }
+        });
+
+        prevSelectionsRef.current = selections;
+    }, [selections]);
+
+    return null;
+};

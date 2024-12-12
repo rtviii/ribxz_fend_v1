@@ -13,7 +13,7 @@ import {polymersApi} from './ribxz_api/polymers_api';
 import {HomepageSlice} from './slices/slice_homepage';
 
 import {handleReferencesSlice} from './molstar/slice_refs';
-import {sequenceViewerSlice} from './molstar/sequence_viewer';
+import {sequenceViewerSlice} from './molstar/slice_seq_viewer';
 import {polymerStatesSlice} from './slices/slice_polymer_states';
 
 export const makeStore = () => {
@@ -31,8 +31,6 @@ export const makeStore = () => {
             [polymersApi.reducerPath]: polymersApi.reducer,
 
             mstar_refs: handleReferencesSlice.reducer,
-
-
 
             sequenceViewer: sequenceViewerSlice.reducer,
             polymer_states: polymerStatesSlice.reducer

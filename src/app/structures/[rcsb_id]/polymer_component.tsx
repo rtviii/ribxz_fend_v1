@@ -8,20 +8,18 @@ import {MolstarContext} from '@/components/mstar/molstar_context';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
-import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
+import {SequenceMolstarSync, SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 import {molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
-import { selectPolymerStateByAuthId } from '@/store/slices/slice_polymer_states';
+import {selectPolymerStateByAuthId} from '@/store/slices/slice_polymer_states';
 export type ResidueData = [string, number];
 
-
-const PolymerComponentRow: React.FC<{polymer:Polymer}> = ({polymer}) => {
+const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
     const polyComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
     const polymerState = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
 
     // Use the shared instance from context
     const molstar = useContext(MolstarContext);
     const {controller: msc, viewer: ctx} = molstarServiceInstance!;
-
 
     const onToggleVisibility = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -58,8 +56,6 @@ const PolymerComponentRow: React.FC<{polymer:Polymer}> = ({polymer}) => {
     const hexcol = Color.toHexStyle(color);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200';
 
-
-
     return (
         <div
             className="border-b border-gray-200 last:border-b-0 "
@@ -81,7 +77,8 @@ const PolymerComponentRow: React.FC<{polymer:Polymer}> = ({polymer}) => {
                     </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2" onClick={e=>e.stopPropagation()}>
+                    <SequenceMolstarSync/>
                     {polyComponent && (
                         <SequenceViewerTrigger
                             auth_asym_id={polymer.auth_asym_id}
