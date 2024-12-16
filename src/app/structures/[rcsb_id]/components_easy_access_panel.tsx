@@ -7,6 +7,7 @@ import PolymerComponentRow from './polymer_component';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
 import {molstarServiceInstance} from '@/components/mstar/mstar_service';
+import { sort_by_polymer_class } from '@/my_utils';
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [currentView, setCurrentView] = useState<'Polymers' | 'Landmarks' | 'Ligands'>('Polymers');
@@ -26,9 +27,14 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const renderContent = () => {
         switch (currentView) {
             case 'Polymers':
+
                 return (
                     <div className="space-y-1">
-                        {[...data.rnas, ...data.proteins, ...data.other_polymers]
+                        
+                        {
+                        [...data.rnas, ...data.proteins, ...data.other_polymers].toSorted(
+                            sort_by_polymer_class
+                        )
                             .filter(r => r.assembly_id === 0)
                             .map(component => (
                                 <PolymerComponentRow polymer={component} key={component.auth_asym_id} />

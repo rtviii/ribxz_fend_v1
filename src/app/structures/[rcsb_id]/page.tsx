@@ -43,21 +43,6 @@ import PolymerComponentRow from './polymer_component';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
 import {MolstarServiceContext, molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
 
-const sort_by_polymer_class = (a: Polymer, b: Polymer): number => {
-    if (a.nomenclature.length === 0 || b.nomenclature.length === 0) {
-        return 0;
-    }
-    const [, prefixA, numberA] = a.nomenclature[0].match(/([a-zA-Z]+)(\d*)/) || [];
-    const [, prefixB, numberB] = b.nomenclature[0].match(/([a-zA-Z]+)(\d*)/) || [];
-
-    if (prefixA !== prefixB) {
-        return prefixA.localeCompare(prefixB);
-    }
-
-    const numA = numberA ? parseInt(numberA, 10) : 0;
-    const numB = numberB ? parseInt(numberB, 10) : 0;
-    return numA - numB;
-};
 
 const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
     const handleCifDownload = () => {
