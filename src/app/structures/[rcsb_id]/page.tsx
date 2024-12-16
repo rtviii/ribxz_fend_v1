@@ -271,7 +271,7 @@ const TunnelLandmarkComponent: React.FC<{
     return <LandmarkItem {...availableLandmarks['NPET']} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions} />;
 };
 
-const SelectionAndStructureActions = ({}: {}) => {
+const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map:Record<string,string>|null}) => {
     const dispatch = useAppDispatch();
     const state = useAppSelector(s => s);
     const ctx = useContext(MolstarContext);
@@ -371,7 +371,7 @@ const SelectionAndStructureActions = ({}: {}) => {
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.controller.experimental.cylinder_residues();
+                    molstarServiceInstance?.controller.experimental.cylinder_residues(nomenclature_map);
                 }}>
                 Cylinder Residues
             </Button>
@@ -416,6 +416,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
 
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
+    const [nomMap, setNomMap] = useState<Record<string,string>|null>(null);
 
     const searchParams = useSearchParams();
     const ligand_param = searchParams.get('ligand');
@@ -435,7 +436,9 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                 return prev;
             },
             {}
+
         );
+        setNomMap(nomenclature_map)
 
         controller?.loadStructure(rcsb_id, nomenclature_map);
     }, [isInitialized, data]);
@@ -480,7 +483,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                                     log state
                                 </Button>
                                 {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
-                                <SelectionAndStructureActions />
+                                <SelectionAndStructureActions nomenclature_map={nomMap} />
                                 <StructureInfoTab data={data!} isLoading={isLoading} />
                             </div>
                             <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
