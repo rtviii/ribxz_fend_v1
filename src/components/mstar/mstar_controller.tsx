@@ -13,6 +13,7 @@ import {InteractionManagerConfig, MolstarEventHandlers} from './mstar_interactio
 import {StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure';
 import {debounceTime} from 'rxjs';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
+import {StateSelection} from 'molstar/lib/mol-state';
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
@@ -34,7 +35,6 @@ export class MolstarStateController {
 
         // this.setupInteractions(config);
     }
-
 
     private setupSelectionHandling() {
         this.viewer.ctx.behaviors.interaction.click.subscribe((e: InteractivityManager.HoverEvent) => {
@@ -85,7 +85,7 @@ export class MolstarStateController {
         const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
         for (const localId of componentIds) {
             const ref = this.retrievePolymerRef(localId);
-            ref && this.viewer.interactions.setSubtreeVisibility(ref, true);
+            ref && this.viewer.interactions.setSubtreeVisibility(ref, false);
         }
     };
 
@@ -108,7 +108,6 @@ export class MolstarStateController {
         rcsb_id = rcsb_id.toUpperCase();
         const {root_ref, repr_ref, objects_polymer, objects_ligand} =
             await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
-
         const components = {...objects_polymer, ...objects_ligand};
         const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
             acc[localId] = {
@@ -141,6 +140,7 @@ export class MolstarStateController {
     }
 
     polymers = {
+
         focusPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
             const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
@@ -276,26 +276,21 @@ export class MolstarStateController {
         // setEventHandlers(handlers: MolstarEventHandlers) {
         //     this.eventHandlers = {...this.eventHandlers, ...handlers};
         // },
-
         // setupInteractions(config: InteractionManagerConfig = {}) {
         //     const {debounceTime: debounceDuration = 200, enableHover = true, enableSelection = false} = config;
-
         //     if (enableHover) {
         //         this.setupHoverHandling(debounceDuration);
         //     }
-
         //     if (enableSelection) {
         //         this.setupSelectionHandling();
         //     }
         // },
-
         // setupHoverHandling(debounceDuration: number) {
         //     this.viewer.ctx.behaviors.interaction.hover
         //         .pipe(debounceTime(debounceDuration))
         //         .subscribe((e: InteractivityManager.HoverEvent) => {
         //             const state = this.getState();
         //             const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
-
         //             if (e.current && e.current.loci && e.current.loci.kind !== 'empty-loci') {
         //                 const element = this.getLociDetails(e.current.loci);
         //                 if (element?.auth_asym_id) {
@@ -311,7 +306,6 @@ export class MolstarStateController {
         //                                 })
         //                             );
         //                         });
-
         //                     // Then set the new hover state
         //                     this.dispatch(
         //                         setPolymerHovered({

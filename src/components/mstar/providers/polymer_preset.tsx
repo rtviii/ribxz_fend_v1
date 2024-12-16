@@ -5,8 +5,9 @@ import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
 import {StructureRepresentationPresetProvider} from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 import {ParamDefinition as PD} from 'molstar/lib/mol-util/param-definition';
 import {Color} from 'molstar/lib/mol-util/color';
-import ribxzPolymerColorScheme from './colorscheme';
-import { ResidueData } from '@/app/components/sequence_viewer';
+import PolymerColorschemeDarkTemple from './colorscheme_darktemple';
+import {ResidueData} from '@/app/components/sequence_viewer';
+import PolymerColorschemeWarm from './colorscheme_warm';
 
 export const AMINO_ACIDS_3_TO_1_CODE = {
     ALA: 'A',
@@ -348,21 +349,43 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             );
 
             if (component) {
-                const representation = await plugin.builders.structure.representation.addRepresentation(component, {
-                    type: 'cartoon',
-                    color: 'uniform',
-                    colorParams: {
-                        value: ribxzPolymerColorScheme[nommap[chainId]]
-                    }
-                });
+                if (
+                    ['23SrRNA', '25SrRNA', '28SrRNA', '18SrRNA', '16SrRNA', 'mt16SrRNA', 'mt12SrRNA'].includes(
+                        nommap[chainId]
+                    )
+                ) {
+                    const representation = await plugin.builders.structure.representation.addRepresentation(component, {
+                        type: 'gaussian-surface',
+                        color: 'uniform',
+                        colorParams: {
+                            value: PolymerColorschemeWarm[nommap[chainId]]
+                        }
+                    });
 
-                components[`${chainId}`] = component;
-                representations[`${chainId}`] = representation;
+                    components[`${chainId}`] = component;
+                    representations[`${chainId}`] = representation;
 
-                objects_polymer[chainId] = {
-                    ref: component.ref,
-                    sequence: getResidueSequence(component, chainId, params.structureId.toUpperCase())
-                };
+                    objects_polymer[chainId] = {
+                        ref: component.ref,
+                        sequence: getResidueSequence(component, chainId, params.structureId.toUpperCase())
+                    };
+                } else {
+                    const representation = await plugin.builders.structure.representation.addRepresentation(component, {
+                        type: 'cartoon',
+                        color: 'uniform',
+                        colorParams: {
+                            value: PolymerColorschemeWarm[nommap[chainId]]
+                        }
+                    });
+
+                    components[`${chainId}`] = component;
+                    representations[`${chainId}`] = representation;
+
+                    objects_polymer[chainId] = {
+                        ref: component.ref,
+                        sequence: getResidueSequence(component, chainId, params.structureId.toUpperCase())
+                    };
+                }
             }
         }
 

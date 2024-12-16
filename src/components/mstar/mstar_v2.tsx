@@ -1,4 +1,4 @@
-    import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
+import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
 import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
 import {ArbitrarySphereRepresentationProvider} from './providers/sphere_provider';
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
@@ -33,6 +33,11 @@ import {
 import {debounceTime} from 'rxjs/operators';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
 import {ResidueData} from '@/app/components/sequence_viewer';
+import {Asset} from 'molstar/lib/mol-util/assets';
+import {Loci} from 'molstar/lib/mol-model/loci';
+import {StructureRef} from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
+import {StructureRepresentation3D} from 'molstar/lib/mol-plugin-state/transforms/representation';
+import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
 
 export interface HoverEventDetail {
     residueNumber?: number;
@@ -77,6 +82,25 @@ export class ribxzMstarv2 {
         this.setupHoverEvent(this.ctx, parent);
     }
     landmarks = {
+        tunnel_geoemetry: async (rcsb_id: string): Promise<Loci> => {
+            const provider = this.ctx.dataFormats.get('ply')!;
+            const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
+            const data = await this.ctx.builders.data.download({
+                url: Asset.Url(myurl.toString()),
+                isBinary: false
+            });
+            const parsed = await provider!.parse(this.ctx, data!);
+
+            if (provider.visuals) {
+                const visual = await provider.visuals!(this.ctx, parsed);
+                const shape_ref = visual.ref;
+                const meshObject = this.ctx.state.data.select(shape_ref)[0];
+                const shape_loci = await meshObject.obj.data.repr.getAllLoci();
+                return shape_loci;
+            } else {
+                throw Error('provider.visuals is undefined for this `ply` data format');
+            }
+        },
         ptc: async (xyz: number[]) => {
             let [x, y, z] = xyz;
             let sphere = {x: x, y: y, z: z, radius: 3, color: 'blue'};
@@ -84,7 +108,7 @@ export class ribxzMstarv2 {
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: sphere.color ? {value: sphere.color} : void 0
+                colorParams: sphere.color ? {value: Color(0xff0000)} : void 0
             });
             this.ligands.create_surroundings(structureRef);
         },
@@ -95,7 +119,7 @@ export class ribxzMstarv2 {
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: sphere.color ? {value: sphere.color} : void 0
+                colorParams: sphere.color ? {value: Color(0xff0000)} : void 0
             });
         }
     };
@@ -124,8 +148,7 @@ export class ribxzMstarv2 {
             const model = await this.ctx.builders.structure.createModel(trajectory);
             const structure = await this.ctx.builders.structure.createStructure(model);
 
-            // const traj = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, 'default');
-            // const repr       = await this.ctx.builders.structure.representation.addRepresentation(
+
             //     structure,
             //     {
             //         type: 'cartoon',
@@ -641,6 +664,35 @@ export class ribxzMstarv2 {
     };
 
     interactions = {
+        setColor: async (ref: string, color: string | number) => {
+            // Convert color to numeric format if it's a string (hex or named color)
+            const colorValue = 0xffffff;
+            const state = this.ctx.state.data;
+            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+            if (!cell?.obj) return;
+
+            const update = this.ctx.build();
+            const representations = state.select(
+                StateSelection.Generators.ofType(PluginStateObject.Molecule.Structure.Representation3D, ref)
+            );
+
+            for (const repr of representations) {
+                if (!repr.transform.ref.includes(ref)) continue;
+                update.to(repr).apply(StateTransforms.Representation.StructureRepresentation3D, {
+                    colorTheme: {
+                        name: 'uniform',
+                        params: {value: colorValue}
+                    }
+                });
+            }
+
+                const cartoon = structure.representation.representations.polymer;
+
+            const updateTheme = await this.ctx.build().to(cartoon).update(reprParamsStructureResetColor);
+
+            await updateTheme.commit();
+        },
+
         setSubtreeVisibility: (ref: string, is_visible: boolean) => {
             setSubtreeVisibility(this.ctx.state.data, ref, !is_visible);
         },
@@ -663,7 +715,8 @@ export class ribxzMstarv2 {
         selection: (ref: string, modifier: 'add' | 'remove') => {
             console.log('selection', ref, modifier);
             const state = this.ctx.state.data;
-            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+            const state_sel = state.select(StateSelection.Generators.byRef(ref));
+            const cell = state_sel[0];
             if (!cell?.obj) return;
             const loci = Structure.toStructureElementLoci(cell.obj.data);
             this.ctx.managers.structure.selection.fromLoci(modifier, loci);
@@ -716,9 +769,6 @@ export class ribxzMstarv2 {
             // const state = this.ctx.state.data;
             // const cell = state.select(StateSelection.Generators.byRef(struct_ref))[0];
             const expr = this.residues.selectionResidueClusterExpression(cluster);
-
-            // await this.ctx.builders.structure.tryCreateComponentFromExpression(cell.obj?.data.ref, expr, 'residue-cluster');
-
             let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
                 structureRef,
                 number: i + 1
@@ -765,10 +815,10 @@ export class ribxzMstarv2 {
                                 pp.occlusion.name === 'on'
                                     ? pp.occlusion.params
                                     : {
-                                          bias           : 0.8,
-                                          blurKernelSize : 15,
-                                          radius         : 5,
-                                          samples        : 32,
+                                          bias: 0.8,
+                                          blurKernelSize: 15,
+                                          radius: 5,
+                                          samples: 32,
                                           resolutionScale: 1
                                       }
                         }
@@ -791,12 +841,12 @@ export class ribxzMstarv2 {
         });
         function getElementDetails(location: StructureElement.Location) {
             return {
-                entity_id    : StructureProperties.chain.label_entity_id(location),
+                entity_id: StructureProperties.chain.label_entity_id(location),
                 label_asym_id: StructureProperties.chain.label_asym_id(location),
-                auth_asym_id : StructureProperties.chain.auth_asym_id(location),
-                seq_id       : StructureProperties.residue.label_seq_id(location),
-                auth_seq_id  : StructureProperties.residue.auth_seq_id(location),
-                comp_id      : StructureProperties.atom.label_comp_id(location)
+                auth_asym_id: StructureProperties.chain.auth_asym_id(location),
+                seq_id: StructureProperties.residue.label_seq_id(location),
+                auth_seq_id: StructureProperties.residue.auth_seq_id(location),
+                comp_id: StructureProperties.atom.label_comp_id(location)
             };
         }
 

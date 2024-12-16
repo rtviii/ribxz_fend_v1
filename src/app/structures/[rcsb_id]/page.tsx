@@ -291,8 +291,7 @@ const SelectionAndStructureActions = ({}: {}) => {
     const state = useAppSelector(s => s);
     const ctx = useContext(MolstarContext);
 
-    const rcsb_id = Object.keys(state.mstar_refs.polymer_ids_by_handle)[0];
-    const msc = new MolstarStateController(ctx!, dispatch, state);
+    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
@@ -305,6 +304,7 @@ const SelectionAndStructureActions = ({}: {}) => {
         selected_polymers;
     };
     return (
+        molstarServiceInstance === null  ?  <>Loading... </> :
         <div className="space-x-1">
             <Button
                 variant="outline"
@@ -350,7 +350,7 @@ const SelectionAndStructureActions = ({}: {}) => {
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    msc.landmarks.ptc(rcsb_id);
+                    molstarServiceInstance?.controller.landmarks.ptc(rcsb_id);
                 }}>
                 Render PTC
             </Button>
@@ -359,7 +359,16 @@ const SelectionAndStructureActions = ({}: {}) => {
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    msc.landmarks.constriction_site(rcsb_id);
+                    molstarServiceInstance?.viewer.landmarks.tunnel_geoemetry(rcsb_id)
+                }}>
+                Render Tunnel Geometry
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+                onClick={() => {
+                    molstarServiceInstance?.controller.landmarks.constriction_site(rcsb_id);
                 }}>
                 Render Constriction
             </Button>
@@ -368,7 +377,7 @@ const SelectionAndStructureActions = ({}: {}) => {
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    msc.mute_polymers(rcsb_id);
+                    molstarServiceInstance?.controller.mute_polymers(rcsb_id);
                 }}>
                 Mute Polymers
             </Button>
@@ -377,7 +386,7 @@ const SelectionAndStructureActions = ({}: {}) => {
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    msc.experimental.cylinder_residues();
+                    molstarServiceInstance?.controller.experimental.cylinder_residues();
                 }}>
                 Cylinder Residues
             </Button>
@@ -486,7 +495,7 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                                     log state
                                 </Button>
                                 {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
-                                {/* <SelectionAndStructureActions /> */}
+                                <SelectionAndStructureActions />
                                 <StructureInfoTab data={data!} isLoading={isLoading} />
                             </div>
                             <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
