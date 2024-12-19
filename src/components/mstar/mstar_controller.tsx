@@ -140,7 +140,6 @@ export class MolstarStateController {
     }
 
     polymers = {
-
         focusPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
             const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
@@ -264,13 +263,21 @@ export class MolstarStateController {
     }
 
     experimental = {
-
-        cylinder_residues: async (nomenclature_map:Record<string,string>) => {
-            if (!nomenclature_map)return
+        cylinder_residues: async (nomenclature_map: Record<string, string> | null) => {
+            if (!nomenclature_map) return;
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
             const data = await response.json();
             const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
-            this.viewer.experimental.cylinder_residues(struct_ref, data, nomenclature_map);
+            // this.viewer.experimental.cylinder_residues(struct_ref, data, nomenclature_map);
+            this.viewer.experimental.___cylinder_residues(struct_ref, data, nomenclature_map);
+        },
+        half_cylinder_residues: async (nomenclature_map: Record<string, string> | null) => {
+            if (!nomenclature_map) return;
+            const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/half_cylinder_residues`);
+            const data = await response.json();
+            const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
+            // this.viewer.experimental.cylinder_residues(struct_ref, data, nomenclature_map);
+            this.viewer.experimental.___cylinder_residues(struct_ref, data, nomenclature_map);
         }
     };
 

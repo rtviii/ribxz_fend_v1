@@ -47,7 +47,7 @@ export const CytosolicProteinsColorScheme = {
     "eS31": Color(0xa855f7),   // violet // RGB(168, 85, 247)
     "RACK1": Color(0x9333ea),  // royal purple // RGB(147, 51, 234)
 
- "uL1": Color(0xf59e0b),    // amber // RGB(245, 158, 11)
+    "uL1": Color(0xf59e0b),    // amber // RGB(245, 158, 11)
     "uL2": Color(0xdc2626),    // warm red // RGB(220, 38, 38)
     "uL3": Color(0xfbbf24),    // golden yellow // RGB(251, 191, 36)
     "uL4": Color(0xb45309),    // copper brown // RGB(180, 83, 9)
@@ -179,6 +179,8 @@ export const MitochondrialProteinColorScheme = {
     "uL22m": Color(0xfee2e2),  // shell // RGB(254, 226, 226)
     "uL23m": Color(0xfef2f2),  // pearl // RGB(254, 242, 242)
     "uL24m": Color(0xffb3c1),  // petal // RGB(255, 179, 193)
+    "uL29m": Color(0xfba4af),   // coral rose // RGB(251, 164, 175)
+    "uL30m": Color(0xfecdd3),    // soft coral // RGB(254, 205, 211)
 
     // LSU Bacterial-specific - warm yellow tones
     "bL9m": Color(0xfef9c3),   // light yellow // RGB(254, 249, 195)
@@ -243,7 +245,6 @@ export const RNAColorScheme = {
     // tRNA (stays distinct - Soft Purple)
     "tRNA": Color(0xc084fc)       // medium purple // RGB(192, 132, 252)
 }
-
 
 export const FactorsColorScheme = {
     // Eukaryotic (Warm Peach-Orange)
@@ -326,11 +327,12 @@ export const InitiationFactorsColorScheme = {
     "aIF5B": Color(0xfacc15)        // light butter // RGB(250, 204, 21)
 }
 
-  const  PolymerColorschemeWarm = {
+const  PolymerColorschemeWarm = {
     ...CytosolicProteinsColorScheme,
     ...MitochondrialProteinColorScheme,
     ...RNAColorScheme,
     ...FactorsColorScheme,
     ...InitiationFactorsColorScheme
 }
+
 export default  PolymerColorschemeWarm

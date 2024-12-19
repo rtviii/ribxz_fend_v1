@@ -105,11 +105,14 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
                 entries.forEach(entry => {
                     if (!entry.isIntersecting) return;
 
+                    // @ts-ignore
                     if (entry.target.dataset.type === 'bottom' && visibleRange.end < sequence.length) {
                         setVisibleRange(prev => ({
                             start: prev.start,
                             end: Math.min(sequence.length, prev.end + CHUNK_SIZE)
                         }));
+
+                    // @ts-ignore
                     } else if (entry.target.dataset.type === 'top' && visibleRange.start > 0) {
                         setVisibleRange(prev => ({
                             start: Math.max(0, prev.start - CHUNK_SIZE),

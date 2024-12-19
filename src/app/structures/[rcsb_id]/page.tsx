@@ -10,7 +10,6 @@ import {
     useRoutersRouterStructStructureProfileQuery,
     useRoutersRouterStructStructurePtcQuery
 } from '@/store/ribxz_api/ribxz_api';
-import {useSearchParams} from 'next/navigation';
 import PolymersTable from '@/components/ribxz/polymer_table';
 import {ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
@@ -42,7 +41,6 @@ import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
 import {MolstarServiceContext, molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
-
 
 const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
     const handleCifDownload = () => {
@@ -271,7 +269,7 @@ const TunnelLandmarkComponent: React.FC<{
     return <LandmarkItem {...availableLandmarks['NPET']} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions} />;
 };
 
-const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map:Record<string,string>|null}) => {
+const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
     const dispatch = useAppDispatch();
     const state = useAppSelector(s => s);
     const ctx = useContext(MolstarContext);
@@ -288,8 +286,9 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map:Reco
         const bsite_name = promptForBindingSiteName();
         selected_polymers;
     };
-    return (
-        molstarServiceInstance === null  ?  <>Loading... </> :
+    return molstarServiceInstance === null ? (
+        <>Loading... </>
+    ) : (
         <div className="space-x-1">
             <Button
                 variant="outline"
@@ -344,7 +343,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map:Reco
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.viewer.landmarks.tunnel_geoemetry(rcsb_id)
+                    molstarServiceInstance?.viewer.landmarks.tunnel_geometry(rcsb_id);
                 }}>
                 Render Tunnel Geometry
             </Button>
@@ -365,6 +364,16 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map:Reco
                     molstarServiceInstance?.controller.mute_polymers(rcsb_id);
                 }}>
                 Mute Polymers
+            </Button>
+
+            <Button
+                variant="outline"
+                size="sm"
+                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+                onClick={() => {
+                    molstarServiceInstance?.controller.experimental.half_cylinder_residues(nomenclature_map);
+                }}>
+                HalfCylinder Residues
             </Button>
             <Button
                 variant="outline"
@@ -408,25 +417,20 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map:Reco
 //         </ScrollArea>
 //     );
 // };
+// type Props = {
+//     params: {rcsb_id: string};
+//     searchParams: {[key: string]: string | string[] | undefined};
+// };
 
-export default function StructurePage({params}: {params: {rcsb_id: string}}) {
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const {rcsb_id} = params;
+export default function StructurePage() {
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
 
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    // const {rcsb_id} = params;
+    const rcsb_id = '4UG0';
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
-    const [nomMap, setNomMap] = useState<Record<string,string>|null>(null);
-
-    const searchParams = useSearchParams();
-    const ligand_param = searchParams.get('ligand');
-    const ptc = searchParams.get('ptc');
-    const {
-        data: ptc_data,
-        isLoading: ptc_data_IsLoading,
-        error: ptc_error
-    } = useRoutersRouterStructStructurePtcQuery({rcsbId: rcsb_id});
-    const [method, setMethod] = useState<undefined | string>();
+    const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
 
     useEffect(() => {
         if (!isInitialized || !data) return;
@@ -436,9 +440,8 @@ export default function StructurePage({params}: {params: {rcsb_id: string}}) {
                 return prev;
             },
             {}
-
         );
-        setNomMap(nomenclature_map)
+        setNomMap(nomenclature_map);
 
         controller?.loadStructure(rcsb_id, nomenclature_map);
     }, [isInitialized, data]);

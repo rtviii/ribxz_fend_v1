@@ -4,12 +4,24 @@ import Select from 'react-select';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { groupedOptions } from '@/components/filters/polymer_class_options'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
+import {  useRoutersRouterStructPolymerClassesNomenclatureQuery } from '@/store/ribxz_api/ribxz_api';
 import { Group } from './structure_filters_component';
 import { useAppSelector } from '@/store/store';
 import { PolymersFilters, set_polymer_filter } from '@/store/slices/slice_polymers';
 import { Button } from '@/components/ui/button'; // Make sure to import the Button component
 import { X } from 'lucide-react'; // Import the X icon from lucide-react
+
+import {CytosolicRnaClass, MitochondrialProteinClass, MitochondrialRnaClass, TRna, ElongationFactorClass, InitiationFactorClass, CytosolicProteinClass } from '@/store/ribxz_api/ribxz_api'
+
+
+export type PolymerClass = CytosolicRnaClass
+        | MitochondrialRnaClass
+        | TRna
+        | ElongationFactorClass
+        | InitiationFactorClass
+        | MitochondrialProteinClass
+        | CytosolicProteinClass
+    
 
 const PolymerFiltersComponent = () => {
   const dispatch = useDispatch();
@@ -18,6 +30,8 @@ const PolymerFiltersComponent = () => {
 
   useEffect(() => {
     if (nomenclature_classes !== undefined) {
+
+      // @ts-ignore
       setPolymerClassOptions(groupedOptions(nomenclature_classes))
     }
   }, [nomenclature_classes, nomenclature_classes_is_loading]);
@@ -51,9 +65,10 @@ const PolymerFiltersComponent = () => {
             </label>
             <div className="flex items-center">
               <Select
+              // @ts-ignore
                 value={polymers_filters.current_polymer_class ? { value: polymers_filters.current_polymer_class, label: polymers_filters.current_polymer_class } : null}
                 onChange={(value) => {
-                  dispatch(set_polymer_filter({ filter_type: "current_polymer_class", value: value ? value.value as CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum : null }))
+                  dispatch(set_polymer_filter({ filter_type: "current_polymer_class", value: value ? value.value as PolymerClass : null }))
                 }}
                 placeholder="Present Chains"
                 instanceId="polymer_class"

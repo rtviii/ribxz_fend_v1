@@ -34,10 +34,10 @@ import { SidebarMenu } from "@/components/ribxz/sidebar_menu";
 import { MolstarNode } from "@/components/mstar/lib";
 import { MolstarRibxz } from "@/components/mstar/molstar_ribxz";
 import { MolstarContext } from "@/components/mstar/molstar_context";
-import {
-  superimpose_pop_chain,
-  superimpose_select_pivot_chain,
-} from "@/store/slices/molstar_state";
+// import {
+//   superimpose_pop_chain,
+//   superimpose_select_pivot_chain,
+// } from "@/store/slices/molstar_state";
 
 function PlusIcon() {
   return (
@@ -86,19 +86,19 @@ const SumperimposeCandidateChainRow = ({
   rcsb_id: string;
 }) => {
   const dispatch = useAppDispatch();
-  const current_pivot = useAppSelector(
-    (state) => state.molstar.superimpose.pivot
-  )!;
-  const is_self_current_pivot = () => {
-    if (
-      current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id &&
-      current_pivot?.rcsb_id === rcsb_id
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
+  // const current_pivot = useAppSelector(
+  //   (state) => state.molstar.superimpose.pivot
+  // )!;
+  // const is_self_current_pivot = () => {
+  //   if (
+  //     current_pivot?.polymer.auth_asym_id === polymer.auth_asym_id &&
+  //     current_pivot?.rcsb_id === rcsb_id
+  //   ) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // };
   return (
     <div className="flex items-center p-2 bg-white shadow-sm hover:shadow-md transition-shadow">
       <span className="flex-grow">
@@ -107,20 +107,20 @@ const SumperimposeCandidateChainRow = ({
       <div
         className="flex items-center px-4 py-1 border rounded hover:cursor-pointer hover:bg-slate-200 mx-4"
         onClick={() => {
-          dispatch(superimpose_select_pivot_chain({ polymer, rcsb_id }));
+          // dispatch(superimpose_select_pivot_chain({ polymer, rcsb_id }));
         }}
       >
         <div
-          className={`w-4 h-4  ${
-            is_self_current_pivot() ? "bg-green-400" : "bg-gray-400"
-          } rounded-full`}
+          // className={`w-4 h-4  ${
+          //   is_self_current_pivot() ? "bg-green-400" : "bg-gray-400"
+          // } rounded-full`}
         />
         <span className="ml-2 text-sm">Pivot</span>
       </div>
       <div
         className="hover:cursor-pointer border rounded hover:bg-slate-200"
         onClick={() => {
-          dispatch(superimpose_pop_chain({ polymer, rcsb_id }));
+          // dispatch(superimpose_pop_chain({ polymer, rcsb_id }));
         }}
       >
         <XIcon props={{ className: "w-6 h-6 p-1" }} />
@@ -132,10 +132,10 @@ const SumperimposeCandidateChainRow = ({
 export default function Superimpose() {
   const { rcsb_id } = useParams<{ rcsb_id: string }>();
   const dispatch = useAppDispatch();
-  const active_superimpose_chains = useAppSelector(
-    (state) => state.molstar.superimpose.active_chains
-  )!;
-  const pivot = useAppSelector((state) => state.molstar.superimpose.pivot)!;
+  // const active_superimpose_chains = useAppSelector(
+  //   (state) => state.molstar.superimpose.active_chains
+  // )!;
+  // const pivot = useAppSelector((state) => state.molstar.superimpose.pivot)!;
 
   const molstarNodeRef = useRef<HTMLDivElement>(null);
   const [ctx, setCtx] = useState<MolstarRibxz | null>(null);
@@ -172,22 +172,21 @@ export default function Superimpose() {
 
             <CardContent className="flex-grow overflow-auto space-y-8 items-center">
               <div className="flex flex-col gap-4">
-                <StructureFiltersComponent />
+                {/* <StructureFiltersComponent /> */}
               </div>
 
               <Separator className="my-4" />
               <p className="text-gray-500 p-1">
                 Please select chains to superimpose from the {"+"} menu.
               </p>
-              <MolstarContext.Provider value={ctx}>
-                {/* <StructureSelection> */}
+              {/* <MolstarContext.Provider value={ctx}>
                 <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10">
                   <PlusIcon />
                 </Button>
-                {/* </StructureSelection> */}
-              </MolstarContext.Provider>
+                </StructureSelection>
+              </MolstarContext.Provider> */}
 
-              <div className="flex flex-col gap-2">
+              {/* <div className="flex flex-col gap-2">
                 {active_superimpose_chains.map((p) => (
                   <SumperimposeCandidateChainRow
                     key={p.rcsb_id + p.polymer.auth_asym_id}
@@ -195,7 +194,7 @@ export default function Superimpose() {
                     rcsb_id={p.rcsb_id}
                   />
                 ))}
-              </div>
+              </div> */}
             </CardContent>
             <CardFooter className="flex justify-between">
               <Button

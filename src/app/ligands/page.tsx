@@ -12,6 +12,7 @@ import {
   BindingSite,
   BindingSiteChain,
   LigandTransposition,
+  Polymer,
   ribxz_api,
   useRoutersRouterStructListLigandsQuery,
 } from "@/store/ribxz_api/ribxz_api";
@@ -81,6 +82,7 @@ import { ResidueBadge } from "@/components/ribxz/text_aides/residue_badge";
 import { ImperativePanelHandle } from "react-resizable-panels";
 import { GlobalStructureSelection } from "@/components/ribxz/ribxz_structure_selection";
 import { Spinner } from "@/components/ui/spinner";
+import { useMolstarService } from "@/components/mstar/mstar_service";
 
 interface TaxaDropdownProps {
   count: number;
@@ -425,12 +427,28 @@ export default function Ligands() {
   }, [surroundingResidues, parentStructProfile]);
 
   // -------------------------------------
+
+  const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: current_ligand?.parent_structure.rcsb_id!});
+  const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
+  const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
+
   useEffect(() => {
     if (current_ligand === undefined) {
       return;
     }
+
+        if (!isInitialized || !data) return;
+        const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
+            (prev: Record<string, string>, current: Polymer) => {
+                prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+                return prev;
+            },
+            {}
+        );
+        setNomMap(nomenclature_map);
+
     ctx
-      ?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, true)
+      ?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map)
       .then(({ ctx: molstar, struct_representation }) => {
         setStructRepresentation(struct_representation);
         return molstar.create_ligand_and_surroundings(
@@ -503,7 +521,7 @@ export default function Ligands() {
     if (current_selected_target !== null) {
       ctx_secondary?.upload_mmcif_structure(
         current_selected_target.rcsb_id,
-        true
+        {}
       );
     }
     dispatch(set_ligand_prediction_data(null));
@@ -520,7 +538,8 @@ export default function Ligands() {
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={30} minSize={20}>
           <div className="h-full p-4">
-            <MolstarContext.Provider value={ctx}>
+         
+            {/* <MolstarContext.Provider value={ctx}> */}
               <div className="border-r">
                 <div className="p-4 space-y-2">
                   <div className="flex flex-row space-x-4">
@@ -860,7 +879,7 @@ export default function Ligands() {
                                           }
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            ctx?.select_chain(entry[0]);
+                                            // ctx?.select_chain(entry[0]);
                                           }}
                                         >
                                           <span className="font-light w-8">
@@ -1059,9 +1078,9 @@ export default function Ligands() {
                                           }
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            ctx_secondary?.select_chain(
-                                              chain.target.auth_asym_id
-                                            );
+                                            // ctx_secondary?.select_chain(
+                                            //   chain.target.auth_asym_id
+                                            // );
                                           }}
                                         >
                                           <span className="font-light w-8">
@@ -1112,7 +1131,7 @@ export default function Ligands() {
                   </ScrollArea>
                 </div>
               </div>
-            </MolstarContext.Provider>
+            {/* </MolstarContext.Provider> */}
           </div>
         </ResizablePanel>
         <ResizableHandle />
