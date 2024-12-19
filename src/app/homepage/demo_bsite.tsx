@@ -71,7 +71,7 @@ export const BsiteDemo = () => {
       const composite_bsite = await dispatch(
         ribxz_api.endpoints.routersRouterLigBsiteComposite.initiate()
       );
-      await ctx?.upload_mmcif_structure(rcsb_id);
+      await ctx?.upload_mmcif_structure(rcsb_id, {});
       await ctx?.applyBsiteColors(composite_bsite.data as ScoredBsite);
       await ctx?.toggleSpin();
     })();

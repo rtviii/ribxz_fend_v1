@@ -254,6 +254,7 @@ export class MolstarRibxz {
                 }),
             data
         );
+        // @ts-ignore
         let loci = StructureSelection.toLociWithSourceUnitts(sel);
         this.ctx.managers.interactivity.lociHighlights.highlight({loci});
     };
@@ -574,6 +575,7 @@ export class MolstarRibxz {
         }));
         const struct = structures[0];
         let expression = MS.struct.generator.atomGroups({
+            // @ts-ignore
             'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id])
         });
 

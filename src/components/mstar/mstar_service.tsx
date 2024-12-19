@@ -19,6 +19,7 @@ export const useMolstarService = (containerRef: React.RefObject<HTMLDivElement>)
 
     // Explicitly type the getState function
     const getState = useCallback((): RootState => {
+        // @ts-ignore
         return store.getState();
     }, [store]);
 

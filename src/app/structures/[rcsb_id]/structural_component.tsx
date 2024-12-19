@@ -75,7 +75,7 @@ const LandmarkItem: React.FC<Landmark> = ({
                                         className="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700"
                                         onClick={(e) => {
                                                 e.stopPropagation();
-                                                landmark_actions.render!(rcsb_id, ctx!);
+                                                // landmark_actions.render!(rcsb_id, ctx!);
                                         }}
                                 />
                         )}
@@ -137,8 +137,8 @@ const LigandItem = ({
                                 className="h-5 w-5 text-gray-500 cursor-pointer hover:text-gray-700 "
                                 onClick={(e) => {
                                         e.stopPropagation();
-                                        ctx?.create_ligand_and_surroundings(ligandData.chemicalId, 5);
-                                        ctx?.select_focus_ligand(ligandData.chemicalId, ['select', 'focus']);
+                                        // ctx?.create_ligand_and_surroundings(ligandData.chemicalId, 5);
+                                        // ctx?.select_focus_ligand(ligandData.chemicalId, ['select', 'focus']);
                                 }}
                         />
                 </>

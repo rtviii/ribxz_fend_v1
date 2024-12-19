@@ -151,6 +151,7 @@ export const GlobalStructureSelection = ({
       placeholder="Select a structure"
       // @ts-ignore
       onChange={(val, struct) => {
+        // @ts-ignore
         dispatch(select_structure(struct.S as StructureOverview));
       }}
       value={selected?.rcsb_id}

@@ -83,7 +83,7 @@ export const selectAllComponentsByHandle = createSelector(
 
 // Slice
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { LigandStateObject, PolymerStateObject } from './slice_refs';
+import {  LigandComponent,  PolymerComponent } from './slice_refs';
 
 export const molecularComponentsSlice = createSlice({
     name: 'molecularComponents',
@@ -105,7 +105,7 @@ export const molecularComponentsSlice = createSlice({
         },
         addComponents: (state, action: PayloadAction<{
             handle: RCSB_ID,
-            components: Record<string, PolymerStateObject | LigandStateObject>
+            components: Record<string, PolymerComponent | LigandComponent>
         }>) => {
             const { handle, components } = action.payload;
 
@@ -116,6 +116,7 @@ export const molecularComponentsSlice = createSlice({
                     // Polymer
                     state.polymers.byId[id] = {
                         ref: component.ref,
+                        // @ts-ignore
                         seq: component.seq,
                         handle,
                         auth_asym_id

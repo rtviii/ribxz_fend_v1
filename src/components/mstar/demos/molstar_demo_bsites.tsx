@@ -159,36 +159,36 @@ export class MolstarDemoBsites extends MolstarRibxz {
       ) => Color;
     }
 
-    const createCustomColorTheme = (
-      sites: ScoredResidue[]
-    ): CustomColorTheme => {
-      // Create a map of residue identifiers to scores
-      const scoreMap: Map<string, number> = new Map(
-        sites.map((site) => [
-          `${site.auth_asym_id}/${site.auth_seq_id}`,
-          site.score,
-        ])
-      );
+    // const createCustomColorTheme = (
+    //   sites: ScoredResidue[]
+    // ): CustomColorTheme => {
+    //   // Create a map of residue identifiers to scores
+    //   const scoreMap: Map<string, number> = new Map(
+    //     sites.map((site) => [
+    //       `${site.auth_asym_id}/${site.auth_seq_id}`,
+    //       site.score,
+    //     ])
+    //   );
 
-      return {
-        name: "custom-residue-coloring",
-        color: (location: StructureElement.Location): Color => {
-          const key = `${
-            location.unit.model.atomicHierarchy.chainAtomSegments.label_asym_id[
-              location.unit.chainIndex
-            ]
-          }/${location.residueIndex + 1}`;
-          const score = scoreMap.get(key);
+    //   return {
+    //     name: "custom-residue-coloring",
+    //     color: (location: StructureElement.Location): Color => {
+    //       const key = `${
+    //         location.unit.model.atomicHierarchy.chainAtomSegments.label_asym_id[
+    //           location.unit.chainIndex
+    //         ]
+    //       }/${location.residueIndex + 1}`;
+    //       const score = scoreMap.get(key);
 
-          if (score !== undefined) {
-            // Return red with varying opacity based on score
-            return Color.fromRgb(255, 0, 0, score);
-          }
-          // Return transparent for non-highlighted residues
-          return Color.fromRgb(255, 255, 255, 0);
-        },
-      };
-    };
+    //       if (score !== undefined) {
+    //         // Return red with varying opacity based on score
+    //         return Color.fromRgb(255, 0, 0, score);
+    //       }
+    //       // Return transparent for non-highlighted residues
+    //       return Color.fromRgb(255, 255, 255, 0);
+    //     },
+    //   };
+    // };
   };
   applyBsiteColors = async (bsite: ScoredBsite) => {
     this.ctx.dataTransaction(async () => {
@@ -332,11 +332,11 @@ export class MolstarDemoBsites extends MolstarRibxz {
 
   async upload_mmcif_structure(
     rcsb_id: string,
-    clear?: boolean
+    nomenclature_map:Record<string,string>
   ): Promise<{ ctx: MolstarDemoBsites; struct_representation: any }> {
-    if (clear) {
-      await this.ctx.clear();
-    }
+    // if (clear) {
+    //   await this.ctx.clear();
+    // }
 
     const data = await this.ctx.builders.data.download(
       {

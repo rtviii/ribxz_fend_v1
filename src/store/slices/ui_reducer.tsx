@@ -1,16 +1,6 @@
 'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum,  LigandTransposition,  Polymer, Protein, RibosomeStructure, ribxz_api, Rna  } from '@/store/ribxz_api/ribxz_api'
-import { structuresApi } from '../ribxz_api/structures_api'
-
-
-// export interface PaginationState {
-//     current_polymers_page  : number
-//     total_polymers_pages   : number | null
-
-//     current_structures_page: number
-//     total_structures_pages : number | null
-// }
+import {   LigandTransposition,  ribxz_api  } from '@/store/ribxz_api/ribxz_api'
 
 export type LigandInstances = Array<[{
     chemicalId          : string

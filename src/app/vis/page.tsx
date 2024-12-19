@@ -72,7 +72,7 @@ export default function Vis() {
 
   useEffect(() => {
     console.log("Fired off download struct");
-    ctx?.upload_mmcif_structure("5afi");
+    // ctx?.upload_mmcif_structure("5afi");
   }, [ctx]);
 
   const [rcsb_id, set_rcsb_id] = useState<string | null>(null);
@@ -97,9 +97,9 @@ export default function Vis() {
     })();
   }, [rcsb_id]);
 
-  const current_structures = useAppSelector(
-    (state) => state.ui.data.current_structures
-  );
+  // const current_structures = useAppSelector(
+  //   (state) => state.ui.data.current_structures
+  // );
   const {
     data: structs_overview,
     isLoading: structs_overview_Loading,
@@ -129,11 +129,11 @@ export default function Vis() {
             </CardHeader>
             <CardContent className="flex-grow overflow-auto space-y-8 items-center">
               {/* <Filters /> */}
-              <MolstarContext.Provider value={ctx}>
+              {/* <MolstarContext.Provider value={ctx}> */}
                 {/* <ChainPicker> */}
                 <Button className=" min-w-full bg-black text-white hover:bg-gray-700  font-medium rounded-md text-sm p-2.5 text-center inline-flex items-center justify-center w-10 h-10"></Button>
                 {/* </ChainPicker> */}
-              </MolstarContext.Provider>
+              {/* </MolstarContext.Provider */}
             </CardContent>
             <CardFooter className="flex justify-between"></CardFooter>
           </Card>

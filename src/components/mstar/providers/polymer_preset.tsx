@@ -8,6 +8,7 @@ import {Color} from 'molstar/lib/mol-util/color';
 import PolymerColorschemeDarkTemple from './colorscheme_darktemple';
 import {ResidueData} from '@/app/components/sequence_viewer';
 import PolymerColorschemeWarm from './colorscheme_warm';
+import { PolymerClass } from '@/components/filters/polymers_filters_component';
 
 export const AMINO_ACIDS_3_TO_1_CODE = {
     ALA: 'A',
@@ -284,6 +285,7 @@ function getResidueSequence(component: StateObjectSelector, chainId: string, rcs
         const auth_seq_id = structure.model.atomicHierarchy.residues.auth_seq_id.value(rI);
 
         sequence.push([
+            // @ts-ignore
             label_comp_id in AMINO_ACIDS_3_TO_1_CODE ? AMINO_ACIDS_3_TO_1_CODE[label_comp_id] : label_comp_id,
             auth_seq_id
         ]);
@@ -351,6 +353,7 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             if (component) {
                 if (
                     ['23SrRNA', '25SrRNA', '28SrRNA', '18SrRNA', '16SrRNA', 'mt16SrRNA', 'mt12SrRNA'].includes(
+                            // @ts-ignore
                         nommap[chainId]
                     )
                 ) {
@@ -358,6 +361,7 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                         type: 'gaussian-surface',
                         color: 'uniform',
                         colorParams: {
+                            // @ts-ignore
                             value: PolymerColorschemeWarm[nommap[chainId]]
                         }
                     });
@@ -374,7 +378,8 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                         type: 'cartoon',
                         color: 'uniform',
                         colorParams: {
-                            value: PolymerColorschemeWarm[nommap[chainId]]
+                            // @ts-ignore
+                            value: PolymerColorschemeWarm[nommap[chainId] as PolymerClass]
                         }
                     });
 

@@ -27,7 +27,6 @@ import {StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
 import {
     StructureSelectionQueries,
-    StructureSelectionQuery
 } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 
 import {debounceTime} from 'rxjs/operators';
@@ -35,9 +34,6 @@ import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interac
 import {ResidueData} from '@/app/components/sequence_viewer';
 import {Asset} from 'molstar/lib/mol-util/assets';
 import {Loci} from 'molstar/lib/mol-model/loci';
-import {StructureRef} from 'molstar/lib/mol-plugin-state/manager/structure/hierarchy-state';
-import {StructureRepresentation3D} from 'molstar/lib/mol-plugin-state/transforms/representation';
-import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
 import PolymerColorschemeWarm from './providers/colorscheme_warm';
 import {ArbitraryCylinderRepresentationProvider} from './providers/cylinder_provider';
 
@@ -84,6 +80,7 @@ export class ribxzMstarv2 {
 
         this.setupHoverEvent(this.ctx, parent);
     }
+
     landmarks = {
         tunnel_mesh_cylinder: async (
             start : [number, number, number],
@@ -692,34 +689,34 @@ export class ribxzMstarv2 {
     };
 
     interactions = {
-        setColor: async (ref: string, color: string | number) => {
-            // Convert color to numeric format if it's a string (hex or named color)
-            const colorValue = 0xffffff;
-            const state = this.ctx.state.data;
-            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
-            if (!cell?.obj) return;
+        // setColor: async (ref: string, color: string | number) => {
+        //     // Convert color to numeric format if it's a string (hex or named color)
+        //     const colorValue = 0xffffff;
+        //     const state = this.ctx.state.data;
+        //     const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+        //     if (!cell?.obj) return;
 
-            const update = this.ctx.build();
-            const representations = state.select(
-                StateSelection.Generators.ofType(PluginStateObject.Molecule.Structure.Representation3D, ref)
-            );
+        //     const update = this.ctx.build();
+        //     const representations = state.select(
+        //         StateSelection.Generators.ofType(PluginStateObject.Molecule.Structure.Representation3D, ref)
+        //     );
 
-            for (const repr of representations) {
-                if (!repr.transform.ref.includes(ref)) continue;
-                update.to(repr).apply(StateTransforms.Representation.StructureRepresentation3D, {
-                    colorTheme: {
-                        name: 'uniform',
-                        params: {value: colorValue}
-                    }
-                });
-            }
+        //     for (const repr of representations) {
+        //         if (!repr.transform.ref.includes(ref)) continue;
+        //         update.to(repr).apply(StateTransforms.Representation.StructureRepresentation3D, {
+        //             colorTheme: {
+        //                 name: 'uniform',
+        //                 params: {value: colorValue}
+        //             }
+        //         });
+        //     }
 
-            const cartoon = structure.representation.representations.polymer;
+        //     const cartoon = structure.representation.representations.polymer;
 
-            const updateTheme = await this.ctx.build().to(cartoon).update(reprParamsStructureResetColor);
+        //     const updateTheme = await this.ctx.build().to(cartoon).update(reprParamsStructureResetColor);
 
-            await updateTheme.commit();
-        },
+        //     await updateTheme.commit();
+        // },
 
         setSubtreeVisibility: (ref: string, is_visible: boolean) => {
             setSubtreeVisibility(this.ctx.state.data, ref, !is_visible);
@@ -831,6 +828,7 @@ export class ribxzMstarv2 {
                         type: 'cartoon',
                         color: 'uniform',
                         colorParams: {
+                            // @ts-ignore
                             value: PolymerColorschemeWarm[nomenclature_map[chain]]
                             // value: Color(0xfafafa)
                         }
@@ -927,7 +925,8 @@ export class ribxzMstarv2 {
                         type: 'cartoon',
                         color: 'uniform',
                         colorParams: {
-                            value: PolymerColorschemeWarm[nomenclature_map[chain]]
+                            // @ts-ignore
+                            value: PolymerColorschemeWarm[nomenclature_map[chain] ]
                             // value: Color(0xfafafa)
                         }
                     }),
