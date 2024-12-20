@@ -80,7 +80,7 @@ export function SidebarMenu() {
           <h2 className="text-sm  uppercase text-gray-400 ">Tools</h2>
 
           {/* <Link className=" block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href="/ligands" > */}
-            <Link  className="block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href={'/vis'}>Visualization</Link>
+            {/* <Link  className="block py-2 px-2 font-semibold  text-sm   hover:bg-muted rounded-sm" href={'/vis'}>Visualization</Link> */}
             {/* </Link>  */}
 
 
@@ -89,7 +89,7 @@ export function SidebarMenu() {
             {/* </Link>  */}
 
           {/* <Link className="block py-2 px-2 font-semibold  text-sm text-gray-700  hover:bg-muted rounded-sm" href="/superpose"> */}
-            <span  className="block py-2 px-2 font-semibold  text-sm text-gray-400  hover:bg-muted rounded-sm">Polymer Superposition 3D (WIP)</span>
+            {/* <span  className="block py-2 px-2 font-semibold  text-sm text-gray-400  hover:bg-muted rounded-sm">Polymer Superposition 3D (WIP)</span> */}
           {/* </Link> */}
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1" className="w-full">
