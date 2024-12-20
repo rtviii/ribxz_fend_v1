@@ -8,6 +8,7 @@ import {useAppDispatch, useAppSelector} from '@/store/store';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
 import {molstarServiceInstance} from '@/components/mstar/mstar_service';
 import { sort_by_polymer_class } from '@/my_utils';
+import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [currentView, setCurrentView] = useState<'Polymers' | 'Landmarks' | 'Ligands'>('Polymers');
@@ -30,6 +31,8 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
 
                 return (
                     <div className="space-y-1">
+
+                    <SequenceMolstarSync />
                         
                         {
                         [...data.rnas, ...data.proteins, ...data.other_polymers].toSorted(

@@ -8,11 +8,12 @@ import {MolstarContext} from '@/components/mstar/molstar_context';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
-import {SequenceMolstarSync, SequenceViewerTrigger} from '@/app/components/sequence_viewer';
+import { SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 import {molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
 import {selectPolymerStateByAuthId} from '@/store/slices/slice_polymer_states';
 import PolymerColorschemeWarm from '@/components/mstar/providers/colorscheme_warm';
 import { getContrastColor } from '@/my_utils';
+import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 
 export type ResidueData = [string, number];
 
@@ -81,7 +82,6 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
                 </div>
 
                 <div className="flex items-center space-x-2" onClick={e => e.stopPropagation()}>
-                    <SequenceMolstarSync />
                     {polyComponent && (
                         <SequenceViewerTrigger
                             auth_asym_id={polymer.auth_asym_id}
