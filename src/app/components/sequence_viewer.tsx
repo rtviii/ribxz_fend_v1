@@ -1,10 +1,10 @@
-import React, {useState, useCallback, useEffect, useRef, createContext, useContext} from 'react';
-import {useDispatch} from 'react-redux';
-import {addSelection, removeSelection, clearSelections, getResiduesArray} from '@/store/molstar/slice_seq_viewer';
-import {RootState, useAppSelector} from '@/store/store';
-import {cn} from '@/components/utils';
-import {DraggableWindow} from './draggable_window';
-import {Dna, Shapes} from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef, createContext, useContext, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
+import { addSelection, removeSelection, clearSelections, getResiduesArray } from '@/store/molstar/slice_seq_viewer';
+import { RootState, useAppSelector } from '@/store/store';
+import { cn } from '@/components/utils';
+import { DraggableWindow } from './draggable_window';
+import { Dna, Shapes } from 'lucide-react';
 import './sequence_viewer.css';
 
 export type ResidueData = [string, number];
@@ -15,38 +15,81 @@ interface SequenceViewerProps {
     sequence: ResidueData[];
     auth_asym_id: string;
     metadata?: {
-        chain_title ?: string;
+        chain_title?: string;
         structure_id?: string;
-        length      ?: number;
-        type        ?: 'Polypeptide' | 'Polynucleotide';
-        struct_ref  ?: string;
-        polymer_ref ?: string;
+        length?: number;
+        type?: 'Polypeptide' | 'Polynucleotide';
+        struct_ref?: string;
+        polymer_ref?: string;
     };
-    onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
+    onSelectionChange?: (selection: { indices: number[]; residues: ResidueData[] }) => void;
 }
 
 const CHUNK_SIZE = 200;
+const ResidueComponent = React.memo<{
+    residue: ResidueData;
+    absoluteIndex: number;
+    isSelected: boolean;
+    showMarker: boolean;
+}>(({ residue, absoluteIndex, isSelected, showMarker }) => (
+    // Add the data-index attribute here
+    <div className="residue-wrapper" data-index={absoluteIndex}>
+        <span className={cn('residue', isSelected && 'selected')}>
+            {residue[0]}
+        </span>
+        {showMarker && <span className="residue-marker">{residue[1]}</span>}
+    </div>
+), (prev, next) => 
+    prev.isSelected === next.isSelected && 
+    prev.residue[0] === next.residue[0] && 
+    prev.residue[1] === next.residue[1]
+);
+ResidueComponent.displayName = 'ResidueComponent';
 
-const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, metadata, onSelectionChange}) => {
-   const renderCount = useRef(0);
-    
-    useEffect(() => {
-        console.log('Sequence viewer rendered:', renderCount.current++);
-    });
+// Memoized block component - handles mouse events at block level
+const ResidueBlock = React.memo<{
+    blockResidues: ResidueData[];
+    blockStart: number;
+    isSelected: (index: number) => boolean;
+}>(({ blockResidues, blockStart, isSelected }) => (
+    <div className="residue-block">
+        {blockResidues.map((residue, localIndex) => {
+            const absoluteIndex = blockStart + localIndex;
+            const showMarker = (absoluteIndex + 1) % 10 === 0;
+
+            return (
+                <ResidueComponent
+                    key={`${absoluteIndex}-${residue[0]}-${residue[1]}`}
+                    residue={residue}
+                    absoluteIndex={absoluteIndex}
+                    isSelected={isSelected(absoluteIndex)}
+                    showMarker={showMarker}
+                />
+            );
+        })}
+    </div>
+));
+ResidueBlock.displayName = 'ResidueBlock';
+
+const SequenceViewer: React.FC<SequenceViewerProps> = ({
+    sequence,
+    auth_asym_id,
+    metadata,
+    onSelectionChange
+}) => {
     const dispatch = useDispatch();
-    // Get the selection map instead of array
     const selectionState = useAppSelector(state => state.sequenceViewer.selections[auth_asym_id]);
     const selectedMap = selectionState?.selectedMap || {};
-
+    
     const [isDragDeselecting, setIsDragDeselecting] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-
-    const [visibleRange, setVisibleRange] = useState({start: 0, end: CHUNK_SIZE});
+    const [visibleRange, setVisibleRange] = useState({ start: 0, end: CHUNK_SIZE });
     const [dragStart, setDragStart] = useState<number | null>(null);
     const [dragEnd, setDragEnd] = useState<number | null>(null);
     const [isCtrlPressed, setIsCtrlPressed] = useState(false);
     const [temporarySelection, setTemporarySelection] = useState<Record<string, ResidueData>>({});
 
+    // Control key handling
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Control') setIsCtrlPressed(true);
@@ -57,36 +100,31 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
-
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         };
     }, []);
 
+    // Mouse up handler
     useEffect(() => {
         const handleGlobalMouseUp = () => {
-   if (dragStart !== null && dragEnd !== null && !isCtrlPressed) {
-        const temporarySelectionArray = Object.values(temporarySelection);
-        
-        console.time('selection-update');
-        if (isDragDeselecting) {
-            dispatch(removeSelection({auth_asym_id, residues: temporarySelectionArray}));
-        } else {
-            dispatch(addSelection({auth_asym_id, residues: temporarySelectionArray}));
-        }
-        console.timeEnd('selection-update');
+            if (dragStart !== null && dragEnd !== null && !isCtrlPressed) {
+                const temporarySelectionArray = Object.values(temporarySelection);
+                
+                if (isDragDeselecting) {
+                    dispatch(removeSelection({ auth_asym_id, residues: temporarySelectionArray }));
+                } else {
+                    dispatch(addSelection({ auth_asym_id, residues: temporarySelectionArray }));
+                }
 
-        if (onSelectionChange) {
-            console.time('selection-change-callback');
-            const indices = temporarySelectionArray.map(residue =>
-                sequence.findIndex(seq => seq[0] === residue[0] && seq[1] === residue[1])
-            );
-            onSelectionChange({indices, residues: temporarySelectionArray});
-            console.timeEnd('selection-change-callback');
-        }
-    }
-
+                if (onSelectionChange) {
+                    const indices = temporarySelectionArray.map(residue =>
+                        sequence.findIndex(seq => seq[0] === residue[0] && seq[1] === residue[1])
+                    );
+                    onSelectionChange({ indices, residues: temporarySelectionArray });
+                }
+            }
             setDragStart(null);
             setDragEnd(null);
             setTemporarySelection({});
@@ -95,75 +133,33 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
 
         document.addEventListener('mouseup', handleGlobalMouseUp);
         return () => document.removeEventListener('mouseup', handleGlobalMouseUp);
-    }, [
-        auth_asym_id,
-        dragStart,
-        dragEnd,
-        isDragDeselecting,
-        isCtrlPressed,
-        onSelectionChange,
-        sequence,
-        temporarySelection,
-        dispatch
-    ]);
+    }, [auth_asym_id, dragStart, dragEnd, isDragDeselecting, isCtrlPressed, onSelectionChange, sequence, temporarySelection, dispatch]);
 
-    // Intersection Observer effect remains the same
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
+    const isSelected = useCallback((index: number) => {
+        const residue = sequence[index];
+        const key = getResidueKey(residue);
+        const isPermanentlySelected = key in selectedMap;
+        const isTemporarilySelected = key in temporarySelection;
 
-        const observer = new IntersectionObserver(
-            entries => {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting) return;
+        if (isDragDeselecting) {
+            return isPermanentlySelected && !isTemporarilySelected;
+        } else {
+            return isPermanentlySelected || isTemporarilySelected;
+        }
+    }, [sequence, selectedMap, temporarySelection, isDragDeselecting]);
 
-                    if (entry.target.dataset.type === 'bottom' && visibleRange.end < sequence.length) {
-                        setVisibleRange(prev => ({
-                            start: prev.start,
-                            end: Math.min(sequence.length, prev.end + CHUNK_SIZE)
-                        }));
-                    } else if (entry.target.dataset.type === 'top' && visibleRange.start > 0) {
-                        setVisibleRange(prev => ({
-                            start: Math.max(0, prev.start - CHUNK_SIZE),
-                            end: prev.end
-                        }));
-                    }
-                });
-            },
-            {threshold: 0.1, root: container}
-        );
+    // Handle starting the drag
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        const element = e.target as HTMLElement;
+        const residueEl = element.closest('.residue-wrapper');
+        if (!residueEl) return;
 
-        const topSentinel = container.querySelector('[data-type="top"]');
-        const bottomSentinel = container.querySelector('[data-type="bottom"]');
-
-        if (topSentinel) observer.observe(topSentinel);
-        if (bottomSentinel) observer.observe(bottomSentinel);
-
-        return () => observer.disconnect();
-    }, [visibleRange, sequence.length]);
-
-    const isSelected = useCallback(
-        (index: number) => {
-            const residue = sequence[index];
-            const key = getResidueKey(residue);
-            const isPermanentlySelected = key in selectedMap;
-            const isTemporarilySelected = key in temporarySelection;
-
-            if (isDragDeselecting) {
-                return isPermanentlySelected && !isTemporarilySelected;
-            } else {
-                return isPermanentlySelected || isTemporarilySelected;
-            }
-        },
-        [sequence, selectedMap, temporarySelection, isDragDeselecting]
-    );
-
-    const handleMouseDown = (index: number) => {
-        setDragStart(index);
-        setDragEnd(index);
-
+        const index = parseInt(residueEl.getAttribute('data-index') || '0', 10);
         const residue = sequence[index];
         const isStartingOnSelected = isSelected(index);
+
+        setDragStart(index);
+        setDragEnd(index);
 
         if (!isCtrlPressed) {
             if (isStartingOnSelected) {
@@ -171,111 +167,91 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
                 setIsDragDeselecting(true);
             } else {
                 const key = getResidueKey(residue);
-                setTemporarySelection({[key]: residue});
+                setTemporarySelection({ [key]: residue });
                 setIsDragDeselecting(false);
             }
         } else {
             if (isSelected(index)) {
-                dispatch(removeSelection({auth_asym_id, residues: [residue]}));
+                dispatch(removeSelection({ auth_asym_id, residues: [residue] }));
             } else {
-                dispatch(addSelection({auth_asym_id, residues: [residue]}));
+                dispatch(addSelection({ auth_asym_id, residues: [residue] }));
             }
         }
-    };
+    }, [sequence, isSelected, isCtrlPressed, auth_asym_id, dispatch]);
 
-    const handleMouseMove = (index: number) => {
-        if (dragStart !== null) {
-            if (dragEnd !== index) {
-                setDragEnd(index);
+    // Handle continuing the drag
+    const handleMouseMove = useCallback((e: React.MouseEvent) => {
+        if (dragStart === null) return;
 
-                const start = Math.min(dragStart, index);
-                const end = Math.max(dragStart, index);
+        const element = e.target as HTMLElement;
+        const residueEl = element.closest('.residue-wrapper');
+        if (!residueEl) return;
 
-                const blockStartIndex = Math.floor(start / 10) * 10;
-                const blockEndIndex = Math.floor(end / 10) * 10;
+        const index = parseInt(residueEl.getAttribute('data-index') || '0', 10);
+        if (dragEnd === index) return;
 
-                let affectedResidues;
-                if (blockStartIndex === blockEndIndex) {
-                    affectedResidues = sequence.slice(start, end + 1);
-                } else {
-                    affectedResidues = sequence.slice(start, end + 1).filter((_, idx) => {
-                        const absoluteIdx = start + idx;
-                        return (
-                            absoluteIdx === index ||
-                            absoluteIdx === dragStart ||
-                            (absoluteIdx >= Math.min(index, dragStart) && absoluteIdx <= Math.max(index, dragStart))
-                        );
-                    });
+        setDragEnd(index);
+
+        const start = Math.min(dragStart, index);
+        const end = Math.max(dragStart, index);
+        
+        let affectedResidues = sequence.slice(start, end + 1);
+
+        if (isDragDeselecting) {
+            const newTempSelection = affectedResidues.reduce((acc, residue) => {
+                const key = getResidueKey(residue);
+                if (key in selectedMap) {
+                    acc[key] = residue;
                 }
-
-                if (isDragDeselecting) {
-                    // Create a map of residues to deselect
-                    const newTempSelection = affectedResidues.reduce((acc, residue) => {
-                        const key = getResidueKey(residue);
-                        if (key in selectedMap) {
-                            acc[key] = residue;
-                        }
-                        return acc;
-                    }, {} as Record<string, ResidueData>);
-                    setTemporarySelection(newTempSelection);
-                } else {
-                    // Create a map of residues to select
-                    const newTempSelection = affectedResidues.reduce((acc, residue) => {
-                        const key = getResidueKey(residue);
-                        acc[key] = residue;
-                        return acc;
-                    }, {} as Record<string, ResidueData>);
-                    setTemporarySelection(newTempSelection);
-                }
-            }
+                return acc;
+            }, {} as Record<string, ResidueData>);
+            setTemporarySelection(newTempSelection);
+        } else {
+            const newTempSelection = affectedResidues.reduce((acc, residue) => {
+                const key = getResidueKey(residue);
+                acc[key] = residue;
+                return acc;
+            }, {} as Record<string, ResidueData>);
+            setTemporarySelection(newTempSelection);
         }
-    };
+    }, [dragStart, dragEnd, isDragDeselecting, sequence, selectedMap]);
 
-    const visibleSequence = sequence.slice(visibleRange.start, visibleRange.end);
+    // Memoize the visible sequence
+    const visibleSequence = useMemo(() => 
+        sequence.slice(visibleRange.start, visibleRange.end),
+        [sequence, visibleRange.start, visibleRange.end]
+    );
 
-    const renderResidueBlocks = () => {
-        const blocks = [];
+    // Memoize block rendering
+    const blocks = useMemo(() => {
+        const result = [];
         for (let i = 0; i < visibleSequence.length; i += 10) {
             const blockResidues = visibleSequence.slice(i, i + 10);
             const blockStart = i + visibleRange.start;
-
-            blocks.push(
-                <div key={`block-${blockStart}`} className="residue-block">
-                    {blockResidues.map((residue, localIndex) => {
-                        const absoluteIndex = blockStart + localIndex;
-                        const showMarker = (absoluteIndex + 1) % 10 === 0;
-
-                        return (
-                            <div
-                                key={`residue-${absoluteIndex}-${residue[0]}-${residue[1]}`}
-                                className="residue-wrapper">
-                                <span
-                                    className={cn('residue', isSelected(absoluteIndex) && 'selected')}
-                                    onMouseDown={e => {
-                                        e.stopPropagation();
-                                        handleMouseDown(absoluteIndex);
-                                    }}
-                                    onMouseMove={e => {
-                                        e.stopPropagation();
-                                        handleMouseMove(absoluteIndex);
-                                    }}>
-                                    {residue[0]}
-                                </span>
-                                {showMarker && <span className="residue-marker">{residue[1]}</span>}
-                            </div>
-                        );
-                    })}
-                </div>
+            
+            result.push(
+                <ResidueBlock
+                    key={`block-${blockStart}`}
+                    blockResidues={blockResidues}
+                    blockStart={blockStart}
+                    isSelected={isSelected}
+                />
             );
         }
-        return blocks;
-    };
+        return result;
+    }, [visibleSequence, visibleRange.start, isSelected]);
 
     return (
-        <div className="sequence-viewer">
-            <div className="sequence-content">
-                {visibleRange.start > 0 && <div data-type="top" data-index={visibleRange.start} className="h-4" />}
-                {renderResidueBlocks()}
+        <div 
+            className="sequence-viewer"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+        >
+            <div className="sequence-content" ref={containerRef}>
+                {visibleRange.start > 0 && (
+                    <div data-type="top" data-index={visibleRange.start} className="h-4" />
+                )}
+                {blocks}
                 {visibleRange.end < sequence.length && (
                     <div data-type="bottom" data-index={visibleRange.end} className="h-4" />
                 )}
@@ -284,7 +260,20 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, 
     );
 };
 
-export default SequenceViewer;
+export default React.memo(SequenceViewer);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 interface SequenceViewerState {
     isOpen: boolean;
@@ -300,6 +289,7 @@ interface SequenceViewerState {
     };
     onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
 }
+
 
 export const FloatingSequenceViewerWindow: React.FC = () => {
     const {isOpen, sequence, auth_asym_id, metadata, onSelectionChange, closeViewer} = useSequenceViewer();
@@ -404,3 +394,5 @@ export const SequenceViewerTrigger: React.FC<{
         </button>
     );
 };
+
+
