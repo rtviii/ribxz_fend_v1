@@ -88,6 +88,47 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({
     const [dragEnd, setDragEnd] = useState<number | null>(null);
     const [isCtrlPressed, setIsCtrlPressed] = useState(false);
     const [temporarySelection, setTemporarySelection] = useState<Record<string, ResidueData>>({});
+useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+        entries => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+
+                const target = entry.target as HTMLElement;
+                const type = target.dataset.type;
+
+                if (type === 'bottom' && visibleRange.end < sequence.length) {
+                    setVisibleRange(prev => ({
+                        start: prev.start,
+                        end: Math.min(sequence.length, prev.end + CHUNK_SIZE)
+                    }));
+                } else if (type === 'top' && visibleRange.start > 0) {
+                    setVisibleRange(prev => ({
+                        start: Math.max(0, prev.start - CHUNK_SIZE),
+                        end: prev.end
+                    }));
+                }
+            });
+        },
+        { 
+            root: container,
+            threshold: 0.1,
+            rootMargin: '20px'  // Give some margin to start loading earlier
+        }
+    );
+
+    // Add the sentinel elements
+    const topSentinel = container.querySelector('[data-type="top"]');
+    const bottomSentinel = container.querySelector('[data-type="bottom"]');
+
+    if (topSentinel) observer.observe(topSentinel);
+    if (bottomSentinel) observer.observe(bottomSentinel);
+
+    return () => observer.disconnect();
+}, [visibleRange, sequence.length]);
 
     // Control key handling
     useEffect(() => {
@@ -242,21 +283,24 @@ const SequenceViewer: React.FC<SequenceViewerProps> = ({
     }, [visibleSequence, visibleRange.start, isSelected]);
 
     return (
+ <div 
+        className="sequence-viewer"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+    >
         <div 
-            className="sequence-viewer"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
+            className="sequence-content relative overflow-auto h-96" 
+            ref={containerRef}
         >
-            <div className="sequence-content" ref={containerRef}>
-                {visibleRange.start > 0 && (
-                    <div data-type="top" data-index={visibleRange.start} className="h-4" />
-                )}
-                {blocks}
-                {visibleRange.end < sequence.length && (
-                    <div data-type="bottom" data-index={visibleRange.end} className="h-4" />
-                )}
-            </div>
+            {visibleRange.start > 0 && (
+                <div data-type="top" data-index={visibleRange.start} className="h-4 absolute top-0 w-full" />
+            )}
+            {blocks}
+            {visibleRange.end < sequence.length && (
+                <div data-type="bottom" data-index={visibleRange.end} className="h-4 absolute bottom-0 w-full" />
+            )}
         </div>
+    </div>
     );
 };
 
