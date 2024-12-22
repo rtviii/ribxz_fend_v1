@@ -20,20 +20,17 @@ export class MolstarStateController {
     private dispatch: AppDispatch;
     private getState: () => RootState;
 
-    private eventHandlers: MolstarEventHandlers = {};
 
     constructor(
         molstarViewer: ribxzMstarv2,
         dispatch: AppDispatch,
         getState: () => RootState,
 
-        config?: InteractionManagerConfig
     ) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
         this.getState = getState;
 
-        // this.setupInteractions(config);
     }
 
     private setupSelectionHandling() {

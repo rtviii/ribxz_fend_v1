@@ -5,10 +5,10 @@ import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
 import {StructureRepresentationPresetProvider} from 'molstar/lib/mol-plugin-state/builder/structure/representation-preset';
 import {ParamDefinition as PD} from 'molstar/lib/mol-util/param-definition';
 import {Color} from 'molstar/lib/mol-util/color';
-import PolymerColorschemeDarkTemple from './colorscheme_darktemple';
+import PolymerColorschemeDarkTemple from './colorschemes/colorscheme_darktemple';
 import {ResidueData} from '@/app/components/sequence_viewer';
-import PolymerColorschemeWarm from './colorscheme_warm';
-import { PolymerClass } from '@/components/filters/polymers_filters_component';
+import PolymerColorschemeWarm from './colorschemes/colorscheme_warm';
+import {PolymerClass} from '@/components/filters/polymers_filters_component';
 
 export const AMINO_ACIDS_3_TO_1_CODE = {
     ALA: 'A',
@@ -353,7 +353,7 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             if (component) {
                 if (
                     ['23SrRNA', '25SrRNA', '28SrRNA', '18SrRNA', '16SrRNA', 'mt16SrRNA', 'mt12SrRNA'].includes(
-                            // @ts-ignore
+                        // @ts-ignore
                         nommap[chainId]
                     )
                 ) {

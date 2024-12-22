@@ -1,3 +1,4 @@
+'use client'
 import { createSelector } from '@reduxjs/toolkit';
 import { ResidueData } from '@/app/components/sequence_viewer';
 

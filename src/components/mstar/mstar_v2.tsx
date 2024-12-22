@@ -3,7 +3,7 @@ import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
 import {ArbitrarySphereRepresentationProvider} from './providers/sphere_provider';
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
 import {PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
-import {ribxzSpec} from './lib';
+import {ribxzSpec} from './spec';
 import {chainSelectionPreset} from './providers/polymer_preset';
 import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
 import {Color} from 'molstar/lib/mol-util/color';
@@ -22,19 +22,17 @@ import {Expression} from 'molstar/lib/mol-script/language/expression';
 import {LigandComponent, PolymerComponent} from '@/store/molstar/slice_refs';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {compile} from 'molstar/lib/mol-script/runtime/query/base';
-import {StateElements} from './molstar_ribxz';
+// import {StateElements} from './__molstar_ribxz';
 import {StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
-import {
-    StructureSelectionQueries,
-} from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
+import {StructureSelectionQueries} from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 
 import {debounceTime} from 'rxjs/operators';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
 import {ResidueData} from '@/app/components/sequence_viewer';
 import {Asset} from 'molstar/lib/mol-util/assets';
 import {Loci} from 'molstar/lib/mol-model/loci';
-import PolymerColorschemeWarm from './providers/colorscheme_warm';
+import PolymerColorschemeWarm from './providers/colorschemes/colorscheme_warm';
 import {ArbitraryCylinderRepresentationProvider} from './providers/cylinder_provider';
 
 export interface HoverEventDetail {
@@ -83,8 +81,8 @@ export class ribxzMstarv2 {
 
     landmarks = {
         tunnel_mesh_cylinder: async (
-            start : [number, number, number],
-            end   : [number, number, number],
+            start: [number, number, number],
+            end: [number, number, number],
             radius: number = 0.5
         ) => {
             const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
@@ -893,7 +891,11 @@ export class ribxzMstarv2 {
                 });
             }
         },
-        cylinder_residues: async (struct_ref: string, data: {[chain: string]: number[]}, nomenclature_map:Record<string, string>) => {
+        cylinder_residues: async (
+            struct_ref: string,
+            data: {[chain: string]: number[]},
+            nomenclature_map: Record<string, string>
+        ) => {
             const cluster = [];
             for (var chain in data) {
                 for (var residue of data[chain]) {
@@ -922,14 +924,14 @@ export class ribxzMstarv2 {
             chain_sel.apply(
                 StateTransforms.Representation.StructureRepresentation3D,
                 createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                        type: 'cartoon',
-                        color: 'uniform',
-                        colorParams: {
-                            // @ts-ignore
-                            value: PolymerColorschemeWarm[nomenclature_map[chain] ]
-                            // value: Color(0xfafafa)
-                        }
-                    }),
+                    type: 'cartoon',
+                    color: 'uniform',
+                    colorParams: {
+                        // @ts-ignore
+                        value: PolymerColorschemeWarm[nomenclature_map[chain]]
+                        // value: Color(0xfafafa)
+                    }
+                }),
                 {ref: `repr_any_cartoon`}
             );
 

@@ -1,3 +1,4 @@
+'use client'
 import React, {useContext, useState} from 'react';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';

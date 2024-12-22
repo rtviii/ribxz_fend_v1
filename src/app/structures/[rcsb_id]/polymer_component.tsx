@@ -1,18 +1,19 @@
+'use client'
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {cn} from '@/components/utils';
 import {Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch} from 'lucide-react';
 import {Polymer} from '@/store/ribxz_api/ribxz_api';
-import PolymerColorschemeDarkTemple from '@/components/mstar/providers/colorscheme_darktemple';
+import PolymerColorschemeDarkTemple from '@/components/mstar/providers/colorschemes/colorscheme_darktemple';
 import {Color} from 'molstar/lib/mol-util/color';
-import {MolstarContext} from '@/components/mstar/molstar_context';
+// import {MolstarContext} from '@/components/mstar/__molstar_context';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
-import { SequenceViewerTrigger} from '@/app/components/sequence_viewer';
+import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 import {molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
 import {selectPolymerStateByAuthId} from '@/store/slices/slice_polymer_states';
-import PolymerColorschemeWarm from '@/components/mstar/providers/colorscheme_warm';
-import { getContrastColor } from '@/my_utils';
+import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/colorscheme_warm';
+import {getContrastColor} from '@/my_utils';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 
 export type ResidueData = [string, number];
@@ -52,11 +53,10 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
         ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
     };
 
-    const color            = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
-    const hexcol           = Color.toHexStyle(color);
-    const textColor        = getContrastColor(hexcol);
+    const color = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
+    const hexcol = Color.toHexStyle(color);
+    const textColor = getContrastColor(hexcol);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200';
-
 
     return (
         <div
@@ -71,12 +71,12 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
                 )}>
                 <div className="flex items-center space-x-2">
                     <div
-   style={{
-            backgroundColor: hexcol,
-            color: textColor
-        }}
-        className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors`}>
-        {polymer.nomenclature.length > 0 ? polymer.nomenclature[0] : polymer.auth_asym_id}
+                        style={{
+                            backgroundColor: hexcol,
+                            color: textColor
+                        }}
+                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors`}>
+                        {polymer.nomenclature.length > 0 ? polymer.nomenclature[0] : polymer.auth_asym_id}
                     </div>
                     {/* {polymer.auth_asym_id} */}
                 </div>

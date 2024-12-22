@@ -12,10 +12,11 @@ interface MolstarService {
 
 // Create a singleton instance outside of the hook
 export let molstarServiceInstance: MolstarService | null = null;
+
 export const useMolstarService = (containerRef: React.RefObject<HTMLDivElement>) => {
     const [isInitialized, setIsInitialized] = useState(false);
-    const dispatch = useAppDispatch();
-    const store = useStore<AppStore>();
+    const dispatch                          = useAppDispatch();
+    const store                             = useStore<AppStore>();
 
     // Explicitly type the getState function
     const getState = useCallback((): RootState => {

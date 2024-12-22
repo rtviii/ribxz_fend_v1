@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet"
 import { useRoutersRouterStructTaxDictQuery } from "@/store/ribxz_api/ribxz_api"
 import { set_tax_dict } from "@/store/slices/ui_reducer"
-import { useAppDispatch, useAppSelector } from "@/store/store"
+import { useAppDispatch } from "@/store/store"
 import { GearIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { useEffect } from "react"

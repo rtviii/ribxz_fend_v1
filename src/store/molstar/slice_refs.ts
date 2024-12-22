@@ -1,3 +1,4 @@
+'use client'
 import { ResidueData } from '@/app/components/sequence_viewer';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 

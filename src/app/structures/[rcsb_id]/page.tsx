@@ -13,9 +13,9 @@ import {
 import PolymersTable from '@/components/ribxz/polymer_table';
 import {ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
-import {MolstarRibxz} from '@/components/mstar/molstar_ribxz';
-import {MolstarNode} from '@/components/mstar/lib';
-import {MolstarContext} from '@/components/mstar/molstar_context';
+// import {MolstarRibxz} from '@/components/mstar/__molstar_ribxz';
+import {MolstarNode} from '@/components/mstar/spec';
+// import {MolstarContext} from '@/components/mstar/__molstar_context';
 import {ScrollArea} from '@radix-ui/react-scroll-area';
 import {ExpMethodBadge} from '@/components/ribxz/text_aides/exp_method_badge';
 import {
@@ -172,112 +172,14 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
         // </Accordion>
     );
 };
-const StructureComponentsTab = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
-    const ctx = useContext(MolstarContext);
-
-    if (isLoading) {
-        return <div>Loading...</div>;
-    } else {
-        return (
-            <Tabs defaultValue="polymers">
-                <TabsList className="grid w-full grid-cols-3  p-0.5 h-7 mb-2">
-                    <TabsTrigger value="polymers" className="text-xs py-1 px-2">
-                        Polymers{' '}
-                    </TabsTrigger>
-                    <TabsTrigger value="landmarks" className="text-xs py-1 px-2">
-                        Landmarks{' '}
-                    </TabsTrigger>
-                    <TabsTrigger value="ligands" className="text-xs py-1 px-2">
-                        Ligands{' '}
-                    </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="polymers">
-                    <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                        {!isLoading ? (
-                            <PolymersTable polymers={[...data.proteins, ...data.rnas, ...data.other_polymers]} />
-                        ) : null}
-                    </ScrollArea>
-                </TabsContent>
-
-                <TabsContent value="landmarks">
-                    <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                        <TunnelLandmarkComponent rcsb_id={data.rcsb_id} ctx={ctx!} />
-                    </ScrollArea>
-                </TabsContent>
-
-                <TabsContent value="ligands">
-                    <ScrollArea className="h-[90vh] p-4 space-y-2 flex flex-col">
-                        {data?.nonpolymeric_ligands
-                            // .filter(ligand => !ligand.chemicalName.toLowerCase().includes("ion"))
-                            .map((ligand, i) => {
-                                return (
-                                    <LigandItem
-                                        ligandData={ligand}
-                                        key={i}
-                                        title={ligand.chemicalId}
-                                        description={ligand.pdbx_description}
-                                        // longDescription={ligand.SMILES}
-                                        // imageUrl={ligand.imageUrl} // You'll need to add this to your landmarks data
-                                    />
-                                );
-                            })}
-                    </ScrollArea>
-                </TabsContent>
-            </Tabs>
-        );
-    }
-};
-
-const availableLandmarks = {
-    PTC: {
-        title: 'PTC',
-        description: 'Peptidyl Transferase Center',
-        longDescription: 'The PTC is the active site of the ribosome where peptide bond formation occurs.'
-    },
-    NPET: {
-        title: 'NPET',
-        description: 'Nascent Peptide Exit Tunnel',
-        longDescription: 'The NPET is a channel through which newly synthesized proteins exit the ribosome.'
-    }
-};
-
-const TunnelLandmarkComponent: React.FC<{
-    rcsb_id: string;
-    ctx: ribxzMstarv2;
-}> = ({rcsb_id, ctx}) => {
-    const tunnel_loci = useAppSelector(state => state.structure_page.tunnel.loci);
-    const dispatch = useAppDispatch();
-    const defaultTunnelActions: LandmarkActions = {
-        download: (rcsb_id: string) => {
-            downloadPlyFile(
-                `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`,
-                `${rcsb_id}_tunnel_geometry.ply`
-            );
-        },
-        render: async (rcsb_id: string, ctx) => {
-            const tunnel_loci = await ctx?.tunnel_geoemetry(rcsb_id);
-            console.log('Returned loci:', tunnel_loci);
-            dispatch(set_tunnel_shape_loci(tunnel_loci));
-        },
-        on_click: () => {
-            console.log(tunnel_loci);
-            // ctx.ctx.managers.structure.selection.fromLoci('add', tunnel_loci[0]);
-            // ctx.ctx.managers.camera.focusLoci(tunnel_loci);
-        }
-    };
-    return <LandmarkItem {...availableLandmarks['NPET']} rcsb_id={rcsb_id} landmark_actions={defaultTunnelActions} />;
-};
 
 const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
     const dispatch = useAppDispatch();
     const state = useAppSelector(s => s);
-    const ctx = useContext(MolstarContext);
-
     const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+    const selected_polymers = useAppSelector(state => state.structure_page.selected);
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
-    const selected_polymers = useAppSelector(state => state.structure_page.selected);
     const createNewSelection = async () => {
         const name = promptForNewBookmark();
         dispatch(snapshot_selection({[name]: selected_polymers}));

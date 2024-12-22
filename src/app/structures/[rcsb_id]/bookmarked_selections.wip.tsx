@@ -1,3 +1,4 @@
+'use client'
 import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
 import {useAppSelector} from '@/store/store';
 import {useState} from 'react';
