@@ -21,10 +21,10 @@ import {
 } from '@/store/ribxz_api/ribxz_api';
 import _ from 'lodash';
 import {createContext, useContext, useEffect, useRef, useState} from 'react';
-import {MolstarRibxz, Residue, ResidueList} from '@/components/mstar/__molstar_ribxz';
+// import {MolstarRibxz, Residue, ResidueList} from '@/components/mstar/__molstar_ribxz';
 import {MolstarNode, MolstarNode_secondary} from '@/components/mstar/spec';
 import Image from 'next/image';
-import {MolstarContext} from '@/components/mstar/__molstar_context';
+// import {MolstarContext} from '@/components/mstar/__molstar_context';
 import {ScrollArea} from '@radix-ui/react-scroll-area';
 import {Switch} from '@/components/ui/switch';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
@@ -60,6 +60,17 @@ import {ImperativePanelHandle} from 'react-resizable-panels';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
 import {Spinner} from '@/components/ui/spinner';
 import {useMolstarService} from '@/components/mstar/mstar_service';
+
+export type Residue = {
+    label_seq_id: number | null | undefined;
+    label_comp_id: string | null | undefined;
+    auth_seq_id: number;
+    auth_asym_id: string;
+    rcsb_id: string;
+    polymer_class?: string;
+};
+
+export type ResidueList = Residue[];
 
 interface TaxaDropdownProps {
     count: number;
@@ -289,7 +300,7 @@ export default function Ligands() {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
-    const [ctx, setCtx] = useState<MolstarRibxz | null>(null);
+    const [ctx, setCtx]                     = useState<MolstarRibxz | null>(null);
     const [ctx_secondary, setCtx_secondary] = useState<MolstarRibxz | null>(null);
 
     const [predictionMode, setPredictionMode] = useState(false);

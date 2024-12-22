@@ -55,12 +55,12 @@ export class MolstarStateController {
 
     private getElementDetails(location: StructureElement.Location) {
         return {
-            entity_id: StructureProperties.chain.label_entity_id(location),
+            entity_id    : StructureProperties.chain.label_entity_id(location),
             label_asym_id: StructureProperties.chain.label_asym_id(location),
-            auth_asym_id: StructureProperties.chain.auth_asym_id(location),
-            seq_id: StructureProperties.residue.label_seq_id(location),
-            auth_seq_id: StructureProperties.residue.auth_seq_id(location),
-            comp_id: StructureProperties.atom.label_comp_id(location)
+            auth_asym_id : StructureProperties.chain.auth_asym_id(location),
+            seq_id       : StructureProperties.residue.label_seq_id(location),
+            auth_seq_id  : StructureProperties.residue.auth_seq_id(location),
+            comp_id      : StructureProperties.atom.label_comp_id(location)
         };
     }
 
