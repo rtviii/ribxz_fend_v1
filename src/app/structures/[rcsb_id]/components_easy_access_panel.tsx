@@ -7,24 +7,24 @@ import {Settings, Eye, Download, Filter} from 'lucide-react';
 import PolymerComponentRow from './polymer_component';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
-import {molstarServiceInstance} from '@/components/mstar/mstar_service';
+import {molstarServiceInstance, useMolstarInstance} from '@/components/mstar/mstar_service';
 import { sort_by_polymer_class } from '@/my_utils';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [currentView, setCurrentView] = useState<'Polymers' | 'Landmarks' | 'Ligands'>('Polymers');
-    const molstarService = molstarServiceInstance; // Get the service
+    const service = useMolstarInstance();
     const state = useAppSelector(state => state);
     const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
 
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
     // Add check for molstar service availability
-    if (!molstarService?.viewer || !molstarService?.controller) {
+    if (!service?.viewer || !service?.controller) {
         return <div className="text-xs">Initializing viewer...</div>;
     }
 
-    const {controller: msc, viewer: ctx} = molstarService;
+    const {controller: msc, viewer: ctx} = service;
 
     const renderContent = () => {
         switch (currentView) {

@@ -10,19 +10,19 @@ import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
-import {molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
 import {selectPolymerStateByAuthId} from '@/store/slices/slice_polymer_states';
 import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/colorscheme_warm';
 import {getContrastColor} from '@/my_utils';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
+import { useMolstarInstance } from '@/components/mstar/mstar_service';
 
 export type ResidueData = [string, number];
 
 const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
     const polyComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
     const polymerState = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
-    const {controller: msc, viewer: ctx} = molstarServiceInstance!;
-
+    const service = useMolstarInstance();
+    const {viewer:ctx, controller:msc} = service!;
     const onToggleVisibility = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {

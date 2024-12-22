@@ -40,7 +40,7 @@ import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
-import {MolstarServiceContext, molstarServiceInstance, useMolstarService} from '@/components/mstar/mstar_service';
+import { useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
 
 const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
     const handleCifDownload = () => {
@@ -178,6 +178,8 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
     const state = useAppSelector(s => s);
     const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
+
+    const service = useMolstarInstance();
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
     const createNewSelection = async () => {
@@ -188,7 +190,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
         const bsite_name = promptForBindingSiteName();
         selected_polymers;
     };
-    return molstarServiceInstance === null ? (
+    return service === null ? (
         <>Loading... </>
     ) : (
         <div className="space-x-1">
@@ -209,7 +211,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
                 onClick={() => {
                     // ctx?.select_multiple_polymers(selected_polymers, 'remove');
                     dispatch(clear_selection(null));
-                    ctx?.ctx.managers.structure.selection.clear();
+                    service.viewer?.ctx.managers.structure.selection.clear();
                 }}>
                 Clear Selection
             </Button>
@@ -236,7 +238,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.controller.landmarks.ptc(rcsb_id);
+                    service?.controller.landmarks.ptc(rcsb_id);
                 }}>
                 Render PTC
             </Button>
@@ -245,7 +247,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.viewer.landmarks.tunnel_geometry(rcsb_id);
+                    service?.viewer.landmarks.tunnel_geometry(rcsb_id);
                 }}>
                 Render Tunnel Geometry
             </Button>
@@ -254,7 +256,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.controller.landmarks.constriction_site(rcsb_id);
+                    service?.controller.landmarks.constriction_site(rcsb_id);
                 }}>
                 Render Constriction
             </Button>
@@ -263,7 +265,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.controller.mute_polymers(rcsb_id);
+                    service?.controller.mute_polymers(rcsb_id);
                 }}>
                 Mute Polymers
             </Button>
@@ -273,7 +275,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.controller.experimental.half_cylinder_residues(nomenclature_map);
+                    service?.controller.experimental.half_cylinder_residues(nomenclature_map);
                 }}>
                 HalfCylinder Residues
             </Button>
@@ -282,7 +284,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
                 size="sm"
                 className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
                 onClick={() => {
-                    molstarServiceInstance?.controller.experimental.cylinder_residues(nomenclature_map);
+                    service?.controller.experimental.cylinder_residues(nomenclature_map);
                 }}>
                 Cylinder Residues
             </Button>
@@ -290,47 +292,16 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
     );
 };
 
-// const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
-//     const ctx = useContext(MolstarContext);
-//     const dispatch = useAppDispatch();
-//     const selected_polymers = useAppSelector(state => state.structure_page.selected);
-
-//     const toggleComponent = (id: string) => {
-//         dispatch(set_id_to_selection(id));
-//     };
-
-//     if (isLoading) return <div className="text-xs">Loading components...</div>;
-
-//     return (
-//         <ScrollArea className="overflow-auto h-full">
-//             <div className="space-y-1">
-//                 {[...data.rnas, ...data.proteins, ...data.other_polymers]
-//                     .filter(r => r.assembly_id === 0)
-//                     .map(component => (
-//                         <PolymerComponentRow
-//                             polymer={component}
-//                             key={component.auth_asym_id}
-//                             isSelected={selected_polymers.includes(component.auth_asym_id)}
-//                             onToggleSelect={toggleComponent}
-//                             onToggleVisibility={() => {}}
-//                         />
-//                     ))}
-//             </div>
-//         </ScrollArea>
-//     );
-// };
-// type Props = {
-//     params: {rcsb_id: string};
-//     searchParams: {[key: string]: string | string[] | undefined};
-// };
-
 export default function StructurePage() {
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
 
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
+     const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const { viewer, controller, isInitialized } = useMolstarService(molstarNodeRef );
+   
+    // const molstarNodeRef = useRef<HTMLDivElement>(null);
     // const {rcsb_id} = params;
     const rcsb_id = '4UG0';
-    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
+    // const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
     const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
 
@@ -374,7 +345,7 @@ export default function StructurePage() {
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
 
-            <MolstarServiceContext.Provider value={molstarServiceInstance}>
+            {/* <MolstarServiceContext.Provider value={molstarServiceInstance}> */}
                 <ResizablePanelGroup direction="horizontal">
                     <ResizablePanel defaultSize={25}>
                         <Card
@@ -401,7 +372,7 @@ export default function StructurePage() {
                         <MolstarNode ref={molstarNodeRef} />
                     </ResizablePanel>
                 </ResizablePanelGroup>
-            </MolstarServiceContext.Provider>
+            {/* </MolstarServiceContext.Provider> */}
             <SidebarMenu />
         </div>
     );

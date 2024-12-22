@@ -2,7 +2,8 @@
 import {Inter} from 'next/font/google';
 import './globals.css';
 import StoreProvider from './store_provider';
-import { SequenceViewerProvider } from './components/sequence_viewer';
+import {SequenceViewerProvider} from './components/sequence_viewer';
+import {MolstarProvider} from '@/components/mstar/mstar_service';
 
 const inter = Inter({subsets: ['latin']});
 
@@ -10,9 +11,11 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     return (
         <html lang="en">
             <StoreProvider>
-                <SequenceViewerProvider>
-                    <body className={inter.className}>{children}</body>
-                </SequenceViewerProvider>
+                <MolstarProvider>
+                    <SequenceViewerProvider>
+                        <body className={inter.className}>{children}</body>
+                    </SequenceViewerProvider>
+                </MolstarProvider>
             </StoreProvider>
         </html>
     );

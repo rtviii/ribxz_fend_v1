@@ -144,5 +144,15 @@ export const ribxzSpec: PluginUISpec = {
 }
 
 
-export const MolstarNode           = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' /> })
+// export const MolstarNode           = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper' /> })
+export const MolstarNode = React.forwardRef<HTMLDivElement>((props, ref) => {
+    return (
+        <div 
+            ref={ref} 
+            className="w-full h-full" 
+            style={{ position: 'relative' }}
+        />
+    );
+});
+MolstarNode.displayName = 'MolstarNode';
 export const MolstarNode_secondary = forwardRef<HTMLDivElement, {}>( function MolstarNode(_, ref) { return <div ref={ref} id='molstar-wrapper-secondary'/> })

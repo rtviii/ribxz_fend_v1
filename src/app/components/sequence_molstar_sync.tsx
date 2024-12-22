@@ -3,16 +3,17 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import type { ResidueData } from '@/app/components/sequence_viewer';
 import debounce from 'lodash/debounce';
-import { molstarServiceInstance } from '@/components/mstar/mstar_service';
+import { useMolstarInstance } from '@/components/mstar/mstar_service';
+// import { molstarServiceInstance } from '@/components/mstar/mstar_service';
 
 export const SequenceMolstarSync: React.FC = () => {
     const selections = useSelector((state: RootState) => state.sequenceViewer.selections);
     const prevSelectionsRef = useRef<typeof selections>({});
-    const { viewer, controller } = molstarServiceInstance!;
+const service = useMolstarInstance();
 
     // Create a stable reference to the sync function
     const syncWithMolstar = useCallback((selections: typeof prevSelectionsRef.current) => {
-        if (!molstarServiceInstance?.viewer) return;
+        if (!service?.viewer) return;
 
         console.time('molstar-sync-batch');
         
@@ -27,7 +28,7 @@ export const SequenceMolstarSync: React.FC = () => {
         // Calculate all changes first
         Object.entries(selections).forEach(([auth_asym_id, selection]) => {
             const prevSelection = prevSelectionsRef.current[auth_asym_id];
-            const parent_ref = controller.retrievePolymerRef(auth_asym_id);
+            const parent_ref = service.controller.retrievePolymerRef(auth_asym_id);
             if (!parent_ref) return;
 
             const currentKeys = new Set(Object.keys(selection.selectedMap));
@@ -74,20 +75,20 @@ export const SequenceMolstarSync: React.FC = () => {
         });
 
         // Apply all updates in one batch
-        viewer.ctx.dataTransaction(async () => {
+        service.viewer.ctx.dataTransaction(async () => {
             updates.forEach(({ parent_ref, toAdd, toRemove }) => {
                 if (toAdd.length > 0) {
-                    viewer.interactions.select_residues(parent_ref, toAdd, 'add');
+                    service.viewer.interactions.select_residues(parent_ref, toAdd, 'add');
                 }
                 if (toRemove.length > 0) {
-                    viewer.interactions.select_residues(parent_ref, toRemove, 'remove');
+                    service.viewer.interactions.select_residues(parent_ref, toRemove, 'remove');
                 }
             });
         });
 
         console.timeEnd('molstar-sync-batch');
         prevSelectionsRef.current = selections;
-    }, [controller, viewer]);
+    }, [service]);
 
     // Debounced version of the sync function
     const debouncedSync = useCallback(

@@ -61,6 +61,13 @@ export class ribxzMstarv2 {
     ctx: PluginUIContext;
     constructor() {}
     async init(parent: HTMLElement, spec: PluginUISpec = ribxzSpec) {
+     while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
+    }
+const pluginContainer = document.createElement('div');
+    pluginContainer.style.width = '100%';
+    pluginContainer.style.height = '100%';
+    parent.appendChild(pluginContainer);
         this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
         this.ctx.representation.structure.registry.add(ArbitraryCylinderRepresentationProvider);
