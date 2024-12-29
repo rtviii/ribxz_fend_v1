@@ -300,22 +300,26 @@ export default function Ligands() {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
-    const [ctx, setCtx]                     = useState<MolstarRibxz | null>(null);
-    const [ctx_secondary, setCtx_secondary] = useState<MolstarRibxz | null>(null);
+    const mstar_service_main = useMolstarService(molstarNodeRef );
+    const mstar_service_aux    = useMolstarService(molstarNodeRef_secondary );
+    const {viewer:ctx, controller:msc} = mstar_service_main;
+    const {viewer:ctx_secondary, controller:msc_secondary} = mstar_service_aux;
+    // const [ctx, setCtx]                     = useState<MolstarRibxz | null>(null);
+    // const [ctx_secondary, setCtx_secondary] = useState<MolstarRibxz | null>(null);
 
     const [predictionMode, setPredictionMode] = useState(false);
 
-    useEffect(() => {
-        (async () => {
-            const x = new MolstarRibxz();
-            await x.init(molstarNodeRef.current!);
-            setCtx(x);
+    // useEffect(() => {
+    //     (async () => {
+    //         const x = new MolstarRibxz();
+    //         await x.init(molstarNodeRef.current!);
+    //         setCtx(x);
 
-            const y = new MolstarRibxz();
-            await y.init(molstarNodeRef_secondary.current!);
-            setCtx_secondary(y);
-        })();
-    }, []);
+    //         const y = new MolstarRibxz();
+    //         await y.init(molstarNodeRef_secondary.current!);
+    //         setCtx_secondary(y);
+    //     })();
+    // }, []);
 
     const lig_state = useAppSelector(state => state.ui.ligands_page);
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand);

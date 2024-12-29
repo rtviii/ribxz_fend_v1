@@ -178,11 +178,10 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
     const state = useAppSelector(s => s);
     const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
-
-    const service = useMolstarInstance();
-    const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
+    const service                                     = useMolstarInstance();
+    const [newBookmarkName, promptForNewBookmark]     = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
-    const createNewSelection = async () => {
+    const createNewSelection                          = async () => {
         const name = promptForNewBookmark();
         dispatch(snapshot_selection({[name]: selected_polymers}));
     };
@@ -295,7 +294,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
 export default function StructurePage() {
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
 
-     const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
     const { viewer, controller, isInitialized } = useMolstarService(molstarNodeRef );
    
     // const molstarNodeRef = useRef<HTMLDivElement>(null);
