@@ -281,7 +281,7 @@ function useEffect(
                     'api'
                 >;
                 molstar: import('../store/slices/molstar_state').MolstarReduxCore;
-                ui: import('../store/slices/ui_reducer').UIState;
+                ui: import('../store/slices/slice_ligands').LigandsSliceState;
             },
             undefined,
             import('redux').UnknownAction

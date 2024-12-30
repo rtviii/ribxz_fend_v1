@@ -45,7 +45,7 @@ import {
     set_current_ligand,
     set_ligand_prediction_data,
     set_ligands_radius
-} from '@/store/slices/ui_reducer';
+} from '@/store/slices/slice_ligands';
 import {capitalize_only_first_letter_w, yield_nomenclature_map_profile} from '@/my_utils';
 import {
     IconVisibilityOn,
@@ -58,14 +58,15 @@ import {ImperativePanelHandle} from 'react-resizable-panels';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
 import {Spinner} from '@/components/ui/spinner';
 import {useMolstarService} from '@/components/mstar/mstar_service';
-import { useRibosomeStructureWithNomenclature } from '@/components/ribxzhooks';
+import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
+import {useSelector} from 'react-redux';
 
 export type ResidueSummary = {
-    label_seq_id  : number | null | undefined;
-    label_comp_id : string | null | undefined;
-    auth_seq_id   : number;
-    auth_asym_id  : string;
-    rcsb_id       : string;
+    label_seq_id: number | null | undefined;
+    label_comp_id: string | null | undefined;
+    auth_seq_id: number;
+    auth_asym_id: string;
+    rcsb_id: string;
     polymer_class?: string;
 };
 
@@ -291,30 +292,36 @@ const LigandPredictionNucleotides = (
     return chain_residue_tuples;
 };
 
-export default function Ligands() {
-    const dispatch                 = useAppDispatch();
-    const [refetchParentStruct]    = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
+export const Controls = () => {};
 
-    const molstarNodeRef           = useRef<HTMLDivElement>(null);
+export default function Ligands() {
+    const dispatch = useAppDispatch();
+    const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
+
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
-    const mstar_service_main                               = useMolstarService(molstarNodeRef );
-    const mstar_service_aux                                = useMolstarService(molstarNodeRef_secondary );
-    const {viewer:ctx, controller:msc}                     = mstar_service_main;
-    const {viewer:ctx_secondary, controller:msc_secondary} = mstar_service_aux;
+    const mstar_service_main = useMolstarService(molstarNodeRef);
+    const mstar_service_aux = useMolstarService(molstarNodeRef_secondary);
+    const {viewer: ctx, controller: msc} = mstar_service_main;
+    const {viewer: ctx_secondary, controller: msc_secondary} = mstar_service_aux;
 
     const [predictionMode, setPredictionMode] = useState(false);
-    const lig_state                           = useAppSelector(state => state.ui.ligands_page);
-    const current_ligand                      = useAppSelector(state => state.ui.ligands_page.current_ligand);
+    const lig_state = useAppSelector(state => state.ligands_page.ligands_page);
+    const current_ligand = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
 
-    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueSummaryList>([]);
-    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure);
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummaryList>([]);
+    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
     const [structRepresentation, setStructRepresentation] = useState<any>({});
 
-    const {data: data_src, nomenclatureMap: nomenclatureMap_src, isLoading: isLoading_src} = useRibosomeStructureWithNomenclature(current_ligand?.parent_structure.rcsb_id!);
+    const {
+        data: data_src,
+        nomenclatureMap: nomenclatureMap_src,
+        isLoading: isLoading_src
+    } = useRibosomeStructureWithNomenclature(current_ligand?.parent_structure.rcsb_id!);
     // const {data: data_tgt, nomenclatureMap: nomenclatureMap_tgt, isLoading: isLoading_tgt} = useRibosomeStructureWithNomenclature(current_selected_target?.rcsb_id!)
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
-    const [structVisibility, setStructVisibility]         = useState<boolean>(true);
+    const [structVisibility, setStructVisibility] = useState<boolean>(true);
 
     useEffect(() => {
         if (current_ligand?.parent_structure.rcsb_id === undefined) {
@@ -332,7 +339,6 @@ export default function Ligands() {
         };
         fetchData();
     }, [current_ligand]);
-
 
     useEffect(() => {
         if (parentStructProfile.rcsb_id === undefined) {
@@ -355,8 +361,6 @@ export default function Ligands() {
 
     // -------------------------------------
 
-
-
     useEffect(() => {
         if (current_ligand === undefined) {
             return;
@@ -364,20 +368,19 @@ export default function Ligands() {
 
         if (!isInitialized || !data_src) return;
         msc?.loadStructure(current_ligand?.parent_structure.rcsb_id!, nomenclatureMap_src!).then(() => {
-        ctx?.ligands.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius)
-        })
-        
+            ctx?.ligands.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
+        });
 
         // msc?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map)
 
-            // .then(({ctx: molstar, struct_representation}) => {
-            //     setStructRepresentation(struct_representation);
-            //     return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
-            // })
-            // .then(ctx => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
-            // .then(residues => {
-            //     setSurroundingResidues(residues);
-            // });
+        // .then(({ctx: molstar, struct_representation}) => {
+        //     setStructRepresentation(struct_representation);
+        //     return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
+        // })
+        // .then(ctx => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
+        // .then(residues => {
+        //     setSurroundingResidues(residues);
+        // });
     }, [current_ligand]);
 
     const [checked, setChecked] = useState(false);
@@ -385,6 +388,7 @@ export default function Ligands() {
     const [showLowerPanel, setShowLowerPanel] = useState(false);
     const lowerPanelRef = React.useRef<ImperativePanelHandle>(null);
     const upperPanelRef = React.useRef<ImperativePanelHandle>(null);
+
     useEffect(() => {
         // Collapse the lower panel on initial render
         if (lowerPanelRef.current) {
@@ -436,10 +440,7 @@ export default function Ligands() {
         dispatch(set_ligand_prediction_data(null));
     }, [current_selected_target]);
 
-    // useEffect(() => {}, [prediction_data])
-
-    const ligands_state = useAppSelector(state => state.ui.ligands_page);
-
+    const ligands_state = useAppSelector(state => state.ligands_page.ligands_page);
     const [radChanged, setRadChanged] = useState(false);
 
     return (
@@ -447,7 +448,6 @@ export default function Ligands() {
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={30} minSize={20}>
                     <div className="h-full p-4">
-                        {/* <MolstarContext.Provider value={ctx}> */}
                         <div className="border-r">
                             <div className="p-4 space-y-2">
                                 <div className="flex flex-row space-x-4">
@@ -504,26 +504,26 @@ export default function Ligands() {
                                     />
                                 </div>
 
-                                <div className="flex flex-row w-full justify-between">
+                                {/* <div className="flex flex-row w-full justify-between">
                                     <Button
                                         onClick={() => {
                                             setRadChanged(false);
                                             if (current_ligand === null || ctx === null) {
                                                 return;
                                             }
-                                            ctx.create_ligand_and_surroundings(
-                                                current_ligand?.ligand.chemicalId,
-                                                lig_state.radius
-                                            )
-                                                .then(ctx =>
-                                                    ctx.get_selection_constituents(
-                                                        current_ligand?.ligand.chemicalId,
-                                                        lig_state.radius
-                                                    )
-                                                )
-                                                .then(residues => {
-                                                    setSurroundingResidues(residues);
-                                                });
+                                            // ctx.create_ligand_and_surroundings(
+                                            //     current_ligand?.ligand.chemicalId,
+                                            //     lig_state.radius
+                                            // )
+                                            //     .then(ctx =>
+                                            //         ctx.get_selection_constituents(
+                                            //             current_ligand?.ligand.chemicalId,
+                                            //             lig_state.radius
+                                            //         )
+                                            //     )
+                                            //     .then(residues => {
+                                            //         setSurroundingResidues(residues);
+                                            //     });
                                         }}
                                         variant={'outline'}
                                         disabled={current_ligand === null}
@@ -536,16 +536,16 @@ export default function Ligands() {
                                     </Button>
                                     <Button
                                         onMouseEnter={() => {
-                                            ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']);
+                                            // ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, ['highlight']);
                                         }}
                                         onMouseLeave={() => {
-                                            ctx?.removeHighlight();
+                                            // ctx?.removeHighlight();
                                         }}
                                         onClick={() => {
-                                            ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, [
-                                                'select',
-                                                'focus'
-                                            ]);
+                                            // ctx?.select_focus_ligand(current_ligand?.ligand.chemicalId, [
+                                            //     'select',
+                                            //     'focus'
+                                            // ]);
                                         }}
                                         variant={'secondary'}
                                         disabled={current_ligand === null}
@@ -556,21 +556,21 @@ export default function Ligands() {
                                     <Button
                                         variant={'secondary'}
                                         onMouseEnter={() => {
-                                            ctx?.select_focus_ligand_surroundings(
-                                                current_ligand?.ligand.chemicalId,
-                                                lig_state.radius,
-                                                ['highlight']
-                                            );
+                                            // ctx?.select_focus_ligand_surroundings(
+                                            //     current_ligand?.ligand.chemicalId,
+                                            //     lig_state.radius,
+                                            //     ['highlight']
+                                            // );
                                         }}
                                         onMouseLeave={() => {
-                                            ctx?.removeHighlight();
+                                            // ctx?.removeHighlight();
                                         }}
                                         onClick={() => {
-                                            ctx?.select_focus_ligand_surroundings(
-                                                current_ligand?.ligand.chemicalId,
-                                                lig_state.radius,
-                                                ['select', 'focus']
-                                            );
+                                            // ctx?.select_focus_ligand_surroundings(
+                                            //     current_ligand?.ligand.chemicalId,
+                                            //     lig_state.radius,
+                                            //     ['select', 'focus']
+                                            // );
                                         }}
                                         disabled={current_ligand === null}
                                         className="px-4 py-2 text-sm font-medium text-gray-900 bg-white hover:bg-gray-100 border-t border-b border-r  rounded-r-md  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 ">
@@ -581,8 +581,8 @@ export default function Ligands() {
                                         variant={'secondary'}
                                         className="text-xs  text-gray-900 bg-white border  hover:bg-gray-100 "
                                         onClick={() => {
-                                            ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility);
-                                            setStructVisibility(!structVisibility);
+                                            // ctx?.toggle_visibility_by_ref(structRepresentation, structVisibility);
+                                            // setStructVisibility(!structVisibility);
                                         }}>
                                         <div className=" flex-row p-1 rounded-sm flex items-center content-center align-middle justify-center gap-2 ">
                                             <span>Toggle Structure Visibility</span>
@@ -604,7 +604,7 @@ export default function Ligands() {
                                         variant={'secondary'}
                                         className="text-xs   text-gray-900 bg-white border  hover:bg-gray-100 "
                                         onClick={() => {
-                                            ctx?.toggleSpin();
+                                            // ctx?.toggleSpin();
                                         }}>
                                         <div className="flex items-center content-center align-middle  flex-row p-1 rounded-sm justify-between gap-2 ">
                                             <span>Toggle Spin</span>
@@ -613,7 +613,7 @@ export default function Ligands() {
                                             </div>
                                         </div>
                                     </Button>
-                                </div>
+                                </div> */}
 
                                 <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
                                     <Accordion
@@ -635,19 +635,19 @@ export default function Ligands() {
                                                         width={400}
                                                         height={400}
                                                         onMouseEnter={() => {
-                                                            ctx?.select_focus_ligand(
-                                                                current_ligand?.ligand.chemicalId,
-                                                                ['highlight']
-                                                            );
+                                                            // ctx?.select_focus_ligand(
+                                                            //     current_ligand?.ligand.chemicalId,
+                                                            //     ['highlight']
+                                                            // );
                                                         }}
                                                         onMouseLeave={() => {
-                                                            ctx?.removeHighlight();
+                                                            // ctx?.removeHighlight();
                                                         }}
                                                         onClick={() => {
-                                                            ctx?.select_focus_ligand(
-                                                                current_ligand?.ligand.chemicalId,
-                                                                ['select', 'focus']
-                                                            );
+                                                            // ctx?.select_focus_ligand(
+                                                            //     current_ligand?.ligand.chemicalId,
+                                                            //     ['select', 'focus']
+                                                            // );
                                                         }}
                                                     />
                                                 </AccordionContent>
@@ -720,7 +720,10 @@ export default function Ligands() {
                                                         ? null
                                                         : Object.entries(
                                                               surroundingResidues.reduce(
-                                                                  (acc: Record<string, ResidueSummary[]>, next: ResidueSummary) => {
+                                                                  (
+                                                                      acc: Record<string, ResidueSummary[]>,
+                                                                      next: ResidueSummary
+                                                                  ) => {
                                                                       if (
                                                                           Object.keys(acc).includes(next.auth_asym_id)
                                                                       ) {
@@ -742,12 +745,12 @@ export default function Ligands() {
                                                                       <AccordionTrigger>
                                                                           <div
                                                                               className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300"
-                                                                              onMouseEnter={() =>
-                                                                                  ctx?.highlightChain(entry[0])
-                                                                              }
-                                                                              onMouseLeave={() =>
-                                                                                  ctx?.removeHighlight()
-                                                                              }
+                                                                              //   onMouseEnter={() =>
+                                                                              //       ctx?.highlightChain(entry[0])
+                                                                              //   }
+                                                                              //   onMouseLeave={() =>
+                                                                              //       ctx?.removeHighlight()
+                                                                              //   }
                                                                               onClick={e => {
                                                                                   e.stopPropagation();
                                                                                   // ctx?.select_chain(entry[0]);
@@ -775,7 +778,9 @@ export default function Ligands() {
                                                                                               residue?.label_seq_id,
                                                                                           rcsb_id: residue.rcsb_id,
                                                                                           polymer_class:
-                                                                                              nomenclatureMap_src[entry[0]]
+                                                                                              nomenclatureMap_src[
+                                                                                                  entry[0]
+                                                                                              ]
                                                                                       }}
                                                                                       show_parent_chain={checked}
                                                                                       key={i}
@@ -873,16 +878,14 @@ export default function Ligands() {
                                                             ) {
                                                                 return;
                                                             }
-                                                            ctx_secondary?.highlightResidueCluster(
-                                                                LigandPredictionNucleotides(
-                                                                    ligands_state.prediction_data
-                                                                )
-                                                            );
-                                                            ctx_secondary?.select_residueCluster(
-                                                                LigandPredictionNucleotides(
-                                                                    ligands_state.prediction_data
-                                                                )
-                                                            );
+                                                            // ctx_secondary?.highlightResidueCluster(
+                                                            //     LigandPredictionNucleotides( ligands_state.prediction_data )
+                                                            // );
+                                                            // ctx_secondary?.select_residueCluster(
+                                                            //     LigandPredictionNucleotides(
+                                                            //         ligands_state.prediction_data
+                                                            //     )
+                                                            // );
                                                         }}>
                                                         {' '}
                                                         Display Prediction
@@ -903,9 +906,12 @@ export default function Ligands() {
                                                                         return newres;
                                                                     });
                                                                 })
-                                                                .reduce((acc: ResidueSummary[], next: ResidueSummary[]) => {
-                                                                    return [...acc, ...next];
-                                                                }, []) as ResidueSummary[]
+                                                                .reduce(
+                                                                    (acc: ResidueSummary[], next: ResidueSummary[]) => {
+                                                                        return [...acc, ...next];
+                                                                    },
+                                                                    []
+                                                                ) as ResidueSummary[]
                                                         }
                                                         disabled={!(surroundingResidues.length > 0)}
                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
@@ -923,22 +929,7 @@ export default function Ligands() {
                                                                   key={i}>
                                                                   <AccordionItem value={'other'}>
                                                                       <AccordionTrigger>
-                                                                          <div
-                                                                              className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300"
-                                                                              onMouseEnter={() =>
-                                                                                  ctx_secondary?.highlightChain(
-                                                                                      chain.target.auth_asym_id
-                                                                                  )
-                                                                              }
-                                                                              onMouseLeave={() =>
-                                                                                  ctx_secondary?.removeHighlight()
-                                                                              }
-                                                                              onClick={e => {
-                                                                                  e.stopPropagation();
-                                                                                  // ctx_secondary?.select_chain(
-                                                                                  //   chain.target.auth_asym_id
-                                                                                  // );
-                                                                              }}>
+                                                                          <div className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300">
                                                                               <span className="font-light w-8">
                                                                                   {chain.target.auth_asym_id}
                                                                               </span>{' '}
@@ -981,18 +972,17 @@ export default function Ligands() {
                                                               </Accordion>
                                                           )
                                                       )}
-
-                                                {/* </div> */}
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
                                 </ScrollArea>
                             </div>
                         </div>
-                        {/* </MolstarContext.Provider> */}
                     </div>
                 </ResizablePanel>
+
                 <ResizableHandle />
+
                 <ResizablePanel defaultSize={50} minSize={30}>
                     <ResizablePanelGroup direction="vertical">
                         <ResizablePanel defaultSize={50} minSize={20} ref={upperPanelRef}>

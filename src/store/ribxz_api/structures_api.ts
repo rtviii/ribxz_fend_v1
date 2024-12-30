@@ -29,11 +29,10 @@ export const prefetchStructuresData = createAsyncThunk('prefetch_structures_data
     if ('data' in result) {
       const { next_cursor, structures, total_count } = result.data;
       const last_date = structures.filter((x: RibosomeStructure) => x.deposition_date !== undefined)[0].deposition_date
-
       const formattedDate = new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
+        year : 'numeric',
         month: 'long',
-        day: 'numeric'
+        day  : 'numeric'
       }).format(new Date(last_date));
       dispatch(set_last_db_update(formattedDate));
       dispatch(set_current_structures(structures));

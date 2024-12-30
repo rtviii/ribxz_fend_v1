@@ -196,7 +196,7 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
   }
 
   // const pic = "8WID.gif"
-  const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
+  const taxid_dict = useAppSelector(state => state.homepage.taxid_dict)
 
   return (
 <Link href={`/structures/${_.rcsb_id}`}>
