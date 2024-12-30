@@ -61,16 +61,16 @@ import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selec
 import {Spinner} from '@/components/ui/spinner';
 import {useMolstarService} from '@/components/mstar/mstar_service';
 
-export type Residue = {
-    label_seq_id: number | null | undefined;
-    label_comp_id: string | null | undefined;
-    auth_seq_id: number;
-    auth_asym_id: string;
-    rcsb_id: string;
+export type ResidueSummary = {
+    label_seq_id  : number | null | undefined;
+    label_comp_id : string | null | undefined;
+    auth_seq_id   : number;
+    auth_asym_id  : string;
+    rcsb_id       : string;
     polymer_class?: string;
 };
 
-export type ResidueList = Residue[];
+export type ResidueSummaryList = ResidueSummary[];
 
 interface TaxaDropdownProps {
     count: number;
@@ -223,7 +223,7 @@ const DownloadDropdown = ({
     disabled,
     filename
 }: {
-    residues: Residue[];
+    residues: ResidueSummary[];
     disabled: boolean;
     filename: string;
 }) => {
@@ -300,10 +300,11 @@ export default function Ligands() {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
-    const mstar_service_main = useMolstarService(molstarNodeRef );
-    const mstar_service_aux    = useMolstarService(molstarNodeRef_secondary );
-    const {viewer:ctx, controller:msc} = mstar_service_main;
+    const mstar_service_main                               = useMolstarService(molstarNodeRef );
+    const mstar_service_aux                                = useMolstarService(molstarNodeRef_secondary );
+    const {viewer:ctx, controller:msc}                     = mstar_service_main;
     const {viewer:ctx_secondary, controller:msc_secondary} = mstar_service_aux;
+
     // const [ctx, setCtx]                     = useState<MolstarRibxz | null>(null);
     // const [ctx_secondary, setCtx_secondary] = useState<MolstarRibxz | null>(null);
 
@@ -324,7 +325,7 @@ export default function Ligands() {
     const lig_state = useAppSelector(state => state.ui.ligands_page);
     const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand);
 
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueList>([]);
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummaryList>([]);
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
     const [nomenclatureMap, setNomenclatureMap] = useState<Record<string, string | undefined>>({});
     const [structRepresentation, setStructRepresentation] = useState<any>({});
@@ -382,7 +383,7 @@ export default function Ligands() {
     const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({
         rcsbId: current_ligand?.parent_structure.rcsb_id!
     });
-    const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
+    const [nomMap, setNomMap]                 = useState<Record<string, string> | null>(null);
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
 
     useEffect(() => {
@@ -400,15 +401,21 @@ export default function Ligands() {
         );
         setNomMap(nomenclature_map);
 
-        ctx?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map)
-            .then(({ctx: molstar, struct_representation}) => {
-                setStructRepresentation(struct_representation);
-                return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
-            })
-            .then(ctx => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
-            .then(residues => {
-                setSurroundingResidues(residues);
-            });
+        msc?.loadStructure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map).then(() => {
+        ctx?.ligands.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius)
+        })
+        
+
+        // msc?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map)
+
+            // .then(({ctx: molstar, struct_representation}) => {
+            //     setStructRepresentation(struct_representation);
+            //     return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
+            // })
+            // .then(ctx => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
+            // .then(residues => {
+            //     setSurroundingResidues(residues);
+            // });
     }, [current_ligand]);
 
     const [checked, setChecked] = useState(false);
@@ -750,7 +757,7 @@ export default function Ligands() {
                                                         ? null
                                                         : Object.entries(
                                                               surroundingResidues.reduce(
-                                                                  (acc: Record<string, Residue[]>, next: Residue) => {
+                                                                  (acc: Record<string, ResidueSummary[]>, next: ResidueSummary) => {
                                                                       if (
                                                                           Object.keys(acc).includes(next.auth_asym_id)
                                                                       ) {
@@ -922,7 +929,7 @@ export default function Ligands() {
                                                             ligands_state.prediction_data?.purported_binding_site.chains
                                                                 .map(chain => {
                                                                     return chain.bound_residues.map(r => {
-                                                                        var newres: Residue = {
+                                                                        var newres: ResidueSummary = {
                                                                             auth_asym_id: chain.auth_asym_id,
                                                                             auth_seq_id: r.auth_seq_id,
                                                                             label_comp_id: r.label_comp_id,
@@ -933,9 +940,9 @@ export default function Ligands() {
                                                                         return newres;
                                                                     });
                                                                 })
-                                                                .reduce((acc: Residue[], next: Residue[]) => {
+                                                                .reduce((acc: ResidueSummary[], next: ResidueSummary[]) => {
                                                                     return [...acc, ...next];
-                                                                }, []) as Residue[]
+                                                                }, []) as ResidueSummary[]
                                                         }
                                                         disabled={!(surroundingResidues.length > 0)}
                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}

@@ -40,7 +40,8 @@ import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
-import { useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
+import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
+import { useRibosomeStructureWithNomenclature } from '@/components/ribxzhooks';
 
 const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
     const handleCifDownload = () => {
@@ -178,10 +179,10 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
     const state = useAppSelector(s => s);
     const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
-    const service                                     = useMolstarInstance();
-    const [newBookmarkName, promptForNewBookmark]     = useUserInputPrompt('Enter a name for the new bookmark:');
+    const service = useMolstarInstance();
+    const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
-    const createNewSelection                          = async () => {
+    const createNewSelection = async () => {
         const name = promptForNewBookmark();
         dispatch(snapshot_selection({[name]: selected_polymers}));
     };
@@ -295,27 +296,18 @@ export default function StructurePage() {
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const { viewer, controller, isInitialized } = useMolstarService(molstarNodeRef );
-   
+    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
+
     // const molstarNodeRef = useRef<HTMLDivElement>(null);
     // const {rcsb_id} = params;
     const rcsb_id = '4UG0';
-    // const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
-    const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id});
+    const {data, nomenclatureMap, isLoading} = useRibosomeStructureWithNomenclature(rcsb_id);
+
     const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
 
     useEffect(() => {
         if (!isInitialized || !data) return;
-        const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
-            (prev: Record<string, string>, current: Polymer) => {
-                prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-                return prev;
-            },
-            {}
-        );
-        setNomMap(nomenclature_map);
-
-        controller?.loadStructure(rcsb_id, nomenclature_map);
+        controller?.loadStructure(rcsb_id, nomenclatureMap);
     }, [isInitialized, data]);
 
     const resizeObserver = useCallback(() => {
@@ -345,32 +337,32 @@ export default function StructurePage() {
             <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
 
             {/* <MolstarServiceContext.Provider value={molstarServiceInstance}> */}
-                <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={25}>
-                        <Card
-                            className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
-                            ref={leftPanelRef}>
-                            <div className="sticky top-0 space-y-2  ">
-                                <Button
-                                    onClick={() => {
-                                        console.log(state);
-                                    }}>
-                                    log state
-                                </Button>
-                                {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
-                                <SelectionAndStructureActions nomenclature_map={nomMap} />
-                                <StructureInfoTab data={data!} isLoading={isLoading} />
-                            </div>
-                            <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
-                                <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
-                            </div>
-                        </Card>
-                    </ResizablePanel>
-                    <ResizableHandle className="w-px bg-gray-200" />
-                    <ResizablePanel defaultSize={75}>
-                        <MolstarNode ref={molstarNodeRef} />
-                    </ResizablePanel>
-                </ResizablePanelGroup>
+            <ResizablePanelGroup direction="horizontal">
+                <ResizablePanel defaultSize={25}>
+                    <Card
+                        className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
+                        ref={leftPanelRef}>
+                        <div className="sticky top-0 space-y-2  ">
+                            <Button
+                                onClick={() => {
+                                    console.log(state);
+                                }}>
+                                log state
+                            </Button>
+                            {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
+                            <SelectionAndStructureActions nomenclature_map={nomMap} />
+                            <StructureInfoTab data={data!} isLoading={isLoading} />
+                        </div>
+                        <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
+                            <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
+                        </div>
+                    </Card>
+                </ResizablePanel>
+                <ResizableHandle className="w-px bg-gray-200" />
+                <ResizablePanel defaultSize={75}>
+                    <MolstarNode ref={molstarNodeRef} />
+                </ResizablePanel>
+            </ResizablePanelGroup>
             {/* </MolstarServiceContext.Provider> */}
             <SidebarMenu />
         </div>
