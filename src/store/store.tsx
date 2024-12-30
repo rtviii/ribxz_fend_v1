@@ -19,16 +19,15 @@ import {polymerStatesSlice} from './slices/slice_polymer_states';
 export const makeStore = () => {
     const store = configureStore({
         reducer: {
-            [ribxz_api.reducerPath]: ribxz_api.reducer,
-            ui: uiSlice.reducer,
-
-            homepage_overview: allStructuresOverviewSlice.reducer, // this feeds the homepage overview
-            structure_page: structurePageSlice.reducer,
-            structures_page: structures_slice.reducer,
-            polymers_page: polymers_slice.reducer,
-            homepage: HomepageSlice.reducer,
+            [ribxz_api.reducerPath]    : ribxz_api.reducer,
+            ui                         : uiSlice.reducer,
+            homepage_overview          : allStructuresOverviewSlice.reducer,   // this feeds the homepage overview
+            structure_page             : structurePageSlice.reducer,
+            structures_page            : structures_slice.reducer,
+            polymers_page              : polymers_slice.reducer,
+            homepage                   : HomepageSlice.reducer,
             [structuresApi.reducerPath]: structuresApi.reducer,
-            [polymersApi.reducerPath]: polymersApi.reducer,
+            [polymersApi.reducerPath]  : polymersApi.reducer,
 
             mstar_refs: handleReferencesSlice.reducer,
 

@@ -307,7 +307,7 @@ export default function StructurePage() {
 
     useEffect(() => {
         if (!isInitialized || !data) return;
-        controller?.loadStructure(rcsb_id, nomenclatureMap);
+        controller?.loadStructure(rcsb_id, nomenclatureMap!);
     }, [isInitialized, data]);
 
     const resizeObserver = useCallback(() => {

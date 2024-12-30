@@ -21,10 +21,8 @@ import {
 } from '@/store/ribxz_api/ribxz_api';
 import _ from 'lodash';
 import {createContext, useContext, useEffect, useRef, useState} from 'react';
-// import {MolstarRibxz, Residue, ResidueList} from '@/components/mstar/__molstar_ribxz';
 import {MolstarNode, MolstarNode_secondary} from '@/components/mstar/spec';
 import Image from 'next/image';
-// import {MolstarContext} from '@/components/mstar/__molstar_context';
 import {ScrollArea} from '@radix-ui/react-scroll-area';
 import {Switch} from '@/components/ui/switch';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
@@ -60,6 +58,7 @@ import {ImperativePanelHandle} from 'react-resizable-panels';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
 import {Spinner} from '@/components/ui/spinner';
 import {useMolstarService} from '@/components/mstar/mstar_service';
+import { useRibosomeStructureWithNomenclature } from '@/components/ribxzhooks';
 
 export type ResidueSummary = {
     label_seq_id  : number | null | undefined;
@@ -293,11 +292,10 @@ const LigandPredictionNucleotides = (
 };
 
 export default function Ligands() {
-    const dispatch = useAppDispatch();
+    const dispatch                 = useAppDispatch();
+    const [refetchParentStruct]    = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
 
-    const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
-
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const molstarNodeRef           = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
     const mstar_service_main                               = useMolstarService(molstarNodeRef );
@@ -305,31 +303,18 @@ export default function Ligands() {
     const {viewer:ctx, controller:msc}                     = mstar_service_main;
     const {viewer:ctx_secondary, controller:msc_secondary} = mstar_service_aux;
 
-    // const [ctx, setCtx]                     = useState<MolstarRibxz | null>(null);
-    // const [ctx_secondary, setCtx_secondary] = useState<MolstarRibxz | null>(null);
-
     const [predictionMode, setPredictionMode] = useState(false);
+    const lig_state                           = useAppSelector(state => state.ui.ligands_page);
+    const current_ligand                      = useAppSelector(state => state.ui.ligands_page.current_ligand);
 
-    // useEffect(() => {
-    //     (async () => {
-    //         const x = new MolstarRibxz();
-    //         await x.init(molstarNodeRef.current!);
-    //         setCtx(x);
-
-    //         const y = new MolstarRibxz();
-    //         await y.init(molstarNodeRef_secondary.current!);
-    //         setCtx_secondary(y);
-    //     })();
-    // }, []);
-
-    const lig_state = useAppSelector(state => state.ui.ligands_page);
-    const current_ligand = useAppSelector(state => state.ui.ligands_page.current_ligand);
-
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummaryList>([]);
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
-    const [nomenclatureMap, setNomenclatureMap] = useState<Record<string, string | undefined>>({});
+    const [surroundingResidues, setSurroundingResidues]   = useState<ResidueSummaryList>([]);
+    const [parentStructProfile, setParentStructProfile]   = useState<RibosomeStructure>({} as RibosomeStructure);
     const [structRepresentation, setStructRepresentation] = useState<any>({});
-    const [structVisibility, setStructVisibility] = useState<boolean>(true);
+
+    const {data: data_src, nomenclatureMap: nomenclatureMap_src, isLoading: isLoading_src} = useRibosomeStructureWithNomenclature(current_ligand?.parent_structure.rcsb_id!);
+    // const {data: data_tgt, nomenclatureMap: nomenclatureMap_tgt, isLoading: isLoading_tgt} = useRibosomeStructureWithNomenclature(current_selected_target?.rcsb_id!)
+    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
+    const [structVisibility, setStructVisibility]         = useState<boolean>(true);
 
     useEffect(() => {
         if (current_ligand?.parent_structure.rcsb_id === undefined) {
@@ -348,13 +333,6 @@ export default function Ligands() {
         fetchData();
     }, [current_ligand]);
 
-    useEffect(() => {
-        if (parentStructProfile.rcsb_id === undefined) {
-            return;
-        }
-        const nom_map = yield_nomenclature_map_profile(parentStructProfile);
-        setNomenclatureMap(nom_map);
-    }, [surroundingResidues, parentStructProfile]);
 
     useEffect(() => {
         if (parentStructProfile.rcsb_id === undefined) {
@@ -367,41 +345,25 @@ export default function Ligands() {
         }
         var nom_map: any = {};
         for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
-            // console.log("polymer", polymer);
             if (chain_ids.includes(polymer.auth_asym_id)) {
                 if (!Object.keys(nom_map).includes(polymer.auth_asym_id)) {
                     nom_map[polymer.auth_asym_id] = polymer.nomenclature[0];
                 }
             }
         }
-
-        setNomenclatureMap(nom_map);
     }, [surroundingResidues, parentStructProfile]);
 
     // -------------------------------------
 
-    const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({
-        rcsbId: current_ligand?.parent_structure.rcsb_id!
-    });
-    const [nomMap, setNomMap]                 = useState<Record<string, string> | null>(null);
-    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
+
 
     useEffect(() => {
         if (current_ligand === undefined) {
             return;
         }
 
-        if (!isInitialized || !data) return;
-        const nomenclature_map = ([...data?.proteins, ...data?.rnas, ...data?.other_polymers] as Polymer[]).reduce(
-            (prev: Record<string, string>, current: Polymer) => {
-                prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-                return prev;
-            },
-            {}
-        );
-        setNomMap(nomenclature_map);
-
-        msc?.loadStructure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map).then(() => {
+        if (!isInitialized || !data_src) return;
+        msc?.loadStructure(current_ligand?.parent_structure.rcsb_id!, nomenclatureMap_src!).then(() => {
         ctx?.ligands.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius)
         })
         
@@ -468,7 +430,8 @@ export default function Ligands() {
     const current_selected_target = useAppSelector(state => state.homepage_overview.selected);
     useEffect(() => {
         if (current_selected_target !== null) {
-            ctx_secondary?.upload_mmcif_structure(current_selected_target.rcsb_id, {});
+            msc_secondary?.loadStructure(current_selected_target.rcsb_id, nomenclatureMap_src!);
+            // ctx_secondary?.upload_mmcif_structure(current_selected_target.rcsb_id, {});
         }
         dispatch(set_ligand_prediction_data(null));
     }, [current_selected_target]);
@@ -746,7 +709,7 @@ export default function Ligands() {
                                                     <DownloadDropdown
                                                         residues={surroundingResidues.map(r => ({
                                                             ...r,
-                                                            polymer_class: nomenclatureMap[r.auth_asym_id]
+                                                            polymer_class: nomenclatureMap_src[r.auth_asym_id]
                                                         }))}
                                                         disabled={!(surroundingResidues.length > 0)}
                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
@@ -793,7 +756,7 @@ export default function Ligands() {
                                                                                   {entry[0]}
                                                                               </span>{' '}
                                                                               <span className="px-4">
-                                                                                  {nomenclatureMap[entry[0]]}
+                                                                                  {nomenclatureMap_src[entry[0]]}
                                                                               </span>
                                                                           </div>
                                                                       </AccordionTrigger>
@@ -812,7 +775,7 @@ export default function Ligands() {
                                                                                               residue?.label_seq_id,
                                                                                           rcsb_id: residue.rcsb_id,
                                                                                           polymer_class:
-                                                                                              nomenclatureMap[entry[0]]
+                                                                                              nomenclatureMap_src[entry[0]]
                                                                                       }}
                                                                                       show_parent_chain={checked}
                                                                                       key={i}
@@ -1002,7 +965,7 @@ export default function Ligands() {
                                                                                                   residue?.label_seq_id,
                                                                                               rcsb_id: residue.rcsb_id,
                                                                                               polymer_class:
-                                                                                                  nomenclatureMap[
+                                                                                                  nomenclatureMap_src[
                                                                                                       chain.target
                                                                                                           .auth_asym_id
                                                                                                   ]
