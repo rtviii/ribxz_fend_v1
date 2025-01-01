@@ -86,6 +86,13 @@ export class MolstarStateController {
         }
     };
 
+
+    clear = async () => {
+
+        // TODO: Clear all refs:
+        this.viewer.ctx.clear();
+    }
+
     landmarks = {
         ptc: async (rcsb_id: string) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`);

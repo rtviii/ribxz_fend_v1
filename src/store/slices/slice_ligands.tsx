@@ -62,7 +62,6 @@ const initialState: LigandsSliceState = {
         data              : [],
         radius            : 10,
         current_ligand    : null,
-
         filtered_data     : [],
         prediction_data   : null,
         prediction_pending: false
