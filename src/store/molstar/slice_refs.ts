@@ -43,6 +43,7 @@ export const handleReferencesSlice = createSlice({
     name: 'handleReferences',
     initialState,
     reducers: {
+
         mapAssetRootRefAdd: (state, action: PayloadAction<[RCSB_ID, MolstarRef]>) => {
             const [rcsbId, ref] = action.payload;
             state.rcsb_id_root_ref_map[rcsbId] = ref;
@@ -91,7 +92,11 @@ export const handleReferencesSlice = createSlice({
 
             // Remove the RCSB ID entry
             delete state.rcsb_id_components_map[rcsbId];
+        },
+        mapResetAll: (state) => {
+            return initialState;
         }
+       
     }
 });
 
@@ -100,6 +105,7 @@ export const {
     mapAssetRootRefDelete,
     mapAssetModelComponentsAdd,
     mapAssetModelComponentsDeleteAll,
+    mapResetAll
 } = handleReferencesSlice.actions;
 
 export default handleReferencesSlice.reducer;

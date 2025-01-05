@@ -471,7 +471,7 @@ const LigandSelection = () => {
 
 const CurrentBindingSiteInfoPanel = () => {
     const current_ligand = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
-    const lig_state      = useAppSelector(state => state.ligands_page.ligands_page);
+    const lig_state = useAppSelector(state => state.ligands_page.ligands_page);
     return (
         <div>
             <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
@@ -732,11 +732,8 @@ const CurrentBindingSiteInfoPanel = () => {
 //                                                       )}
 //                                             </AccordionContent>
 //                                         </AccordionItem>
-
 //                                     </Accordion>
-
 //                                 </ScrollArea>
-
 //     )
 // }
 
@@ -758,11 +755,6 @@ export default function Ligands() {
     const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummaryList>([]);
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
 
-    const {
-        data: data_src,
-        nomenclatureMap: nomenclatureMap_src,
-        isLoading: isLoading_src
-    } = useRibosomeStructureWithNomenclature(current_ligand?.parent_structure.rcsb_id!);
     // const {data: data_tgt, nomenclatureMap: nomenclatureMap_tgt, isLoading: isLoading_tgt} = useRibosomeStructureWithNomenclature(current_selected_target?.rcsb_id!)
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
 
@@ -783,56 +775,24 @@ export default function Ligands() {
         fetchData();
     }, [current_ligand]);
 
-    // useEffect(() => {
-    //     if (parentStructProfile.rcsb_id === undefined) {
-    //         return;
-    //     }
-    //     const residues = surroundingResidues;
-    //     var chain_ids = [];
-    //     for (let residue of residues) {
-    //         chain_ids.push(residue.auth_asym_id);
-    //     }
-    //     var nom_map: any = {};
-    //     for (let polymer of [...parentStructProfile.rnas, ...parentStructProfile.proteins]) {
-    //         if (chain_ids.includes(polymer.auth_asym_id)) {
-    //             if (!Object.keys(nom_map).includes(polymer.auth_asym_id)) {
-    //                 nom_map[polymer.auth_asym_id] = polymer.nomenclature[0];
-    //             }
-    //         }
-    //     }
-    // }, [surroundingResidues, parentStructProfile]);
-
-    // -------------------------------------
+    const {data} = useRoutersRouterStructStructureProfileQuery(
+        {rcsbId: current_ligand?.parent_structure.rcsb_id},
+        {skip: !current_ligand}
+    );
 
     useEffect(() => {
-        if (current_ligand === undefined) {
-            return;
-        }
-        console.log("Changed ligad,", current_ligand);
-        console.log("Changed ligad,", nomenclatureMap_src);
-       
+        if (!current_ligand || !isInitialized || !data) return;
 
-        if (!isInitialized || !data_src) return;
-        ctx?.ctx.clear();
+        const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
+            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+            return prev;
+        }, {});
 
-
-        msc?.loadStructure(current_ligand?.parent_structure.rcsb_id!, nomenclatureMap_src!).then(() => {
-            ctx?.ligands.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
+        msc?.clear();
+        msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap).then(() => {
+            ctx?.ligands.create_ligand_and_surroundings(current_ligand.ligand.chemicalId, lig_state.radius);
         });
-        console.log("Changed ligad,", current_ligand);
-        
-
-        // msc?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map)
-
-        // .then(({ctx: molstar, struct_representation}) => {
-        //     setStructRepresentation(struct_representation);
-        //     return molstar.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
-        // })
-        // .then(ctx => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
-        // .then(residues => {
-        //     setSurroundingResidues(residues);
-        // });
-    }, [current_ligand]);
+    }, [current_ligand, data, isInitialized, msc, ctx, lig_state]);
 
     const [checked, setChecked] = useState(false);
     const [showLowerPanel, setShowLowerPanel] = useState(false);
@@ -889,11 +849,9 @@ export default function Ligands() {
                             collapsible
                             onCollapse={() => setShowLowerPanel(false)}
                             onExpand={() => setShowLowerPanel(true)}>
-
                             <div className="h-full  p-2">
                                 <MolstarNode_secondary ref={molstarNodeRef_secondary} />
                             </div>
-
                         </ResizablePanel>
                     </ResizablePanelGroup>
                 </ResizablePanel>

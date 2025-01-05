@@ -1,4 +1,4 @@
-import {mapAssetModelComponentsAdd, mapAssetRootRefAdd} from '@/store/molstar/slice_refs';
+import {mapAssetModelComponentsAdd, mapAssetRootRefAdd, mapResetAll} from '@/store/molstar/slice_refs';
 import {ribxzMstarv2} from './mstar_v2';
 import {AppDispatch, RootState} from '@/store/store';
 import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
@@ -90,6 +90,7 @@ export class MolstarStateController {
     clear = async () => {
 
         // TODO: Clear all refs:
+        this.dispatch(mapResetAll())
         this.viewer.ctx.clear();
     }
 

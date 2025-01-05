@@ -351,29 +351,29 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             );
 
             if (component) {
-                if (
-                    ['23SrRNA', '25SrRNA', '28SrRNA', '18SrRNA', '16SrRNA', 'mt16SrRNA', 'mt12SrRNA'].includes(
-                        // @ts-ignore
-                        nommap[chainId]
-                    )
-                ) {
-                    const representation = await plugin.builders.structure.representation.addRepresentation(component, {
-                        type: 'gaussian-surface',
-                        color: 'uniform',
-                        colorParams: {
-                            // @ts-ignore
-                            value: PolymerColorschemeWarm[nommap[chainId]]
-                        }
-                    });
+                // if (
+                //     ['23SrRNA', '25SrRNA', '28SrRNA', '18SrRNA', '16SrRNA', 'mt16SrRNA', 'mt12SrRNA'].includes(
+                //         // @ts-ignore
+                //         nommap[chainId]
+                //     )
+                // ) {
+                //     const representation = await plugin.builders.structure.representation.addRepresentation(component, {
+                //         type: 'gaussian-surface',
+                //         color: 'uniform',
+                //         colorParams: {
+                //             // @ts-ignore
+                //             value: PolymerColorschemeWarm[nommap[chainId]]
+                //         }
+                //     });
 
-                    components[`${chainId}`] = component;
-                    representations[`${chainId}`] = representation;
+                //     components[`${chainId}`] = component;
+                //     representations[`${chainId}`] = representation;
 
-                    objects_polymer[chainId] = {
-                        ref: component.ref,
-                        sequence: getResidueSequence(component, chainId, params.structureId.toUpperCase())
-                    };
-                } else {
+                //     objects_polymer[chainId] = {
+                //         ref: component.ref,
+                //         sequence: getResidueSequence(component, chainId, params.structureId.toUpperCase())
+                //     };
+                // } else {
                     const representation = await plugin.builders.structure.representation.addRepresentation(component, {
                         type: 'cartoon',
                         color: 'uniform',
@@ -391,7 +391,7 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
                         sequence: getResidueSequence(component, chainId, params.structureId.toUpperCase())
                     };
                 }
-            }
+            // }
         }
 
         // Handle ligands

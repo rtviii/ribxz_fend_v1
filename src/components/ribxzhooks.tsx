@@ -1,8 +1,9 @@
 import { Polymer, useRoutersRouterStructStructureProfileQuery } from "@/store/ribxz_api/ribxz_api";
 import { useMemo } from "react";
 
-export function useRibosomeStructureWithNomenclature(rcsbId: string | undefined) {
-    const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsbId!}, {skip: !rcsbId});
+export function useRibosomeStructureWithNomenclature(rcsb_id: string | undefined) {
+    const {data, isLoading, error} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id!}, {skip: !rcsb_id});
+    console.log(`useRibosomeStructureWithNomenclature for rcsb_Id ${rcsb_id}`, data, isLoading, error);
 
     const nomenclatureMap = useMemo(() => {
         if (!data) return null;
