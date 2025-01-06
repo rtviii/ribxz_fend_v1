@@ -60,6 +60,7 @@ import {Spinner} from '@/components/ui/spinner';
 import {useMolstarService} from '@/components/mstar/mstar_service';
 import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 import {useSelector} from 'react-redux';
+import {PanelProvider, usePanelContext} from './panels_context';
 
 export type ResidueSummary = {
     label_seq_id: number | null | undefined;
@@ -532,212 +533,184 @@ const CurrentBindingSiteInfoPanel = () => {
     );
 };
 
-// const BindingSitePredictionPanel = () => {
+const BindingSitePredictionPanel = ({}) => {
+    // This is lacking access to the "Lower panel" refs
+    const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
+    const current_ligand = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
+    // const current_selected_target = useAppSelector(state => state.ligands_page.ligands_page.);
+    return (
+        <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
+            <div className="flex items-center space-x-2 p-2 rounded-md border ">
+                <Switch
+                    id="show-lower-panel"
+                    checked={isPredictionPanelOpen}
+                    onCheckedChange={togglePredictionPanel}
+                    disabled={current_ligand === null}
+                />
+                <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">
+                    <div className="flex flex-row justify-between">
+                        Binding Pocket Prediction
+                        {current_ligand !== null ? (
+                            <span className="font-light text-xs italic">
+                                Using{' '}
+                                <span className="font-semibold">
+                                    {current_ligand.parent_structure.rcsb_id}/{current_ligand.ligand.chemicalId}
+                                </span>{' '}
+                                as source.
+                            </span>
+                        ) : null}
+                    </div>
+                </Label>
+            </div>
+                        <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
+                            <span className="text-center">Prediction Target</span>
+                        </div>
+                        <GlobalStructureSelection />
+            
+             {/* <Accordion
+                type="single"
+                collapsible
+                value={predictionMode ? 'prediction' : undefined}
+                onValueChange={value => setIsAccordionOpen(value === 'prediction')}
+                className="border p-1 rounded-md">
+                <AccordionItem value="prediction">
+                    <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
+                    </AccordionTrigger>
+                    <AccordionContent>
 
-// const toggleLowerPanel = () => {
-//     setShowLowerPanel(prev => !prev);
-//     if (lowerPanelRef.current && upperPanelRef.current) {
-//         if (showLowerPanel) {
-//             lowerPanelRef.current.collapse();
-//             upperPanelRef.current.resize(100);
-//         } else {
-//             lowerPanelRef.current.expand();
-//             upperPanelRef.current.resize(50);
-//             lowerPanelRef.current.resize(50);
-//         }
-//     }
-// };
-//     return (
+                        <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
+                            <Button
+                                variant={'outline'}
+                                onClick={() => {
+                                    if (current_selected_target === null || current_ligand === null) {
+                                        return;
+                                    }
+                                    dispatch(
+                                        fetchPredictionData({
+                                            chemid: current_ligand?.ligand.chemicalId,
+                                            src: current_ligand?.parent_structure.rcsb_id,
+                                            tgt: current_selected_target?.rcsb_id,
+                                            radius: lig_state.radius
+                                        })
+                                    );
+                                }}>
+                                {' '}
+                                {ligands_state.prediction_pending ? (
+                                    <>
+                                        <Spinner /> <span className="mx-2">Calculating</span>
+                                    </>
+                                ) : (
+                                    'Render Prediction'
+                                )}
+                            </Button>
 
-//                                 <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
-//                                     <div className="flex items-center space-x-2 p-2 rounded-md border ">
-//                                         <Switch
-//                                             id="show-lower-panel"
-//                                             checked={predictionMode}
-//                                             onCheckedChange={() => {
-//                                                 toggleLowerPanel();
-//                                                 setPredictionMode(!predictionMode);
-//                                             }}
-//                                             disabled={current_ligand === null}
-//                                         />
-//                                         <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">
-//                                             <div className="flex flex-row justify-between">
-//                                                 Binding Pocket Prediction
-//                                                 {current_ligand !== null ? (
-//                                                     <span className="font-light text-xs italic">
-//                                                         Using{' '}
-//                                                         <span className="font-semibold">
-//                                                             {current_ligand.parent_structure.rcsb_id}/
-//                                                             {current_ligand.ligand.chemicalId}
-//                                                         </span>{' '}
-//                                                         as source.
-//                                                     </span>
-//                                                 ) : null}
-//                                             </div>
-//                                         </Label>
-//                                     </div>
+                            <Button
+                                variant={'outline'}
+                                disabled={
+                                    ligands_state.prediction_data === undefined ||
+                                    _.isEmpty(ligands_state.prediction_data)
+                                }
+                                onClick={() => {
+                                    if (
+                                        ligands_state.prediction_data === undefined ||
+                                        ligands_state.prediction_data === null
+                                    ) {
+                                        return;
+                                    }
+                                    ctx_secondary?.highlightResidueCluster(
+                                        LigandPredictionNucleotides( ligands_state.prediction_data )
+                                    );
+                                    ctx_secondary?.select_residueCluster(
+                                        LigandPredictionNucleotides(
+                                            ligands_state.prediction_data
+                                        )
+                                    );
+                                }}>
+                                {' '}
+                                Display Prediction
+                            </Button>
 
-//                                     <Accordion
-//                                         type="single"
-//                                         collapsible
-//                                         value={predictionMode ? 'prediction' : undefined}
-//                                         onValueChange={value => setIsAccordionOpen(value === 'prediction')}
-//                                         className="border p-1 rounded-md">
+                            <DownloadDropdown
+                                residues={
+                                    ligands_state.prediction_data?.purported_binding_site.chains
+                                        .map(chain => {
+                                            return chain.bound_residues.map(r => {
+                                                var newres: ResidueSummary = {
+                                                    auth_asym_id: chain.auth_asym_id,
+                                                    auth_seq_id: r.auth_seq_id,
+                                                    label_comp_id: r.label_comp_id,
+                                                    label_seq_id: r.label_seq_id,
+                                                    rcsb_id: r.rcsb_id,
+                                                    polymer_class: chain.nomenclature[0]
+                                                };
+                                                return newres;
+                                            });
+                                        })
+                                        .reduce((acc: ResidueSummary[], next: ResidueSummary[]) => {
+                                            return [...acc, ...next];
+                                        }, []) as ResidueSummary[]
+                                }
+                                disabled={!(surroundingResidues.length > 0)}
+                                filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
+                            />
+                        </div>
 
-//                                         <AccordionItem value="prediction">
+                        {ligands_state.prediction_data === undefined
+                            ? null
+                            : ligands_state.prediction_data?.constituent_chains.map((chain, i) => (
+                                  <Accordion
+                                      type="single"
+                                      collapsible
+                                      className="border p-1 rounded-md w-full my-2"
+                                      key={i}>
+                                      <AccordionItem value={'other'}>
+                                          <AccordionTrigger>
+                                              <div className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300">
+                                                  <span className="font-light w-8">{chain.target.auth_asym_id}</span>{' '}
+                                                  <span className="px-4">{chain.polymer_class}</span>
+                                              </div>
+                                          </AccordionTrigger>
+                                          <AccordionContent className="flex flex-wrap">
 
-//                                             <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted  ">
-//                                                 <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
-//                                                     <span className="text-center">Prediction Target</span>
-//                                                 </div>
-//                                             </AccordionTrigger>
-//                                             <AccordionContent>
-//                                                 <GlobalStructureSelection />
+                                              {chain.target.target_bound_residues.map((residue, i) => {
+                                                  return (
+                                                      <ResidueBadge
+                                                          molstar_ctx={ctx_secondary}
+                                                          residue={{
+                                                              auth_asym_id: chain.target.auth_asym_id,
+                                                              auth_seq_id: residue.auth_seq_id,
+                                                              label_comp_id: residue?.label_comp_id,
+                                                              label_seq_id: residue?.label_seq_id,
+                                                              rcsb_id: residue.rcsb_id,
+                                                              polymer_class:
+                                                                  nomenclatureMap_src[chain.target.auth_asym_id]
+                                                          }}
+                                                          show_parent_chain={checked}
+                                                          key={i}
+                                                      />
+                                                  );
+                                              })}
+                                          </AccordionContent>
+                                      </AccordionItem>
+                                  </Accordion>
+                              ))}
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion> */}
 
-//                                                 <div className="flex items-center space-x-2 text-xs p-1 border-b mb-2">
-//                                                     <Button
-//                                                         variant={'outline'}
-//                                                         onClick={() => {
-//                                                             if (
-//                                                                 current_selected_target === null ||
-//                                                                 current_ligand === null
-//                                                             ) {
-//                                                                 return;
-//                                                             }
-//                                                             dispatch(
-//                                                                 fetchPredictionData({
-//                                                                     chemid: current_ligand?.ligand.chemicalId,
-//                                                                     src: current_ligand?.parent_structure.rcsb_id,
-//                                                                     tgt: current_selected_target?.rcsb_id,
-//                                                                     radius: lig_state.radius
-//                                                                 })
-//                                                             );
-//                                                         }}>
-//                                                         {' '}
-//                                                         {ligands_state.prediction_pending ? (
-//                                                             <>
-//                                                                 <Spinner /> <span className="mx-2">Calculating</span>
-//                                                             </>
-//                                                         ) : (
-//                                                             'Render Prediction'
-//                                                         )}
-//                                                     </Button>
-
-//                                                     <Button
-//                                                         variant={'outline'}
-//                                                         disabled={
-//                                                             ligands_state.prediction_data === undefined ||
-//                                                             _.isEmpty(ligands_state.prediction_data)
-//                                                         }
-//                                                         onClick={() => {
-//                                                             if (
-//                                                                 ligands_state.prediction_data === undefined ||
-//                                                                 ligands_state.prediction_data === null
-//                                                             ) {
-//                                                                 return;
-//                                                             }
-//                                                             // ctx_secondary?.highlightResidueCluster(
-//                                                             //     LigandPredictionNucleotides( ligands_state.prediction_data )
-//                                                             // );
-//                                                             // ctx_secondary?.select_residueCluster(
-//                                                             //     LigandPredictionNucleotides(
-//                                                             //         ligands_state.prediction_data
-//                                                             //     )
-//                                                             // );
-//                                                         }}>
-//                                                         {' '}
-//                                                         Display Prediction
-//                                                     </Button>
-//                                                     <DownloadDropdown
-//                                                         residues={
-//                                                             ligands_state.prediction_data?.purported_binding_site.chains
-//                                                                 .map(chain => {
-//                                                                     return chain.bound_residues.map(r => {
-//                                                                         var newres: ResidueSummary = {
-//                                                                             auth_asym_id: chain.auth_asym_id,
-//                                                                             auth_seq_id: r.auth_seq_id,
-//                                                                             label_comp_id: r.label_comp_id,
-//                                                                             label_seq_id: r.label_seq_id,
-//                                                                             rcsb_id: r.rcsb_id,
-//                                                                             polymer_class: chain.nomenclature[0]
-//                                                                         };
-//                                                                         return newres;
-//                                                                     });
-//                                                                 })
-//                                                                 .reduce(
-//                                                                     (acc: ResidueSummary[], next: ResidueSummary[]) => {
-//                                                                         return [...acc, ...next];
-//                                                                     },
-//                                                                     []
-//                                                                 ) as ResidueSummary[]
-//                                                         }
-//                                                         disabled={!(surroundingResidues.length > 0)}
-//                                                         filename={`${lig_state.current_ligand?.ligand.chemicalId}_${lig_state.current_ligand?.parent_structure.rcsb_id}_binding_site.csv`}
-//                                                     />
-//                                                 </div>
-
-//                                                 {ligands_state.prediction_data === undefined
-//                                                     ? null
-//                                                     : ligands_state.prediction_data?.constituent_chains.map(
-//                                                           (chain, i) => (
-//                                                               <Accordion
-//                                                                   type="single"
-//                                                                   collapsible
-//                                                                   className="border p-1 rounded-md w-full my-2"
-//                                                                   key={i}>
-//                                                                   <AccordionItem value={'other'}>
-//                                                                       <AccordionTrigger>
-//                                                                           <div className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300">
-//                                                                               <span className="font-light w-8">
-//                                                                                   {chain.target.auth_asym_id}
-//                                                                               </span>{' '}
-//                                                                               <span className="px-4">
-//                                                                                   {chain.polymer_class}
-//                                                                               </span>
-//                                                                           </div>
-//                                                                       </AccordionTrigger>
-//                                                                       <AccordionContent className="flex flex-wrap">
-//                                                                           {chain.target.target_bound_residues.map(
-//                                                                               (residue, i) => {
-//                                                                                   return (
-//                                                                                       <ResidueBadge
-//                                                                                           molstar_ctx={ctx_secondary}
-//                                                                                           residue={{
-//                                                                                               auth_asym_id:
-//                                                                                                   chain.target
-//                                                                                                       .auth_asym_id,
-//                                                                                               auth_seq_id:
-//                                                                                                   residue.auth_seq_id,
-//                                                                                               label_comp_id:
-//                                                                                                   residue?.label_comp_id,
-//                                                                                               label_seq_id:
-//                                                                                                   residue?.label_seq_id,
-//                                                                                               rcsb_id: residue.rcsb_id,
-//                                                                                               polymer_class:
-//                                                                                                   nomenclatureMap_src[
-//                                                                                                       chain.target
-//                                                                                                           .auth_asym_id
-//                                                                                                   ]
-//                                                                                           }}
-//                                                                                           show_parent_chain={checked}
-//                                                                                           key={i}
-//                                                                                       />
-//                                                                                   );
-//                                                                               }
-//                                                                           )}
-//                                                                       </AccordionContent>
-//                                                                   </AccordionItem>
-//                                                               </Accordion>
-//                                                           )
-//                                                       )}
-//                                             </AccordionContent>
-//                                         </AccordionItem>
-//                                     </Accordion>
-//                                 </ScrollArea>
-//     )
-// }
+        </ScrollArea>
+    );
+};
 
 export default function Ligands() {
+    return (
+        <PanelProvider>
+            <LigandsPageWithoutContext />
+        </PanelProvider>
+    );
+}
+
+function LigandsPageWithoutContext() {
     const dispatch = useAppDispatch();
     const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
 
@@ -758,6 +731,19 @@ export default function Ligands() {
     // const {data: data_tgt, nomenclatureMap: nomenclatureMap_tgt, isLoading: isLoading_tgt} = useRibosomeStructureWithNomenclature(current_selected_target?.rcsb_id!)
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
 
+    const toggleLowerPanel = () => {
+        setShowLowerPanel(prev => !prev);
+        if (lowerPanelRef.current && upperPanelRef.current) {
+            if (showLowerPanel) {
+                lowerPanelRef.current.collapse();
+                upperPanelRef.current.resize(100);
+            } else {
+                lowerPanelRef.current.expand();
+                upperPanelRef.current.resize(50);
+                lowerPanelRef.current.resize(50);
+            }
+        }
+    };
     useEffect(() => {
         if (current_ligand?.parent_structure.rcsb_id === undefined) {
             return;
@@ -796,68 +782,69 @@ export default function Ligands() {
 
     const [checked, setChecked] = useState(false);
     const [showLowerPanel, setShowLowerPanel] = useState(false);
+
+    const {isPredictionPanelOpen} = usePanelContext();
     const lowerPanelRef = React.useRef<ImperativePanelHandle>(null);
     const upperPanelRef = React.useRef<ImperativePanelHandle>(null);
-
     useEffect(() => {
-        // Collapse the lower panel on initial render
-        if (lowerPanelRef.current) {
-            lowerPanelRef.current.collapse();
+        if (lowerPanelRef.current && upperPanelRef.current) {
+            if (!isPredictionPanelOpen) {
+                lowerPanelRef.current.collapse();
+                upperPanelRef.current.resize(100);
+            } else {
+                lowerPanelRef.current.expand();
+                upperPanelRef.current.resize(50);
+                lowerPanelRef.current.resize(50);
+            }
         }
-        // Expand the upper panel to 100% on initial render
-        if (upperPanelRef.current) {
-            upperPanelRef.current.resize(100);
-        }
-    }, []);
+    }, [isPredictionPanelOpen]);
 
-    const current_selected_target = useAppSelector(state => state.homepage_overview.selected);
-    useEffect(() => {
-        if (current_selected_target !== null) {
-            msc_secondary?.loadStructure(current_selected_target.rcsb_id, nomenclatureMap_src!);
-            // ctx_secondary?.upload_mmcif_structure(current_selected_target.rcsb_id, {});
-        }
-
-        dispatch(set_ligand_prediction_data(null));
-    }, [current_selected_target]);
+    // const current_selected_target = useAppSelector(state => state.homepage_overview.selected);
+    // useEffect(() => {
+    //     if (current_selected_target !== null) {
+    //         msc_secondary?.loadStructure(current_selected_target.rcsb_id, nomenclatureMap_src!);
+    //     }
+    //     dispatch(set_ligand_prediction_data(null));
+    // }, [current_selected_target]);
 
     const ligands_state = useAppSelector(state => state.ligands_page.ligands_page);
 
+
+
+    useEffect(()=>{
+        console.log("predictio npanel open:",isPredictionPanelOpen);
+    },[isPredictionPanelOpen])
     return (
-        <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={30} minSize={20}>
-                    <div className="h-full p-4">
-                        <LigandSelection />
-                        <CurrentBindingSiteInfoPanel />
-                    </div>
-                </ResizablePanel>
+            <div className="flex flex-col h-screen w-screen overflow-hidden">
+                <ResizablePanelGroup direction="horizontal">
+                    <ResizablePanel defaultSize={30} minSize={20}>
+                        <div className="h-full p-4">
+                            <LigandSelection />
+                            <CurrentBindingSiteInfoPanel />
+                            <BindingSitePredictionPanel />
+                        </div>
+                    </ResizablePanel>
 
-                <ResizableHandle />
+                    <ResizableHandle />
 
-                <ResizablePanel defaultSize={50} minSize={30}>
-                    <ResizablePanelGroup direction="vertical">
-                        <ResizablePanel defaultSize={50} minSize={20} ref={upperPanelRef}>
-                            <div className="h-full bg-background p-2 ">
-                                <MolstarNode ref={molstarNodeRef} />
-                            </div>
-                        </ResizablePanel>
-                        <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
-                        <ResizablePanel
-                            ref={lowerPanelRef}
-                            defaultSize={50}
-                            minSize={0}
-                            collapsible
-                            onCollapse={() => setShowLowerPanel(false)}
-                            onExpand={() => setShowLowerPanel(true)}>
-                            <div className="h-full  p-2">
-                                <MolstarNode_secondary ref={molstarNodeRef_secondary} />
-                            </div>
-                        </ResizablePanel>
-                    </ResizablePanelGroup>
-                </ResizablePanel>
-            </ResizablePanelGroup>
+                    <ResizablePanel defaultSize={50} minSize={30}>
+                        <ResizablePanelGroup direction="vertical">
+                            <ResizablePanel defaultSize={50} minSize={20} ref={upperPanelRef}>
+                                <div className="h-full bg-background p-2 ">
+                                    <MolstarNode ref={molstarNodeRef} />
+                                </div>
+                            </ResizablePanel>
+                            <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
+                            <ResizablePanel ref={lowerPanelRef} defaultSize={50} minSize={0} collapsible  >
+                                <div className="h-full  p-2">
+                                    <MolstarNode_secondary ref={molstarNodeRef_secondary} />
+                                </div>
+                            </ResizablePanel>
+                        </ResizablePanelGroup>
+                    </ResizablePanel>
+                </ResizablePanelGroup>
 
-            <SidebarMenu />
-        </div>
+                <SidebarMenu />
+            </div>
     );
 }
