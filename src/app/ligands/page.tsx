@@ -57,7 +57,7 @@ import {ResidueBadge} from '@/components/ribxz/text_aides/residue_badge';
 import {ImperativePanelHandle} from 'react-resizable-panels';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
 import {Spinner} from '@/components/ui/spinner';
-import {useMolstarService} from '@/components/mstar/mstar_service';
+import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
 import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 import {useSelector} from 'react-redux';
 import {PanelProvider, usePanelContext} from './panels_context';
@@ -536,8 +536,17 @@ const CurrentBindingSiteInfoPanel = () => {
 const BindingSitePredictionPanel = ({}) => {
     // This is lacking access to the "Lower panel" refs
     const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
-    const current_ligand = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
+    const current_ligand                                 = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
     // const current_selected_target = useAppSelector(state => state.ligands_page.ligands_page.);
+
+
+    const auxiliaryService = useMolstarInstance('auxiliary');
+    const ctx_secondary = auxiliaryService?.viewer;
+    const msc_secondary = auxiliaryService?.controller;
+
+    
+
+
     return (
         <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
             <div className="flex items-center space-x-2 p-2 rounded-md border ">
@@ -562,12 +571,17 @@ const BindingSitePredictionPanel = ({}) => {
                     </div>
                 </Label>
             </div>
-                        <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
-                            <span className="text-center">Prediction Target</span>
-                        </div>
-                        <GlobalStructureSelection />
-            
-             {/* <Accordion
+            <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
+                <span className="text-center">Prediction Target</span>
+            </div>
+            <GlobalStructureSelection
+                onChange={_ => {
+                    msc_secondary?.loadStructure(_, {});
+                    console.log('selecteed', _);
+                }}
+            />
+
+            {/* <Accordion
                 type="single"
                 collapsible
                 value={predictionMode ? 'prediction' : undefined}
@@ -697,13 +711,13 @@ const BindingSitePredictionPanel = ({}) => {
                     </AccordionContent>
                 </AccordionItem>
             </Accordion> */}
-
         </ScrollArea>
     );
 };
 
 export default function Ligands() {
     return (
+
         <PanelProvider>
             <LigandsPageWithoutContext />
         </PanelProvider>
@@ -717,9 +731,10 @@ function LigandsPageWithoutContext() {
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
-    const mstar_service_main = useMolstarService(molstarNodeRef);
-    const mstar_service_aux = useMolstarService(molstarNodeRef_secondary);
-    const {viewer: ctx, controller: msc} = mstar_service_main;
+    const mstar_service_main = useMolstarService(molstarNodeRef, 'main');
+    const mstar_service_aux  = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
+
+    const {viewer, controller} = mstar_service_main;
     const {viewer: ctx_secondary, controller: msc_secondary} = mstar_service_aux;
 
     const lig_state = useAppSelector(state => state.ligands_page.ligands_page);
@@ -729,7 +744,7 @@ function LigandsPageWithoutContext() {
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
 
     // const {data: data_tgt, nomenclatureMap: nomenclatureMap_tgt, isLoading: isLoading_tgt} = useRibosomeStructureWithNomenclature(current_selected_target?.rcsb_id!)
-    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
+    const {viewer:ctx, controller:msc, isInitialized} = useMolstarService(molstarNodeRef, 'main');
 
     const toggleLowerPanel = () => {
         setShowLowerPanel(prev => !prev);
@@ -809,42 +824,40 @@ function LigandsPageWithoutContext() {
 
     const ligands_state = useAppSelector(state => state.ligands_page.ligands_page);
 
-
-
-    useEffect(()=>{
-        console.log("predictio npanel open:",isPredictionPanelOpen);
-    },[isPredictionPanelOpen])
+    useEffect(() => {
+        console.log('predictio npanel open:', isPredictionPanelOpen);
+    }, [isPredictionPanelOpen]);
     return (
-            <div className="flex flex-col h-screen w-screen overflow-hidden">
-                <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={30} minSize={20}>
-                        <div className="h-full p-4">
-                            <LigandSelection />
-                            <CurrentBindingSiteInfoPanel />
-                            <BindingSitePredictionPanel />
-                        </div>
-                    </ResizablePanel>
+        <div className="flex flex-col h-screen w-screen overflow-hidden">
+            <ResizablePanelGroup direction="horizontal">
+                <ResizablePanel defaultSize={30} minSize={20}>
+                    <div className="h-full p-4">
+                        <LigandSelection />
+                        <CurrentBindingSiteInfoPanel />
+                        <BindingSitePredictionPanel />
+                    </div>
+                </ResizablePanel>
 
-                    <ResizableHandle />
+                <ResizableHandle />
 
-                    <ResizablePanel defaultSize={50} minSize={30}>
-                        <ResizablePanelGroup direction="vertical">
-                            <ResizablePanel defaultSize={50} minSize={20} ref={upperPanelRef}>
-                                <div className="h-full bg-background p-2 ">
-                                    <MolstarNode ref={molstarNodeRef} />
-                                </div>
-                            </ResizablePanel>
-                            <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
-                            <ResizablePanel ref={lowerPanelRef} defaultSize={50} minSize={0} collapsible  >
-                                <div className="h-full  p-2">
-                                    <MolstarNode_secondary ref={molstarNodeRef_secondary} />
-                                </div>
-                            </ResizablePanel>
-                        </ResizablePanelGroup>
-                    </ResizablePanel>
-                </ResizablePanelGroup>
+                <ResizablePanel defaultSize={50} minSize={30}>
+                    <ResizablePanelGroup direction="vertical">
+                        <ResizablePanel defaultSize={50} minSize={20} ref={upperPanelRef}>
+                            <div className="h-full bg-background p-2 ">
+                                <MolstarNode ref={molstarNodeRef} />
+                            </div>
+                        </ResizablePanel>
+                        <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
+                        <ResizablePanel ref={lowerPanelRef} defaultSize={50} minSize={0} collapsible>
+                            <div className="h-full  p-2">
+                                <MolstarNode_secondary ref={molstarNodeRef_secondary} />
+                            </div>
+                        </ResizablePanel>
+                    </ResizablePanelGroup>
+                </ResizablePanel>
+            </ResizablePanelGroup>
 
-                <SidebarMenu />
-            </div>
+            <SidebarMenu />
+        </div>
     );
 }

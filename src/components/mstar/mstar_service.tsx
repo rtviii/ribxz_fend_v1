@@ -41,11 +41,12 @@ export function MolstarProvider({children}: {children: React.ReactNode}) {
 }
 
 // Main service hook
-export const useMolstarService = (containerRef: React.RefObject<HTMLDivElement>, id: string = 'default') => {
-    const context = useContext(MolstarContext);
+export const useMolstarService = (containerRef: React.RefObject<HTMLDivElement>, id: string ) => {
+
+    const context                           = useContext(MolstarContext);
     const [isInitialized, setIsInitialized] = useState(false);
-    const dispatch = useAppDispatch();
-    const store = useStore<AppStore>();
+    const dispatch                          = useAppDispatch();
+    const store                             = useStore<AppStore>();
 
     // Get state function for the controller
     const getState = useCallback((): RootState => {
@@ -95,7 +96,7 @@ export const useMolstarService = (containerRef: React.RefObject<HTMLDivElement>,
 };
 
 // Convenience hook for accessing service instances
-export function useMolstarInstance(id: string = 'default'): MolstarService | null {
+export function useMolstarInstance(id: string ): MolstarService | null {
     const context = useContext(MolstarContext);
     return context?.getService(id) ?? null;
 }

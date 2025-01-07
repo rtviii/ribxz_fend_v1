@@ -1,22 +1,10 @@
 'use client';
-import {Button} from '@/components/ui/button';
-import {HoverCardTrigger, HoverCardContent, HoverCard} from '@/components/ui/hover-card';
 import {useAppSelector} from '@/store/store';
-import {Input} from '@/components/ui/input';
 import {Select, Space, Tag, Typography} from 'antd';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationNext,
-    PaginationPrevious
-} from '@/components/ui/pagination';
-import {ChainsByStruct, PolymerByStruct, RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
-import {Separator} from '@radix-ui/react-select';
-import {useContext, useEffect, useState} from 'react';
-import {StructureOverview} from '@/store/slices/slice_structs_overview';
+import {StructureOverview} from '@/store/slices/slice_prefetched_data';
 
 const {Text} = Typography;
+
 import type {SelectProps} from 'antd';
 
 type LabelRender = SelectProps['labelRender'];
@@ -40,13 +28,9 @@ export const GlobalStructureSelection = ({
     filterStructures,
     ...props
 }: GlobalStructureSelectionProps) => {
-    const structs_overview = useAppSelector(state => state.homepage_overview.structures);
-
-    const filteredStructures = filterStructures 
-        ? structs_overview.filter(filterStructures)
-        : structs_overview;
-
-    const filterOption = (input: string, option: any) => {
+    const structs_overview   = useAppSelector(state => state.homepage_overview.structures);
+    const filteredStructures = filterStructures ? structs_overview.filter(filterStructures) : structs_overview;
+    const filterOption       = (input: string, option: any) => {
         const {S} = option;
         return (
             S.rcsb_id.toLowerCase().indexOf(input.toLowerCase()) >= 0 ||
