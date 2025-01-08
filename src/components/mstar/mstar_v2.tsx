@@ -198,8 +198,6 @@ const pluginContainer = document.createElement('div');
                     }
                 );
 
-            console.log(objects_polymer);
-
             this.representations.stylized_lighting();
             return {
                 root_ref: structure.ref,

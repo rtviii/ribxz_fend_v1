@@ -46,26 +46,24 @@ export type LigandInstance = {
 };
 
 export interface LigandsSliceState {
-    ligands_page: {
-        data              : LigandInstances;
-        filtered_data     : LigandInstances;
-        current_ligand    : LigandInstance | null;
-
-        radius            : number;
-        prediction_data   : LigandTransposition | null;
+        data: LigandInstances;
+        filtered_data: LigandInstances;
+        current_ligand: LigandInstance | null;
+        selected_target_structure: string | null;  // Added this field
+        radius: number;
+        prediction_data: LigandTransposition | null;
         prediction_pending: boolean;
-    };
 }
 
+
 const initialState: LigandsSliceState = {
-    ligands_page: {
-        data              : [],
-        radius            : 10,
-        current_ligand    : null,
-        filtered_data     : [],
-        prediction_data   : null,
+        data: [],
+        radius: 10,
+        current_ligand: null,
+        selected_target_structure: null,  // Added this field
+        filtered_data: [],
+        prediction_data: null,
         prediction_pending: false
-    }
 };
 
 export const ligandsSlice = createSlice({
@@ -73,31 +71,34 @@ export const ligandsSlice = createSlice({
     initialState,
     reducers: {
         set_ligands_data(state, action: PayloadAction<LigandInstances>) {
-            state.ligands_page.data = action.payload;
+            state.data = action.payload;
         },
         set_ligands_radius(state, action: PayloadAction<number>) {
-            state.ligands_page.radius = action.payload;
+            state.radius = action.payload;
         },
         set_ligands_data_filtered(state, action: PayloadAction<LigandInstances>) {
-            state.ligands_page.filtered_data = action.payload;
+            state.filtered_data = action.payload;
         },
         set_current_ligand(state, action: PayloadAction<LigandInstance>) {
-            state.ligands_page.current_ligand = action.payload;
+            state.current_ligand = action.payload;
         },
         set_ligand_prediction_data(state, action: PayloadAction<LigandTransposition | null>) {
-            state.ligands_page.prediction_data = action.payload;
+            state.prediction_data = action.payload;
+        },
+   set_selected_target_structure(state, action: PayloadAction<string | null>) {
+            state.selected_target_structure = action.payload;
         }
     },
     extraReducers: builder => {
         builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchFulfilled, (state, action) => {
-            state.ligands_page.prediction_data = action.payload;
-            state.ligands_page.prediction_pending = false;
+            state.prediction_data = action.payload;
+            state.prediction_pending = false;
         });
         builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchPending, (state, action) => {
-            state.ligands_page.prediction_pending = true;
+            state.prediction_pending = true;
         });
         builder.addMatcher(ribxz_api.endpoints.routersRouterLigLigTranspose.matchRejected, (state, action) => {
-            state.ligands_page.prediction_pending = false;
+            state.prediction_pending = false;
         });
     }
 });
@@ -107,7 +108,8 @@ export const {
     set_ligands_data_filtered,
     set_current_ligand,
     set_ligands_radius,
-    set_ligand_prediction_data
+    set_ligand_prediction_data,
+    set_selected_target_structure  
 } = ligandsSlice.actions;
 export default ligandsSlice.reducer;
 

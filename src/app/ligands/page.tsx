@@ -44,7 +44,8 @@ import {
     fetchPredictionData,
     set_current_ligand,
     set_ligand_prediction_data,
-    set_ligands_radius
+    set_ligands_radius,
+    set_selected_target_structure
 } from '@/store/slices/slice_ligands';
 import {capitalize_only_first_letter_w, yield_nomenclature_map_profile} from '@/my_utils';
 import {
@@ -73,70 +74,6 @@ export type ResidueSummary = {
 
 export type ResidueSummaryList = ResidueSummary[];
 
-interface TaxaDropdownProps {
-    count: number;
-    species: string[];
-}
-
-function LigandTaxonomyDropdown(props: {count: number; species: LigandAssociatedTaxa}) {
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-20">
-                    {props.count}
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
-                <p className="italic ">
-                    {props.species.toSorted().map((spec, i) => (
-                        <DropdownMenuItem key={i}>{spec[1]}</DropdownMenuItem>
-                    ))}
-                </p>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
-
-function LigandStructuresDropdown(props: {count: number; structures: LigandAssociatedStructure[]; info: LigandInfo}) {
-    const router = useRouter();
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-40">
-                    {props.count}
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="max-h-80 overflow-y-scroll">
-                {props.structures
-                    .toSorted((s1, s2) => Number(s1.src_organism_names[0] > s2.src_organism_names[0]))
-                    .map((struct, i) => (
-                        <DropdownMenuItem key={i}>
-                            <Link
-                                href={{
-                                    pathname: `/structures/${struct.parent_structure}`,
-                                    query: {ligand: props.info.chemicalId}
-                                }}>
-                                <Badge className="w-60 flex justify-between items-center cursor-pointer">
-                                    {struct.parent_structure}
-                                    <div className="italic text-white flex gap-2 flex-row">
-                                        {struct.src_organism_names[0].split(' ').slice(0, 2).join(' ')}
-                                        <TaxonomyDot
-                                            className={`w-2 h-2 ${(() => {
-                                                if (struct.superkingdom == 2) return 'fill-green-500';
-                                                else if (struct.superkingdom == 2157) return 'fill-orange-500';
-                                                else if (struct.superkingdom === 2759) return 'fill-blue-500';
-                                            })()}`}
-                                        />
-                                    </div>
-                                </Badge>
-                            </Link>
-                        </DropdownMenuItem>
-                    ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-}
-
 interface LigandInfo {
     chemicalId: string;
     chemicalName: string;
@@ -161,137 +98,146 @@ const chemical_structure_link = (ligand_id: string | undefined) => {
     return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id.toUpperCase()[0]}/${ligand_id.toUpperCase()}.svg`;
 };
 
+// interface TaxaDropdownProps {
+//     count: number;
+//     species: string[];
+// }
+
+// function LigandTaxonomyDropdown(props: {count: number; species: LigandAssociatedTaxa}) {
+//     return (
+//         <DropdownMenu>
+//             <DropdownMenuTrigger asChild>
+//                 <Button variant="outline" className="w-20">
+//                     {props.count}
+//                 </Button>
+//             </DropdownMenuTrigger>
+//             <DropdownMenuContent className=" max-h-60 overflow-y-scroll">
+//                 <p className="italic ">
+//                     {props.species.toSorted().map((spec, i) => (
+//                         <DropdownMenuItem key={i}>{spec[1]}</DropdownMenuItem>
+//                     ))}
+//                 </p>
+//             </DropdownMenuContent>
+//         </DropdownMenu>
+//     );
+// }
+
+// function LigandStructuresDropdown(props: {count: number; structures: LigandAssociatedStructure[]; info: LigandInfo}) {
+//     const router = useRouter();
+//     return (
+//         <DropdownMenu>
+//             <DropdownMenuTrigger asChild>
+//                 <Button variant="outline" className="w-40">
+//                     {props.count}
+//                 </Button>
+//             </DropdownMenuTrigger>
+//             <DropdownMenuContent className="max-h-80 overflow-y-scroll">
+//                 {props.structures
+//                     .toSorted((s1, s2) => Number(s1.src_organism_names[0] > s2.src_organism_names[0]))
+//                     .map((struct, i) => (
+//                         <DropdownMenuItem key={i}>
+//                             <Link
+//                                 href={{
+//                                     pathname: `/structures/${struct.parent_structure}`,
+//                                     query: {ligand: props.info.chemicalId}
+//                                 }}>
+//                                 <Badge className="w-60 flex justify-between items-center cursor-pointer">
+//                                     {struct.parent_structure}
+//                                     <div className="italic text-white flex gap-2 flex-row">
+//                                         {struct.src_organism_names[0].split(' ').slice(0, 2).join(' ')}
+//                                         <TaxonomyDot
+//                                             className={`w-2 h-2 ${(() => {
+//                                                 if (struct.superkingdom == 2) return 'fill-green-500';
+//                                                 else if (struct.superkingdom == 2157) return 'fill-orange-500';
+//                                                 else if (struct.superkingdom === 2759) return 'fill-blue-500';
+//                                             })()}`}
+//                                         />
+//                                     </div>
+//                                 </Badge>
+//                             </Link>
+//                         </DropdownMenuItem>
+//                     ))}
+//             </DropdownMenuContent>
+//         </DropdownMenu>
+//     );
+// }
+
 type LigandAssociatedTaxa = Array<[string, number]>;
 type LigandRowProps = [LigandInfo, LigandAssociatedStructure[], LigandAssociatedTaxa];
 
-const lig_data_to_tree = (lig_data: LigandInstances) => {
-    return lig_data.map(([lig, structs]) => ({
-        key: lig.chemicalId,
-        value: lig.chemicalId,
-        title: (
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    width: '100%'
-                }}>
-                <span className="font-semibold">{lig.chemicalId}</span>
-                <span style={{}}>
-                    {lig.chemicalName.length > 30
-                        ? capitalize_only_first_letter_w(lig.chemicalName).slice(0, 40) + '...'
-                        : capitalize_only_first_letter_w(lig.chemicalName)}
-                </span>
-            </div>
-        ),
+// const DownloadDropdown = ({
+//     residues,
+//     disabled,
+//     filename
+// }: {
+//     residues: ResidueSummary[];
+//     disabled: boolean;
+//     filename: string;
+// }) => {
+//     const handleDownloadCSV = () => {
+//         var data = residues.map(residue => {
+//             return [
+//                 residue.auth_seq_id,
+//                 residue.label_comp_id,
+//                 residue.auth_asym_id,
+//                 residue.polymer_class,
+//                 residue.rcsb_id
+//             ];
+//         });
 
-        // `${lig.chemicalId} (${lig.chemicalName.length > 30 ?  capitalize_only_first_letter_w(lig.chemicalName).slice(0,30)+"..." : capitalize_only_first_letter_w(lig.chemicalName) })`,
-        selectable: false, // Make the parent node not selectable
-        search_aggregator: (
-            lig.chemicalName +
-            lig.chemicalId +
-            structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '')
-        ).toLowerCase(),
-        children: structs.map((struct, index) => ({
-            search_aggregator: (
-                lig.chemicalName +
-                lig.chemicalId +
-                struct.rcsb_id +
-                struct.tax_node.scientific_name
-            ).toLowerCase(),
-            key: `${lig.chemicalId}_${struct.rcsb_id}`,
-            value: `${lig.chemicalId}_${struct.rcsb_id}`,
-            title: (
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        width: '100%'
-                    }}>
-                    <span>
-                        <span style={{fontWeight: 'bold'}}>{lig.chemicalId}</span> in{' '}
-                        <span style={{fontWeight: 'bold'}}>{struct.rcsb_id}</span>
-                    </span>
-                    <span style={{fontStyle: 'italic'}}>{struct.tax_node.scientific_name}</span>
-                </div>
-            ),
-            selectable: true // Make the child nodes selectable
-        }))
-    }));
-};
+//         const csvContent = data.map(row => row.join(',')).join('\n');
 
-const DownloadDropdown = ({
-    residues,
-    disabled,
-    filename
-}: {
-    residues: ResidueSummary[];
-    disabled: boolean;
-    filename: string;
-}) => {
-    const handleDownloadCSV = () => {
-        var data = residues.map(residue => {
-            return [
-                residue.auth_seq_id,
-                residue.label_comp_id,
-                residue.auth_asym_id,
-                residue.polymer_class,
-                residue.rcsb_id
-            ];
-        });
+//         // Create a Blob with the CSV content
+//         const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+//         // Create a download link
+//         const link = document.createElement('a');
+//         if (link.download !== undefined) {
+//             const url = URL.createObjectURL(blob);
+//             link.setAttribute('href', url);
+//             link.setAttribute('download', `${filename}`);
+//             link.style.visibility = 'hidden';
+//             document.body.appendChild(link);
+//             link.click();
+//             document.body.removeChild(link);
+//         }
+//     };
 
-        const csvContent = data.map(row => row.join(',')).join('\n');
+//     return (
+//         <DropdownMenu>
+//             <DropdownMenuTrigger asChild>
+//                 <Button variant="outline" size="sm" disabled={disabled}>
+//                     <DownloadIcon className="mr-2 h-4 w-4" />
+//                     Download
+//                 </Button>
+//             </DropdownMenuTrigger>
+//             <DropdownMenuContent>
+//                 <DropdownMenuItem onClick={handleDownloadCSV}>CSV</DropdownMenuItem>
+//             </DropdownMenuContent>
+//         </DropdownMenu>
+//     );
+// };
 
-        // Create a Blob with the CSV content
-        const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
-        // Create a download link
-        const link = document.createElement('a');
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `${filename}`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
+// const LigandPredictionNucleotides = (
+//     lp: LigandTransposition
+// ): {
+//     auth_asym_id: string;
+//     auth_seq_id: number;
+// }[] => {
+//     if (lp === null) {
+//         return [];
+//     }
+//     var chain_residue_tuples = [];
+//     for (var chain of lp.constituent_chains) {
+//         for (let res of chain.target.target_bound_residues) {
+//             chain_residue_tuples.push({
+//                 auth_asym_id: chain.target.auth_asym_id,
+//                 auth_seq_id: res.auth_seq_id
+//             });
+//         }
+//     }
 
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" disabled={disabled}>
-                    <DownloadIcon className="mr-2 h-4 w-4" />
-                    Download
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleDownloadCSV}>CSV</DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-};
-
-const LigandPredictionNucleotides = (
-    lp: LigandTransposition
-): {
-    auth_asym_id: string;
-    auth_seq_id: number;
-}[] => {
-    if (lp === null) {
-        return [];
-    }
-    var chain_residue_tuples = [];
-    for (var chain of lp.constituent_chains) {
-        for (let res of chain.target.target_bound_residues) {
-            chain_residue_tuples.push({
-                auth_asym_id: chain.target.auth_asym_id,
-                auth_seq_id: res.auth_seq_id
-            });
-        }
-    }
-
-    return chain_residue_tuples;
-};
+//     return chain_residue_tuples;
+// };
 
 export const Controls = () => {
     const [structVisibility, setStructVisibility] = useState<boolean>(true);
@@ -410,8 +356,62 @@ export const Controls = () => {
 };
 
 const LigandSelection = () => {
-    const current_ligand = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
-    const lig_state = useAppSelector(state => state.ligands_page.ligands_page);
+    const lig_data_to_tree = (lig_data: LigandInstances) => {
+        return lig_data.map(([lig, structs]) => ({
+            key: lig.chemicalId,
+            value: lig.chemicalId,
+            title: (
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        width: '100%'
+                    }}>
+                    <span className="font-semibold">{lig.chemicalId}</span>
+                    <span style={{}}>
+                        {lig.chemicalName.length > 30
+                            ? capitalize_only_first_letter_w(lig.chemicalName).slice(0, 40) + '...'
+                            : capitalize_only_first_letter_w(lig.chemicalName)}
+                    </span>
+                </div>
+            ),
+
+            // `${lig.chemicalId} (${lig.chemicalName.length > 30 ?  capitalize_only_first_letter_w(lig.chemicalName).slice(0,30)+"..." : capitalize_only_first_letter_w(lig.chemicalName) })`,
+            selectable: false, // Make the parent node not selectable
+            search_aggregator: (
+                lig.chemicalName +
+                lig.chemicalId +
+                structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '')
+            ).toLowerCase(),
+            children: structs.map((struct, index) => ({
+                search_aggregator: (
+                    lig.chemicalName +
+                    lig.chemicalId +
+                    struct.rcsb_id +
+                    struct.tax_node.scientific_name
+                ).toLowerCase(),
+                key: `${lig.chemicalId}_${struct.rcsb_id}`,
+                value: `${lig.chemicalId}_${struct.rcsb_id}`,
+                title: (
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%'
+                        }}>
+                        <span>
+                            <span style={{fontWeight: 'bold'}}>{lig.chemicalId}</span> in{' '}
+                            <span style={{fontWeight: 'bold'}}>{struct.rcsb_id}</span>
+                        </span>
+                        <span style={{fontStyle: 'italic'}}>{struct.tax_node.scientific_name}</span>
+                    </div>
+                ),
+                selectable: true // Make the child nodes selectable
+            }))
+        }));
+    };
+    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const lig_state = useAppSelector(state => state.ligands_page);
 
     const [radChanged, setRadChanged] = useState(false);
     const dispatch = useAppDispatch();
@@ -471,8 +471,55 @@ const LigandSelection = () => {
 };
 
 const CurrentBindingSiteInfoPanel = () => {
-    const current_ligand = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
-    const lig_state = useAppSelector(state => state.ligands_page.ligands_page);
+    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const lig_state = useAppSelector(state => state.ligands_page);
+    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
+    const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummaryList>([]);
+    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
+
+
+    const mainMolstarService = useMolstarInstance('main');
+    const ctx = mainMolstarService?.viewer;
+    const msc = mainMolstarService?.controller;
+
+
+    useEffect(() => {
+        if (current_ligand?.parent_structure.rcsb_id === undefined) {
+            return;
+        }
+        const fetchData = async () => {
+            try {
+                const result = await refetchParentStruct({
+                    rcsbId: current_ligand?.parent_structure.rcsb_id
+                }).unwrap();
+                setParentStructProfile(result);
+            } catch (error) {
+                console.error('Error fetching parent struct:', error);
+            }
+        };
+        fetchData();
+    }, [current_ligand]);
+
+    const {data} = useRoutersRouterStructStructureProfileQuery(
+        {rcsbId: current_ligand?.parent_structure.rcsb_id},
+        {skip: !current_ligand}
+    );
+
+    useEffect(() => {
+        if (!current_ligand || !data) return;
+
+        const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
+            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+            return prev;
+        }, {});
+
+        msc?.clear();
+        msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap).then(() => {
+            ctx?.ligands.create_ligand_and_surroundings(current_ligand.ligand.chemicalId, bsite_radius);
+        });
+    }, [current_ligand, data,  msc, ctx, bsite_radius]);
+
     return (
         <div>
             <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
@@ -527,6 +574,62 @@ const CurrentBindingSiteInfoPanel = () => {
                     <AccordionContent>
                         <p className="text-xs">{lig_state.current_ligand?.ligand.drugbank_description}</p>
                     </AccordionContent>
+
+                    <div className="flex flex-wrap ">
+                        {surroundingResidues.length === 0
+                            ? null
+                            : Object.entries(
+                                  surroundingResidues.reduce((acc: Record<string, Residue[]>, next: Residue) => {
+                                      if (Object.keys(acc).includes(next.auth_asym_id)) {
+                                          acc[next.auth_asym_id].push(next);
+                                      } else {
+                                          acc[next.auth_asym_id] = [next];
+                                      }
+                                      return acc;
+                                  }, {})
+                              ).map(entry => (
+                                  <Accordion
+                                      type="single"
+                                      collapsible
+                                      className="border p-1 rounded-md w-full h-fit my-1"
+                                      key={entry[0]}>
+                                      <AccordionItem value={'other'}>
+                                          <AccordionTrigger>
+                                              <div
+                                                  className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300"
+                                                  onMouseEnter={() => ctx?.highlightChain(entry[0])}
+                                                  onMouseLeave={() => ctx?.removeHighlight()}
+                                                  onClick={e => {
+                                                      e.stopPropagation();
+                                                      ctx?.select_chain(entry[0]);
+                                                  }}>
+                                                  <span className="font-light w-8">{entry[0]}</span>{' '}
+                                                  <span className="px-4">{nomenclatureMap[entry[0]]}</span>
+                                              </div>
+                                          </AccordionTrigger>
+                                          <AccordionContent className="flex flex-wrap">
+                                              {entry[1].map((residue, i) => {
+                                                  return (
+                                                      <ResidueBadge
+                                                          molstar_ctx={ctx}
+                                                          residue={{
+                                                              auth_asym_id: entry[0],
+                                                              auth_seq_id: residue.auth_seq_id,
+                                                              label_comp_id: residue?.label_comp_id,
+                                                              label_seq_id: residue?.label_seq_id,
+                                                              rcsb_id: residue.rcsb_id,
+                                                              polymer_class: nomenclatureMap[entry[0]]
+                                                          }}
+                                                          show_parent_chain={checked}
+                                                          key={i}
+                                                      />
+                                                  );
+                                              })}
+                                          </AccordionContent>
+                                      </AccordionItem>
+                                  </Accordion>
+                              ))}
+                    </div>
                 </AccordionItem>
             </Accordion>
         </div>
@@ -534,18 +637,28 @@ const CurrentBindingSiteInfoPanel = () => {
 };
 
 const BindingSitePredictionPanel = ({}) => {
-    // This is lacking access to the "Lower panel" refs
+    const dispatch = useAppDispatch();
     const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
-    const current_ligand                                 = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
-    // const current_selected_target = useAppSelector(state => state.ligands_page.ligands_page.);
-
+    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const selectedStructure = useAppSelector(state => state.ligands_page.selected_target_structure);
 
     const auxiliaryService = useMolstarInstance('auxiliary');
     const ctx_secondary = auxiliaryService?.viewer;
     const msc_secondary = auxiliaryService?.controller;
 
-    
+    const {data} = useRoutersRouterStructStructureProfileQuery({rcsbId: selectedStructure}, {skip: !selectedStructure});
 
+    useEffect(() => {
+        if (!selectedStructure || !data) return;
+
+        const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
+            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+            return prev;
+        }, {});
+
+        msc_secondary?.clear();
+        msc_secondary?.loadStructure(selectedStructure, nomenclatureMap);
+    }, [selectedStructure, data, msc_secondary]);
 
     return (
         <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
@@ -571,13 +684,14 @@ const BindingSitePredictionPanel = ({}) => {
                     </div>
                 </Label>
             </div>
+
             <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
                 <span className="text-center">Prediction Target</span>
             </div>
+
             <GlobalStructureSelection
-                onChange={_ => {
-                    msc_secondary?.loadStructure(_, {});
-                    console.log('selecteed', _);
+                onChange={rcsb_id => {
+                    dispatch(set_selected_target_structure(rcsb_id));
                 }}
             />
 
@@ -717,7 +831,6 @@ const BindingSitePredictionPanel = ({}) => {
 
 export default function Ligands() {
     return (
-
         <PanelProvider>
             <LigandsPageWithoutContext />
         </PanelProvider>
@@ -726,81 +839,39 @@ export default function Ligands() {
 
 function LigandsPageWithoutContext() {
     const dispatch = useAppDispatch();
-    const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
 
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const molstarNodeRef           = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
     const mstar_service_main = useMolstarService(molstarNodeRef, 'main');
-    const mstar_service_aux  = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
+    const mstar_service_aux = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
 
-    const {viewer, controller} = mstar_service_main;
-    const {viewer: ctx_secondary, controller: msc_secondary} = mstar_service_aux;
 
-    const lig_state = useAppSelector(state => state.ligands_page.ligands_page);
-    const current_ligand = useAppSelector(state => state.ligands_page.ligands_page.current_ligand);
-
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummaryList>([]);
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
 
     // const {data: data_tgt, nomenclatureMap: nomenclatureMap_tgt, isLoading: isLoading_tgt} = useRibosomeStructureWithNomenclature(current_selected_target?.rcsb_id!)
-    const {viewer:ctx, controller:msc, isInitialized} = useMolstarService(molstarNodeRef, 'main');
 
-    const toggleLowerPanel = () => {
-        setShowLowerPanel(prev => !prev);
-        if (lowerPanelRef.current && upperPanelRef.current) {
-            if (showLowerPanel) {
-                lowerPanelRef.current.collapse();
-                upperPanelRef.current.resize(100);
-            } else {
-                lowerPanelRef.current.expand();
-                upperPanelRef.current.resize(50);
-                lowerPanelRef.current.resize(50);
-            }
-        }
-    };
-    useEffect(() => {
-        if (current_ligand?.parent_structure.rcsb_id === undefined) {
-            return;
-        }
-        const fetchData = async () => {
-            try {
-                const result = await refetchParentStruct({
-                    rcsbId: current_ligand?.parent_structure.rcsb_id
-                }).unwrap();
-                setParentStructProfile(result);
-            } catch (error) {
-                console.error('Error fetching parent struct:', error);
-            }
-        };
-        fetchData();
-    }, [current_ligand]);
+    // const toggleLowerPanel = () => {
+    //     setShowLowerPanel(prev => !prev);
+    //     if (lowerPanelRef.current && upperPanelRef.current) {
+    //         if (showLowerPanel) {
+    //             lowerPanelRef.current.collapse();
+    //             upperPanelRef.current.resize(100);
+    //         } else {
+    //             lowerPanelRef.current.expand();
+    //             upperPanelRef.current.resize(50);
+    //             lowerPanelRef.current.resize(50);
+    //         }
+    //     }
+    // };
 
-    const {data} = useRoutersRouterStructStructureProfileQuery(
-        {rcsbId: current_ligand?.parent_structure.rcsb_id},
-        {skip: !current_ligand}
-    );
 
-    useEffect(() => {
-        if (!current_ligand || !isInitialized || !data) return;
-
-        const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
-            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-            return prev;
-        }, {});
-
-        msc?.clear();
-        msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap).then(() => {
-            ctx?.ligands.create_ligand_and_surroundings(current_ligand.ligand.chemicalId, lig_state.radius);
-        });
-    }, [current_ligand, data, isInitialized, msc, ctx, lig_state]);
-
-    const [checked, setChecked] = useState(false);
-    const [showLowerPanel, setShowLowerPanel] = useState(false);
+    // const [checked, setChecked] = useState(false);
+    // const [showLowerPanel, setShowLowerPanel] = useState(false);
 
     const {isPredictionPanelOpen} = usePanelContext();
     const lowerPanelRef = React.useRef<ImperativePanelHandle>(null);
     const upperPanelRef = React.useRef<ImperativePanelHandle>(null);
+
     useEffect(() => {
         if (lowerPanelRef.current && upperPanelRef.current) {
             if (!isPredictionPanelOpen) {
@@ -822,7 +893,7 @@ function LigandsPageWithoutContext() {
     //     dispatch(set_ligand_prediction_data(null));
     // }, [current_selected_target]);
 
-    const ligands_state = useAppSelector(state => state.ligands_page.ligands_page);
+    // const ligands_state = useAppSelector(state => state.ligands_page.ligands_page);
 
     useEffect(() => {
         console.log('predictio npanel open:', isPredictionPanelOpen);
