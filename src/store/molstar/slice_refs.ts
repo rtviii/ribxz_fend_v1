@@ -2,11 +2,11 @@
 import { ResidueData } from '@/app/components/sequence_viewer';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type RCSB_ID = string;
-export type UUIDHandle = string;
-export type MolstarRef = string;
+export type RCSB_ID      = string;
+export type UUIDHandle   = string;
+export type MolstarRef   = string;
 export type auth_asym_id = string;
-export type chemical_id = string;
+export type chemical_id  = string;
 
 export interface PolymerComponent {
     rcsb_id     : RCSB_ID;
@@ -16,9 +16,9 @@ export interface PolymerComponent {
 }
 
 export interface LigandComponent {
-    rcsb_id: RCSB_ID;
+    rcsb_id   : RCSB_ID;
     chemicalId: chemical_id;
-    ref: MolstarRef;
+    ref       : MolstarRef;
 }
 
 export type SubComponent = PolymerComponent | LigandComponent;

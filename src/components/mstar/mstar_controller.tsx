@@ -113,7 +113,8 @@ export class MolstarStateController {
         rcsb_id = rcsb_id.toUpperCase();
         const {root_ref, repr_ref, objects_polymer, objects_ligand} =
             await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
-        const components = {...objects_polymer, ...objects_ligand};
+
+        const components           = {...objects_polymer, ...objects_ligand};
         const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
             acc[localId] = {
                 ...component,
@@ -266,6 +267,16 @@ export class MolstarStateController {
     async applyStylizedLighting() {
         await this.viewer.representations.stylized_lighting();
     }
+
+
+    ligands = {
+        get_ligand_surroundings: async (struct_ref:string, chemicalId:string, radius:number) =>{
+
+            return await this.viewer.get_selection_constituents(struct_ref, chemicalId, radius);
+        }
+
+    }
+
 
     experimental = {
         cylinder_residues: async (nomenclature_map: Record<string, string> | null) => {

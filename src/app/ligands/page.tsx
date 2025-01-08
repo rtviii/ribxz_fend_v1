@@ -63,16 +63,7 @@ import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 import {useSelector} from 'react-redux';
 import {PanelProvider, usePanelContext} from './panels_context';
 
-export type ResidueSummary = {
-    label_seq_id: number | null | undefined;
-    label_comp_id: string | null | undefined;
-    auth_seq_id: number;
-    auth_asym_id: string;
-    rcsb_id: string;
-    polymer_class?: string;
-};
 
-export type ResidueSummaryList = ResidueSummary[];
 
 interface LigandInfo {
     chemicalId: string;
@@ -475,14 +466,13 @@ const CurrentBindingSiteInfoPanel = () => {
     const lig_state = useAppSelector(state => state.ligands_page);
     const bsite_radius = useAppSelector(state => state.ligands_page.radius);
     const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
-    const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummaryList>([]);
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
 
+    const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummary[]>([]);
+    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
 
     const mainMolstarService = useMolstarInstance('main');
     const ctx = mainMolstarService?.viewer;
     const msc = mainMolstarService?.controller;
-
 
     useEffect(() => {
         if (current_ligand?.parent_structure.rcsb_id === undefined) {
@@ -515,10 +505,19 @@ const CurrentBindingSiteInfoPanel = () => {
         }, {});
 
         msc?.clear();
-        msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap).then(() => {
-            ctx?.ligands.create_ligand_and_surroundings(current_ligand.ligand.chemicalId, bsite_radius);
-        });
-    }, [current_ligand, data,  msc, ctx, bsite_radius]);
+        (async () => {
+            const {root_ref, repr_ref, components} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
+            await ctx?.ligands.create_ligand_and_surroundings(current_ligand.ligand.chemicalId, bsite_radius);
+            const residues = await msc?.ligands.get_ligand_surroundings(root_ref,current_ligand.ligand.chemicalId, bsite_radius)
+            console.log('got selection constitutens', residues);
+        })();
+    }, [current_ligand, data, msc, ctx, bsite_radius]);
+
+    //  useEffect(() => {
+    //         if (current_ligand === undefined) { return }
+    //             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
+    //             .then(residues => { setSurroundingResidues(residues) })
+    //     }, [current_ligand])
 
     return (
         <div>
@@ -840,13 +839,11 @@ export default function Ligands() {
 function LigandsPageWithoutContext() {
     const dispatch = useAppDispatch();
 
-    const molstarNodeRef           = useRef<HTMLDivElement>(null);
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
     const mstar_service_main = useMolstarService(molstarNodeRef, 'main');
     const mstar_service_aux = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
-
-
 
     // const {data: data_tgt, nomenclatureMap: nomenclatureMap_tgt, isLoading: isLoading_tgt} = useRibosomeStructureWithNomenclature(current_selected_target?.rcsb_id!)
 
@@ -863,7 +860,6 @@ function LigandsPageWithoutContext() {
     //         }
     //     }
     // };
-
 
     // const [checked, setChecked] = useState(false);
     // const [showLowerPanel, setShowLowerPanel] = useState(false);

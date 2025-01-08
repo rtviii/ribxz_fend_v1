@@ -35,6 +35,13 @@ import {Loci} from 'molstar/lib/mol-model/loci';
 import PolymerColorschemeWarm from './providers/colorschemes/colorscheme_warm';
 import {ArbitraryCylinderRepresentationProvider} from './providers/cylinder_provider';
 
+export type ResidueSummary = {
+    label_seq_id  : number | null | undefined;
+    label_comp_id : string | null | undefined;
+    auth_seq_id   : number;
+    auth_asym_id  : string;
+    rcsb_id       : string;
+};
 export interface HoverEventDetail {
     residueNumber?: number;
     chainId?: string;
@@ -270,7 +277,7 @@ const pluginContainer = document.createElement('div');
         }
     };
 
-    async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<any[]> {
+    async get_selection_constituents(struct_ref:string, chemicalId: string | undefined, radius: number): Promise<Omit<ResidueSummary, 'polymer_class'>[]> {
         if (!chemicalId) {
             return [];
         }
@@ -279,9 +286,8 @@ const pluginContainer = document.createElement('div');
             structureRef,
             number: i + 1
         }));
-        const struct = structures[0];
+        // const struct = structures[0];
         const update = this.ctx.build();
-
         const ligand = MS.struct.filter.first([
             MS.struct.generator.atomGroups({
                 'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
@@ -302,8 +308,14 @@ const pluginContainer = document.createElement('div');
             by: ligand
         });
 
+
+        const state = this.ctx.state.data;
+        const cell = state.select(StateSelection.Generators.byRef(struct_ref))[0];
+        console.log("Got struct_Ref", struct_ref, cell);
+        
+
         const group = update
-            .to(struct.structureRef.cell)
+            .to(cell)
             .group(StateTransforms.Misc.CreateGroup, {label: `${chemicalId} Surroundins Group`}, {ref: 'surroundings'});
         const surroundingsSel = group.apply(
             StateTransforms.Model.StructureSelectionFromExpression,
@@ -316,14 +328,14 @@ const pluginContainer = document.createElement('div');
 
         surroundingsSel.apply(
             StateTransforms.Representation.StructureRepresentation3D,
-            createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+            createStructureRepresentationParams(this.ctx, cell.obj?.data, {
                 type: 'ball-and-stick'
             }),
             {ref: 'surroundingsBallAndStick'}
         );
         surroundingsSel.apply(
             StateTransforms.Representation.StructureRepresentation3D,
-            createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+            createStructureRepresentationParams(this.ctx, cell.obj?.data, {
                 type: 'label',
                 typeParams: {level: 'residue'}
             }),
@@ -336,7 +348,7 @@ const pluginContainer = document.createElement('div');
         });
 
         const compiled2 = compile<StructureSelection>(surroundingsWithoutLigand);
-        const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
+        const selection2 = compiled2(new QueryContext(cell.obj?.data!));
         const loci = StructureSelection.toLociWithSourceUnits(selection2);
 
         const residueList: any[] = [];
@@ -346,14 +358,15 @@ const pluginContainer = document.createElement('div');
             residue: loc => {
                 residueList.push({
                     label_seq_id: StructureProperties.residue.label_seq_id(loc),
-                    auth_seq_id: StructureProperties.residue.auth_seq_id(loc),
-
                     label_comp_id: StructureProperties.atom.label_comp_id(loc),
+                    auth_seq_id: StructureProperties.residue.auth_seq_id(loc),
                     auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
                     rcsb_id: StructureProperties.unit.model_entry_id(loc)
                 });
             }
         });
+        console.log("Residue List", residueList);
+        
         return residueList;
     }
 
