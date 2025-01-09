@@ -23,7 +23,7 @@ import {LigandComponent, PolymerComponent} from '@/store/molstar/slice_refs';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {compile} from 'molstar/lib/mol-script/runtime/query/base';
 // import {StateElements} from './__molstar_ribxz';
-import {StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
+import {StateObjectCell, StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
 import {StructureSelectionQueries} from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 
@@ -222,6 +222,10 @@ const pluginContainer = document.createElement('div');
                 auth_seq_id: number;
             }[]
         ) => {
+
+            console.log("Got chain_residue_tuples", chain_residue_tuples);
+            
+            
             const expr = this.residues.selectionResidueClusterExpression(chain_residue_tuples);
             const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
             const sel = Script.getStructureSelection(expr, data);
@@ -1055,4 +1059,17 @@ const pluginContainer = document.createElement('div');
             }
         });
     }
+
+    cell_from_ref = (ref: string): StateObjectCell => {
+        const state = this.ctx.state.data;
+        const cell = state.select(StateSelection.Generators.byRef(ref))[0];
+        return cell;
+    };
+    loci_from_ref = (ref: string): Loci | undefined => {
+        const state = this.ctx.state.data;
+        const state_sel = state.select(StateSelection.Generators.byRef(ref));
+        const cell = state_sel[0];
+        if (!cell?.obj) return;
+        return Structure.toStructureElementLoci(cell.obj.data);
+    };
 }

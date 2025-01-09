@@ -649,25 +649,43 @@ const BindingSitePredictionPanel = ({}) => {
     const dispatch = useAppDispatch();
     const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
     const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const selectedStructure = useAppSelector(state => state.ligands_page.selected_target_structure);
+    const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
+    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
+    const is_prediction_pending = useAppSelector(state => state.ligands_page.prediction_pending);
+
+    const prediction_data = useAppSelector(state =>
+        state.ligands_page.prediction_data?.purported_binding_site.chains.reduce((acc, next) => {
+            return [...acc, ...next.bound_residues];
+        }, [])
+    );
+    const [rootRef, setRootRef] = useState<null | string>(null);
 
     const auxiliaryService = useMolstarInstance('auxiliary');
     const ctx_secondary = auxiliaryService?.viewer;
     const msc_secondary = auxiliaryService?.controller;
 
-    const {data} = useRoutersRouterStructStructureProfileQuery({rcsbId: selectedStructure}, {skip: !selectedStructure});
+    const {data} = useRoutersRouterStructStructureProfileQuery(
+        {rcsbId: selected_target_structure},
+        {skip: !selected_target_structure}
+    );
 
     useEffect(() => {
-        if (!selectedStructure || !data) return;
+        if (!selected_target_structure || !data) return;
 
         const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
             prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
             return prev;
         }, {});
 
-        msc_secondary?.clear();
-        msc_secondary?.loadStructure(selectedStructure, nomenclatureMap);
-    }, [selectedStructure, data, msc_secondary]);
+        (async () => {
+            msc_secondary?.clear();
+            const {root_ref, repr_ref, components} = await msc_secondary?.loadStructure(
+                selected_target_structure,
+                nomenclatureMap
+            )!;
+            setRootRef(root_ref);
+        })();
+    }, [selected_target_structure, data, msc_secondary]);
 
     return (
         <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
@@ -697,6 +715,53 @@ const BindingSitePredictionPanel = ({}) => {
             <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
                 <span className="text-center">Prediction Target</span>
             </div>
+
+            <Button
+                variant={'outline'}
+                onClick={() => {
+                    if (selected_target_structure === null || current_ligand === null) {
+                        return;
+                    }
+                    dispatch(
+                        fetchPredictionData({
+                            chemid: current_ligand?.ligand.chemicalId,
+                            src: current_ligand?.parent_structure.rcsb_id,
+                            tgt: selected_target_structure,
+                            radius: bsite_radius
+                        })
+                    );
+                }}>
+                {' '}
+                {is_prediction_pending ? (
+                    <>
+                        <Spinner /> <span className="mx-2">Calculating</span>
+                    </>
+                ) : (
+                    'Render Prediction'
+                )}
+            </Button>
+
+            <ResidueGrid residues={prediction_data as ResidueData[]} ligandId={current_ligand?.ligand.chemicalId} />
+
+            <Button
+                variant={'outline'}
+                // disabled={prediction_data === undefined || _.isEmpty(prediction_data)}
+                onClick={() => {
+                    console.log('display got', prediction_data);
+                    if (prediction_data === undefined || prediction_data === null || rootRef === null) {
+                        console.log('no prediction data', prediction_data);
+                        console.log('root ref', rootRef);
+
+                        return;
+                    }
+                    console.log('display got', prediction_data);
+
+                    // ctx_secondary?.highlightResidueCluster(msc_secondary?.cell_from_ref(rootRef), prediction_data);
+                    ctx_secondary?.residues?.select_residueCluster(prediction_data);
+                }}>
+                {' '}
+                Display Prediction
+            </Button>
 
             <GlobalStructureSelection
                 onChange={rcsb_id => {
