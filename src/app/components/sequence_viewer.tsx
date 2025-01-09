@@ -70,16 +70,15 @@ const ResidueBlock = React.memo<{
 ResidueBlock.displayName = 'ResidueBlock';
 
 const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, metadata, onSelectionChange}) => {
-    const dispatch = useDispatch();
+    const dispatch       = useDispatch();
     const selectionState = useAppSelector(state => state.sequenceViewer.selections[auth_asym_id]);
-    const selectedMap = selectionState?.selectedMap || {};
-
-    const [isDragDeselecting, setIsDragDeselecting] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [visibleRange, setVisibleRange] = useState({start: 0, end: CHUNK_SIZE});
-    const [dragStart, setDragStart] = useState<number | null>(null);
-    const [dragEnd, setDragEnd] = useState<number | null>(null);
-    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+    const selectedMap    = selectionState?.selectedMap || {};
+    const [isDragDeselecting, setIsDragDeselecting]   = useState(false);
+    const containerRef                                = useRef<HTMLDivElement>(null);
+    const [visibleRange, setVisibleRange]             = useState({start: 0, end: CHUNK_SIZE});
+    const [dragStart, setDragStart]                   = useState<number | null>(null);
+    const [dragEnd, setDragEnd]                       = useState<number | null>(null);
+    const [isCtrlPressed, setIsCtrlPressed]           = useState(false);
     const [temporarySelection, setTemporarySelection] = useState<Record<string, ResidueData>>({});
     useEffect(() => {
         const container = containerRef.current;

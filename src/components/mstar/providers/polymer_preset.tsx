@@ -36,6 +36,7 @@ export const AMINO_ACIDS_3_TO_1_CODE = {
 };
 
 export const IonNames = new Set([
+    'HOH',
     '118',
     '119',
     '543',

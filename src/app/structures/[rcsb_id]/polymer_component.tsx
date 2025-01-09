@@ -19,35 +19,36 @@ import { useMolstarInstance } from '@/components/mstar/mstar_service';
 export type ResidueData = [string, number];
 
 const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
-    const polyComponent = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
-    const polymerState = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
-    const service = useMolstarInstance();
-    const {viewer:ctx, controller:msc} = service!;
-    const onToggleVisibility = (e: React.MouseEvent) => {
+    const polyComponent                = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
+    const polymerState                 = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
+    const service                      = useMolstarInstance('main');
+    const ctx = service?.viewer;
+    const msc = service?.controller;
+    const onToggleVisibility           = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
-            msc.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState.visible);
+            msc?.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState.visible);
         }
     };
     const onToggleSelection = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
-            msc.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState?.selected);
+            msc?.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState?.selected);
         }
     };
     const onIsolate = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
-            msc.polymers.isolatePolymer(polymer.parent_rcsb_id, polymer.auth_asym_id);
+            msc?.polymers.isolatePolymer(polymer.parent_rcsb_id, polymer.auth_asym_id);
         }
     };
 
     const onClick = () => {
-        ctx && msc.polymers.focusPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
+        ctx && msc?.polymers.focusPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
     };
 
     const onMouseEnter = () => {
-        ctx && msc.polymers.highlightPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
+        ctx && msc?.polymers.highlightPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
     };
     const onMouseLeave = () => {
         ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();

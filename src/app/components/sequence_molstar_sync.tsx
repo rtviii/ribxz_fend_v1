@@ -7,9 +7,9 @@ import { useMolstarInstance } from '@/components/mstar/mstar_service';
 // import { molstarServiceInstance } from '@/components/mstar/mstar_service';
 
 export const SequenceMolstarSync: React.FC = () => {
-    const selections = useSelector((state: RootState) => state.sequenceViewer.selections);
+    const selections        = useSelector((state: RootState) => state.sequenceViewer.selections);
     const prevSelectionsRef = useRef<typeof selections>({});
-const service = useMolstarInstance();
+    const service           = useMolstarInstance('main');
 
     // Create a stable reference to the sync function
     const syncWithMolstar = useCallback((selections: typeof prevSelectionsRef.current) => {

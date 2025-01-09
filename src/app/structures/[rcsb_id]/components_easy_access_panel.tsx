@@ -7,13 +7,13 @@ import {Settings, Eye, Download, Filter} from 'lucide-react';
 import PolymerComponentRow from './polymer_component';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
-import {molstarServiceInstance, useMolstarInstance} from '@/components/mstar/mstar_service';
+import {useMolstarInstance} from '@/components/mstar/mstar_service';
 import { sort_by_polymer_class } from '@/my_utils';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [currentView, setCurrentView] = useState<'Polymers' | 'Landmarks' | 'Ligands'>('Polymers');
-    const service = useMolstarInstance();
+    const service = useMolstarInstance('main');
     const state = useAppSelector(state => state);
     const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
 

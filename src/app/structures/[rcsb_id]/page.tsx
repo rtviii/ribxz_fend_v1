@@ -296,7 +296,7 @@ export default function StructurePage() {
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
-    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef);
+    const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef, 'main');
 
     // const molstarNodeRef = useRef<HTMLDivElement>(null);
     // const {rcsb_id} = params;
