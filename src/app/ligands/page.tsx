@@ -62,8 +62,7 @@ import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_se
 import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 import {useSelector} from 'react-redux';
 import {PanelProvider, usePanelContext} from './panels_context';
-
-
+import ResidueGrid from './residue_grid';
 
 interface LigandInfo {
     chemicalId: string;
@@ -506,10 +505,19 @@ const CurrentBindingSiteInfoPanel = () => {
 
         msc?.clear();
         (async () => {
-            const {root_ref, repr_ref, components} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
+            const {root_ref, repr_ref, components} = await msc?.loadStructure(
+                current_ligand.parent_structure.rcsb_id,
+                nomenclatureMap
+            )!;
             await ctx?.ligands.create_ligand_and_surroundings(current_ligand.ligand.chemicalId, bsite_radius);
-            const residues = await msc?.ligands.get_ligand_surroundings(root_ref,current_ligand.ligand.chemicalId, bsite_radius)
-            console.log('got selection constitutens', residues);
+            const residues = await msc?.ligands.get_ligand_surroundings(
+                root_ref,
+                current_ligand.ligand.chemicalId,
+                bsite_radius
+            );
+            if (residues !== undefined) {
+                setSurroundingResidues(residues);
+            }
         })();
     }, [current_ligand, data, msc, ctx, bsite_radius]);
 
@@ -574,7 +582,9 @@ const CurrentBindingSiteInfoPanel = () => {
                         <p className="text-xs">{lig_state.current_ligand?.ligand.drugbank_description}</p>
                     </AccordionContent>
 
-                    <div className="flex flex-wrap ">
+                    <ResidueGrid residues={surroundingResidues} ligandId={current_ligand?.ligand.chemicalId ?? ''} />
+
+                    {/* <div className="flex flex-wrap ">
                         {surroundingResidues.length === 0
                             ? null
                             : Object.entries(
@@ -628,7 +638,7 @@ const CurrentBindingSiteInfoPanel = () => {
                                       </AccordionItem>
                                   </Accordion>
                               ))}
-                    </div>
+                    </div> */}
                 </AccordionItem>
             </Accordion>
         </div>

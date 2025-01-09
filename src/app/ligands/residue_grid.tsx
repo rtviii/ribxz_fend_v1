@@ -39,6 +39,8 @@ interface ResidueGridProps {
 const ResidueGrid: React.FC<ResidueGridProps> = ({residues, ligandId, onResidueHover, onResidueClick, onDownload}) => {
     const [groupByChain, setGroupByChain] = useState(true);
 
+    console.log("Residue grid got ", residues);
+    
     if (!residues || residues.length === 0) {
         return null;
     }
