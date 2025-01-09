@@ -10,6 +10,8 @@ export const SequenceMolstarSync: React.FC = () => {
     const selections        = useSelector((state: RootState) => state.sequenceViewer.selections);
     const prevSelectionsRef = useRef<typeof selections>({});
     const service           = useMolstarInstance('main');
+    const controller        = service?.controller;
+    const ctx = service?.viewer?.ctx;
 
     // Create a stable reference to the sync function
     const syncWithMolstar = useCallback((selections: typeof prevSelectionsRef.current) => {
@@ -61,7 +63,7 @@ export const SequenceMolstarSync: React.FC = () => {
         // Handle completely deselected chains
         Object.keys(prevSelectionsRef.current).forEach(auth_asym_id => {
             if (!selections[auth_asym_id]) {
-                const parent_ref = controller.retrievePolymerRef(auth_asym_id);
+                const parent_ref = service.controller.retrievePolymerRef(auth_asym_id);
                 if (!parent_ref) return;
 
                 const residuesToRemove = Object.values(prevSelectionsRef.current[auth_asym_id].selectedMap);
@@ -76,12 +78,12 @@ export const SequenceMolstarSync: React.FC = () => {
 
         // Apply all updates in one batch
         service.viewer.ctx.dataTransaction(async () => {
-            updates.forEach(({ parent_ref, toAdd, toRemove }) => {
+            updates.forEach(({ parent_ref: parent_polymer_ref, toAdd, toRemove }) => {
                 if (toAdd.length > 0) {
-                    service.viewer.interactions.select_residues(parent_ref, toAdd, 'add');
+                    service.viewer.interactions.select_residues(parent_polymer_ref, toAdd, 'add');
                 }
                 if (toRemove.length > 0) {
-                    service.viewer.interactions.select_residues(parent_ref, toRemove, 'remove');
+                    service.viewer.interactions.select_residues(parent_polymer_ref, toRemove, 'remove');
                 }
             });
         });
