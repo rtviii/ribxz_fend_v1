@@ -19,17 +19,27 @@ export interface LigandComponent {
     rcsb_id   : RCSB_ID;
     chemicalId: chemical_id;
     ref       : MolstarRef;
+    repr_ref  ?: MolstarRef;
+    sel_ref   ?: MolstarRef;
 }
+export interface BsiteComponent {
+    rcsb_id   : RCSB_ID;
+    chemicalId: chemical_id;  
+    ref       : MolstarRef;
+    repr_ref  : MolstarRef;
+    sel_ref   : MolstarRef;
+}
+
 
 export type MolstarInstanceId = 'main' | 'auxiliary';
 
-export type SubComponent = PolymerComponent | LigandComponent;
 
+export type SubComponent = PolymerComponent | LigandComponent | BsiteComponent;
 interface HandleReferencesState {
     instances: Record<MolstarInstanceId, {
-        rcsb_id_root_ref_map: Record<RCSB_ID, MolstarRef>;
+        rcsb_id_root_ref_map  : Record<RCSB_ID, MolstarRef>;
         rcsb_id_components_map: Record<RCSB_ID, Array<auth_asym_id | chemical_id>>;
-        components: Record<string, SubComponent>;
+        components            : Record<string,  SubComponent>;
     }>;
 }
 
@@ -231,4 +241,19 @@ export const selectRCSBIdsForInstance = createSelector(
     ],
     (instances, instanceId) => 
         Object.keys(instances[instanceId].rcsb_id_root_ref_map)
+);
+export const selectBsiteForLigand = createSelector(
+    [
+        selectInstances,
+        (_state, params: {
+            instanceId: MolstarInstanceId;
+            rcsbId: RCSB_ID;
+            chemicalId: chemical_id;
+        }) => params
+    ],
+    (instances, {instanceId, rcsbId, chemicalId}) => {
+        const bsiteKey = `${chemicalId}_bsite`;
+        const component = instances[instanceId].components[bsiteKey];
+        return component as BsiteComponent | undefined;
+    }
 );
