@@ -65,6 +65,13 @@ import {PanelProvider, usePanelContext} from './panels_context';
 import ResidueGrid from './residue_grid';
 import {ResidueData} from '../components/sequence_viewer';
 import {ResidueSummary} from './_page';
+import {
+    BsiteComponent,
+    LigandComponent,
+    mapAssetModelComponentsAdd,
+    MolstarInstanceId,
+    RCSB_ID
+} from '@/store/molstar/slice_refs';
 
 interface LigandInfo {
     chemicalId: string;
@@ -152,6 +159,26 @@ const chemical_structure_link = (ligand_id: string | undefined) => {
 //             </DropdownMenuContent>
 //         </DropdownMenu>
 //     );
+// }
+
+// const createLigandAndBindingSite = async (
+//     molstarInstance: any,  // Replace with your actual MolStar instance type
+//     dispatch: any,         // Replace with your actual dispatch type
+//     params: {
+//         instanceId: MolstarInstanceId,
+//         rcsbId: RCSB_ID,
+//         chemicalId: string,
+//         radius?: number
+//     }
+// ) => {
+//     const { instanceId, rcsbId, chemicalId, radius = 5 } = params;
+
+//     const refs = await molstarInstance.create_ligand_and_surroundings(chemicalId, radius);
+
+//         return refs;
+//     }
+
+//     return undefined;
 // }
 
 type LigandAssociatedTaxa = Array<[string, number]>;
@@ -466,8 +493,10 @@ const CurrentBindingSiteInfoPanel = () => {
     const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
     const lig_state = useAppSelector(state => state.ligands_page);
     const bsite_radius = useAppSelector(state => state.ligands_page.radius);
+    const slice_refs = useAppSelector(state => state.mstar_refs);
     const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
 
+    const dispatch = useAppDispatch();
     const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummary[]>([]);
     const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
 
@@ -511,7 +540,36 @@ const CurrentBindingSiteInfoPanel = () => {
                 current_ligand.parent_structure.rcsb_id,
                 nomenclatureMap
             )!;
-            await ctx?.ligands.create_ligand_and_surroundings(current_ligand.ligand.chemicalId, bsite_radius);
+            const refs = await ctx?.ligands.create_ligand_and_surroundings(
+                current_ligand.ligand.chemicalId,
+                bsite_radius
+            );
+            if (refs) {
+                // Add both the ligand and its binding site to Redux
+                dispatch(
+                    mapAssetModelComponentsAdd({
+                        instanceId: 'main',
+                        rcsbId: current_ligand.parent_structure.rcsb_id,
+                        components: {
+                            [current_ligand.ligand.chemicalId]: {
+                                rcsb_id: current_ligand.parent_structure.rcsb_id,
+                                chemicalId: current_ligand.ligand.chemicalId,
+                                ref: refs[current_ligand.ligand.chemicalId].ref,
+                                repr_ref: refs[current_ligand.ligand.chemicalId].repr_ref,
+                                sel_ref: refs[current_ligand.ligand.chemicalId].sel_ref
+                            } as LigandComponent,
+                            [`${current_ligand.ligand.chemicalId}_bsite`]: {
+                                rcsb_id: current_ligand.parent_structure.rcsb_id,
+                                chemicalId: current_ligand.ligand.chemicalId,
+                                ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].ref,
+                                repr_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].repr_ref,
+                                sel_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].sel_ref
+                            } as BsiteComponent
+                        }
+                    })
+                );
+            }
+
             const residues = await msc?.ligands.get_ligand_surroundings(
                 root_ref,
                 current_ligand.ligand.chemicalId,
@@ -583,9 +641,15 @@ const CurrentBindingSiteInfoPanel = () => {
                     <AccordionContent>
                         <p className="text-xs">{lig_state.current_ligand?.ligand.drugbank_description}</p>
                     </AccordionContent>
-
                     <ResidueGrid residues={surroundingResidues} ligandId={current_ligand?.ligand.chemicalId ?? ''} />
-
+                    <Button
+                        onClick={() => {
+                            console.log(slice_refs);
+                        }}>
+                        {' '}
+                        log ref state
+                    </Button>
+                    ;
                     {/* <div className="flex flex-wrap ">
                         {surroundingResidues.length === 0
                             ? null
@@ -661,7 +725,7 @@ const BindingSitePredictionPanel = ({}) => {
         }, [])
     );
     const [rootRef, setRootRef] = useState<null | string>(null);
-    const [nomenclatureMap, setNomenclatureMap] = useState<null|Record<string,string>>(null);
+    const [nomenclatureMap, setNomenclatureMap] = useState<null | Record<string, string>>(null);
 
     const auxiliaryService = useMolstarInstance('auxiliary');
     const ctx_secondary = auxiliaryService?.viewer;
@@ -735,29 +799,18 @@ const BindingSitePredictionPanel = ({}) => {
                         })
                     );
 
- ctx_secondary?.ligands.create_from_prediction_data(
-        rootRef,
-        prediction_data,
-        nomenclatureMap
-        
-    ).then(result => {
-        if (result) {
-            // Focus on the new component
-            ctx_secondary?.interactions.focus(result.componentRef);
-            
-            // // Optionally store the refs for later manipulation
-            // setPredictionComponentRef(result.componentRef);
-        }
-    });
+                    ctx_secondary?.ligands
+                        .create_from_prediction_data(rootRef, prediction_data, nomenclatureMap)
+                        .then(result => {
+                            if (result) {
+                                // Focus on the new component
+                                ctx_secondary?.interactions.focus(result.componentRef);
 
-
-
-
-                }
-                
-                
-                
-                }>
+                                // // Optionally store the refs for later manipulation
+                                // setPredictionComponentRef(result.componentRef);
+                            }
+                        });
+                }}>
                 {' '}
                 {is_prediction_pending ? (
                     <>
