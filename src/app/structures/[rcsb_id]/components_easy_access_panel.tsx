@@ -15,7 +15,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const [currentView, setCurrentView] = useState<'Polymers' | 'Landmarks' | 'Ligands'>('Polymers');
     const service = useMolstarInstance('main');
     const state = useAppSelector(state => state);
-    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
 
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 

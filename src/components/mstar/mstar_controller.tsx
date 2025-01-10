@@ -1,4 +1,10 @@
-import {mapAssetModelComponentsAdd, mapAssetRootRefAdd, mapResetAll} from '@/store/molstar/slice_refs';
+import {
+    mapAssetModelComponentsAdd,
+    mapAssetRootRefAdd,
+    mapResetAll,
+    mapResetInstance,
+    MolstarInstanceId
+} from '@/store/molstar/slice_refs';
 import {ribxzMstarv2} from './mstar_v2';
 import {AppDispatch, RootState} from '@/store/store';
 import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
@@ -11,19 +17,24 @@ import {
 } from '@/store/slices/slice_polymer_states';
 import {InteractionManagerConfig, MolstarEventHandlers} from './mstar_interactions';
 import {StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure';
-import {debounceTime} from 'rxjs';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
-import {StateSelection} from 'molstar/lib/mol-state';
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
     private dispatch: AppDispatch;
     private getState: () => RootState;
+    private instanceId: MolstarInstanceId;
 
-    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, getState: () => RootState) {
+    constructor(
+        molstarViewer: ribxzMstarv2,
+        dispatch: AppDispatch,
+        getState: () => RootState,
+        instanceId: MolstarInstanceId
+    ) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
         this.getState = getState;
+        this.instanceId = instanceId;
     }
 
     private setupSelectionHandling() {
@@ -32,7 +43,7 @@ export class MolstarStateController {
                 const element = this.getLociDetails(e.current.loci);
                 if (element?.auth_asym_id) {
                     const state = this.getState();
-                    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
+                    const rcsb_id = Object.keys(state.mstar_refs.instances[this.instanceId].rcsb_id_components_map)[0];
 
                     this.dispatch(
                         setPolymerSelected({
@@ -72,7 +83,8 @@ export class MolstarStateController {
     }
 
     mute_polymers = async (rcsb_id: string) => {
-        const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+        const componentIds =
+            this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
         for (const localId of componentIds) {
             const ref = this.retrievePolymerRef(localId);
             ref && this.viewer.interactions.setSubtreeVisibility(ref, false);
@@ -80,8 +92,7 @@ export class MolstarStateController {
     };
 
     clear = async () => {
-        // TODO: Clear all refs:
-        this.dispatch(mapResetAll());
+        this.dispatch(mapResetInstance({instanceId: this.instanceId}));
         this.viewer.ctx.clear();
     };
 
@@ -114,9 +125,16 @@ export class MolstarStateController {
             return acc;
         }, {} as Record<string, any>);
 
-        this.dispatch(mapAssetRootRefAdd([rcsb_id, root_ref]));
+        this.dispatch(
+            mapAssetRootRefAdd({
+                instanceId: this.instanceId,
+                payload: [rcsb_id, root_ref]
+            })
+        );
+
         this.dispatch(
             mapAssetModelComponentsAdd({
+                instanceId: this.instanceId,
                 rcsbId: rcsb_id,
                 components: normalizedComponents
             })
@@ -133,7 +151,7 @@ export class MolstarStateController {
     }
 
     retrievePolymerRef(localId: string): string | undefined {
-        return this.getState().mstar_refs.components[localId]?.ref;
+        return this.getState().mstar_refs.instances[this.instanceId].components[localId]?.ref;
     }
 
     polymers = {
@@ -148,7 +166,8 @@ export class MolstarStateController {
         },
         isolatePolymer: async (rcsb_id: string, target_auth_asym_id: string) => {
             await this.viewer.ctx.dataTransaction(async () => {
-                const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+                const componentIds =
+                    this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
 
                 const visibilityUpdates = componentIds.map(localId => ({
                     auth_asym_id: localId,
@@ -156,7 +175,7 @@ export class MolstarStateController {
                 }));
 
                 visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                    const component = this.getState().mstar_refs.components[auth_asym_id];
+                    const component = this.getState().mstar_refs.instances[this.instanceId].components[auth_asym_id];
                     if (component?.ref) {
                         this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
                     }
@@ -164,7 +183,8 @@ export class MolstarStateController {
 
                 this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
 
-                const targetComponent = this.getState().mstar_refs.components[target_auth_asym_id];
+                const targetComponent =
+                    this.getState().mstar_refs.instances[this.instanceId].components[target_auth_asym_id];
                 if (targetComponent?.ref) {
                     this.viewer.interactions.focus(targetComponent.ref);
                 }
@@ -188,7 +208,8 @@ export class MolstarStateController {
         },
 
         restoreAllVisibility: async (rcsb_id: string) => {
-            const componentIds = this.getState().mstar_refs.rcsb_id_components_map[rcsb_id] || [];
+            const componentIds =
+                this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
 
             const visibilityUpdates = componentIds.map(localId => ({
                 rcsb_id,
@@ -260,7 +281,13 @@ export class MolstarStateController {
     }
 
     ligands = {
+        // get_ligand_surroundings: async (struct_ref: string, chemicalId: string, radius: number) => {
+        //     return await this.viewer.get_selection_constituents(struct_ref, chemicalId, radius);
+        // }
+
         get_ligand_surroundings: async (struct_ref: string, chemicalId: string, radius: number) => {
+            // Make sure any structs/components being accessed inside get_selection_constituents
+            // are using the correct instance
             return await this.viewer.get_selection_constituents(struct_ref, chemicalId, radius);
         }
     };
@@ -270,15 +297,16 @@ export class MolstarStateController {
             if (!nomenclature_map) return;
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
             const data = await response.json();
-            const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
-            // this.viewer.experimental.cylinder_residues(struct_ref, data, nomenclature_map);
+            const struct_ref = Object.values(
+                this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map
+            )[0];
             this.viewer.experimental.___cylinder_residues(struct_ref, data, nomenclature_map);
         },
         half_cylinder_residues: async (nomenclature_map: Record<string, string> | null) => {
             if (!nomenclature_map) return;
             const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/half_cylinder_residues`);
             const data = await response.json();
-            const struct_ref = Object.values(this.getState().mstar_refs.rcsb_id_root_ref_map)[0];
+            const struct_ref = Object.values(this.getState().mstar_refs.instances.main.rcsb_id_root_ref_map)[0];
             // this.viewer.experimental.cylinder_residues(struct_ref, data, nomenclature_map);
             this.viewer.experimental.___cylinder_residues(struct_ref, data, nomenclature_map);
         }

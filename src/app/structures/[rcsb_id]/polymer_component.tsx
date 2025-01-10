@@ -19,8 +19,17 @@ import { useMolstarInstance } from '@/components/mstar/mstar_service';
 export type ResidueData = [string, number];
 
 const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
-    const polyComponent                = useAppSelector(state => selectComponentById(state, polymer.auth_asym_id)) as PolymerComponent;
-    const polymerState                 = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
+ const polyComponent = useAppSelector(state => 
+        selectComponentById(state, {
+            instanceId: 'main',
+            componentId: polymer.auth_asym_id
+        })
+    ) as PolymerComponent;
+    
+    const polymerState = useAppSelector(state => 
+        selectPolymerStateByAuthId(state, polymer.auth_asym_id)
+    );
+    
     const service                      = useMolstarInstance('main');
     const ctx = service?.viewer;
     const msc = service?.controller;
