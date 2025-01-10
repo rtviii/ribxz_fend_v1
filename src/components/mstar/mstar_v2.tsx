@@ -36,11 +36,11 @@ import PolymerColorschemeWarm from './providers/colorschemes/colorscheme_warm';
 import {ArbitraryCylinderRepresentationProvider} from './providers/cylinder_provider';
 
 export type ResidueSummary = {
-    label_seq_id  : number | null | undefined;
-    label_comp_id : string | null | undefined;
-    auth_seq_id   : number;
-    auth_asym_id  : string;
-    rcsb_id       : string;
+    label_seq_id: number | null | undefined;
+    label_comp_id: string | null | undefined;
+    auth_seq_id: number;
+    auth_asym_id: string;
+    rcsb_id: string;
 };
 export interface HoverEventDetail {
     residueNumber?: number;
@@ -68,13 +68,13 @@ export class ribxzMstarv2 {
     ctx: PluginUIContext;
     constructor() {}
     async init(parent: HTMLElement, spec: PluginUISpec = ribxzSpec) {
-     while (parent.firstChild) {
+        while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
-    }
-const pluginContainer = document.createElement('div');
-    pluginContainer.style.width = '100%';
-    pluginContainer.style.height = '100%';
-    parent.appendChild(pluginContainer);
+        }
+        const pluginContainer = document.createElement('div');
+        pluginContainer.style.width = '100%';
+        pluginContainer.style.height = '100%';
+        parent.appendChild(pluginContainer);
         this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
         this.ctx.representation.structure.registry.add(ArbitraryCylinderRepresentationProvider);
@@ -216,16 +216,13 @@ const pluginContainer = document.createElement('div');
     };
 
     residues = {
-        select_residueCluster: (
+        select_residue_cluster: (
             chain_residue_tuples: {
                 auth_asym_id: string;
                 auth_seq_id: number;
             }[]
         ) => {
 
-            console.log("Got chain_residue_tuples", chain_residue_tuples);
-            
-            
             const expr = this.residues.selectionResidueClusterExpression(chain_residue_tuples);
             const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
             const sel = Script.getStructureSelection(expr, data);
@@ -258,30 +255,14 @@ const pluginContainer = document.createElement('div');
             }
             var expression = MS.struct.combinator.merge(groups);
             return expression;
-        },
-
-        select_chain: (auth_asym_id: string, modifier: 'set' | 'add' | 'remove' | 'intersect') => {
-            const data = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-            if (!data) return;
-            const sel = Script.getStructureSelection(
-                Q =>
-                    Q.struct.generator.atomGroups({
-                        'chain-test': Q.core.rel.eq([Q.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id])
-                    }),
-                data
-            );
-            let loci = StructureSelection.toLociWithSourceUnits(sel);
-            this.ctx.managers.structure.selection.fromLoci(modifier, loci);
-        },
-        select_expression: (auth_asym_id: string): Expression => {
-            let expression = MS.struct.generator.atomGroups({
-                'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id])
-            });
-            return expression;
         }
     };
 
-    async get_selection_constituents(struct_ref:string, chemicalId: string | undefined, radius: number): Promise<Omit<ResidueSummary, 'polymer_class'>[]> {
+    async get_selection_constituents(
+        struct_ref: string,
+        chemicalId: string | undefined,
+        radius: number
+    ): Promise<Omit<ResidueSummary, 'polymer_class'>[]> {
         if (!chemicalId) {
             return [];
         }
@@ -312,11 +293,9 @@ const pluginContainer = document.createElement('div');
             by: ligand
         });
 
-
         const state = this.ctx.state.data;
         const cell = state.select(StateSelection.Generators.byRef(struct_ref))[0];
-        console.log("Got struct_Ref", struct_ref, cell);
-        
+        console.log('Got struct_Ref', struct_ref, cell);
 
         const group = update
             .to(cell)
@@ -369,8 +348,8 @@ const pluginContainer = document.createElement('div');
                 });
             }
         });
-        console.log("Residue List", residueList);
-        
+        console.log('Residue List', residueList);
+
         return residueList;
     }
 
@@ -767,12 +746,14 @@ const pluginContainer = document.createElement('div');
             this.ctx.managers.structure.selection.fromLoci(modifier, loci);
             return;
         },
-        select_residues: (parent_ref: string, residues: ResidueData[], modifier: 'add' | 'remove' | 'set') => {
+
+        //!  this method covers the molstar_sync residue selections across multiple chains
+        select_residues: (parent_polymer_ref: string, residues: ResidueData[], modifier: 'add' | 'remove' | 'set') => {
             type ResiduesByParent = Map<string, ResidueData[]>;
             function groupResiduesByParent(residues: ResidueData[]): ResiduesByParent {
                 return residues.reduce((groups, residue) => {
-                    const existing = groups.get(parent_ref) || [];
-                    groups.set(parent_ref, [...existing, residue]);
+                    const existing = groups.get(parent_polymer_ref) || [];
+                    groups.set(parent_polymer_ref, [...existing, residue]);
                     return groups;
                 }, new Map<string, ResidueData[]>());
             }

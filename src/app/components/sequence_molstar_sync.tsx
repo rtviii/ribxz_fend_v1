@@ -11,7 +11,7 @@ export const SequenceMolstarSync: React.FC = () => {
     const prevSelectionsRef = useRef<typeof selections>({});
     const service           = useMolstarInstance('main');
     const controller        = service?.controller;
-    const ctx = service?.viewer?.ctx;
+    const ctx               = service?.viewer?.ctx;
 
     // Create a stable reference to the sync function
     const syncWithMolstar = useCallback((selections: typeof prevSelectionsRef.current) => {
@@ -22,9 +22,9 @@ export const SequenceMolstarSync: React.FC = () => {
         // Process all changes in one batch
         const updates: {
             auth_asym_id: string;
-            parent_ref: string;
-            toAdd: ResidueData[];
-            toRemove: ResidueData[];
+            parent_ref  : string;
+            toAdd       : ResidueData[];
+            toRemove    : ResidueData[];
         }[] = [];
 
         // Calculate all changes first

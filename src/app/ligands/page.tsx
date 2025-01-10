@@ -757,7 +757,8 @@ const BindingSitePredictionPanel = ({}) => {
                     console.log('display got', prediction_data);
 
                     // ctx_secondary?.highlightResidueCluster(msc_secondary?.cell_from_ref(rootRef), prediction_data);
-                    ctx_secondary?.residues?.select_residueCluster(prediction_data);
+                    ctx_secondary?.residues?.select_residue_cluster(prediction_data);
+                    // ctx_secondary?.interactions.select_residues()
                 }}>
                 {' '}
                 Display Prediction

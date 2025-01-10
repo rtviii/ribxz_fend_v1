@@ -20,17 +20,10 @@ export class MolstarStateController {
     private dispatch: AppDispatch;
     private getState: () => RootState;
 
-
-    constructor(
-        molstarViewer: ribxzMstarv2,
-        dispatch: AppDispatch,
-        getState: () => RootState,
-
-    ) {
+    constructor(molstarViewer: ribxzMstarv2, dispatch: AppDispatch, getState: () => RootState) {
         this.viewer = molstarViewer;
         this.dispatch = dispatch;
         this.getState = getState;
-
     }
 
     private setupSelectionHandling() {
@@ -55,12 +48,12 @@ export class MolstarStateController {
 
     private getElementDetails(location: StructureElement.Location) {
         return {
-            entity_id    : StructureProperties.chain.label_entity_id(location),
+            entity_id: StructureProperties.chain.label_entity_id(location),
             label_asym_id: StructureProperties.chain.label_asym_id(location),
-            auth_asym_id : StructureProperties.chain.auth_asym_id(location),
-            seq_id       : StructureProperties.residue.label_seq_id(location),
-            auth_seq_id  : StructureProperties.residue.auth_seq_id(location),
-            comp_id      : StructureProperties.atom.label_comp_id(location)
+            auth_asym_id: StructureProperties.chain.auth_asym_id(location),
+            seq_id: StructureProperties.residue.label_seq_id(location),
+            auth_seq_id: StructureProperties.residue.auth_seq_id(location),
+            comp_id: StructureProperties.atom.label_comp_id(location)
         };
     }
 
@@ -86,13 +79,11 @@ export class MolstarStateController {
         }
     };
 
-
     clear = async () => {
-
         // TODO: Clear all refs:
-        this.dispatch(mapResetAll())
+        this.dispatch(mapResetAll());
         this.viewer.ctx.clear();
-    }
+    };
 
     landmarks = {
         ptc: async (rcsb_id: string) => {
@@ -114,7 +105,7 @@ export class MolstarStateController {
         const {root_ref, repr_ref, objects_polymer, objects_ligand} =
             await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
 
-        const components           = {...objects_polymer, ...objects_ligand};
+        const components = {...objects_polymer, ...objects_ligand};
         const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
             acc[localId] = {
                 ...component,
@@ -268,15 +259,11 @@ export class MolstarStateController {
         await this.viewer.representations.stylized_lighting();
     }
 
-
     ligands = {
-        get_ligand_surroundings: async (struct_ref:string, chemicalId:string, radius:number) =>{
-
+        get_ligand_surroundings: async (struct_ref: string, chemicalId: string, radius: number) => {
             return await this.viewer.get_selection_constituents(struct_ref, chemicalId, radius);
         }
-
-    }
-
+    };
 
     experimental = {
         cylinder_residues: async (nomenclature_map: Record<string, string> | null) => {
