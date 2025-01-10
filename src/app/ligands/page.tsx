@@ -542,7 +542,8 @@ const CurrentBindingSiteInfoPanel = () => {
             )!;
             const refs = await ctx?.ligands.create_ligand_and_surroundings(
                 current_ligand.ligand.chemicalId,
-                bsite_radius
+                bsite_radius,
+                nomenclatureMap
             );
             if (refs) {
                 // Add both the ligand and its binding site to Redux
@@ -738,22 +739,71 @@ const BindingSitePredictionPanel = ({}) => {
 
     useEffect(() => {
         if (!selected_target_structure || !data) return;
-
         const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
             prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
             return prev;
         }, {});
         setNomenclatureMap(nomenclatureMap);
 
-        (async () => {
-            msc_secondary?.clear();
-            const {root_ref, repr_ref, components} = await msc_secondary?.loadStructure(
-                selected_target_structure,
-                nomenclatureMap
-            )!;
-            setRootRef(root_ref);
-        })();
-    }, [selected_target_structure, data, msc_secondary]);
+        let isActive = true; // For cleanup/cancellation
+
+        const initializeStructure = async () => {
+            try {
+                // Clear previous structure
+                msc_secondary?.clear();
+
+                // Load structure first
+                const {root_ref} = await msc_secondary?.loadStructure(selected_target_structure, nomenclatureMap)!;
+
+                if (!isActive) return;
+                setRootRef(root_ref);
+
+                // Only fetch prediction data if we have all required values
+                if (
+                    current_ligand?.ligand.chemicalId &&
+                    current_ligand?.parent_structure.rcsb_id &&
+                    selected_target_structure &&
+                    bsite_radius
+                ) {
+                    await dispatch(
+                        fetchPredictionData({
+                            chemid: current_ligand.ligand.chemicalId,
+                            src: current_ligand.parent_structure.rcsb_id,
+                            tgt: selected_target_structure,
+                            radius: bsite_radius
+                        })
+                    ).unwrap();
+                }
+            } catch (error) {
+                console.error('Error initializing structure:', error);
+            }
+        };
+
+        initializeStructure();
+
+        // Cleanup function
+        return () => {
+            isActive = false;
+        };
+    }, [selected_target_structure, data, msc_secondary, current_ligand, bsite_radius]); // Removed prediction_data
+
+    useEffect(() => {
+        if (!rootRef || !prediction_data || !nomenclatureMap) return;
+        const visualizePrediction = async () => {
+            try {
+                const components_refs = await ctx_secondary?.ligands.create_from_prediction_data(
+                    rootRef,
+                    prediction_data,
+                    nomenclatureMap
+                );
+                console.log('Components refs created:', components_refs);
+            } catch (error) {
+                console.error('Error creating prediction visualization:', error);
+            }
+        };
+
+        visualizePrediction();
+    }, [rootRef, prediction_data, nomenclatureMap, ctx_secondary]);
 
     return (
         <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
@@ -790,26 +840,6 @@ const BindingSitePredictionPanel = ({}) => {
                     if (selected_target_structure === null || current_ligand === null) {
                         return;
                     }
-                    dispatch(
-                        fetchPredictionData({
-                            chemid: current_ligand?.ligand.chemicalId,
-                            src: current_ligand?.parent_structure.rcsb_id,
-                            tgt: selected_target_structure,
-                            radius: bsite_radius
-                        })
-                    );
-
-                    ctx_secondary?.ligands
-                        .create_from_prediction_data(rootRef, prediction_data, nomenclatureMap)
-                        .then(result => {
-                            if (result) {
-                                // Focus on the new component
-                                ctx_secondary?.interactions.focus(result.componentRef);
-
-                                // // Optionally store the refs for later manipulation
-                                // setPredictionComponentRef(result.componentRef);
-                            }
-                        });
                 }}>
                 {' '}
                 {is_prediction_pending ? (
@@ -1050,19 +1080,6 @@ function LigandsPageWithoutContext() {
         }
     }, [isPredictionPanelOpen]);
 
-    // const current_selected_target = useAppSelector(state => state.homepage_overview.selected);
-    // useEffect(() => {
-    //     if (current_selected_target !== null) {
-    //         msc_secondary?.loadStructure(current_selected_target.rcsb_id, nomenclatureMap_src!);
-    //     }
-    //     dispatch(set_ligand_prediction_data(null));
-    // }, [current_selected_target]);
-
-    // const ligands_state = useAppSelector(state => state.ligands_page.ligands_page);
-
-    useEffect(() => {
-        console.log('predictio npanel open:', isPredictionPanelOpen);
-    }, [isPredictionPanelOpen]);
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal">
