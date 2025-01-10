@@ -212,7 +212,8 @@ export class ribxzMstarv2 {
                 objects_polymer,
                 objects_ligand
             };
-        }
+        },
+        create_from_selection: async (selection: StateObjectSelector) => {}
     };
 
     residues = {
@@ -222,7 +223,6 @@ export class ribxzMstarv2 {
                 auth_seq_id: number;
             }[]
         ) => {
-
             const expr = this.residues.selectionResidueClusterExpression(chain_residue_tuples);
             const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
             const sel = Script.getStructureSelection(expr, data);
@@ -618,6 +618,86 @@ export class ribxzMstarv2 {
             });
 
             return this;
+        },
+        create_from_prediction_data: async (
+            root_ref: string,
+            prediction_data: ResidueSummary[],
+            nomenclature_map: Record<string, string> // Add nomenclature map parameter
+        ) => {
+            // Group residues by chain
+            const residuesByChain = prediction_data.reduce((acc, residue) => {
+                if (!acc[residue.auth_asym_id]) {
+                    acc[residue.auth_asym_id] = [];
+                }
+                acc[residue.auth_asym_id].push({
+                    auth_asym_id: residue.auth_asym_id,
+                    auth_seq_id: residue.auth_seq_id
+                });
+                return acc;
+            }, {} as Record<string, {auth_asym_id: string; auth_seq_id: number}[]>);
+
+            const chainExpressions = Object.entries(residuesByChain).map(([chain, residues]) => {
+                const residueExpressions = residues.map(r =>
+                    MS.struct.generator.atomGroups({
+                        'chain-test': MS.core.rel.eq([
+                            MS.struct.atomProperty.macromolecular.auth_asym_id(),
+                            r.auth_asym_id
+                        ]),
+                        'residue-test': MS.core.rel.eq([
+                            MS.struct.atomProperty.macromolecular.auth_seq_id(),
+                            r.auth_seq_id
+                        ])
+                    })
+                );
+                return {
+                    chain,
+                    expression: MS.struct.combinator.merge(residueExpressions)
+                };
+            });
+
+            // Create separate components for each chain to maintain colors
+            const state = this.ctx.state.data;
+            const cell = state.select(StateSelection.Generators.byRef(root_ref))[0];
+            const update = this.ctx.build();
+
+            const components: {ref: string; chain: string}[] = [];
+
+            for (const {chain, expression} of chainExpressions) {
+                const component = await this.ctx.builders.structure.tryCreateComponentFromExpression(
+                    root_ref,
+                    expression,
+                    `predicted-binding-site-${chain}`,
+                    {
+                        label: `Predicted Binding Site ${chain}`,
+                        tags: ['predicted-binding-site', chain]
+                    }
+                );
+
+                if (component) {
+                    // Add representation with the chain's color from nomenclature map
+                    const representation = await this.ctx.builders.structure.representation.addRepresentation(
+                        component,
+                        {
+                            type: 'ball-and-stick',
+                            color: 'uniform',
+                            colorParams: {
+                                value: PolymerColorschemeWarm[
+                                    nomenclature_map[chain] as keyof typeof PolymerColorschemeWarm
+                                ]
+                            }
+                        }
+                    );
+
+                    components.push({
+                        ref: component.ref,
+                        chain
+                    });
+                }
+            }
+
+            await update.commit();
+
+            return components;
         }
     };
 

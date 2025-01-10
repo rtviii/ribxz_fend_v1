@@ -661,6 +661,7 @@ const BindingSitePredictionPanel = ({}) => {
         }, [])
     );
     const [rootRef, setRootRef] = useState<null | string>(null);
+    const [nomenclatureMap, setNomenclatureMap] = useState<null|Record<string,string>>(null);
 
     const auxiliaryService = useMolstarInstance('auxiliary');
     const ctx_secondary = auxiliaryService?.viewer;
@@ -678,6 +679,7 @@ const BindingSitePredictionPanel = ({}) => {
             prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
             return prev;
         }, {});
+        setNomenclatureMap(nomenclatureMap);
 
         (async () => {
             msc_secondary?.clear();
@@ -732,7 +734,30 @@ const BindingSitePredictionPanel = ({}) => {
                             radius: bsite_radius
                         })
                     );
-                }}>
+
+ ctx_secondary?.ligands.create_from_prediction_data(
+        rootRef,
+        prediction_data,
+        nomenclatureMap
+        
+    ).then(result => {
+        if (result) {
+            // Focus on the new component
+            ctx_secondary?.interactions.focus(result.componentRef);
+            
+            // // Optionally store the refs for later manipulation
+            // setPredictionComponentRef(result.componentRef);
+        }
+    });
+
+
+
+
+                }
+                
+                
+                
+                }>
                 {' '}
                 {is_prediction_pending ? (
                     <>
