@@ -83,6 +83,8 @@ export class MolstarStateController {
     }
 
     mute_polymers = async (rcsb_id: string) => {
+        console.log('muting polymers in ', rcsb_id);
+        
         const componentIds =
             this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
         for (const localId of componentIds) {
