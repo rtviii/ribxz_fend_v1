@@ -175,14 +175,14 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
 };
 
 const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
-    const dispatch = useAppDispatch();
-    const state = useAppSelector(s => s);
-    const rcsb_id = Object.keys(state.mstar_refs.rcsb_id_components_map)[0];
-    const selected_polymers = useAppSelector(state => state.structure_page.selected);
-    const service = useMolstarInstance();
-    const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
+    const dispatch                                    = useAppDispatch();
+    const state                                       = useAppSelector(s => s);
+    const rcsb_id                                     = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const selected_polymers                           = useAppSelector(state => state.structure_page.selected);
+    const service                                     = useMolstarInstance('main');
+    const [newBookmarkName, promptForNewBookmark]     = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
-    const createNewSelection = async () => {
+    const createNewSelection                          = async () => {
         const name = promptForNewBookmark();
         dispatch(snapshot_selection({[name]: selected_polymers}));
     };

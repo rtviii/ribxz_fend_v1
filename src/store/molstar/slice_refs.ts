@@ -21,18 +21,32 @@ export interface LigandComponent {
     ref       : MolstarRef;
 }
 
+export type MolstarInstanceId = 'main' | 'auxiliary';
+
 export type SubComponent = PolymerComponent | LigandComponent;
 
 interface HandleReferencesState {
-    rcsb_id_root_ref_map  : Record<RCSB_ID, MolstarRef>;
-    rcsb_id_components_map: Record<RCSB_ID, Array<auth_asym_id | chemical_id>>;
-    components            : Record<string,  SubComponent>;
+    instances: Record<MolstarInstanceId, {
+        rcsb_id_root_ref_map: Record<RCSB_ID, MolstarRef>;
+        rcsb_id_components_map: Record<RCSB_ID, Array<auth_asym_id | chemical_id>>;
+        components: Record<string, SubComponent>;
+    }>;
 }
 
+
 const initialState: HandleReferencesState = {
-    rcsb_id_root_ref_map  : {},
-    rcsb_id_components_map: {},
-    components            : {}
+    instances: {
+        main: {
+            rcsb_id_root_ref_map: {},
+            rcsb_id_components_map: {},
+            components: {}
+        },
+        auxiliary: {
+            rcsb_id_root_ref_map: {},
+            rcsb_id_components_map: {},
+            components: {}
+        }
+    }
 };
 
 // Utility function to generate component IDs
@@ -43,71 +57,100 @@ export const handleReferencesSlice = createSlice({
     name: 'handleReferences',
     initialState,
     reducers: {
-
-        mapAssetRootRefAdd: (state, action: PayloadAction<[RCSB_ID, MolstarRef]>) => {
-            const [rcsbId, ref] = action.payload;
-            state.rcsb_id_root_ref_map[rcsbId] = ref;
+        mapAssetRootRefAdd: (
+            state,
+            action: PayloadAction<{
+                instanceId: MolstarInstanceId;
+                payload: [RCSB_ID, MolstarRef];
+            }>
+        ) => {
+            const {instanceId, payload: [rcsbId, ref]} = action.payload;
+            state.instances[instanceId].rcsb_id_root_ref_map[rcsbId] = ref;
         },
 
-        mapAssetRootRefDelete: (state, action: PayloadAction<RCSB_ID>) => {
-            delete state.rcsb_id_root_ref_map[action.payload];
+        mapAssetRootRefDelete: (
+            state,
+            action: PayloadAction<{
+                instanceId: MolstarInstanceId;
+                rcsbId: RCSB_ID;
+            }>
+        ) => {
+            const {instanceId, rcsbId} = action.payload;
+            delete state.instances[instanceId].rcsb_id_root_ref_map[rcsbId];
         },
 
         mapAssetModelComponentsAdd: (
             state,
             action: PayloadAction<{
+                instanceId: MolstarInstanceId;
                 rcsbId: RCSB_ID;
-                components: Record<string, PolymerComponent | LigandComponent>;
+                components: Record<string, SubComponent>;
             }>
         ) => {
-            const { rcsbId, components } = action.payload;
+            const {instanceId, rcsbId, components} = action.payload;
+            const instance = state.instances[instanceId];
             const localIds = Object.keys(components);
 
-            // Update the components map for this RCSB ID
-            state.rcsb_id_components_map[rcsbId] = localIds;
-
-            // Add each component to the normalized store
+            instance.rcsb_id_components_map[rcsbId] = localIds;
             localIds.forEach(localId => {
-                const component = components[localId];
-
-                // Add RCSB ID to the component
-                state.components[localId] = {
-                    ...component,
+                instance.components[localId] = {
+                    ...components[localId],
                     rcsb_id: rcsbId,
                 };
             });
         },
 
-        mapAssetModelComponentsDeleteAll: (state, action: PayloadAction<RCSB_ID>) => {
-            const rcsbId = action.payload;
-
+        mapAssetModelComponentsDeleteAll: (
+            state,
+            action: PayloadAction<{
+                instanceId: MolstarInstanceId;
+                rcsbId: RCSB_ID;
+            }>
+        ) => {
+            const {instanceId, rcsbId} = action.payload;
+            const instance = state.instances[instanceId];
+            
             // Get all component IDs for this RCSB ID
-            const localIds = state.rcsb_id_components_map[rcsbId] || [];
+            const localIds = instance.rcsb_id_components_map[rcsbId] || [];
 
             // Remove each component
             localIds.forEach(localId => {
-                const globalId = makeComponentId(rcsbId, localId);
-                delete state.components[globalId];
+                delete instance.components[localId];
             });
 
             // Remove the RCSB ID entry
-            delete state.rcsb_id_components_map[rcsbId];
+            delete instance.rcsb_id_components_map[rcsbId];
         },
+
         mapResetAll: (state) => {
             return initialState;
+        },
+
+        // Optional: Add instance-specific reset
+        mapResetInstance: (
+            state,
+            action: PayloadAction<{
+                instanceId: MolstarInstanceId;
+            }>
+        ) => {
+            state.instances[action.payload.instanceId] = {
+                rcsb_id_root_ref_map: {},
+                rcsb_id_components_map: {},
+                components: {}
+            };
         }
-       
     }
 });
 
+// Export all actions
 export const {
     mapAssetRootRefAdd,
     mapAssetRootRefDelete,
     mapAssetModelComponentsAdd,
     mapAssetModelComponentsDeleteAll,
-    mapResetAll
+    mapResetAll,
+    mapResetInstance
 } = handleReferencesSlice.actions;
-
 export default handleReferencesSlice.reducer;
 
 
@@ -115,42 +158,77 @@ import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../store'; // Assuming this is your store type
 
 // Base selectors
-const selectHandleReferences  = (state: RootState) => state.mstar_refs;
-const selectComponents        = (state: RootState) => state.mstar_refs.components;
-const selectRCSBRefMap        = (state: RootState) => state.mstar_refs.rcsb_id_root_ref_map;
-const selectRCSBComponentsMap = (state: RootState) => state.mstar_refs.rcsb_id_components_map;
+const selectHandleReferences = (state: RootState) => state.mstar_refs;
+const selectInstances = (state: RootState) => state.mstar_refs.instances;
+const selectInstance = (state: RootState, instanceId: MolstarInstanceId) => 
+    state.mstar_refs.instances[instanceId];
 
-// Memoized selectors
 export const selectMolstarRefForRCSB = createSelector(
-    [selectRCSBRefMap, (_state, rcsbId: RCSB_ID) => rcsbId],
-    (refMap, rcsbId) => refMap[rcsbId]
+    [
+        selectInstances,
+        (_state, params: {instanceId: MolstarInstanceId; rcsbId: RCSB_ID}) => params
+    ],
+    (instances, {instanceId, rcsbId}) => 
+        instances[instanceId].rcsb_id_root_ref_map[rcsbId]
 );
 
 export const selectComponentsForRCSB = createSelector(
-    [selectComponents, selectRCSBComponentsMap, (_state, rcsbId: RCSB_ID) => rcsbId],
-    (components, componentsMap, rcsbId) => {
-        const localIds = componentsMap[rcsbId] || [];
-        return localIds.map(localId => components[`${rcsbId}_${localId}`]);
+    [
+        selectInstances,
+        (_state, params: {instanceId: MolstarInstanceId; rcsbId: RCSB_ID}) => params
+    ],
+    (instances, {instanceId, rcsbId}) => {
+        const instance = instances[instanceId];
+        const localIds = instance.rcsb_id_components_map[rcsbId] || [];
+        return localIds.map(localId => instance.components[localId]);
     }
 );
 
-
 export const selectComponentById = createSelector(
-    [selectComponents, (_state, componentId: string) => componentId],
-    (components, componentId) => components[componentId]
+    [
+        selectInstances,
+        (_state, params: {instanceId: MolstarInstanceId; componentId: string}) => params
+    ],
+    (instances, {instanceId, componentId}) => 
+        instances[instanceId].components[componentId]
 );
 
-// Useful for getting a specific component when you have RCSB ID and local ID
 export const selectComponentByRCSBAndLocalId = createSelector(
     [
-        selectComponents,
-        (_state, params: { rcsbId: RCSB_ID; localId: auth_asym_id | chemical_id }) => params
+        selectInstances,
+        (
+            _state,
+            params: {
+                instanceId: MolstarInstanceId;
+                rcsbId: RCSB_ID;
+                localId: auth_asym_id | chemical_id;
+            }
+        ) => params
     ],
-    (components, { rcsbId, localId }) => components[`${rcsbId}_${localId}`]
+    (instances, {instanceId, rcsbId, localId}) => 
+        instances[instanceId].components[`${rcsbId}_${localId}`]
 );
 
-// Get all refs for components of a specific RCSB ID
 export const selectRefsForRCSB = createSelector(
     [selectComponentsForRCSB],
     (components) => components.map(c => c.ref)
+);
+
+// Additional useful selectors
+
+export const selectAllComponentsForInstance = createSelector(
+    [
+        selectInstances,
+        (_state, instanceId: MolstarInstanceId) => instanceId
+    ],
+    (instances, instanceId) => instances[instanceId].components
+);
+
+export const selectRCSBIdsForInstance = createSelector(
+    [
+        selectInstances,
+        (_state, instanceId: MolstarInstanceId) => instanceId
+    ],
+    (instances, instanceId) => 
+        Object.keys(instances[instanceId].rcsb_id_root_ref_map)
 );
