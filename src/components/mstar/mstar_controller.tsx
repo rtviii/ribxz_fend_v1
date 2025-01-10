@@ -43,7 +43,7 @@ export class MolstarStateController {
                 const element = this.getLociDetails(e.current.loci);
                 if (element?.auth_asym_id) {
                     const state = this.getState();
-const rcsb_id = Object.keys(state.mstar_refs.instances[this.instanceId].rcsb_id_components_map)[0];
+                    const rcsb_id = Object.keys(state.mstar_refs.instances[this.instanceId].rcsb_id_components_map)[0];
 
                     this.dispatch(
                         setPolymerSelected({
@@ -208,7 +208,8 @@ const rcsb_id = Object.keys(state.mstar_refs.instances[this.instanceId].rcsb_id_
         },
 
         restoreAllVisibility: async (rcsb_id: string) => {
-const componentIds = this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
+            const componentIds =
+                this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
 
             const visibilityUpdates = componentIds.map(localId => ({
                 rcsb_id,
@@ -284,11 +285,11 @@ const componentIds = this.getState().mstar_refs.instances[this.instanceId].rcsb_
         //     return await this.viewer.get_selection_constituents(struct_ref, chemicalId, radius);
         // }
 
-       get_ligand_surroundings: async (struct_ref: string, chemicalId: string, radius: number) => {
-        // Make sure any structs/components being accessed inside get_selection_constituents 
-        // are using the correct instance
-        return await this.viewer.get_selection_constituents(struct_ref, chemicalId, radius);
-    }
+        get_ligand_surroundings: async (struct_ref: string, chemicalId: string, radius: number) => {
+            // Make sure any structs/components being accessed inside get_selection_constituents
+            // are using the correct instance
+            return await this.viewer.get_selection_constituents(struct_ref, chemicalId, radius);
+        }
     };
 
     experimental = {

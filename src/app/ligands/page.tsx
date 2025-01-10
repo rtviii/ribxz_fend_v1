@@ -63,6 +63,8 @@ import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 import {useSelector} from 'react-redux';
 import {PanelProvider, usePanelContext} from './panels_context';
 import ResidueGrid from './residue_grid';
+import {ResidueData} from '../components/sequence_viewer';
+import {ResidueSummary} from './_page';
 
 interface LigandInfo {
     chemicalId: string;
@@ -653,7 +655,7 @@ const BindingSitePredictionPanel = ({}) => {
     const bsite_radius = useAppSelector(state => state.ligands_page.radius);
     const is_prediction_pending = useAppSelector(state => state.ligands_page.prediction_pending);
 
-    const prediction_data = useAppSelector(state =>
+    const prediction_data: ResidueSummary[] = useAppSelector(state =>
         state.ligands_page.prediction_data?.purported_binding_site.chains.reduce((acc, next) => {
             return [...acc, ...next.bound_residues];
         }, [])
@@ -747,18 +749,31 @@ const BindingSitePredictionPanel = ({}) => {
                 variant={'outline'}
                 // disabled={prediction_data === undefined || _.isEmpty(prediction_data)}
                 onClick={() => {
-                    console.log('display got', prediction_data);
                     if (prediction_data === undefined || prediction_data === null || rootRef === null) {
-                        console.log('no prediction data', prediction_data);
-                        console.log('root ref', rootRef);
-
                         return;
                     }
-                    console.log('display got', prediction_data);
 
-                    // ctx_secondary?.highlightResidueCluster(msc_secondary?.cell_from_ref(rootRef), prediction_data);
-                    ctx_secondary?.residues?.select_residue_cluster(prediction_data);
-                    // ctx_secondary?.interactions.select_residues()
+                    // Group residues by chain (auth_asym_id)
+                    const residuesByChain = prediction_data.reduce((acc, residue) => {
+                        const chain = residue.auth_asym_id;
+                        if (!acc[chain]) {
+                            acc[chain] = [];
+                        }
+                        acc[chain].push([residue.auth_asym_id, residue.auth_seq_id] as ResidueData);
+                        return acc;
+                    }, {} as Record<string, ResidueData[]>);
+
+                    // Apply selections in one batch transaction
+                    ctx_secondary?.ctx.dataTransaction(async () => {
+                        Object.entries(residuesByChain).forEach(([auth_asym_id, residues]) => {
+                            // Get the polymer ref for this chain
+                            const polymerRef = msc_secondary?.retrievePolymerRef(auth_asym_id);
+                            if (!polymerRef) return;
+
+                            // Select residues for this chain's component
+                            ctx_secondary?.interactions.select_residues(polymerRef, residues, 'add');
+                        });
+                    });
                 }}>
                 {' '}
                 Display Prediction
