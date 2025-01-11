@@ -186,13 +186,6 @@ export class ribxzMstarv2 {
             const model = await this.ctx.builders.structure.createModel(trajectory);
             const structure = await this.ctx.builders.structure.createStructure(model);
 
-            //     structure,
-            //     {
-            //         type: 'cartoon',
-            //         typeParams: {alpha: 0.01},
-            //         color: 'sequence-id'
-            //     },
-            //     {tag: 'canvas'}
             // );
 
             const {components, representations, objects_polymer, objects_ligand} =
@@ -212,8 +205,7 @@ export class ribxzMstarv2 {
                 objects_polymer,
                 objects_ligand
             };
-        },
-        create_from_selection: async (selection: StateObjectSelector) => {}
+        }
     };
 
     residues = {
@@ -549,7 +541,7 @@ export class ribxzMstarv2 {
             };
         },
 
-        create_ligand_and_surroundings: async (
+        create_ligand_surroundings: async (
             chemicalId: string | undefined,
             radius: number,
             nomenclature_map: Record<string, string>
@@ -570,8 +562,7 @@ export class ribxzMstarv2 {
                     number: i + 1
                 }));
                 const struct = structures[0];
-                const update = this.ctx.build();
-
+                // const update = this.ctx.build();
                 // Ligand expression creation
                 const ligand = MS.struct.filter.first([
                     MS.struct.generator.atomGroups({
@@ -591,48 +582,49 @@ export class ribxzMstarv2 {
                     radius: radius,
                     'as-whole-residues': true
                 });
+
                 const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({
                     0: surroundings,
                     by: ligand
                 });
 
                 // Create ligand group
-                const ligandGroup = update
-                    .to(struct.structureRef.cell)
-                    .group(
-                        StateTransforms.Misc.CreateGroup,
-                        {label: `${chemicalId} Ligand Group`},
-                        {ref: refs[chemicalId].ref}
-                    );
+                // const ligandGroup = update
+                //     .to(struct.structureRef.cell)
+                //     .group(
+                //         StateTransforms.Misc.CreateGroup,
+                //         {label: `${chemicalId} Ligand Group`},
+                //         {ref: refs[chemicalId].ref}
+                //     );
 
-                const ligandSel = ligandGroup.apply(
-                    StateTransforms.Model.StructureSelectionFromExpression,
-                    {label: `${chemicalId} Ligand`, expression: ligand},
-                    {ref: refs[chemicalId].sel_ref}
-                );
+                // const ligandSel = ligandGroup.apply(
+                //     StateTransforms.Model.StructureSelectionFromExpression,
+                //     {label: `${chemicalId} Ligand`, expression: ligand},
+                //     {ref: refs[chemicalId].sel_ref}
+                // );
 
-                ligandSel.apply(
-                    StateTransforms.Representation.StructureRepresentation3D,
-                    createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                        type: 'ball-and-stick'
-                    }),
-                    {ref: refs[chemicalId].repr_ref}
-                );
+                // ligandSel.apply(
+                //     StateTransforms.Representation.StructureRepresentation3D,
+                //     createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+                //         type: 'ball-and-stick'
+                //     }),
+                //     {ref: refs[chemicalId].repr_ref}
+                // );
 
-                await PluginCommands.State.Update(this.ctx, {
-                    state: this.ctx.state.data,
-                    tree: update
-                });
+                // await PluginCommands.State.Update(this.ctx, {
+                //     state: this.ctx.state.data,
+                //     tree: update
+                // });
 
                 // Get surroundings residues
                 const compiled = compile<StructureSelection>(surroundingsWithoutLigand)(
                     new QueryContext(struct.structureRef.cell.obj?.data!)
                 );
-                const surroundingsLoci = StructureSelection.toLociWithSourceUnits(compiled);
+                const surroundingsWithoutLigandLoci = StructureSelection.toLociWithSourceUnits(compiled);
 
                 // Convert loci to residue list
                 const surroundingResidues: {auth_asym_id: string; auth_seq_id: number}[] = [];
-                const struct_Element = StructureElement.Loci.toStructure(surroundingsLoci);
+                const struct_Element = StructureElement.Loci.toStructure(surroundingsWithoutLigandLoci);
 
                 Structure.eachAtomicHierarchyElement(struct_Element, {
                     residue: loc => {

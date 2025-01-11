@@ -540,7 +540,7 @@ const CurrentBindingSiteInfoPanel = () => {
             // Load structure first and store ALL components
             const {root_ref} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
             // Then create and add ligand + binding site
-            const refs = await ctx?.ligands.create_ligand_and_surroundings(
+            const refs = await ctx?.ligands.create_ligand_surroundings(
                 current_ligand.ligand.chemicalId,
                 bsite_radius,
                 nomenclatureMap
@@ -552,19 +552,13 @@ const CurrentBindingSiteInfoPanel = () => {
                         instanceId: 'main',
                         rcsbId: current_ligand.parent_structure.rcsb_id,
                         components: {
-                            [current_ligand.ligand.chemicalId]: {
-                                rcsb_id   : current_ligand.parent_structure.rcsb_id,
-                                chemicalId: current_ligand.ligand.chemicalId,
-                                ref       : refs[current_ligand.ligand.chemicalId].ref,
-                                repr_ref  : refs[current_ligand.ligand.chemicalId].repr_ref,
-                                sel_ref   : refs[current_ligand.ligand.chemicalId].sel_ref
-                            } as LigandComponent,
                             [`${current_ligand.ligand.chemicalId}_bsite`]: {
-                                rcsb_id   : current_ligand.parent_structure.rcsb_id,
+                                type: 'bsite',
+                                rcsb_id: current_ligand.parent_structure.rcsb_id,
                                 chemicalId: current_ligand.ligand.chemicalId,
-                                ref       : refs[`${current_ligand.ligand.chemicalId}_bsite`].ref,
-                                repr_ref  : refs[`${current_ligand.ligand.chemicalId}_bsite`].repr_ref,
-                                sel_ref   : refs[`${current_ligand.ligand.chemicalId}_bsite`].sel_ref
+                                ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].ref,
+                                repr_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].repr_ref,
+                                sel_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].sel_ref
                             } as BsiteComponent
                         }
                     })
@@ -666,7 +660,10 @@ const CurrentBindingSiteInfoPanel = () => {
                     </Button>
                     <Button
                         onClick={() => {
-                            ctx?.interactions.focus(bsite?.sel_ref);
+                            msc?.bindingSites.focusBindingSite(
+                                current_ligand?.parent_structure.rcsb_id,
+                                current_ligand?.ligand.chemicalId
+                            );
                         }}>
                         Focus Surroundings
                     </Button>
