@@ -229,6 +229,30 @@ export class MolstarStateController {
             const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
         },
+        togglePolymersVisibility: async (rcsb_id: string, visible: boolean) => {
+            // Get only polymer components using our type discriminator
+            const polymerComponents = selectComponentsForRCSB(this.getState(), {
+                instanceId   : this.instanceId,
+                rcsbId       : rcsb_id,
+                componentType: 'polymer'
+            });
+
+            await this.viewer.ctx.dataTransaction(async () => {
+                // Update visibility for all polymer components
+                for (const component of polymerComponents) {
+                    this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
+                }
+
+                // Batch update visibility states in Redux if you're tracking them
+                const visibilityUpdates = polymerComponents.map(component => ({
+                    rcsb_id,
+                    auth_asym_id: component.auth_asym_id,
+                    visible
+                }));
+
+                this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
+            });
+        },
 
         highlightPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
             const ref = this.retrievePolymerRef(auth_asym_id);

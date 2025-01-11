@@ -63,6 +63,7 @@ declare global {
         molstar?: PluginUIContext;
     }
 }
+
 export class ribxzMstarv2 {
     //@ts-ignore
     ctx: PluginUIContext;
@@ -71,9 +72,10 @@ export class ribxzMstarv2 {
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
         }
-        const pluginContainer = document.createElement('div');
-        pluginContainer.style.width = '100%';
-        pluginContainer.style.height = '100%';
+        const pluginContainer              = document.createElement('div');
+              pluginContainer.style.width  = '100%';
+              pluginContainer.style.height = '100%';
+
         parent.appendChild(pluginContainer);
         this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
@@ -95,8 +97,8 @@ export class ribxzMstarv2 {
 
     landmarks = {
         tunnel_mesh_cylinder: async (
-            start: [number, number, number],
-            end: [number, number, number],
+            start : [number, number, number],
+            end   : [number, number, number],
             radius: number = 0.5
         ) => {
             const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;

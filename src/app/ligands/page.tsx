@@ -609,7 +609,10 @@ const CurrentBindingSiteInfoPanel = () => {
     //             .then(residues => { setSurroundingResidues(residues) })
     //     }, [current_ligand])
 
+
+    const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
     return (
+
         <div>
             <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
                 <AccordionItem value="item">
@@ -674,9 +677,10 @@ const CurrentBindingSiteInfoPanel = () => {
 
                     <Button
                         onClick={() => {
-                            msc?.mute_polymers(current_ligand?.parent_structure.rcsb_id);
+                            msc?.polymers.togglePolymersVisibility(current_ligand?.parent_structure.rcsb_id, !structureVisibility);
+                            setStructureVisibility(!structureVisibility);
                         }}>
-                        Structure Visibility
+                        Toggle Polymers
                     </Button>
                     <Button
                         onClick={() => {
