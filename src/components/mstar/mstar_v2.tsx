@@ -72,9 +72,9 @@ export class ribxzMstarv2 {
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
         }
-        const pluginContainer              = document.createElement('div');
-              pluginContainer.style.width  = '100%';
-              pluginContainer.style.height = '100%';
+        const pluginContainer = document.createElement('div');
+        pluginContainer.style.width = '100%';
+        pluginContainer.style.height = '100%';
 
         parent.appendChild(pluginContainer);
         this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
@@ -97,8 +97,8 @@ export class ribxzMstarv2 {
 
     landmarks = {
         tunnel_mesh_cylinder: async (
-            start : [number, number, number],
-            end   : [number, number, number],
+            start: [number, number, number],
+            end: [number, number, number],
             radius: number = 0.5
         ) => {
             const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
@@ -248,6 +248,119 @@ export class ribxzMstarv2 {
             }
             var expression = MS.struct.combinator.merge(groups);
             return expression;
+        },
+
+        createResidueExpression: (auth_asym_id: string, auth_seq_id: number) => {
+            return MS.struct.generator.atomGroups({
+                'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
+                'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), auth_seq_id])
+            });
+        },
+
+        // Create a selection for the residue and return its refs
+        createResidueSelection: async (rcsb_id: string, auth_asym_id: string, auth_seq_id: number) => {
+            const structures = this.ctx.managers.structure.hierarchy.current.structures;
+            if (!structures.length) return null;
+
+            const struct = structures[0];
+            const update = this.ctx.build();
+
+            const residueExpr = this.residues.createResidueExpression(auth_asym_id, auth_seq_id);
+
+            // Create a unique group for this residue
+            const selectionId = `residue_${auth_asym_id}_${auth_seq_id}`;
+            const group = update
+                .to(struct.cell)
+                .group(
+                    StateTransforms.Misc.CreateGroup,
+                    {label: `Residue ${auth_asym_id}:${auth_seq_id}`},
+                    {ref: `${selectionId}_group`}
+                );
+
+            const selection = group.apply(
+                StateTransforms.Model.StructureSelectionFromExpression,
+                {
+                    label: `Residue ${auth_asym_id}:${auth_seq_id}`,
+                    expression: residueExpr
+                },
+                {ref: `${selectionId}_sel`}
+            );
+
+            await PluginCommands.State.Update(this.ctx, {
+                state: this.ctx.state.data,
+                tree: update
+            });
+
+            return {
+                groupRef: `${selectionId}_group`,
+                selRef: `${selectionId}_sel`
+            };
+        },
+
+        // Focus on a specific residue
+        focusResidue: async (rcsb_id: string, auth_asym_id: string, auth_seq_id: number) => {
+            const residueExpr = this.residues.createResidueExpression(auth_asym_id, auth_seq_id);
+            const compiled = compile<StructureSelection>(residueExpr)(
+                new QueryContext(this.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data!)
+            );
+            const loci = StructureSelection.toLociWithSourceUnits(compiled);
+
+            this.ctx.managers.camera.focusLoci(loci);
+        },
+
+        // Highlight a specific residue
+        highlightResidue: async (rcsb_id: string, auth_asym_id: string, auth_seq_id: number) => {
+            const residueExpr = this.residues.createResidueExpression(auth_asym_id, auth_seq_id);
+            const compiled = compile<StructureSelection>(residueExpr)(
+                new QueryContext(this.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data!)
+            );
+            const loci = StructureSelection.toLociWithSourceUnits(compiled);
+
+            this.ctx.managers.interactivity.lociHighlights.highlightOnly({loci});
+        },
+
+        // Select a specific residue
+        selectResidue: async (
+            rcsb_id: string,
+            auth_asym_id: string,
+            auth_seq_id: number,
+            addToExisting: boolean = false
+        ) => {
+            const residueExpr = this.residues.createResidueExpression(auth_asym_id, auth_seq_id);
+            const compiled = compile<StructureSelection>(residueExpr)(
+                new QueryContext(this.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data!)
+            );
+            const loci = StructureSelection.toLociWithSourceUnits(compiled);
+
+            if (!addToExisting) {
+                this.ctx.managers.structure.selection.clear();
+            }
+            this.ctx.managers.structure.selection.fromLoci('add', loci);
+        },
+
+        // Comprehensive interaction method that combines multiple actions
+        interactWithResidue: async (
+            rcsb_id: string,
+            auth_asym_id: string,
+            auth_seq_id: number,
+            options: {
+                focus?: boolean;
+                highlight?: boolean;
+                select?: boolean;
+                addToSelection?: boolean;
+            } = {}
+        ) => {
+            const {focus = true, highlight = true, select = true, addToSelection = false} = options;
+
+            if (select) {
+                await this.residues.selectResidue(rcsb_id, auth_asym_id, auth_seq_id, addToSelection);
+            }
+            if (highlight) {
+                await this.residues.highlightResidue(rcsb_id, auth_asym_id, auth_seq_id);
+            }
+            if (focus) {
+                await this.residues.focusResidue(rcsb_id, auth_asym_id, auth_seq_id);
+            }
         }
     };
 
@@ -629,6 +742,7 @@ export class ribxzMstarv2 {
             rcsb_id: string,
             root_ref: string,
             prediction_data: ResidueSummary[],
+            chemical_id:string,
             nomenclature_map: Record<string, string>
         ) => {
             const cell = this.ctx.state.data.select(StateSelection.Generators.byRef(root_ref))[0];
@@ -642,214 +756,10 @@ export class ribxzMstarv2 {
                 rcsb_id,
                 cell,
                 residues,
-                'predicted_bsite',
+                chemical_id,
                 nomenclature_map
             );
         },
-
-        // create_ligand_and_surroundings: async (chemicalId: string | undefined, radius: number) => {
-        //     if (!chemicalId) {
-        //         return undefined;
-        //     }
-
-        //     // Create an object to store our refs with the new naming scheme
-        //     const refs = {
-        //         [chemicalId]: {
-        //             ref: `${chemicalId}_group`,
-        //             sel_ref: `${chemicalId}_sel`,
-        //             repr_ref: `${chemicalId}_repr_ball-and-stick`
-        //         },
-        //         [`${chemicalId}_bsite`]: {
-        //             ref: `${chemicalId}_bsite_group`,
-        //             sel_ref: `${chemicalId}_bsite_sel`,
-        //             repr_ref: `${chemicalId}_bsite_repr_ball-and-stick`
-        //         }
-        //     };
-
-        //     await this.ctx.dataTransaction(async () => {
-        //         const RADIUS = radius;
-        //         let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
-        //             structureRef,
-        //             number: i + 1
-        //         }));
-        //         const struct = structures[0];
-        //         const update = this.ctx.build();
-
-        //         // Ligand expression creation
-        //         const ligand = MS.struct.filter.first([
-        //             MS.struct.generator.atomGroups({
-        //                 'residue-test': MS.core.rel.eq([
-        //                     MS.struct.atomProperty.macromolecular.label_comp_id(),
-        //                     chemicalId
-        //                 ]),
-        //                 'group-by': MS.core.str.concat([
-        //                     MS.struct.atomProperty.core.operatorName(),
-        //                     MS.struct.atomProperty.macromolecular.residueKey()
-        //                 ])
-        //             })
-        //         ]);
-
-        //         const surroundings = MS.struct.modifier.includeSurroundings({
-        //             0: ligand,
-        //             radius: radius,
-        //             'as-whole-residues': true
-        //         });
-        //         const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({
-        //             0: surroundings,
-        //             by: ligand
-        //         });
-
-        //         // Create ligand group with new ref naming
-        //         const group1 = update
-        //             .to(struct.structureRef.cell)
-        //             .group(
-        //                 StateTransforms.Misc.CreateGroup,
-        //                 {label: `${chemicalId} Ligand Group`},
-        //                 {ref: refs[chemicalId].ref}
-        //             );
-
-        //         const ligandSel = group1.apply(
-        //             StateTransforms.Model.StructureSelectionFromExpression,
-        //             {label: `${chemicalId} Ligand`, expression: ligand},
-        //             {ref: refs[chemicalId].sel_ref}
-        //         );
-
-        //         ligandSel.apply(
-        //             StateTransforms.Representation.StructureRepresentation3D,
-        //             createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-        //                 type: 'ball-and-stick'
-        //             }),
-        //             {ref: refs[chemicalId].repr_ref}
-        //         );
-
-        //         await PluginCommands.State.Update(this.ctx, {
-        //             state: this.ctx.state.data,
-        //             tree: update
-        //         });
-
-        //         // Create surroundings group with new ref naming
-        //         const update2 = this.ctx.build();
-        //         const group2 = update2
-        //             .to(struct.structureRef.cell)
-        //             .group(
-        //                 StateTransforms.Misc.CreateGroup,
-        //                 {label: `${chemicalId} Binding Site`},
-        //                 {ref: refs[`${chemicalId}_bsite`].ref}
-        //             );
-
-        //         // Create surroundings selection with new ref naming
-        //         const surroundingsSel = group2.apply(
-        //             StateTransforms.Model.StructureSelectionFromExpression,
-        //             {
-        //                 label: `${chemicalId} Binding Site (${RADIUS} Å)`,
-        //                 expression: surroundingsWithoutLigand
-        //             },
-        //             {ref: refs[`${chemicalId}_bsite`].sel_ref}
-        //         );
-
-        //         // Create surroundings representation with new ref naming
-        //         surroundingsSel.apply(
-        //             StateTransforms.Representation.StructureRepresentation3D,
-        //             createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-        //                 type: 'ball-and-stick'
-        //             }),
-        //             {ref: refs[`${chemicalId}_bsite`].repr_ref}
-        //         );
-
-        //         await PluginCommands.State.Update(this.ctx, {
-        //             state: this.ctx.state.data,
-        //             tree: update2
-        //         });
-
-        //         const ligand_selection = compile<StructureSelection>(ligand)(
-        //             new QueryContext(struct.structureRef.cell.obj?.data!)
-        //         );
-        //         let loci = StructureSelection.toLociWithSourceUnits(ligand_selection);
-        //         this.ctx.managers.structure.selection.fromLoci('add', loci);
-        //         this.ctx.managers.camera.focusLoci(loci);
-        //     });
-        //     return refs;
-        // },
-        // create_from_prediction_data: async (
-        //     root_ref: string,
-        //     prediction_data: ResidueSummary[],
-        //     nomenclature_map: Record<string, string>
-        // ) => {
-        //     // Group residues by chain
-        //     const residuesByChain = prediction_data.reduce((acc, residue) => {
-        //         if (!acc[residue.auth_asym_id]) {
-        //             acc[residue.auth_asym_id] = [];
-        //         }
-        //         acc[residue.auth_asym_id].push({
-        //             auth_asym_id: residue.auth_asym_id,
-        //             auth_seq_id: residue.auth_seq_id
-        //         });
-        //         return acc;
-        //     }, {} as Record<string, {auth_asym_id: string; auth_seq_id: number}[]>);
-
-        //     const chainExpressions = Object.entries(residuesByChain).map(([chain, residues]) => {
-        //         const residueExpressions = residues.map(r =>
-        //             MS.struct.generator.atomGroups({
-        //                 'chain-test': MS.core.rel.eq([
-        //                     MS.struct.atomProperty.macromolecular.auth_asym_id(),
-        //                     r.auth_asym_id
-        //                 ]),
-        //                 'residue-test': MS.core.rel.eq([
-        //                     MS.struct.atomProperty.macromolecular.auth_seq_id(),
-        //                     r.auth_seq_id
-        //                 ])
-        //             })
-        //         );
-        //         return {
-        //             chain,
-        //             expression: MS.struct.combinator.merge(residueExpressions)
-        //         };
-        //     });
-
-        //     // Create separate components for each chain to maintain colors
-        //     const state = this.ctx.state.data;
-        //     const cell = state.select(StateSelection.Generators.byRef(root_ref))[0];
-        //     const update = this.ctx.build();
-
-        //     const components: {ref: string; chain: string}[] = [];
-
-        //     for (const {chain, expression} of chainExpressions) {
-        //         const component = await this.ctx.builders.structure.tryCreateComponentFromExpression(
-        //             root_ref,
-        //             expression,
-        //             `predicted-binding-site-${chain}`,
-        //             {
-        //                 label: `Predicted Binding Site ${chain}`,
-        //                 tags: ['predicted-binding-site', chain]
-        //             }
-        //         );
-
-        //         if (component) {
-        //             // Add representation with the chain's color from nomenclature map
-        //             const representation = await this.ctx.builders.structure.representation.addRepresentation(
-        //                 component,
-        //                 {
-        //                     type: 'ball-and-stick',
-        //                     color: 'uniform',
-        //                     colorParams: {
-        //                         value: PolymerColorschemeWarm[
-        //                             nomenclature_map[chain] as keyof typeof PolymerColorschemeWarm
-        //                         ]
-        //                     }
-        //                 }
-        //             );
-
-        //             components.push({
-        //                 ref: component.ref,
-        //                 chain
-        //             });
-        //         }
-        //     }
-
-        //     await update.commit();
-
-        //     return components;
-        // },
 
         select_focus_ligand_surroundings: async (
             chemicalId: string | undefined,
