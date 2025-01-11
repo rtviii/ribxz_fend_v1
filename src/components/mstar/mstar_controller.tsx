@@ -84,9 +84,8 @@ export class MolstarStateController {
 
     mute_polymers = async (rcsb_id: string) => {
         console.log('muting polymers in ', rcsb_id);
-        
-        const componentIds =
-            this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
+        console.log("insatnce id:", this.instanceId);
+        const componentIds = this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
         for (const localId of componentIds) {
             const ref = this.retrievePolymerRef(localId);
             ref && this.viewer.interactions.setSubtreeVisibility(ref, false);
@@ -115,8 +114,7 @@ export class MolstarStateController {
 
     async loadStructure(rcsb_id: string, nomenclature_map: Record<string, string>) {
         rcsb_id = rcsb_id.toUpperCase();
-        const {root_ref, repr_ref, objects_polymer, objects_ligand} =
-            await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
+        const {root_ref, repr_ref, objects_polymer, objects_ligand} = await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
 
         const components = {...objects_polymer, ...objects_ligand};
         const normalizedComponents = Object.entries(components).reduce((acc, [localId, component]) => {
@@ -137,7 +135,7 @@ export class MolstarStateController {
         this.dispatch(
             mapAssetModelComponentsAdd({
                 instanceId: this.instanceId,
-                rcsbId: rcsb_id,
+                rcsbId    : rcsb_id,
                 components: normalizedComponents
             })
         );

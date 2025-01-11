@@ -537,40 +537,39 @@ const CurrentBindingSiteInfoPanel = () => {
 
         msc?.clear();
         (async () => {
-            const {root_ref, repr_ref, components} = await msc?.loadStructure(
-                current_ligand.parent_structure.rcsb_id,
-                nomenclatureMap
-            )!;
+            // Load structure first and store ALL components
+            const {root_ref} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
+            // Then create and add ligand + binding site
             const refs = await ctx?.ligands.create_ligand_and_surroundings(
                 current_ligand.ligand.chemicalId,
                 bsite_radius,
                 nomenclatureMap
             );
-            if (refs) {
-                // Add both the ligand and its binding site to Redux
-                dispatch(
-                    mapAssetModelComponentsAdd({
-                        instanceId: 'main',
-                        rcsbId: current_ligand.parent_structure.rcsb_id,
-                        components: {
-                            [current_ligand.ligand.chemicalId]: {
-                                rcsb_id: current_ligand.parent_structure.rcsb_id,
-                                chemicalId: current_ligand.ligand.chemicalId,
-                                ref: refs[current_ligand.ligand.chemicalId].ref,
-                                repr_ref: refs[current_ligand.ligand.chemicalId].repr_ref,
-                                sel_ref: refs[current_ligand.ligand.chemicalId].sel_ref
-                            } as LigandComponent,
-                            [`${current_ligand.ligand.chemicalId}_bsite`]: {
-                                rcsb_id: current_ligand.parent_structure.rcsb_id,
-                                chemicalId: current_ligand.ligand.chemicalId,
-                                ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].ref,
-                                repr_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].repr_ref,
-                                sel_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].sel_ref
-                            } as BsiteComponent
-                        }
-                    })
-                );
-            }
+
+            // if (refs) {
+            //     dispatch(
+            //         mapAssetModelComponentsAdd({
+            //             instanceId: 'main',
+            //             rcsbId: current_ligand.parent_structure.rcsb_id,
+            //             components: {
+            //                 [current_ligand.ligand.chemicalId]: {
+            //                     rcsb_id: current_ligand.parent_structure.rcsb_id,
+            //                     chemicalId: current_ligand.ligand.chemicalId,
+            //                     ref: refs[current_ligand.ligand.chemicalId].ref,
+            //                     repr_ref: refs[current_ligand.ligand.chemicalId].repr_ref,
+            //                     sel_ref: refs[current_ligand.ligand.chemicalId].sel_ref
+            //                 } as LigandComponent,
+            //                 [`${current_ligand.ligand.chemicalId}_bsite`]: {
+            //                     rcsb_id: current_ligand.parent_structure.rcsb_id,
+            //                     chemicalId: current_ligand.ligand.chemicalId,
+            //                     ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].ref,
+            //                     repr_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].repr_ref,
+            //                     sel_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].sel_ref
+            //                 } as BsiteComponent
+            //             }
+            //         })
+            //     );
+            // }
 
             const residues = await msc?.ligands.get_ligand_surroundings(
                 root_ref,
@@ -665,12 +664,12 @@ const CurrentBindingSiteInfoPanel = () => {
 };
 
 const BindingSitePredictionPanel = ({}) => {
-    const dispatch = useAppDispatch();
+    const dispatch                                       = useAppDispatch();
     const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
-    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
-    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
-    const is_prediction_pending = useAppSelector(state => state.ligands_page.prediction_pending);
+    const current_ligand                                 = useAppSelector(state => state.ligands_page.current_ligand);
+    const selected_target_structure                      = useAppSelector(state => state.ligands_page.selected_target_structure);
+    const bsite_radius                                   = useAppSelector(state => state.ligands_page.radius);
+    const is_prediction_pending                          = useAppSelector(state => state.ligands_page.prediction_pending);
 
     const prediction_data: ResidueSummary[] = useAppSelector(state =>
         state.ligands_page.prediction_data?.purported_binding_site.chains.reduce((acc, next) => {
