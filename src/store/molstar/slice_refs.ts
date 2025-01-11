@@ -101,7 +101,6 @@ export const handleReferencesSlice = createSlice({
             const instance = state.instances[instanceId];
             const localIds = Object.keys(components);
 
-            // Merge with existing components instead of overwriting
             instance.rcsb_id_components_map[rcsbId] = [
                 ...(instance.rcsb_id_components_map[rcsbId] || []),
                 ...localIds

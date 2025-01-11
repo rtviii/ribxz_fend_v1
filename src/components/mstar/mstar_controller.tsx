@@ -85,7 +85,9 @@ export class MolstarStateController {
     mute_polymers = async (rcsb_id: string) => {
         console.log('muting polymers in ', rcsb_id);
         console.log("insatnce id:", this.instanceId);
+
         const componentIds = this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
+
         for (const localId of componentIds) {
             const ref = this.retrievePolymerRef(localId);
             ref && this.viewer.interactions.setSubtreeVisibility(ref, false);
@@ -272,8 +274,8 @@ export class MolstarStateController {
         }
     };
 
-    async selectLigandAndSurroundings(chemicalId: string, radius: number = 5) {
-        await this.viewer.ligands.create_ligand_and_surroundings(chemicalId, radius);
+    async selectLigandAndSurroundings(chemicalId: string, radius: number = 5, nomenclature_map: Record<string, string>) {
+        await this.viewer.ligands.create_ligand_and_surroundings(chemicalId, radius, nomenclature_map);
     }
 
     async applyStylizedLighting() {
