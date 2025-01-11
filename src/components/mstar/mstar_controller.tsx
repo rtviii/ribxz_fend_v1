@@ -401,14 +401,6 @@ export class MolstarStateController {
         }
     };
 
-    async selectLigandAndSurroundings(
-        chemicalId: string,
-        radius: number = 5,
-        nomenclature_map: Record<string, string>
-    ) {
-        await this.viewer.ligands.create_ligand_surroundings(chemicalId, radius, nomenclature_map);
-    }
-
     async applyStylizedLighting() {
         await this.viewer.representations.stylized_lighting();
     }

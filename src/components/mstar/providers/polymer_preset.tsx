@@ -372,40 +372,39 @@ export const chainSelectionPreset = StructureRepresentationPresetProvider({
             // }
         }
 
-        // Handle ligands
-        const ligands = getLigands(structure);
-        for (const ligandId of Array.from(ligands)) {
-            const ligandSelection = MS.struct.generator.atomGroups({
-                'atom-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), ligandId])
-            });
+        // const ligands = getLigands(structure);
+        // for (const ligandId of Array.from(ligands)) {
+        //     const ligandSelection = MS.struct.generator.atomGroups({
+        //         'atom-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), ligandId])
+        //     });
 
-            const component = await plugin.builders.structure.tryCreateComponentFromExpression(
-                ref,
-                ligandSelection,
-                `${idPrefix}ligand-${ligandId}`,
-                {
-                    label: `${params.structureId ? `${params.structureId} ` : ''}${ligandId}`,
-                    tags: [`${idPrefix}ligand-${ligandId}`, params.structureId]
-                }
-            );
+        //     const component = await plugin.builders.structure.tryCreateComponentFromExpression(
+        //         ref,
+        //         ligandSelection,
+        //         `${idPrefix}ligand-${ligandId}`,
+        //         {
+        //             label: `${params.structureId ? `${params.structureId} ` : ''}${ligandId}`,
+        //             tags: [`${idPrefix}ligand-${ligandId}`, params.structureId]
+        //         }
+        //     );
 
-            if (component) {
-                const representation = await plugin.builders.structure.representation.addRepresentation(component, {
-                    type: 'ball-and-stick',
-                    colorParams: {
-                        style: {
-                            name: 'element-symbol'
-                        }
-                    }
-                });
+        //     if (component) {
+        //         const representation = await plugin.builders.structure.representation.addRepresentation(component, {
+        //             type: 'ball-and-stick',
+        //             colorParams: {
+        //                 style: {
+        //                     name: 'element-symbol'
+        //                 }
+        //             }
+        //         });
 
-                components[`${ligandId}`] = component;
-                representations[`${ligandId}`] = representation;
-                objects_ligand[ligandId] = {
-                    ref: component.ref
-                };
-            }
-        }
+        //         components[`${ligandId}`] = component;
+        //         representations[`${ligandId}`] = representation;
+        //         objects_ligand[ligandId] = {
+        //             ref: component.ref
+        //         };
+        //     }
+        // }
 
         await update.commit({revertOnError: true});
 

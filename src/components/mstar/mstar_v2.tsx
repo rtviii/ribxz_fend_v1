@@ -19,7 +19,7 @@ import {StructureQueryHelper} from 'molstar/lib/mol-plugin-state/helpers/structu
 import {MolScriptBuilder, MolScriptBuilder as MS} from 'molstar/lib/mol-script/language/builder';
 import {Script} from 'molstar/lib/mol-script/script';
 import {Expression} from 'molstar/lib/mol-script/language/expression';
-import {LigandComponent, PolymerComponent} from '@/store/molstar/slice_refs';
+import {BsiteComponent, LigandComponent, PolymerComponent} from '@/store/molstar/slice_refs';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {compile} from 'molstar/lib/mol-script/runtime/query/base';
 // import {StateElements} from './__molstar_ribxz';
@@ -456,11 +456,12 @@ export class ribxzMstarv2 {
         },
 
         createBindingSiteComponent: async (
+            rcsb_id: string,
             cell: StateObjectCell,
             residues: {auth_asym_id: string; auth_seq_id: number}[],
             componentId: string,
             nomenclature_map: Record<string, string>
-        ) => {
+        ): Promise<BsiteComponent> => {
             const ctx = this.ctx;
             const update = ctx.build();
 
@@ -535,6 +536,9 @@ export class ribxzMstarv2 {
             });
 
             return {
+                chemicalId: componentId,
+                rcsb_id,
+                type: 'bsite',
                 ref: `${componentId}_bsite_group`,
                 sel_ref: `${componentId}_bsite_sel`,
                 repr_ref: `${componentId}_bsite_repr_ball-and-stick`
@@ -542,14 +546,15 @@ export class ribxzMstarv2 {
         },
 
         create_ligand_surroundings: async (
+            rcsb_id: string,
             chemicalId: string | undefined,
             radius: number,
             nomenclature_map: Record<string, string>
         ) => {
             if (!chemicalId) return undefined;
-
             const refs = {
                 [chemicalId]: {
+                    type: 'bsite',
                     ref: `${chemicalId}_group`,
                     sel_ref: `${chemicalId}_sel`,
                     repr_ref: `${chemicalId}_repr_ball-and-stick`
@@ -562,7 +567,6 @@ export class ribxzMstarv2 {
                     number: i + 1
                 }));
                 const struct = structures[0];
-                // const update = this.ctx.build();
                 // Ligand expression creation
                 const ligand = MS.struct.filter.first([
                     MS.struct.generator.atomGroups({
@@ -589,6 +593,7 @@ export class ribxzMstarv2 {
                 });
 
                 // Create ligand group
+                // const update = this.ctx.build();
                 // const ligandGroup = update
                 //     .to(struct.structureRef.cell)
                 //     .group(
@@ -637,6 +642,7 @@ export class ribxzMstarv2 {
 
                 // Create binding site using helper
                 const bsiteRefs = await this.ligands.createBindingSiteComponent(
+                    rcsb_id,
                     struct.structureRef.cell,
                     surroundingResidues,
                     chemicalId,
@@ -650,6 +656,7 @@ export class ribxzMstarv2 {
         },
 
         create_from_prediction_data: async (
+            rcsb_id: string,
             root_ref: string,
             prediction_data: ResidueSummary[],
             nomenclature_map: Record<string, string>
@@ -661,7 +668,13 @@ export class ribxzMstarv2 {
                 auth_seq_id: r.auth_seq_id
             }));
 
-            return await this.ligands.createBindingSiteComponent(cell, residues, 'predicted_bsite', nomenclature_map);
+            return await this.ligands.createBindingSiteComponent(
+                rcsb_id,
+                cell,
+                residues,
+                'predicted_bsite',
+                nomenclature_map
+            );
         },
 
         // create_ligand_and_surroundings: async (chemicalId: string | undefined, radius: number) => {
