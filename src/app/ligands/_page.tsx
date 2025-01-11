@@ -316,15 +316,14 @@ export const Controls = () => {
                     //         setSurroundingResidues(residues);
                     //     });
                 }}
-
                 variant={'outline'}
                 disabled={current_ligand === null}
                 className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white border
                      hover:bg-gray-100 rounded-l-lg  focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 ${
-                    radChanged
-                        ? ' outline-green-200 shadow-md shadow-green-400 rounded-sm   transition-all duration-200'
-                        : null
-                }  `}>
+                         radChanged
+                             ? ' outline-green-200 shadow-md shadow-green-400 rounded-sm   transition-all duration-200'
+                             : null
+                     }  `}>
                 Render
             </Button>
             <Button
@@ -482,7 +481,7 @@ export default function Ligands() {
 
         if (!isInitialized || !data_src) return;
         msc?.loadStructure(current_ligand?.parent_structure.rcsb_id!, nomenclatureMap_src!).then(() => {
-            ctx?.ligands.create_ligand_and_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
+            ctx?.ligands.create_ligand_surroundings(current_ligand?.ligand.chemicalId, lig_state.radius);
         });
 
         // msc?.upload_mmcif_structure(current_ligand?.parent_structure.rcsb_id!, nomenclature_map)
@@ -589,7 +588,7 @@ export default function Ligands() {
                                             )[0];
                                             dispatch(
                                                 set_current_ligand({
-                                                    ligand          : lig_and_its_structs[0][0],
+                                                    ligand: lig_and_its_structs[0][0],
                                                     parent_structure: struct
                                                 })
                                             );

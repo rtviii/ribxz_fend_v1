@@ -70,7 +70,9 @@ import {
     LigandComponent,
     mapAssetModelComponentsAdd,
     MolstarInstanceId,
-    RCSB_ID
+    RCSB_ID,
+    selectBsiteForLigand,
+    selectComponentById
 } from '@/store/molstar/slice_refs';
 
 interface LigandInfo {
@@ -536,38 +538,52 @@ const CurrentBindingSiteInfoPanel = () => {
 
         msc?.clear();
         (async () => {
-            const {root_ref, repr_ref, components} = await msc?.loadStructure(
+            // Load structure first and store ALL components
+            const {root_ref} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
+
+            const ligandComponent = await ctx?.ligands.create_ligand(
                 current_ligand.parent_structure.rcsb_id,
-                nomenclatureMap
+                current_ligand.ligand.chemicalId
             )!;
-            const refs = await ctx?.ligands.create_ligand_and_surroundings(
+
+            // Then create and add ligand + binding site
+            const refs = await ctx?.ligands.create_ligand_surroundings(
+                current_ligand.parent_structure.rcsb_id,
                 current_ligand.ligand.chemicalId,
-                bsite_radius
+                bsite_radius,
+                nomenclatureMap
             );
+
+            console.log('Received refs:', refs); // Debug log
+
             if (refs) {
-                // Add both the ligand and its binding site to Redux
-                dispatch(
-                    mapAssetModelComponentsAdd({
-                        instanceId: 'main',
-                        rcsbId: current_ligand.parent_structure.rcsb_id,
-                        components: {
-                            [current_ligand.ligand.chemicalId]: {
-                                rcsb_id: current_ligand.parent_structure.rcsb_id,
-                                chemicalId: current_ligand.ligand.chemicalId,
-                                ref: refs[current_ligand.ligand.chemicalId].ref,
-                                repr_ref: refs[current_ligand.ligand.chemicalId].repr_ref,
-                                sel_ref: refs[current_ligand.ligand.chemicalId].sel_ref
-                            } as LigandComponent,
-                            [`${current_ligand.ligand.chemicalId}_bsite`]: {
-                                rcsb_id: current_ligand.parent_structure.rcsb_id,
-                                chemicalId: current_ligand.ligand.chemicalId,
-                                ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].ref,
-                                repr_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].repr_ref,
-                                sel_ref: refs[`${current_ligand.ligand.chemicalId}_bsite`].sel_ref
-                            } as BsiteComponent
-                        }
-                    })
-                );
+                const bsiteId = `${current_ligand.ligand.chemicalId}_bsite`;
+                const bsiteRef = refs[bsiteId];
+
+                console.log('Looking for bsite with ID:', bsiteId); // Debug log
+                console.log('Found bsite ref:', bsiteRef); // Debug log
+
+                if (bsiteRef && bsiteRef.ref && bsiteRef.repr_ref && bsiteRef.sel_ref) {
+                    dispatch(
+                        mapAssetModelComponentsAdd({
+                            instanceId: 'main',
+                            rcsbId: current_ligand.parent_structure.rcsb_id,
+                            components: {
+                                [current_ligand.ligand.chemicalId]: ligandComponent,
+                                [bsiteId]: {
+                                    type: 'bsite',
+                                    rcsb_id: current_ligand.parent_structure.rcsb_id,
+                                    chemicalId: current_ligand.ligand.chemicalId,
+                                    ref: bsiteRef.ref,
+                                    repr_ref: bsiteRef.repr_ref,
+                                    sel_ref: bsiteRef.sel_ref
+                                } as BsiteComponent
+                            }
+                        })
+                    );
+                } else {
+                    console.error('Binding site refs are incomplete:', bsiteRef);
+                }
             }
 
             const residues = await msc?.ligands.get_ligand_surroundings(
@@ -581,12 +597,24 @@ const CurrentBindingSiteInfoPanel = () => {
         })();
     }, [current_ligand, data, msc, ctx, bsite_radius]);
 
-    //  useEffect(() => {
-    //         if (current_ligand === undefined) { return }
-    //             .then((ctx) => ctx.get_selection_constituents(current_ligand?.ligand.chemicalId, lig_state.radius))
-    //             .then(residues => { setSurroundingResidues(residues) })
-    //     }, [current_ligand])
+    const bsite = useSelector(state =>
+        selectBsiteForLigand(state, {
+            instanceId: 'main',
+            rcsbId: current_ligand?.parent_structure.rcsb_id,
+            chemicalId: current_ligand?.ligand.chemicalId
+        })
+    );
 
+    const ligand = useSelector(state =>
+        selectComponentById(state, {
+            instanceId: 'main',
+            rcsbId: current_ligand?.parent_structure.rcsb_id,
+            componentId: current_ligand?.ligand.chemicalId
+        })
+    );
+
+    const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
+    const [bsiteVisibility, setBsiteVisibility] = useState<boolean>(true);
     return (
         <div>
             <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
@@ -641,7 +669,23 @@ const CurrentBindingSiteInfoPanel = () => {
                     <AccordionContent>
                         <p className="text-xs">{lig_state.current_ligand?.ligand.drugbank_description}</p>
                     </AccordionContent>
-                    <ResidueGrid residues={surroundingResidues} ligandId={current_ligand?.ligand.chemicalId ?? ''} />
+
+                    <ResidueGrid
+                        residues={surroundingResidues}
+                        ligandId={current_ligand?.ligand.chemicalId ?? ''}
+                        onResidueClick={residue => {
+                            ctx?.residues.selectResidue(
+                                residue.rcsb_id,
+                                residue.auth_asym_id,
+                                residue.auth_seq_id,
+                                true
+                            );
+                        }}
+                        onResidueHover={residue => {
+                            ctx?.residues.highlightResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id);
+                        }}
+                    />
+
                     <Button
                         onClick={() => {
                             console.log(slice_refs);
@@ -649,62 +693,50 @@ const CurrentBindingSiteInfoPanel = () => {
                         {' '}
                         log ref state
                     </Button>
-                    ;
-                    {/* <div className="flex flex-wrap ">
-                        {surroundingResidues.length === 0
-                            ? null
-                            : Object.entries(
-                                  surroundingResidues.reduce((acc: Record<string, Residue[]>, next: Residue) => {
-                                      if (Object.keys(acc).includes(next.auth_asym_id)) {
-                                          acc[next.auth_asym_id].push(next);
-                                      } else {
-                                          acc[next.auth_asym_id] = [next];
-                                      }
-                                      return acc;
-                                  }, {})
-                              ).map(entry => (
-                                  <Accordion
-                                      type="single"
-                                      collapsible
-                                      className="border p-1 rounded-md w-full h-fit my-1"
-                                      key={entry[0]}>
-                                      <AccordionItem value={'other'}>
-                                          <AccordionTrigger>
-                                              <div
-                                                  className="flex flex-row justify-start w-64 border-dashed border p-1 rounded-md border-black hover:bg-pink-300"
-                                                  onMouseEnter={() => ctx?.highlightChain(entry[0])}
-                                                  onMouseLeave={() => ctx?.removeHighlight()}
-                                                  onClick={e => {
-                                                      e.stopPropagation();
-                                                      ctx?.select_chain(entry[0]);
-                                                  }}>
-                                                  <span className="font-light w-8">{entry[0]}</span>{' '}
-                                                  <span className="px-4">{nomenclatureMap[entry[0]]}</span>
-                                              </div>
-                                          </AccordionTrigger>
-                                          <AccordionContent className="flex flex-wrap">
-                                              {entry[1].map((residue, i) => {
-                                                  return (
-                                                      <ResidueBadge
-                                                          molstar_ctx={ctx}
-                                                          residue={{
-                                                              auth_asym_id: entry[0],
-                                                              auth_seq_id: residue.auth_seq_id,
-                                                              label_comp_id: residue?.label_comp_id,
-                                                              label_seq_id: residue?.label_seq_id,
-                                                              rcsb_id: residue.rcsb_id,
-                                                              polymer_class: nomenclatureMap[entry[0]]
-                                                          }}
-                                                          show_parent_chain={checked}
-                                                          key={i}
-                                                      />
-                                                  );
-                                              })}
-                                          </AccordionContent>
-                                      </AccordionItem>
-                                  </Accordion>
-                              ))}
-                    </div> */}
+
+                    <Button
+                        onClick={() => {
+                            msc?.polymers.togglePolymersVisibility(
+                                current_ligand?.parent_structure.rcsb_id,
+                                !structureVisibility
+                            );
+                            setStructureVisibility(!structureVisibility);
+                        }}>
+                        Toggle Polymers
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            msc?.bindingSites.focusBindingSite(
+                                current_ligand?.parent_structure.rcsb_id,
+                                current_ligand?.ligand.chemicalId
+                            );
+                        }}>
+                        Focus Surroundings
+                    </Button>
+
+                    <Button
+                        onClick={() => {
+                            (async () => {
+                                const bsite = msc?.bindingSites.retrieveBSiteComponent(
+                                    current_ligand?.parent_structure.rcsb_id,
+                                    current_ligand?.ligand.chemicalId
+                                );
+
+                                bsite &&
+                                    (await ctx?.ctx.dataTransaction(async () => {
+                                        ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
+                                    }));
+                            })();
+                            setBsiteVisibility(!bsiteVisibility);
+                        }}>
+                        Toggle Surroundings
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            ctx?.interactions.focus(ligand?.sel_ref);
+                        }}>
+                        Focus Ligand
+                    </Button>
                 </AccordionItem>
             </Accordion>
         </div>
@@ -718,12 +750,12 @@ const BindingSitePredictionPanel = ({}) => {
     const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
     const bsite_radius = useAppSelector(state => state.ligands_page.radius);
     const is_prediction_pending = useAppSelector(state => state.ligands_page.prediction_pending);
-
-    const prediction_data: ResidueSummary[] = useAppSelector(state =>
+    const prediction_residues = useAppSelector(state =>
         state.ligands_page.prediction_data?.purported_binding_site.chains.reduce((acc, next) => {
             return [...acc, ...next.bound_residues];
         }, [])
     );
+
     const [rootRef, setRootRef] = useState<null | string>(null);
     const [nomenclatureMap, setNomenclatureMap] = useState<null | Record<string, string>>(null);
 
@@ -736,24 +768,89 @@ const BindingSitePredictionPanel = ({}) => {
         {skip: !selected_target_structure}
     );
 
+    // First effect handles structure initialization
     useEffect(() => {
         if (!selected_target_structure || !data) return;
+        let isActive = true;
 
-        const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
-            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-            return prev;
-        }, {});
-        setNomenclatureMap(nomenclatureMap);
+        const initializeStructure = async () => {
+            try {
+                const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
+                    (prev, current) => {
+                        prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+                        return prev;
+                    },
+                    {}
+                );
+                setNomenclatureMap(nomenclatureMap);
 
-        (async () => {
-            msc_secondary?.clear();
-            const {root_ref, repr_ref, components} = await msc_secondary?.loadStructure(
-                selected_target_structure,
-                nomenclatureMap
-            )!;
-            setRootRef(root_ref);
-        })();
-    }, [selected_target_structure, data, msc_secondary]);
+                msc_secondary?.clear();
+                const {root_ref} = await msc_secondary?.loadStructure(selected_target_structure, nomenclatureMap)!;
+                setRootRef(root_ref);
+
+                if (!isActive) return;
+
+                if (current_ligand?.ligand.chemicalId && current_ligand?.parent_structure.rcsb_id && bsite_radius) {
+                    const predictionResult = await dispatch(
+                        fetchPredictionData({
+                            chemid: current_ligand.ligand.chemicalId,
+                            src: current_ligand.parent_structure.rcsb_id,
+                            tgt: selected_target_structure,
+                            radius: bsite_radius
+                        })
+                    ).unwrap();
+
+                    console.log('received prediction result:', predictionResult);
+                    if (!isActive) return;
+                    console.log('2received prediction result:', predictionResult);
+
+                    if (predictionResult) {
+                        // assuming this is your prediction data
+                        const prediction_residues = predictionResult.purported_binding_site.chains.reduce(
+                            (acc, next) => {
+                                return [...acc, ...next.bound_residues];
+                            },
+                            []
+                        );
+
+                        const refs = await ctx_secondary?.ligands.create_from_prediction_data(
+                            selected_target_structure,
+                            root_ref,
+                            prediction_residues,
+                            current_ligand.ligand.chemicalId,
+                            nomenclatureMap
+                        );
+                        console.log('Received refs');
+
+                        if (refs && isActive) {
+                            console.log('Fired dispatch for mapadd');
+
+                            const bsiteId = `${current_ligand.ligand.chemicalId}_predicted_bsite`;
+                            dispatch(
+                                mapAssetModelComponentsAdd({
+                                    instanceId: 'auxiliary',
+                                    rcsbId: selected_target_structure,
+                                    components: {
+                                        [bsiteId]: refs
+                                    }
+                                })
+                            );
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error in structure initialization:', error);
+            }
+        };
+
+        initializeStructure();
+
+        return () => {
+            isActive = false;
+        };
+    }, [selected_target_structure, data, msc_secondary, current_ligand, bsite_radius]);
+
+    const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
 
     return (
         <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
@@ -790,26 +887,6 @@ const BindingSitePredictionPanel = ({}) => {
                     if (selected_target_structure === null || current_ligand === null) {
                         return;
                     }
-                    dispatch(
-                        fetchPredictionData({
-                            chemid: current_ligand?.ligand.chemicalId,
-                            src: current_ligand?.parent_structure.rcsb_id,
-                            tgt: selected_target_structure,
-                            radius: bsite_radius
-                        })
-                    );
-
-                    ctx_secondary?.ligands
-                        .create_from_prediction_data(rootRef, prediction_data, nomenclatureMap)
-                        .then(result => {
-                            if (result) {
-                                // Focus on the new component
-                                ctx_secondary?.interactions.focus(result.componentRef);
-
-                                // // Optionally store the refs for later manipulation
-                                // setPredictionComponentRef(result.componentRef);
-                            }
-                        });
                 }}>
                 {' '}
                 {is_prediction_pending ? (
@@ -821,37 +898,78 @@ const BindingSitePredictionPanel = ({}) => {
                 )}
             </Button>
 
-            <ResidueGrid residues={prediction_data as ResidueData[]} ligandId={current_ligand?.ligand.chemicalId} />
+            <ResidueGrid
+                residues={prediction_residues as ResidueData[]}
+                ligandId={current_ligand?.ligand.chemicalId}
+                onResidueClick={residue => {
+                    ctx_secondary?.residues.selectResidue(
+                        residue.rcsb_id,
+                        residue.auth_asym_id,
+                        residue.auth_seq_id,
+                        true
+                    );
+                }}
+                onResidueHover={residue => {
+                    ctx_secondary?.residues.highlightResidue(
+                        residue.rcsb_id,
+                        residue.auth_asym_id,
+                        residue.auth_seq_id
+                    );
+                }}
+            />
+
+            <Button
+                onClick={() => {
+                    msc_secondary?.polymers.togglePolymersVisibility(selected_target_structure, !structureVisibility);
+                    setStructureVisibility(!structureVisibility);
+                }}>
+                Toggle Polymers
+            </Button>
+            <Button
+                onClick={() => {
+                    msc_secondary?.bindingSites.focusBindingSite(
+                        selected_target_structure,
+                        current_ligand?.ligand.chemicalId
+                    );
+                }}>
+                Focus Surroundings
+            </Button>
 
             <Button
                 variant={'outline'}
                 // disabled={prediction_data === undefined || _.isEmpty(prediction_data)}
                 onClick={() => {
-                    if (prediction_data === undefined || prediction_data === null || rootRef === null) {
-                        return;
-                    }
+                    if (!bsiteRef) return;
 
-                    // Group residues by chain (auth_asym_id)
-                    const residuesByChain = prediction_data.reduce((acc, residue) => {
-                        const chain = residue.auth_asym_id;
-                        if (!acc[chain]) {
-                            acc[chain] = [];
-                        }
-                        acc[chain].push([residue.auth_asym_id, residue.auth_seq_id] as ResidueData);
-                        return acc;
-                    }, {} as Record<string, ResidueData[]>);
+                    const ref = bsiteRef.repr_ref;
+                    // Focus
+                    ctx_secondary?.interactions.focus(ref);
 
-                    // Apply selections in one batch transaction
-                    ctx_secondary?.ctx.dataTransaction(async () => {
-                        Object.entries(residuesByChain).forEach(([auth_asym_id, residues]) => {
-                            // Get the polymer ref for this chain
-                            const polymerRef = msc_secondary?.retrievePolymerRef(auth_asym_id);
-                            if (!polymerRef) return;
+                    // Select
+                    ctx_secondary?.interactions.selection(ref, 'add');
 
-                            // Select residues for this chain's component
-                            ctx_secondary?.interactions.select_residues(polymerRef, residues, 'add');
-                        });
-                    });
+                    // if (prediction_data === undefined || prediction_data === null || rootRef === null) {
+                    //     return;
+                    // }
+                    // // Group residues by chain (auth_asym_id)
+                    // const residuesByChain = prediction_data.reduce((acc, residue) => {
+                    //     const chain = residue.auth_asym_id;
+                    //     if (!acc[chain]) {
+                    //         acc[chain] = [];
+                    //     }
+                    //     acc[chain].push([residue.auth_asym_id, residue.auth_seq_id] as ResidueData);
+                    //     return acc;
+                    // }, {} as Record<string, ResidueData[]>);
+                    // // Apply selections in one batch transaction
+                    // ctx_secondary?.ctx.dataTransaction(async () => {
+                    //     Object.entries(residuesByChain).forEach(([auth_asym_id, residues]) => {
+                    //         // Get the polymer ref for this chain
+                    //         const polymerRef = msc_secondary?.retrievePolymerRef(auth_asym_id);
+                    //         if (!polymerRef) return;
+                    //         // Select residues for this chain's component
+                    //         ctx_secondary?.interactions.select_residues(polymerRef, residues, 'add');
+                    //     });
+                    // });
                 }}>
                 {' '}
                 Display Prediction
@@ -1050,19 +1168,6 @@ function LigandsPageWithoutContext() {
         }
     }, [isPredictionPanelOpen]);
 
-    // const current_selected_target = useAppSelector(state => state.homepage_overview.selected);
-    // useEffect(() => {
-    //     if (current_selected_target !== null) {
-    //         msc_secondary?.loadStructure(current_selected_target.rcsb_id, nomenclatureMap_src!);
-    //     }
-    //     dispatch(set_ligand_prediction_data(null));
-    // }, [current_selected_target]);
-
-    // const ligands_state = useAppSelector(state => state.ligands_page.ligands_page);
-
-    useEffect(() => {
-        console.log('predictio npanel open:', isPredictionPanelOpen);
-    }, [isPredictionPanelOpen]);
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal">
