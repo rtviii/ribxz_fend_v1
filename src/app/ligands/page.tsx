@@ -614,6 +614,7 @@ const CurrentBindingSiteInfoPanel = () => {
     );
 
     const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
+    const [bsiteVisibility, setBsiteVisibility] = useState<boolean>(true);
     return (
         <div>
             <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
@@ -713,6 +714,23 @@ const CurrentBindingSiteInfoPanel = () => {
                         Focus Surroundings
                     </Button>
 
+                    <Button
+                        onClick={() => {
+                            (async () => {
+                                const bsite = msc?.bindingSites.retrieveBSiteComponent(
+                                    current_ligand?.parent_structure.rcsb_id,
+                                    current_ligand?.ligand.chemicalId
+                                );
+
+                                bsite &&
+                                    (await ctx?.ctx.dataTransaction(async () => {
+                                        ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
+                                    }));
+                            })();
+                            setBsiteVisibility(!bsiteVisibility);
+                        }}>
+                        Toggle Surroundings
+                    </Button>
                     <Button
                         onClick={() => {
                             ctx?.interactions.focus(ligand?.sel_ref);
