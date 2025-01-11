@@ -221,8 +221,8 @@ export class MolstarStateController {
         togglePolymersVisibility: async (rcsb_id: string, visible: boolean) => {
             // Get only polymer components using our type discriminator
             const polymerComponents = selectComponentsForRCSB(this.getState(), {
-                instanceId   : this.instanceId,
-                rcsbId       : rcsb_id,
+                instanceId: this.instanceId,
+                rcsbId: rcsb_id,
                 componentType: 'polymer'
             });
 
@@ -370,7 +370,6 @@ export class MolstarStateController {
 
             if (bsite) {
                 // Could use either the main ref or sel_ref depending on your needs
-
                 this.viewer.interactions.focus(bsite.sel_ref);
             }
         },
