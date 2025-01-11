@@ -138,14 +138,14 @@ export const fetchPredictionData = createAsyncThunk(
                 targetStructure: params.tgt,
                 radius: params.radius
             })
-        ).then(res => {
-            console.log('hit prediction endpoint');
-            return res;
-        });
+        );
+        
         if ('data' in result) {
-            dispatch(set_ligand_prediction_data(result.data as any));
-            console.log('Dispatched prediction data:');
-            console.log(result.data);
+            dispatch(set_ligand_prediction_data(result.data));
+            console.log('Dispatched prediction data:', result.data);
+            return result.data;  // <-- Return the data here
         }
+        
+        throw new Error('No data received from prediction endpoint');  // <-- Handle error case
     }
 );
