@@ -148,7 +148,6 @@ export class ribxzMstarv2 {
                 typeParams: sphere,
                 colorParams: sphere.color ? {value: Color(0xffffff)} : void 0
             });
-            this.ligands.create_surroundings(structureRef);
         },
         constriction_site: (xyz: number[]) => {
             let [x, y, z] = xyz;
@@ -345,9 +344,11 @@ export class ribxzMstarv2 {
     }
 
     ligands = {
-        create_ligand: async (chemicalId: string) => {
+        create_ligand: async (rcsb_id: string, chemicalId: string): Promise<LigandComponent> => {
+            let ligandRefs: LigandComponent;
+
             await this.ctx.dataTransaction(async () => {
-                let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
+                const structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
                     structureRef,
                     number: i + 1
                 }));
@@ -367,21 +368,35 @@ export class ribxzMstarv2 {
                     })
                 ]);
 
+                // Create ligand group with consistent ref naming
                 const group = update
                     .to(struct.structureRef.cell)
-                    .group(StateTransforms.Misc.CreateGroup, {label: 'ligand_group'}, {ref: `ligand_${chemicalId}`});
+                    .group(
+                        StateTransforms.Misc.CreateGroup,
+                        {label: `${chemicalId} Ligand`},
+                        {ref: `${chemicalId}_ligand_group`}
+                    );
+
+                // Create selection with consistent ref naming
                 const coreSel = group.apply(
                     StateTransforms.Model.StructureSelectionFromExpression,
-                    {label: chemicalId, expression: ligand},
-                    {ref: StateElements.HetGroupFocus}
+                    {
+                        label: chemicalId,
+                        expression: ligand
+                    },
+                    {ref: `${chemicalId}_ligand_sel`}
                 );
 
-                coreSel.apply(
+                // Create ball-and-stick representation with consistent ref naming
+                const ballAndStickRepr = coreSel.apply(
                     StateTransforms.Representation.StructureRepresentation3D,
                     createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
                         type: 'ball-and-stick'
-                    })
+                    }),
+                    {ref: `${chemicalId}_ligand_repr`}
                 );
+
+                // Optional: Add label representation
                 coreSel.apply(
                     StateTransforms.Representation.StructureRepresentation3D,
                     createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
@@ -395,71 +410,24 @@ export class ribxzMstarv2 {
                     tree: update
                 });
 
-                // const compiled = ;
-                const selection = compile<StructureSelection>(ligand)(
-                    new QueryContext(struct.structureRef.cell.obj?.data!)
-                );
-                let loci = StructureSelection.toLociWithSourceUnits(selection);
-
-                this.ctx.managers.structure.selection.clear();
-                this.ctx.managers.structure.selection.fromLoci('add', loci);
-                this.ctx.managers.camera.focusLoci(loci);
+                // Create properly typed LigandComponent
+                ligandRefs = {
+                    type: 'ligand',
+                    rcsb_id,
+                    chemicalId,
+                    ref: `${chemicalId}_ligand_group`,
+                    repr_ref: `${chemicalId}_ligand_repr`,
+                    sel_ref: `${chemicalId}_ligand_sel`
+                };
             });
 
-            return this;
+            return ligandRefs!;
         },
-        create_surroundings: async (ref: string) => {
-            const state = this.ctx.state.data;
-            const cell = state.select(StateSelection.Generators.byRef(ref))[0];
-            if (!cell?.obj) return;
-            const loci = Structure.toStructureElementLoci(cell.obj.data);
-
-            const x = StructureSelectionQueries.surroundings.expression;
-
-            const surroundings = MS.struct.modifier.includeSurroundings({
-                0: x,
-                radius: 5,
-                'as-whole-residues': true
-            });
-
-            let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
-                structureRef,
-                number: i + 1
-            }));
-
-            const struct = structures[0];
-            const update2 = this.ctx.build();
-            const group2 = update2
-                .to(struct.structureRef.cell)
-                .group(StateTransforms.Misc.CreateGroup, {label: ` Surroundins Group`}, {ref: 'surroundings'});
-            // Create surroundings selection and representations
-            const surroundingsSel = group2.apply(
-                StateTransforms.Model.StructureSelectionFromExpression,
-                {
-                    label: ` PTC Surroundings (5 Å)`,
-                    expression: surroundings
-                },
-                {ref: 'surroundingsSel'}
-            );
-            surroundingsSel.apply(
-                StateTransforms.Representation.StructureRepresentation3D,
-                createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                    type: 'ball-and-stick'
-                }),
-                {ref: 'surroundingsBallAndStick'}
-            );
-            // surroundingsSel.apply(StateTransforms.Representation.StructureRepresentation3D, createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, { type: 'label', typeParams: { level: 'residue' } }), { ref: 'surroundingsLabels' });
-            await PluginCommands.State.Update(this.ctx, {
-                state: this.ctx.state.data,
-                tree: update2
-            });
-        },
-
         createBindingSiteComponent: async (
             rcsb_id: string,
             cell: StateObjectCell,
             residues: {auth_asym_id: string; auth_seq_id: number}[],
-            componentId: string,
+            chemicalId: string,
             nomenclature_map: Record<string, string>
         ): Promise<BsiteComponent> => {
             const ctx = this.ctx;
@@ -479,8 +447,8 @@ export class ribxzMstarv2 {
                 .to(cell)
                 .group(
                     StateTransforms.Misc.CreateGroup,
-                    {label: `${componentId} Binding Site`},
-                    {ref: `${componentId}_bsite_group`}
+                    {label: `${chemicalId} Binding Site`},
+                    {ref: `${chemicalId}_bsite_group`}
                 );
 
             // Create expressions for each chain's residues
@@ -507,10 +475,10 @@ export class ribxzMstarv2 {
             const bsiteSel = bsiteGroup.apply(
                 StateTransforms.Model.StructureSelectionFromExpression,
                 {
-                    label: `${componentId} Binding Site Selection`,
+                    label: `${chemicalId} Binding Site Selection`,
                     expression: combinedExpr
                 },
-                {ref: `${componentId}_bsite_sel`}
+                {ref: `${chemicalId}_bsite_sel`}
             );
 
             // Create a representation for each chain with correct color
@@ -526,7 +494,7 @@ export class ribxzMstarv2 {
                             ]
                         }
                     }),
-                    {ref: `${componentId}_bsite_repr_${chain}`}
+                    {ref: `${chemicalId}_bsite_repr_${chain}`}
                 );
             }
 
@@ -536,12 +504,12 @@ export class ribxzMstarv2 {
             });
 
             return {
-                chemicalId: componentId,
+                chemicalId: chemicalId,
                 rcsb_id,
                 type: 'bsite',
-                ref: `${componentId}_bsite_group`,
-                sel_ref: `${componentId}_bsite_sel`,
-                repr_ref: `${componentId}_bsite_repr_ball-and-stick`
+                ref: `${chemicalId}_bsite_group`,
+                sel_ref: `${chemicalId}_bsite_sel`,
+                repr_ref: `${chemicalId}_bsite_repr_ball-and-stick`
             };
         },
 

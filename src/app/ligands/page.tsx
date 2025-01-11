@@ -527,68 +527,74 @@ const CurrentBindingSiteInfoPanel = () => {
         {skip: !current_ligand}
     );
 
-useEffect(() => {
-    if (!current_ligand || !data) return;
+    useEffect(() => {
+        if (!current_ligand || !data) return;
 
-    const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
-        prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-        return prev;
-    }, {});
+        const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
+            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+            return prev;
+        }, {});
 
-    msc?.clear();
-    (async () => {
-        // Load structure first and store ALL components
-        const {root_ref} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
-        
-        // Then create and add ligand + binding site
-        const refs = await ctx?.ligands.create_ligand_surroundings(
-            current_ligand.parent_structure.rcsb_id,
-            current_ligand.ligand.chemicalId,
-            bsite_radius,
-            nomenclatureMap
-        );
+        msc?.clear();
+        (async () => {
+            // Load structure first and store ALL components
+            const {root_ref} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
 
-        console.log('Received refs:', refs); // Debug log
+            const ligandComponent = await ctx?.ligands.create_ligand(
+                current_ligand.parent_structure.rcsb_id,
+                current_ligand.ligand.chemicalId
+            )!;
 
-        if (refs) {
-            const bsiteId = `${current_ligand.ligand.chemicalId}_bsite`;
-            const bsiteRef = refs[bsiteId];
-            
-            console.log('Looking for bsite with ID:', bsiteId); // Debug log
-            console.log('Found bsite ref:', bsiteRef); // Debug log
+            // Then create and add ligand + binding site
+            const refs = await ctx?.ligands.create_ligand_surroundings(
+                current_ligand.parent_structure.rcsb_id,
+                current_ligand.ligand.chemicalId,
+                bsite_radius,
+                nomenclatureMap
+            );
 
-            if (bsiteRef && bsiteRef.ref && bsiteRef.repr_ref && bsiteRef.sel_ref) {
-                dispatch(
-                    mapAssetModelComponentsAdd({
-                        instanceId: 'main',
-                        rcsbId: current_ligand.parent_structure.rcsb_id,
-                        components: {
-                            [bsiteId]: {
-                                type: 'bsite',
-                                rcsb_id: current_ligand.parent_structure.rcsb_id,
-                                chemicalId: current_ligand.ligand.chemicalId,
-                                ref: bsiteRef.ref,
-                                repr_ref: bsiteRef.repr_ref,
-                                sel_ref: bsiteRef.sel_ref
-                            } as BsiteComponent
-                        }
-                    })
-                );
-            } else {
-                console.error('Binding site refs are incomplete:', bsiteRef);
+            console.log('Received refs:', refs); // Debug log
+
+            if (refs) {
+                const bsiteId = `${current_ligand.ligand.chemicalId}_bsite`;
+                const bsiteRef = refs[bsiteId];
+
+                console.log('Looking for bsite with ID:', bsiteId); // Debug log
+                console.log('Found bsite ref:', bsiteRef); // Debug log
+
+                if (bsiteRef && bsiteRef.ref && bsiteRef.repr_ref && bsiteRef.sel_ref) {
+                    dispatch(
+                        mapAssetModelComponentsAdd({
+                            instanceId: 'main',
+                            rcsbId: current_ligand.parent_structure.rcsb_id,
+                            components: {
+                                [current_ligand.ligand.chemicalId]: ligandComponent,
+                                [bsiteId]: {
+                                    type: 'bsite',
+                                    rcsb_id: current_ligand.parent_structure.rcsb_id,
+                                    chemicalId: current_ligand.ligand.chemicalId,
+                                    ref: bsiteRef.ref,
+                                    repr_ref: bsiteRef.repr_ref,
+                                    sel_ref: bsiteRef.sel_ref
+                                } as BsiteComponent
+                            }
+                        })
+                    );
+                } else {
+                    console.error('Binding site refs are incomplete:', bsiteRef);
+                }
             }
-        }
 
-        const residues = await msc?.ligands.get_ligand_surroundings(
-            root_ref,
-            current_ligand.ligand.chemicalId,
-            bsite_radius
-        );
-        if (residues !== undefined) {
-            setSurroundingResidues(residues);
-        }
-    })();
-}, [current_ligand, data, msc, ctx, bsite_radius]);
+            const residues = await msc?.ligands.get_ligand_surroundings(
+                root_ref,
+                current_ligand.ligand.chemicalId,
+                bsite_radius
+            );
+            if (residues !== undefined) {
+                setSurroundingResidues(residues);
+            }
+        })();
+    }, [current_ligand, data, msc, ctx, bsite_radius]);
 
     const bsite = useSelector(state =>
         selectBsiteForLigand(state, {
