@@ -510,19 +510,22 @@ export class ribxzMstarv2 {
                 const ballAndStickRepr = coreSel.apply(
                     StateTransforms.Representation.StructureRepresentation3D,
                     createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                        type: 'ball-and-stick'
+                        type: 'ball-and-stick',
+                        color: 'uniform',
+                        colorParams: {value: Color(0xe24e1b)},
+                        typeParams: {ignoreLight: true, emissive: 0.1, sizeFactor: 0.2}
                     }),
                     {ref: `${chemicalId}_ligand_repr`}
                 );
 
                 // Optional: Add label representation
-                coreSel.apply(
-                    StateTransforms.Representation.StructureRepresentation3D,
-                    createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                        type: 'label',
-                        typeParams: {level: 'residue'}
-                    })
-                );
+                // coreSel.apply(
+                //     StateTransforms.Representation.StructureRepresentation3D,
+                //     createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+                //         type: 'label',
+                //         typeParams: {level: 'residue'}
+                //     })
+                // );
 
                 await PluginCommands.State.Update(this.ctx, {
                     state: this.ctx.state.data,
@@ -596,28 +599,17 @@ export class ribxzMstarv2 {
                     {ref: `${chemicalId}_chain_${chain}_sel`}
                 );
 
-                const chainColors: Record<string, any> = {
-                    A: Color(0xff0000), // Red
-                    L: Color(0x00ff00), // Green
-                    a: Color(0x0000ff), // Blue
-                    X: Color(0xffff00), // Yellow
-                    '1': Color(0xff00ff), // Magenta
-                    '2': Color(0x00ffff), // Cyan
-                    '3': Color(0xffa500), // Orange
-                    '4': Color(0x800080), // Purple
-                    '5': Color(0x008000), // Dark Green
-                    '6': Color(0x800000) // Maroon
-                };
-
-                const colorObject = chainColors[chain] || Color(0x808080);
-
                 chainGroup.apply(
                     StateTransforms.Representation.StructureRepresentation3D,
                     createStructureRepresentationParams(ctx, cell.obj?.data, {
                         type: 'ball-and-stick',
                         color: 'uniform',
                         colorParams: {
-                            value: colorObject
+                            value: PolymerColorschemeWarm[nomenclature_map[chain] as PolymerClass]
+                        },
+                        typeParams: {
+                            ignoreLight: true,
+                            emissive: 0.1
                         }
                     }),
                     {ref: `${chemicalId}_chain_${chain}_repr`}
