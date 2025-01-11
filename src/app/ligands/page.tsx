@@ -802,12 +802,11 @@ const BindingSitePredictionPanel = ({}) => {
                             current_ligand.ligand.chemicalId,
                             nomenclatureMap
                         );
-                        console.log("Received refs");
-                        
+                        console.log('Received refs');
 
                         if (refs && isActive) {
-                            console.log("Fired dispatch for mapadd");
-                            
+                            console.log('Fired dispatch for mapadd');
+
                             const bsiteId = `${current_ligand.ligand.chemicalId}_predicted_bsite`;
                             dispatch(
                                 mapAssetModelComponentsAdd({

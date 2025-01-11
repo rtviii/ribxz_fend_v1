@@ -675,35 +675,6 @@ export class ribxzMstarv2 {
                     by: ligand
                 });
 
-                // Create ligand group
-                // const update = this.ctx.build();
-                // const ligandGroup = update
-                //     .to(struct.structureRef.cell)
-                //     .group(
-                //         StateTransforms.Misc.CreateGroup,
-                //         {label: `${chemicalId} Ligand Group`},
-                //         {ref: refs[chemicalId].ref}
-                //     );
-
-                // const ligandSel = ligandGroup.apply(
-                //     StateTransforms.Model.StructureSelectionFromExpression,
-                //     {label: `${chemicalId} Ligand`, expression: ligand},
-                //     {ref: refs[chemicalId].sel_ref}
-                // );
-
-                // ligandSel.apply(
-                //     StateTransforms.Representation.StructureRepresentation3D,
-                //     createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                //         type: 'ball-and-stick'
-                //     }),
-                //     {ref: refs[chemicalId].repr_ref}
-                // );
-
-                // await PluginCommands.State.Update(this.ctx, {
-                //     state: this.ctx.state.data,
-                //     tree: update
-                // });
-
                 // Get surroundings residues
                 const compiled = compile<StructureSelection>(surroundingsWithoutLigand)(
                     new QueryContext(struct.structureRef.cell.obj?.data!)
@@ -742,7 +713,7 @@ export class ribxzMstarv2 {
             rcsb_id: string,
             root_ref: string,
             prediction_data: ResidueSummary[],
-            chemical_id:string,
+            chemical_id: string,
             nomenclature_map: Record<string, string>
         ) => {
             const cell = this.ctx.state.data.select(StateSelection.Generators.byRef(root_ref))[0];
