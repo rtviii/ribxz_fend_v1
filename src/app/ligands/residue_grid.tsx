@@ -3,6 +3,24 @@ import {Card, CardContent} from '@/components/ui/card';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
 import {Download, Square, CheckSquare} from 'lucide-react';
 import {IonNames} from '@/components/mstar/providers/polymer_preset';
+import {Color} from 'molstar/lib/mol-util/color';
+import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/colorscheme_warm';
+
+const getLuminance = (hexColor: string): number => {
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16) / 255;
+    const g = parseInt(hex.slice(2, 4), 16) / 255;
+    const b = parseInt(hex.slice(4, 6), 16) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+const getContrastColor = (hexColor: string): string => {
+    const luminance = getLuminance(hexColor);
+    if (luminance > 0.7) return '#374151'; // gray-700
+    if (luminance > 0.5) return '#6B7280'; // gray-500
+    if (luminance > 0.3) return '#D1D5DB'; // gray-300
+    return '#F3F4F6'; // gray-100
+};
 
 interface ResidueSummary {
     label_seq_id: number | null | undefined;
@@ -64,6 +82,19 @@ const ResidueGrid: React.FC<ResidueGridProps> = ({
             return acc;
         }, new Map<string, ResidueSummary[]>());
 
+    const getPolymerStyle = (polymerClass: string) => {
+        const color = PolymerColorschemeWarm[polymerClass];
+        if (!color) return {};
+
+        const hexColor = Color.toHexStyle(color);
+        const textColor = getContrastColor(hexColor);
+
+        return {
+            backgroundColor: hexColor,
+            color: textColor
+        };
+    };
+
     const renderResidueGrid = (residuesToRender: ResidueSummary[]) => (
         <div className="flex flex-wrap gap-0.5 p-1">
             {residuesToRender.map((residue, index) => (
@@ -82,29 +113,41 @@ const ResidueGrid: React.FC<ResidueGridProps> = ({
             <div className="border-b bg-gray-100/50">
                 <div className="px-3 py-1.5 text-sm">{ligandId} Binding Site</div>
             </div>
-            <CardContent className="p-2">
+            <CardContent className="p-2 space-y-1">
                 {groupByChain ? (
                     <Accordion type="multiple" className="space-y-1">
-                        {Array.from(groupedResidues.entries()).map(([chainId, chainResidues]) => (
-                            <AccordionItem value={chainId} key={chainId} className="border-0 bg-gray-50/50">
-                                <AccordionTrigger className="hover:no-underline py-1.5 px-2">
-                                    <div className="flex items-center text-sm">
-                                        {nomenclature_map[chainId] ? (
-                                            <>
-                                                {nomenclature_map[chainId]}
-                                                <span className="ml-1 text-gray-500">(Chain {chainId})</span>
-                                            </>
-                                        ) : (
-                                            <>Chain {chainId}</>
-                                        )}
-                                        <span className="ml-2 text-xs text-gray-500">
-                                            ({chainResidues.length} residues)
-                                        </span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="pt-0">{renderResidueGrid(chainResidues)}</AccordionContent>
-                            </AccordionItem>
-                        ))}
+                        {Array.from(groupedResidues.entries()).map(([chainId, chainResidues]) => {
+                            const polymerClass = nomenclature_map[chainId];
+                            const style = polymerClass ? getPolymerStyle(polymerClass) : {};
+
+                            return (
+                                <AccordionItem
+                                    value={chainId}
+                                    key={chainId}
+                                    className="relative border rounded-lg overflow-hidden bg-white shadow-sm group/item hover:shadow-md transition-all duration-200 mb-2">
+                                    <AccordionTrigger className="hover:no-underline py-1.5 px-2 group-hover/item:bg-gray-100/80">
+                                        <div className="flex items-center justify-between w-full px-1">
+                                            <div className="flex items-center gap-3">
+                                                <code className="text-xs text-gray-600">auth_asym_id: {chainId}</code>
+                                                {polymerClass && (
+                                                    <span
+                                                        className="px-2 py-0.5 rounded text-xs font-medium"
+                                                        style={style}>
+                                                        {polymerClass}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className="text-xs text-gray-500">
+                                                {chainResidues.length} residues
+                                            </span>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pt-0 group-hover/item:bg-gray-50/80 transition-colors">
+                                        {renderResidueGrid(chainResidues)}
+                                    </AccordionContent>
+                                </AccordionItem>
+                            );
+                        })}
                     </Accordion>
                 ) : (
                     renderResidueGrid(

@@ -63,9 +63,9 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
         ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
     };
 
-    const color = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
-    const hexcol = Color.toHexStyle(color);
-    const textColor = getContrastColor(hexcol);
+    const color            = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
+    const hexcol           = Color.toHexStyle(color);
+    const textColor        = getContrastColor(hexcol);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200';
 
     return (
