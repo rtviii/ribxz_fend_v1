@@ -1,13 +1,14 @@
 'use client'
 import { createAsyncThunk, createListenerMiddleware, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum, LigandTransposition, Polymer, Protein, RibosomeStructure, ribxz_api, Rna } from '@/store/ribxz_api/ribxz_api'
+import {  LigandTransposition, Polymer, Protein, RibosomeStructure, ribxz_api, Rna } from '@/store/ribxz_api/ribxz_api'
+import { PolymerClass } from '@/components/filters/polymers_filters_component'
 
 export interface StructureFilters {
     search          : string | null
     year            : [number | null, number | null]
     resolution      : [number | null, number | null]
     subunit_presence: 'LSU+SSU' | 'SSU' | 'LSU' | null
-    polymer_classes : CytosolicRnaClassMitochondrialRnaClasstRnaElongationFactorClassInitiationFactorClassCytosolicProteinClassMitochondrialProteinClassUnionEnum[]
+    polymer_classes : PolymerClass[]
     source_taxa     : number[]
     host_taxa       : number[]
 }

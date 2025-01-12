@@ -7,7 +7,7 @@ import Link from "next/link"
 import Image from 'next/image'
 import { useAppSelector } from "@/store/store"
 import { contract_taxname, parseDateString } from "@/my_utils"
-import { ExpMethodBadge } from "./exp_method_badge"
+import { ExpMethodBadge } from "./text_aides/exp_method_badge"
 import { useState } from "react"
 import { ChevronRight } from "lucide-react"
 const RCSB_IDs = [
@@ -196,7 +196,7 @@ export function StructureCard({ _ }: { _: RibosomeStructure }) {
   }
 
   // const pic = "8WID.gif"
-  const taxid_dict = useAppSelector(state => state.ui.taxid_dict)
+  const taxid_dict = useAppSelector(state => state.homepage.taxid_dict)
 
   return (
 <Link href={`/structures/${_.rcsb_id}`}>

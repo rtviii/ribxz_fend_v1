@@ -116,7 +116,7 @@ const PolymersTable: React.FC<PolymersTableProps> = ({ polymers, visibleColumns 
   const primary_polymers =  polymers.filter(p=>p.assembly_id ===0)
     const [selectedIds, setSelectedIds]   = useState<Set<string>>(new Set());
     const [showSequence, setShowSequence] = useState(false);
-    const taxdict                         = useAppSelector((state) => state.ui.taxid_dict);
+    const taxdict                         = useAppSelector((state) => state.homepage.taxid_dict);
 
     const toggleSelected = (id: string) => {
         setSelectedIds((prev) => {
