@@ -11,16 +11,16 @@ import {mapAssetModelComponentsAdd} from '@/store/molstar/slice_refs';
 import {Button} from '@/components/ui/button';
 import ResidueGrid from './residue_grid';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
-import { Spinner } from '@/components/ui/spinner';
+import {Spinner} from '@/components/ui/spinner';
 
 export default function BindingSitePredictionPanel({}) {
-    const dispatch                                       = useAppDispatch();
+    const dispatch = useAppDispatch();
     const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
-    const current_ligand                                 = useAppSelector(state => state.ligands_page.current_ligand);
-    const selected_target_structure                      = useAppSelector(state => state.ligands_page.selected_target_structure);
-    const bsite_radius                                   = useAppSelector(state => state.ligands_page.radius);
-    const is_prediction_pending                          = useAppSelector(state => state.ligands_page.prediction_pending);
-    const prediction_residues                            = useAppSelector(state =>
+    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
+    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
+    const is_prediction_pending = useAppSelector(state => state.ligands_page.prediction_pending);
+    const prediction_residues = useAppSelector(state =>
         state.ligands_page.prediction_data?.purported_binding_site.chains.reduce((acc, next) => {
             return [...acc, ...next.bound_residues];
         }, [])
@@ -209,10 +209,8 @@ export default function BindingSitePredictionPanel({}) {
                 variant={'outline'}
                 onClick={() => {
                     if (!bsiteRef) return;
-
                     const ref = bsiteRef.repr_ref;
                     ctx_secondary?.interactions.focus(ref);
-
                     ctx_secondary?.interactions.selection(ref, 'add');
                 }}>
                 {' '}

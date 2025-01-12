@@ -27,127 +27,135 @@ const chemical_structure_link = (ligand_id: string | undefined) => {
     }
     return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id.toUpperCase()[0]}/${ligand_id.toUpperCase()}.svg`;
 };
-export default function CurrentBindingSiteInfoPanel() {
-    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const lig_state = useAppSelector(state => state.ligands_page);
-    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
-    const slice_refs = useAppSelector(state => state.mstar_refs);
-    const [refetchParentStruct] = ribxz_api.endpoints.routersRouterStructStructureProfile.useLazyQuery();
-
-    const dispatch = useAppDispatch();
+const useSurroundingResidues = (
+    currentLigand,
+    msc,
+    rootRef, // New parameter to maintain dependency
+    bsiteRadius
+) => {
     const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummary[]>([]);
-    const [parentStructProfile, setParentStructProfile] = useState<RibosomeStructure>({} as RibosomeStructure);
-
-    const mainMolstarService = useMolstarInstance('main');
-    const ctx = mainMolstarService?.viewer;
-    const msc = mainMolstarService?.controller;
 
     useEffect(() => {
-        if (current_ligand?.parent_structure.rcsb_id === undefined) {
-            return;
-        }
-        const fetchData = async () => {
-            try {
-                const result = await refetchParentStruct({
-                    rcsbId: current_ligand?.parent_structure.rcsb_id
-                }).unwrap();
-                setParentStructProfile(result);
-            } catch (error) {
-                console.error('Error fetching parent struct:', error);
-            }
-        };
-        fetchData();
-    }, [current_ligand]);
+        if (!currentLigand || !msc || !rootRef) return;
 
-    const {data} = useRoutersRouterStructStructureProfileQuery(
-        {rcsbId: current_ligand?.parent_structure.rcsb_id},
-        {skip: !current_ligand}
-    );
-
-    useEffect(() => {
-        if (!current_ligand || !data) return;
-
-        const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce((prev, current) => {
-            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-            return prev;
-        }, {});
-
-        msc?.clear();
-        (async () => {
-            // Load structure first and store ALL components
-            const {root_ref} = await msc?.loadStructure(current_ligand.parent_structure.rcsb_id, nomenclatureMap)!;
-
-            const ligandComponent = await ctx?.ligands.create_ligand(
-                current_ligand.parent_structure.rcsb_id,
-                current_ligand.ligand.chemicalId
-            )!;
-
-            // Then create and add ligand + binding site
-            const refs = await ctx?.ligands.create_ligand_surroundings(
-                current_ligand.parent_structure.rcsb_id,
-                current_ligand.ligand.chemicalId,
-                bsite_radius,
-                nomenclatureMap
+        const fetchSurroundingResidues = async () => {
+            const residues = await msc.ligands.get_ligand_surroundings(
+                rootRef,
+                currentLigand.ligand.chemicalId,
+                bsiteRadius
             );
 
-            console.log('Received refs:', refs); // Debug log
+            if (residues) {
+                setSurroundingResidues(residues);
+            }
+        };
+
+        fetchSurroundingResidues();
+    }, [currentLigand, msc, rootRef, bsiteRadius]);
+
+    return surroundingResidues;
+};
+const useStructureSetup = (
+    currentLigand,
+    msc,
+    ctx,
+    bsiteRadius,
+    dispatch,
+    data 
+) => {
+    const [rootRef, setRootRef] = useState(null);
+    const [nomenclatureMap, setNomenclatureMap] = useState({});
+
+    useEffect(() => {
+        if (!currentLigand || !data || !msc) return;
+
+        const setupStructure = async () => {
+            // Create nomenclature map
+            const newNomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
+                (prev, current) => {
+                    prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+                    return prev;
+                },
+                {}
+            );
+            setNomenclatureMap(newNomenclatureMap);
+
+            // Clear and load structure
+            msc.clear();
+            const {root_ref} = await msc.loadStructure(currentLigand.parent_structure.rcsb_id, newNomenclatureMap);
+            setRootRef(root_ref);
+
+            // Create ligand component
+            const ligandComponent = await ctx?.ligands.create_ligand(
+                currentLigand.parent_structure.rcsb_id,
+                currentLigand.ligand.chemicalId
+            );
+
+            // Create binding site
+            const refs = await ctx?.ligands.create_ligand_surroundings(
+                currentLigand.parent_structure.rcsb_id,
+                currentLigand.ligand.chemicalId,
+                bsiteRadius,
+                newNomenclatureMap
+            );
 
             if (refs) {
-                const bsiteId = `${current_ligand.ligand.chemicalId}_bsite`;
+                const bsiteId = `${currentLigand.ligand.chemicalId}_bsite`;
                 const bsiteRef = refs[bsiteId];
-
-                console.log('Looking for bsite with ID:', bsiteId); // Debug log
-                console.log('Found bsite ref:', bsiteRef); // Debug log
 
                 if (bsiteRef && bsiteRef.ref && bsiteRef.repr_ref && bsiteRef.sel_ref) {
                     dispatch(
                         mapAssetModelComponentsAdd({
                             instanceId: 'main',
-                            rcsbId: current_ligand.parent_structure.rcsb_id,
+                            rcsbId: currentLigand.parent_structure.rcsb_id,
                             components: {
-                                [current_ligand.ligand.chemicalId]: ligandComponent,
+                                [currentLigand.ligand.chemicalId]: ligandComponent,
                                 [bsiteId]: {
                                     type: 'bsite',
-                                    rcsb_id: current_ligand.parent_structure.rcsb_id,
-                                    chemicalId: current_ligand.ligand.chemicalId,
+                                    rcsb_id: currentLigand.parent_structure.rcsb_id,
+                                    chemicalId: currentLigand.ligand.chemicalId,
                                     ref: bsiteRef.ref,
                                     repr_ref: bsiteRef.repr_ref,
                                     sel_ref: bsiteRef.sel_ref
-                                } as BsiteComponent
+                                }
                             }
                         })
                     );
-                } else {
-                    console.error('Binding site refs are incomplete:', bsiteRef);
                 }
             }
+        };
 
-            const residues = await msc?.ligands.get_ligand_surroundings(
-                root_ref,
-                current_ligand.ligand.chemicalId,
-                bsite_radius
-            );
-            if (residues !== undefined) {
-                setSurroundingResidues(residues);
-            }
-        })();
-    }, [current_ligand, data, msc, ctx, bsite_radius]);
+        setupStructure();
+    }, [currentLigand, data, msc, ctx, bsiteRadius, dispatch]);
 
-    const bsite = useSelector(state =>
-        selectBsiteForLigand(state, {
-            instanceId: 'main',
-            rcsbId: current_ligand?.parent_structure.rcsb_id,
-            chemicalId: current_ligand?.ligand.chemicalId
-        })
-    );
+    return {rootRef, nomenclatureMap};
+};
 
-    const ligand = useSelector(state =>
+export default function CurrentBindingSiteInfoPanel() {
+    const current_ligand   = useAppSelector(state => state.ligands_page.current_ligand);
+    const lig_state        = useAppSelector(state => state.ligands_page);
+    const bsite_radius     = useAppSelector(state => state.ligands_page.radius);
+    const slice_refs       = useAppSelector(state => state.mstar_refs);
+    const dispatch         = useAppDispatch();
+    const ligand_component = useSelector(state =>
         selectComponentById(state, {
             instanceId: 'main',
             rcsbId: current_ligand?.parent_structure.rcsb_id,
             componentId: current_ligand?.ligand.chemicalId
         })
     );
+
+    const mainMolstarService = useMolstarInstance('main');
+    const ctx = mainMolstarService?.viewer;
+    const msc = mainMolstarService?.controller;
+
+    const {data} = useRoutersRouterStructStructureProfileQuery(
+        {rcsbId: current_ligand?.parent_structure.rcsb_id},
+        {skip: !current_ligand}
+    );
+    const {rootRef, nomenclatureMap} = useStructureSetup(current_ligand, msc, ctx, bsite_radius, dispatch, data);
+    const surroundingResidues = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
+
 
     const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
     const [bsiteVisibility, setBsiteVisibility] = useState<boolean>(true);
@@ -208,6 +216,7 @@ export default function CurrentBindingSiteInfoPanel() {
 
                     <ResidueGrid
                         residues={surroundingResidues}
+                        nomenclature_map={nomenclatureMap}
                         ligandId={current_ligand?.ligand.chemicalId ?? ''}
                         onResidueClick={residue => {
                             ctx?.residues.selectResidue(
@@ -269,7 +278,7 @@ export default function CurrentBindingSiteInfoPanel() {
                     </Button>
                     <Button
                         onClick={() => {
-                            ctx?.interactions.focus(ligand?.sel_ref);
+                            ctx?.interactions.focus(ligand_component?.sel_ref);
                         }}>
                         Focus Ligand
                     </Button>

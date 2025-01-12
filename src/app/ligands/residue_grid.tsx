@@ -31,13 +31,22 @@ const ResidueCard: React.FC<ResidueCardProps> = ({residue, onHover, onClick}) =>
 interface ResidueGridProps {
     residues: ResidueSummary[];
     ligandId: string;
+    nomenclature_map?: Record<string, string>;
     onResidueHover?: (residue: ResidueSummary) => void;
     onResidueClick?: (residue: ResidueSummary) => void;
     onDownload?: () => void;
 }
 
-const ResidueGrid: React.FC<ResidueGridProps> = ({residues, ligandId, onResidueHover, onResidueClick, onDownload}) => {
+const ResidueGrid: React.FC<ResidueGridProps> = ({
+    residues,
+    ligandId,
+    nomenclature_map = {},
+    onResidueHover,
+    onResidueClick,
+    onDownload
+}) => {
     const [groupByChain, setGroupByChain] = useState(true);
+
     if (!residues || residues.length === 0) {
         return null;
     }
@@ -80,7 +89,14 @@ const ResidueGrid: React.FC<ResidueGridProps> = ({residues, ligandId, onResidueH
                             <AccordionItem value={chainId} key={chainId} className="border-0 bg-gray-50/50">
                                 <AccordionTrigger className="hover:no-underline py-1.5 px-2">
                                     <div className="flex items-center text-sm">
-                                        Chain {chainId}
+                                        {nomenclature_map[chainId] ? (
+                                            <>
+                                                {nomenclature_map[chainId]}
+                                                <span className="ml-1 text-gray-500">(Chain {chainId})</span>
+                                            </>
+                                        ) : (
+                                            <>Chain {chainId}</>
+                                        )}
                                         <span className="ml-2 text-xs text-gray-500">
                                             ({chainResidues.length} residues)
                                         </span>
