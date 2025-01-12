@@ -637,6 +637,18 @@ export class ribxzMstarv2 {
             };
         },
 
+        addBonds: async (
+            rcsb_id: string,
+            cell: StateObjectCell,
+            residues: {auth_asym_id: string; auth_seq_id: number}[],
+            chemicalId: string,
+            nomenclature_map: Record<string, string>
+        ) => {
+
+            // TODO
+            // https://github.com/molstar/molstar/issues/449
+        },
+
         create_ligand_surroundings: async (
             rcsb_id: string,
             chemicalId: string | undefined,
