@@ -17,6 +17,8 @@ import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selec
 import {set_ligands_radius, set_selected_target_structure} from '@/store/slices/slice_ligands';
 import {Label} from '@/components/ui/label';
 import BindingSiteControlPanel from './controls_selections';
+import TabbedBindingSite from './tabbed_bsites';
+import { cn } from '@/components/utils';
 
 interface LigandInfo {
     chemicalId: string;
@@ -79,14 +81,15 @@ function LigandsPageWithoutContext() {
                 <ResizablePanel defaultSize={30} minSize={20}>
                     <div className="h-full p-4">
                         <BindingSiteControlPanel
-                            onPredictionToggle={togglePredictionPanel}
                             isPredictionEnabled={isPredictionPanelOpen}
+                            onPredictionToggle={togglePredictionPanel}
                             onTargetStructureChange={rcsb_id => {
                                 dispatch(set_selected_target_structure(rcsb_id));
                             }}
                         />
-                        <CurrentBindingSiteInfoPanel />
-                        <BindingSitePredictionPanel />
+                        <div className="mt-4">
+                            <TabbedBindingSite isPredictionEnabled={isPredictionPanelOpen} />
+                        </div>
                     </div>
                 </ResizablePanel>
 
@@ -95,15 +98,20 @@ function LigandsPageWithoutContext() {
                 <ResizablePanel defaultSize={50} minSize={30}>
                     <ResizablePanelGroup direction="vertical">
                         <ResizablePanel defaultSize={50} minSize={20} ref={upperPanelRef}>
-                            <div className="h-full bg-background p-2 ">
+                            <div className="h-full bg-background p-2">
                                 <MolstarNode ref={molstarNodeRef} />
                             </div>
                         </ResizablePanel>
 
-                        <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
+                        <ResizableHandle
+                            className={cn(
+                                'h-2 bg-gray-200 hover:bg-gray-300 transition-colors',
+                                !isPredictionPanelOpen && 'hidden'
+                            )}
+                        />
 
                         <ResizablePanel ref={lowerPanelRef} defaultSize={50} minSize={0} collapsible>
-                            <div className="h-full  p-2">
+                            <div className="h-full p-2">
                                 <MolstarNode_secondary ref={molstarNodeRef_secondary} />
                             </div>
                         </ResizablePanel>
