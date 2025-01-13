@@ -9,9 +9,14 @@ import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 import {ImperativePanelHandle} from 'react-resizable-panels';
 import {PanelProvider, usePanelContext} from './panels_context';
 import {useMolstarService} from '@/components/mstar/mstar_service';
+import {Switch} from '@/components/ui/switch';
 import LigandSelection from './ligand_selection';
 import CurrentBindingSiteInfoPanel from './source_bsite';
 import BindingSitePredictionPanel from './target_bsite';
+import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
+import {set_ligands_radius, set_selected_target_structure} from '@/store/slices/slice_ligands';
+import {Label} from '@/components/ui/label';
+import BindingSiteControlPanel from './controls_selections';
 
 interface LigandInfo {
     chemicalId: string;
@@ -49,10 +54,10 @@ function LigandsPageWithoutContext() {
     const mstar_service_main = useMolstarService(molstarNodeRef, 'main');
     const mstar_service_aux = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
 
-    const {isPredictionPanelOpen} = usePanelContext();
     const lowerPanelRef = React.useRef<ImperativePanelHandle>(null);
     const upperPanelRef = React.useRef<ImperativePanelHandle>(null);
 
+    const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
     useEffect(() => {
         if (lowerPanelRef.current && upperPanelRef.current) {
             if (!isPredictionPanelOpen) {
@@ -65,13 +70,21 @@ function LigandsPageWithoutContext() {
             }
         }
     }, [isPredictionPanelOpen]);
+    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={30} minSize={20}>
                     <div className="h-full p-4">
-                        <LigandSelection />
+                        <BindingSiteControlPanel
+                            onPredictionToggle={togglePredictionPanel}
+                            isPredictionEnabled={isPredictionPanelOpen}
+                            onTargetStructureChange={rcsb_id => {
+                                dispatch(set_selected_target_structure(rcsb_id));
+                            }}
+                        />
                         <CurrentBindingSiteInfoPanel />
                         <BindingSitePredictionPanel />
                     </div>

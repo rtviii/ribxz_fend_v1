@@ -188,8 +188,8 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model = await this.ctx.builders.structure.createModel(trajectory);
-            const structure = await this.ctx.builders.structure.createStructure(model);
+            const model      = await this.ctx.builders.structure.createModel(trajectory);
+            const structure  = await this.ctx.builders.structure.createStructure(model);
 
             // );
 

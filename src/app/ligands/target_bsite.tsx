@@ -17,7 +17,6 @@ import {BindingSiteEntity} from './entity_bsite';
 
 export default function BindingSitePredictionPanel({}) {
     const dispatch = useAppDispatch();
-    const {isPredictionPanelOpen, togglePredictionPanel} = usePanelContext();
     const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
     const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
     const bsite_radius = useAppSelector(state => state.ligands_page.radius);
@@ -126,55 +125,7 @@ export default function BindingSitePredictionPanel({}) {
 
     return (
         <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
-            <div className="flex items-center space-x-2 p-2 rounded-md border ">
-                <Switch
-                    id="show-lower-panel"
-                    checked={isPredictionPanelOpen}
-                    onCheckedChange={togglePredictionPanel}
-                    disabled={current_ligand === null}
-                />
-                <Label htmlFor="show-lower-panel" className="w-full cursor-pointer">
-                    <div className="flex flex-row justify-between">
-                        Binding Pocket Prediction
-                        {current_ligand !== null ? (
-                            <span className="font-light text-xs italic">
-                                Using{' '}
-                                <span className="font-semibold">
-                                    {current_ligand.parent_structure.rcsb_id}/{current_ligand.ligand.chemicalId}
-                                </span>{' '}
-                                as source.
-                            </span>
-                        ) : null}
-                    </div>
-                </Label>
-            </div>
 
-            <div className="flex flex-row justify-between  pr-4 w-full text-center content-center align-middle">
-                <span className="text-center">Prediction Target</span>
-            </div>
-
-            <Button
-                variant={'outline'}
-                onClick={() => {
-                    if (selected_target_structure === null || current_ligand === null) {
-                        return;
-                    }
-                }}>
-                {' '}
-                {is_prediction_pending ? (
-                    <>
-                        <Spinner /> <span className="mx-2">Calculating</span>
-                    </>
-                ) : (
-                    'Render Prediction'
-                )}
-            </Button>
-
-            <GlobalStructureSelection
-                onChange={rcsb_id => {
-                    dispatch(set_selected_target_structure(rcsb_id));
-                }}
-            />
             <StructureEntity
                 rcsb_id={selected_target_structure}
                 visible={structureVisibility}
