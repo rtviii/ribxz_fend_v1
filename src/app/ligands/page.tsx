@@ -43,15 +43,15 @@ export default function Ligands() {
 function LigandsPageWithoutContext() {
     const dispatch = useAppDispatch();
 
-    const molstarNodeRef           = useRef<HTMLDivElement>(null);
+    const molstarNodeRef = useRef<HTMLDivElement>(null);
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
     const mstar_service_main = useMolstarService(molstarNodeRef, 'main');
-    const mstar_service_aux  = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
+    const mstar_service_aux = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
 
     const {isPredictionPanelOpen} = usePanelContext();
-    const lowerPanelRef           = React.useRef<ImperativePanelHandle>(null);
-    const upperPanelRef           = React.useRef<ImperativePanelHandle>(null);
+    const lowerPanelRef = React.useRef<ImperativePanelHandle>(null);
+    const upperPanelRef = React.useRef<ImperativePanelHandle>(null);
 
     useEffect(() => {
         if (lowerPanelRef.current && upperPanelRef.current) {
@@ -86,7 +86,9 @@ function LigandsPageWithoutContext() {
                                 <MolstarNode ref={molstarNodeRef} />
                             </div>
                         </ResizablePanel>
+
                         <ResizableHandle className="h-2 bg-gray-200 hover:bg-gray-300 transition-colors" />
+
                         <ResizablePanel ref={lowerPanelRef} defaultSize={50} minSize={0} collapsible>
                             <div className="h-full  p-2">
                                 <MolstarNode_secondary ref={molstarNodeRef_secondary} />

@@ -150,10 +150,14 @@ export default function CurrentBindingSiteInfoPanel() {
         {skip: !current_ligand}
     );
     const {rootRef, nomenclatureMap} = useStructureSetup(current_ligand, msc, ctx, bsite_radius, dispatch, data);
-    const surroundingResidues = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
+    const surroundingResidues        = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
 
     const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
-    const [bsiteVisibility, setBsiteVisibility] = useState<boolean>(true);
+    const [bsiteVisibility, setBsiteVisibility]         = useState<boolean>(true);
+
+    useEffect(() => {
+        setStructureVisibility(true);
+    },[rootRef])
 
     return (
         <div>

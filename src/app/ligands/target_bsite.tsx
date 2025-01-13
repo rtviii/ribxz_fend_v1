@@ -5,13 +5,15 @@ import {usePanelContext} from './panels_context';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useEffect, useState} from 'react';
 import {useMolstarInstance} from '@/components/mstar/mstar_service';
-import {useRoutersRouterStructStructureProfileQuery} from '@/store/ribxz_api/ribxz_api';
+import {ResidueSummary, useRoutersRouterStructStructureProfileQuery} from '@/store/ribxz_api/ribxz_api';
 import {fetchPredictionData, set_selected_target_structure} from '@/store/slices/slice_ligands';
 import {mapAssetModelComponentsAdd} from '@/store/molstar/slice_refs';
 import {Button} from '@/components/ui/button';
 import ResidueGrid from './residue_grid';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
 import {Spinner} from '@/components/ui/spinner';
+import {StructureEntity} from './entity_structure';
+import {BindingSiteEntity} from './entity_bsite';
 
 export default function BindingSitePredictionPanel({}) {
     const dispatch = useAppDispatch();
@@ -20,7 +22,7 @@ export default function BindingSitePredictionPanel({}) {
     const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
     const bsite_radius = useAppSelector(state => state.ligands_page.radius);
     const is_prediction_pending = useAppSelector(state => state.ligands_page.prediction_pending);
-    const prediction_residues = useAppSelector(state =>
+    const prediction_residues: ResidueSummary[] = useAppSelector(state =>
         state.ligands_page.prediction_data?.purported_binding_site.chains.reduce((acc, next) => {
             return [...acc, ...next.bound_residues];
         }, [])
@@ -168,60 +170,53 @@ export default function BindingSitePredictionPanel({}) {
                 )}
             </Button>
 
-            <ResidueGrid
-                residues={prediction_residues as ResidueData[]}
-                ligandId={current_ligand?.ligand.chemicalId}
-                onResidueClick={residue => {
-                    ctx_secondary?.residues.selectResidue(
-                        residue.rcsb_id,
-                        residue.auth_asym_id,
-                        residue.auth_seq_id,
-                        true
-                    );
-                }}
-                onResidueHover={residue => {
-                    ctx_secondary?.residues.highlightResidue(
-                        residue.rcsb_id,
-                        residue.auth_asym_id,
-                        residue.auth_seq_id
-                    );
-                }}
-            />
-
-            <Button
-                onClick={() => {
-                    msc_secondary?.polymers.togglePolymersVisibility(selected_target_structure, !structureVisibility);
-                    setStructureVisibility(!structureVisibility);
-                }}>
-                Toggle Polymers
-            </Button>
-            <Button
-                onClick={() => {
-                    msc_secondary?.bindingSites.focusBindingSite(
-                        selected_target_structure,
-                        current_ligand?.ligand.chemicalId
-                    );
-                }}>
-                Focus Surroundings
-            </Button>
-
-            <Button
-                variant={'outline'}
-                onClick={() => {
-                    if (!bsiteRef) return;
-                    const ref = bsiteRef.repr_ref;
-                    ctx_secondary?.interactions.focus(ref);
-                    ctx_secondary?.interactions.selection(ref, 'add');
-                }}>
-                {' '}
-                Display Prediction
-            </Button>
-
             <GlobalStructureSelection
                 onChange={rcsb_id => {
                     dispatch(set_selected_target_structure(rcsb_id));
                 }}
             />
+            <StructureEntity
+                rcsb_id={selected_target_structure}
+                visible={structureVisibility}
+                onToggleVisibility={() => {
+                    msc_secondary?.polymers.togglePolymersVisibility(selected_target_structure, !structureVisibility);
+                    setStructureVisibility(!structureVisibility);
+                }}
+            />
+            {prediction_residues && (
+                <BindingSiteEntity
+                    chemicalId={current_ligand?.ligand.chemicalId}
+                    residueCount={prediction_residues.length}
+                    visible={true}
+                    onFocus={() => {
+                        msc_secondary?.bindingSites.focusBindingSite(
+                            selected_target_structure,
+                            current_ligand?.ligand.chemicalId
+                        );
+                    }}
+                    onToggleVisibility={() => {}}
+                    nomenclature_map={nomenclatureMap}
+                    onDownload={() => {
+                        alert('Download not implemented');
+                    }}
+                    residues={prediction_residues}
+                    onResidueClick={residue => {
+                        ctx_secondary?.residues.selectResidue(
+                            residue.rcsb_id,
+                            residue.auth_asym_id,
+                            residue.auth_seq_id,
+                            true
+                        );
+                    }}
+                    onResidueHover={residue => {
+                        ctx_secondary?.residues.highlightResidue(
+                            residue.rcsb_id,
+                            residue.auth_asym_id,
+                            residue.auth_seq_id
+                        );
+                    }}
+                />
+            )}
         </ScrollArea>
     );
 }
