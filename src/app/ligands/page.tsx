@@ -12,6 +12,7 @@ import {useMolstarService} from '@/components/mstar/mstar_service';
 import LigandSelection from './ligand_selection';
 import CurrentBindingSiteInfoPanel from './source_bsite';
 import BindingSitePredictionPanel from './target_bsite';
+
 interface LigandInfo {
     chemicalId: string;
     chemicalName: string;

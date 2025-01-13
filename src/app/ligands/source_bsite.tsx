@@ -19,6 +19,9 @@ import {
 import {useSelector} from 'react-redux';
 import ResidueGrid from './residue_grid';
 import {Button} from '@/components/ui/button';
+import {LigandEntity} from './entity_ligand';
+import {StructureEntity} from './entity_structure';
+import {BindingSiteEntity} from './entity_bsite';
 
 /** This returns the link to the chemical structure image that rcsb stores. */
 const chemical_structure_link = (ligand_id: string | undefined) => {
@@ -55,14 +58,7 @@ const useSurroundingResidues = (
 
     return surroundingResidues;
 };
-const useStructureSetup = (
-    currentLigand,
-    msc,
-    ctx,
-    bsiteRadius,
-    dispatch,
-    data 
-) => {
+const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data) => {
     const [rootRef, setRootRef] = useState(null);
     const [nomenclatureMap, setNomenclatureMap] = useState({});
 
@@ -132,11 +128,11 @@ const useStructureSetup = (
 };
 
 export default function CurrentBindingSiteInfoPanel() {
-    const current_ligand   = useAppSelector(state => state.ligands_page.current_ligand);
-    const lig_state        = useAppSelector(state => state.ligands_page);
-    const bsite_radius     = useAppSelector(state => state.ligands_page.radius);
-    const slice_refs       = useAppSelector(state => state.mstar_refs);
-    const dispatch         = useAppDispatch();
+    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const lig_state = useAppSelector(state => state.ligands_page);
+    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
+    const slice_refs = useAppSelector(state => state.mstar_refs);
+    const dispatch = useAppDispatch();
     const ligand_component = useSelector(state =>
         selectComponentById(state, {
             instanceId: 'main',
@@ -156,133 +152,79 @@ export default function CurrentBindingSiteInfoPanel() {
     const {rootRef, nomenclatureMap} = useStructureSetup(current_ligand, msc, ctx, bsite_radius, dispatch, data);
     const surroundingResidues = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
 
-
     const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
     const [bsiteVisibility, setBsiteVisibility] = useState<boolean>(true);
+
     return (
         <div>
             <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
-                <AccordionItem value="item">
-                    <AccordionTrigger className="text-xs rounded-sm hover:cursor-pointer hover:bg-muted border p-1">
-                        {lig_state.current_ligand?.ligand.chemicalId} Chemical Structure
-                    </AccordionTrigger>
-                    {current_ligand ? (
-                        <AccordionContent className="hover:cursor-pointer  border hover:shadow-inner shadow-lg">
-                            <Image
-                                src={chemical_structure_link(lig_state.current_ligand?.ligand.chemicalId)}
-                                alt="ligand_chemical_structure.png"
-                                width={400}
-                                height={400}
-                                onMouseEnter={() => {
-                                    // ctx?.select_focus_ligand(
-                                    //     current_ligand?.ligand.chemicalId,
-                                    //     ['highlight']
-                                    // );
-                                }}
-                                onMouseLeave={() => {
-                                    // ctx?.removeHighlight();
-                                }}
-                                onClick={() => {
-                                    // ctx?.select_focus_ligand(
-                                    //     current_ligand?.ligand.chemicalId,
-                                    //     ['select', 'focus']
-                                    // );
-                                }}
-                            />
-                        </AccordionContent>
-                    ) : null}
-                </AccordionItem>
-            </Accordion>
+                <StructureEntity
+                    rcsb_id={current_ligand?.parent_structure.rcsb_id}
+                    visible={structureVisibility}
+                    onToggleVisibility={() => {
+                        msc?.polymers.togglePolymersVisibility(
+                            current_ligand.parent_structure.rcsb_id,
+                            !structureVisibility
+                        );
+                        setStructureVisibility(!structureVisibility);
+                    }}
+                />
 
-            <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === undefined}>
-                <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-xs rounded-sm flex flex-roww justify-between  hover:cursor-pointer hover:bg-muted border p-1">
-                        <span className="text-xs text-gray-800">Drugbank Info</span>
-                        <div>
-                            {lig_state.current_ligand?.ligand.drugbank_id ? (
-                                <Link
-                                    className=""
-                                    href={`https://go.drugbank.com/drugs/${lig_state.current_ligand?.ligand.drugbank_id}`}>
-                                    <p className="text-sm   hover:underline ribxz-link">
-                                        {lig_state.current_ligand?.ligand.drugbank_id}
-                                    </p>
-                                </Link>
-                            ) : null}
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <p className="text-xs">{lig_state.current_ligand?.ligand.drugbank_description}</p>
-                    </AccordionContent>
-
-                    <ResidueGrid
-                        residues={surroundingResidues}
-                        nomenclature_map={nomenclatureMap}
-                        ligandId={current_ligand?.ligand.chemicalId ?? ''}
-                        onResidueClick={residue => {
-                            ctx?.residues.selectResidue(
-                                residue.rcsb_id,
-                                residue.auth_asym_id,
-                                residue.auth_seq_id,
-                                true
-                            );
-                        }}
-                        onResidueHover={residue => {
-                            ctx?.residues.highlightResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id);
+                {current_ligand && (
+                    <LigandEntity
+                        chemicalId={current_ligand?.ligand.chemicalId}
+                        drugbank_id={current_ligand?.ligand.drugbank_id}
+                        drugbank_description={current_ligand?.ligand.drugbank_description}
+                        formula_weight={current_ligand?.ligand.formula_weight}
+                        pdbx_description={current_ligand?.ligand.pdbx_description}
+                        onFocus={() => {
+                            ctx?.interactions.focus(ligand_component?.sel_ref);
                         }}
                     />
-
-                    <Button
-                        onClick={() => {
-                            console.log(slice_refs);
-                        }}>
-                        {' '}
-                        log ref state
-                    </Button>
-
-                    <Button
-                        onClick={() => {
-                            msc?.polymers.togglePolymersVisibility(
-                                current_ligand?.parent_structure.rcsb_id,
-                                !structureVisibility
-                            );
-                            setStructureVisibility(!structureVisibility);
-                        }}>
-                        Toggle Polymers
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            msc?.bindingSites.focusBindingSite(
+                )}
+                <BindingSiteEntity
+                    chemicalId={current_ligand?.ligand.chemicalId}
+                    residueCount={surroundingResidues.length}
+                    visible={bsiteVisibility}
+                    onFocus={() => {
+                        msc?.bindingSites.focusBindingSite(
+                            current_ligand?.parent_structure.rcsb_id,
+                            current_ligand?.ligand.chemicalId
+                        );
+                    }}
+                    onToggleVisibility={() => {
+                        (async () => {
+                            const bsite = msc?.bindingSites.retrieveBSiteComponent(
                                 current_ligand?.parent_structure.rcsb_id,
                                 current_ligand?.ligand.chemicalId
                             );
-                        }}>
-                        Focus Surroundings
-                    </Button>
 
-                    <Button
-                        onClick={() => {
-                            (async () => {
-                                const bsite = msc?.bindingSites.retrieveBSiteComponent(
-                                    current_ligand?.parent_structure.rcsb_id,
-                                    current_ligand?.ligand.chemicalId
-                                );
+                            bsite &&
+                                (await ctx?.ctx.dataTransaction(async () => {
+                                    ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
+                                }));
+                        })();
+                        setBsiteVisibility(!bsiteVisibility);
+                    }}
+                    nomenclature_map={nomenclatureMap}
+                    onDownload={() => {
+                        alert('Download not implemented');
+                    }}
+                    residues={surroundingResidues}
+                    onResidueClick={residue => {
+                        ctx?.residues.selectResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id, true);
+                    }}
+                    onResidueHover={residue => {
+                        ctx?.residues.highlightResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id);
+                    }}
+                />
 
-                                bsite &&
-                                    (await ctx?.ctx.dataTransaction(async () => {
-                                        ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
-                                    }));
-                            })();
-                            setBsiteVisibility(!bsiteVisibility);
-                        }}>
-                        Toggle Surroundings
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            ctx?.interactions.focus(ligand_component?.sel_ref);
-                        }}>
-                        Focus Ligand
-                    </Button>
-                </AccordionItem>
+                <Button
+                    onClick={() => {
+                        console.log(slice_refs);
+                    }}>
+                    Log State
+                </Button>
             </Accordion>
         </div>
     );
