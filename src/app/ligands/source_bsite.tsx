@@ -161,82 +161,70 @@ export default function CurrentBindingSiteInfoPanel() {
     }, [rootRef]);
 
     return (
-                <div className="space-y-4">
-                    <StructureEntity
-                        className="min-w-0"
-                        rcsb_id={current_ligand?.parent_structure.rcsb_id}
-                        visible={structureVisibility}
-                        onToggleVisibility={() => {
-                            msc?.polymers.togglePolymersVisibility(
-                                current_ligand.parent_structure.rcsb_id,
-                                !structureVisibility
-                            );
-                            setStructureVisibility(!structureVisibility);
-                        }}
-                    />
+        <div className="space-y-4">
+            <StructureEntity
+                className="min-w-0"
+                rcsb_id={current_ligand?.parent_structure.rcsb_id}
+                visible={structureVisibility}
+                onToggleVisibility={() => {
+                    msc?.polymers.togglePolymersVisibility(
+                        current_ligand.parent_structure.rcsb_id,
+                        !structureVisibility
+                    );
+                    setStructureVisibility(!structureVisibility);
+                }}
+            />
 
-                    {current_ligand && (
-                        <LigandEntity
-                            className="min-w-0"
-                            chemicalId={current_ligand?.ligand.chemicalId}
-                            drugbank_id={current_ligand?.ligand.drugbank_id}
-                            drugbank_description={current_ligand?.ligand.drugbank_description}
-                            formula_weight={current_ligand?.ligand.formula_weight}
-                            pdbx_description={current_ligand?.ligand.pdbx_description}
-                            onFocus={() => {
-                                ctx?.interactions.focus(ligand_component?.sel_ref);
-                            }}
-                        />
-                    )}
-                    <BindingSiteEntity
-                        className="min-w-0"
-                        chemicalId={current_ligand?.ligand.chemicalId}
-                        residueCount={surroundingResidues.length}
-                        visible={bsiteVisibility}
-                        onFocus={() => {
-                            msc?.bindingSites.focusBindingSite(
-                                current_ligand?.parent_structure.rcsb_id,
-                                current_ligand?.ligand.chemicalId
-                            );
-                        }}
-                        onToggleVisibility={() => {
-                            (async () => {
-                                const bsite = msc?.bindingSites.retrieveBSiteComponent(
-                                    current_ligand?.parent_structure.rcsb_id,
-                                    current_ligand?.ligand.chemicalId
-                                );
+            {current_ligand && (
+                <LigandEntity
+                    className="min-w-0"
+                    chemicalId={current_ligand?.ligand.chemicalId}
+                    drugbank_id={current_ligand?.ligand.drugbank_id}
+                    drugbank_description={current_ligand?.ligand.drugbank_description}
+                    formula_weight={current_ligand?.ligand.formula_weight}
+                    pdbx_description={current_ligand?.ligand.pdbx_description}
+                    onFocus={() => {
+                        ctx?.interactions.focus(ligand_component?.sel_ref);
+                    }}
+                />
+            )}
+            <BindingSiteEntity
+                className="min-w-0"
+                chemicalId={current_ligand?.ligand.chemicalId}
+                residueCount={surroundingResidues.length}
+                visible={bsiteVisibility}
+                onFocus={() => {
+                    msc?.bindingSites.focusBindingSite(
+                        current_ligand?.parent_structure.rcsb_id,
+                        current_ligand?.ligand.chemicalId
+                    );
+                }}
+                onToggleVisibility={() => {
+                    (async () => {
+                        const bsite = msc?.bindingSites.retrieveBSiteComponent(
+                            current_ligand?.parent_structure.rcsb_id,
+                            current_ligand?.ligand.chemicalId
+                        );
 
-                                bsite &&
-                                    (await ctx?.ctx.dataTransaction(async () => {
-                                        ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
-                                    }));
-                            })();
-                            setBsiteVisibility(!bsiteVisibility);
-                        }}
-                        nomenclature_map={nomenclatureMap}
-                        onDownload={() => {
-                            alert('Download not implemented');
-                        }}
-                        residues={surroundingResidues}
-                        onResidueClick={residue => {
-                            ctx?.residues.selectResidue(
-                                residue.rcsb_id,
-                                residue.auth_asym_id,
-                                residue.auth_seq_id,
-                                true
-                            );
-                        }}
-                        onResidueHover={residue => {
-                            ctx?.residues.highlightResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id);
-                        }}
-                    />
-
-                    <Button
-                        onClick={() => {
-                            console.log(slice_refs);
-                        }}>
-                        Log State
-                    </Button>
-                </div>
+                        bsite &&
+                            (await ctx?.ctx.dataTransaction(async () => {
+                                ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
+                            }));
+                    })();
+                    setBsiteVisibility(!bsiteVisibility);
+                }}
+                nomenclature_map={nomenclatureMap}
+                onDownload={() => {
+                    alert('Download not implemented');
+                }}
+                residues={surroundingResidues}
+                onResidueClick={residue => {
+                    ctx?.residues.selectResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id, true);
+                }}
+                onResidueHover={residue => {
+                    ctx?.residues.highlightResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id);
+                }}
+            />
+        </div>
     );
 }

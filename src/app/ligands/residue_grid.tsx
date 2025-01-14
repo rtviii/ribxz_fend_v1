@@ -1,7 +1,7 @@
 import React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { IonNames } from '@/components/mstar/providers/polymer_preset';
-import { Color } from 'molstar/lib/mol-util/color';
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
+import {IonNames} from '@/components/mstar/providers/polymer_preset';
+import {Color} from 'molstar/lib/mol-util/color';
 import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/colorscheme_warm';
 
 const getLuminance = (hexColor: string): number => {
@@ -33,17 +33,15 @@ interface ResidueCardProps {
     onHover?: (residue: ResidueSummary) => void;
     onClick?: (residue: ResidueSummary) => void;
 }
-
 const ResidueCard: React.FC<ResidueCardProps> = ({residue, onHover, onClick}) => (
     <button
-        className="flex flex-row items-center justify-between w-[4.5rem] min-w-[4.5rem] px-1.5 py-0.5 bg-gray-50 hover:bg-gray-100 rounded text-xs border border-gray-200"
+        className="flex flex-row items-center justify-between w-auto min-w-[4.5rem] px-1.5 py-0.5 bg-gray-50 hover:bg-gray-100 rounded text-xs border border-gray-200"
         onMouseEnter={() => onHover?.(residue)}
         onClick={() => onClick?.(residue)}>
-        <span className="font-mono font-medium w-6 truncate">{residue.label_comp_id}</span>
-        <span className="text-gray-500 w-6 text-right truncate">{residue.auth_seq_id}</span>
+        <span className="font-mono font-medium mr-2">{residue.label_comp_id}</span>
+        <span className="text-gray-500">{residue.auth_seq_id}</span>
     </button>
 );
-
 
 interface ResidueGridProps {
     residues: ResidueSummary[];
