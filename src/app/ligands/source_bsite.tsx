@@ -23,116 +23,129 @@ import {LigandEntity} from './entity_ligand';
 import {StructureEntity} from './entity_structure';
 import {BindingSiteEntity} from './entity_bsite';
 import {ScrollArea} from '@/components/ui/scroll-area';
+import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
+import {AlertCircle, Building2, FlaskConical, Inbox} from 'lucide-react';
+import {EnhancedStructureEntity, EnhancedLigandEntity, EnhancedBindingSiteEntity} from './entity_wrapper';
 
-/** This returns the link to the chemical structure image that rcsb stores. */
-const chemical_structure_link = (ligand_id: string | undefined) => {
-    if (ligand_id === undefined) {
-        return '';
-    }
-    return `https://cdn.rcsb.org/images/ccd/labeled/${ligand_id.toUpperCase()[0]}/${ligand_id.toUpperCase()}.svg`;
-};
-const useSurroundingResidues = (
-    currentLigand,
-    msc,
-    rootRef, // New parameter to maintain dependency
-    bsiteRadius
-) => {
+const useSurroundingResidues = (currentLigand, msc, rootRef, bsiteRadius) => {
     const [surroundingResidues, setSurroundingResidues] = useState<ResidueSummary[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!currentLigand || !msc || !rootRef) return;
 
         const fetchSurroundingResidues = async () => {
-            const residues = await msc.ligands.get_ligand_surroundings(
-                rootRef,
-                currentLigand.ligand.chemicalId,
-                bsiteRadius
-            );
+            setIsLoading(true);
+            setError(null);
+            try {
+                const residues = await msc.ligands.get_ligand_surroundings(
+                    rootRef,
+                    currentLigand.ligand.chemicalId,
+                    bsiteRadius
+                );
 
-            if (residues) {
-                setSurroundingResidues(residues);
+                if (residues) {
+                    setSurroundingResidues(residues);
+                }
+            } catch (err) {
+                setError(err);
+                setSurroundingResidues([]);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchSurroundingResidues();
     }, [currentLigand, msc, rootRef, bsiteRadius]);
 
-    return surroundingResidues;
+    return { surroundingResidues, isLoading, error };
 };
+
 const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data) => {
     const [rootRef, setRootRef] = useState(null);
     const [nomenclatureMap, setNomenclatureMap] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!currentLigand || !data || !msc) return;
 
         const setupStructure = async () => {
-            // Create nomenclature map
-            const newNomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
-                (prev, current) => {
-                    prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-                    return prev;
-                },
-                {}
-            );
-            setNomenclatureMap(newNomenclatureMap);
+            setIsLoading(true);
+            setError(null);
+            try {
+                // Create nomenclature map
+                const newNomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
+                    (prev, current) => {
+                        prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
+                        return prev;
+                    },
+                    {}
+                );
+                setNomenclatureMap(newNomenclatureMap);
 
-            // Clear and load structure
-            msc.clear();
-            const {root_ref} = await msc.loadStructure(currentLigand.parent_structure.rcsb_id, newNomenclatureMap);
-            setRootRef(root_ref);
+                // Clear and load structure
+                msc.clear();
+                const {root_ref} = await msc.loadStructure(currentLigand.parent_structure.rcsb_id, newNomenclatureMap);
+                setRootRef(root_ref);
 
-            // Create ligand component
-            const ligandComponent = await ctx?.ligands.create_ligand(
-                currentLigand.parent_structure.rcsb_id,
-                currentLigand.ligand.chemicalId
-            );
+                // Create ligand component
+                const ligandComponent = await ctx?.ligands.create_ligand(
+                    currentLigand.parent_structure.rcsb_id,
+                    currentLigand.ligand.chemicalId
+                );
 
-            // Create binding site
-            const refs = await ctx?.ligands.create_ligand_surroundings(
-                currentLigand.parent_structure.rcsb_id,
-                currentLigand.ligand.chemicalId,
-                bsiteRadius,
-                newNomenclatureMap
-            );
+                // Create binding site
+                const refs = await ctx?.ligands.create_ligand_surroundings(
+                    currentLigand.parent_structure.rcsb_id,
+                    currentLigand.ligand.chemicalId,
+                    bsiteRadius,
+                    newNomenclatureMap
+                );
 
-            if (refs) {
-                const bsiteId = `${currentLigand.ligand.chemicalId}_bsite`;
-                const bsiteRef = refs[bsiteId];
+                if (refs) {
+                    const bsiteId = `${currentLigand.ligand.chemicalId}_bsite`;
+                    const bsiteRef = refs[bsiteId];
 
-                if (bsiteRef && bsiteRef.ref && bsiteRef.repr_ref && bsiteRef.sel_ref) {
-                    dispatch(
-                        mapAssetModelComponentsAdd({
-                            instanceId: 'main',
-                            rcsbId: currentLigand.parent_structure.rcsb_id,
-                            components: {
-                                [currentLigand.ligand.chemicalId]: ligandComponent,
-                                [bsiteId]: {
-                                    type: 'bsite',
-                                    rcsb_id: currentLigand.parent_structure.rcsb_id,
-                                    chemicalId: currentLigand.ligand.chemicalId,
-                                    ref: bsiteRef.ref,
-                                    repr_ref: bsiteRef.repr_ref,
-                                    sel_ref: bsiteRef.sel_ref
+                    if (bsiteRef && bsiteRef.ref && bsiteRef.repr_ref && bsiteRef.sel_ref) {
+                        dispatch(
+                            mapAssetModelComponentsAdd({
+                                instanceId: 'main',
+                                rcsbId: currentLigand.parent_structure.rcsb_id,
+                                components: {
+                                    [currentLigand.ligand.chemicalId]: ligandComponent,
+                                    [bsiteId]: {
+                                        type: 'bsite',
+                                        rcsb_id: currentLigand.parent_structure.rcsb_id,
+                                        chemicalId: currentLigand.ligand.chemicalId,
+                                        ref: bsiteRef.ref,
+                                        repr_ref: bsiteRef.repr_ref,
+                                        sel_ref: bsiteRef.sel_ref
+                                    }
                                 }
-                            }
-                        })
-                    );
+                            })
+                        );
+                    }
                 }
+            } catch (err) {
+                setError(err);
+                setRootRef(null);
+                setNomenclatureMap({});
+            } finally {
+                setIsLoading(false);
             }
         };
 
         setupStructure();
     }, [currentLigand, data, msc, ctx, bsiteRadius, dispatch]);
 
-    return {rootRef, nomenclatureMap};
+    return {rootRef, nomenclatureMap, isLoading, error};
 };
 
 export default function CurrentBindingSiteInfoPanel() {
     const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const lig_state = useAppSelector(state => state.ligands_page);
     const bsite_radius = useAppSelector(state => state.ligands_page.radius);
-    const slice_refs = useAppSelector(state => state.mstar_refs);
     const dispatch = useAppDispatch();
     const ligand_component = useSelector(state =>
         selectComponentById(state, {
@@ -146,12 +159,30 @@ export default function CurrentBindingSiteInfoPanel() {
     const ctx = mainMolstarService?.viewer;
     const msc = mainMolstarService?.controller;
 
-    const {data} = useRoutersRouterStructStructureProfileQuery(
+    // Structure profile query with loading state
+    const {
+        data,
+        isLoading: isLoadingProfile,
+        error: profileError
+    } = useRoutersRouterStructStructureProfileQuery(
         {rcsbId: current_ligand?.parent_structure.rcsb_id},
         {skip: !current_ligand}
     );
-    const {rootRef, nomenclatureMap} = useStructureSetup(current_ligand, msc, ctx, bsite_radius, dispatch, data);
-    const surroundingResidues = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
+
+    // Structure setup with loading state
+    const {
+        rootRef,
+        nomenclatureMap,
+        isLoading: isLoadingSetup,
+        error: setupError
+    } = useStructureSetup(current_ligand, msc, ctx, bsite_radius, dispatch, data);
+
+    // Surrounding residues with loading state
+    const {
+        surroundingResidues,
+        isLoading: isLoadingResidues,
+        error: residuesError
+    } = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
 
     const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
     const [bsiteVisibility, setBsiteVisibility] = useState<boolean>(true);
@@ -160,11 +191,34 @@ export default function CurrentBindingSiteInfoPanel() {
         setStructureVisibility(true);
     }, [rootRef]);
 
+    if (!current_ligand) {
+        return (
+            <div className="space-y-4">
+                <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>No Selection</AlertTitle>
+                    <AlertDescription>
+                        Please select a ligand-structure pair to view binding site information.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+
+    // Combine loading states for each entity
+    const isLoadingStructure = isLoadingProfile || isLoadingSetup;
+    const structureError = profileError || setupError;
+
     return (
         <div className="space-y-4">
-            <StructureEntity
+            <EnhancedStructureEntity
+                isLoading={isLoadingStructure}
+                error={structureError}
+                icon={<Building2 size={16} />}
+                loadingTitle="Loading structure information..."
+                errorTitle="Error loading structure"
                 className="min-w-0"
-                rcsb_id={current_ligand?.parent_structure.rcsb_id}
+                rcsb_id={current_ligand.parent_structure.rcsb_id}
                 visible={structureVisibility}
                 onToggleVisibility={() => {
                     msc?.polymers.togglePolymersVisibility(
@@ -175,35 +229,44 @@ export default function CurrentBindingSiteInfoPanel() {
                 }}
             />
 
-            {current_ligand && (
-                <LigandEntity
-                    className="min-w-0"
-                    chemicalId={current_ligand?.ligand.chemicalId}
-                    drugbank_id={current_ligand?.ligand.drugbank_id}
-                    drugbank_description={current_ligand?.ligand.drugbank_description}
-                    formula_weight={current_ligand?.ligand.formula_weight}
-                    pdbx_description={current_ligand?.ligand.pdbx_description}
-                    onFocus={() => {
-                        ctx?.interactions.focus(ligand_component?.sel_ref);
-                    }}
-                />
-            )}
-            <BindingSiteEntity
+            <EnhancedLigandEntity
+                isLoading={isLoadingSetup}  // Ligand loading depends on structure setup
+                error={setupError}
+                icon={<FlaskConical size={16} />}
+                loadingTitle="Loading ligand information..."
+                errorTitle="Error loading ligand"
                 className="min-w-0"
-                chemicalId={current_ligand?.ligand.chemicalId}
+                chemicalId={current_ligand.ligand.chemicalId}
+                drugbank_id={current_ligand.ligand.drugbank_id}
+                drugbank_description={current_ligand.ligand.drugbank_description}
+                formula_weight={current_ligand.ligand.formula_weight}
+                pdbx_description={current_ligand.ligand.pdbx_description}
+                onFocus={() => {
+                    ctx?.interactions.focus(ligand_component?.sel_ref);
+                }}
+            />
+
+            <EnhancedBindingSiteEntity
+                isLoading={isLoadingResidues}
+                error={residuesError}
+                icon={<Inbox size={16} />}
+                loadingTitle="Loading binding site information..."
+                errorTitle="Error loading binding site"
+                className="min-w-0"
+                chemicalId={current_ligand.ligand.chemicalId}
                 residueCount={surroundingResidues.length}
                 visible={bsiteVisibility}
                 onFocus={() => {
                     msc?.bindingSites.focusBindingSite(
-                        current_ligand?.parent_structure.rcsb_id,
-                        current_ligand?.ligand.chemicalId
+                        current_ligand.parent_structure.rcsb_id,
+                        current_ligand.ligand.chemicalId
                     );
                 }}
                 onToggleVisibility={() => {
                     (async () => {
                         const bsite = msc?.bindingSites.retrieveBSiteComponent(
-                            current_ligand?.parent_structure.rcsb_id,
-                            current_ligand?.ligand.chemicalId
+                            current_ligand.parent_structure.rcsb_id,
+                            current_ligand.ligand.chemicalId
                         );
 
                         bsite &&
