@@ -180,6 +180,7 @@ export default function BindingSitePredictionPanel() {
     );
 
     const [structureVisibility, setStructureVisibility] = useState(true);
+    const [bsiteVisibility, setBsiteVisibility] = useState(true);
 
     if (!selected_target_structure) {
         return (
@@ -197,7 +198,6 @@ export default function BindingSitePredictionPanel() {
 
     const isLoadingStructure = isLoadingProfile || isLoadingSetup;
     const structureError = profileError || setupError;
-
 
     return (
         <div className="space-y-4">
@@ -225,14 +225,27 @@ export default function BindingSitePredictionPanel() {
                 className="min-w-0"
                 chemicalId={current_ligand?.ligand.chemicalId}
                 residueCount={predictionResidues?.length ?? 0}
-                visible={true}
+                visible={bsiteVisibility}
                 onFocus={() => {
                     msc_secondary?.bindingSites.focusBindingSite(
                         selected_target_structure,
                         current_ligand?.ligand.chemicalId
                     );
                 }}
-                onToggleVisibility={() => {}}
+                onToggleVisibility={() => {
+                    (async () => {
+                        const bsite = msc_secondary?.bindingSites.retrieveBSiteComponent(
+                            selected_target_structure,
+                            current_ligand.ligand.chemicalId
+                        );
+
+                        bsite &&
+                            (await ctx_secondary?.ctx.dataTransaction(async () => {
+                                ctx_secondary.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
+                            }));
+                    })();
+                    setBsiteVisibility(!bsiteVisibility);
+                }}
                 nomenclature_map={nomenclatureMap}
                 onDownload={() => {
                     alert('Download not implemented');

@@ -1,28 +1,9 @@
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/components/ui/accordion';
-import Link from 'next/link';
-import Image from 'next/image';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {useMolstarInstance} from '@/components/mstar/mstar_service';
-import {
-    ResidueSummary,
-    RibosomeStructure,
-    ribxz_api,
-    useRoutersRouterStructStructureProfileQuery
-} from '@/store/ribxz_api/ribxz_api';
+import {ResidueSummary, useRoutersRouterStructStructureProfileQuery} from '@/store/ribxz_api/ribxz_api';
 import {useEffect, useState} from 'react';
-import {
-    BsiteComponent,
-    mapAssetModelComponentsAdd,
-    selectBsiteForLigand,
-    selectComponentById
-} from '@/store/molstar/slice_refs';
+import {mapAssetModelComponentsAdd, selectComponentById} from '@/store/molstar/slice_refs';
 import {useSelector} from 'react-redux';
-import ResidueGrid from './residue_grid';
-import {Button} from '@/components/ui/button';
-import {LigandEntity} from './entity_ligand';
-import {StructureEntity} from './entity_structure';
-import {BindingSiteEntity} from './entity_bsite';
-import {ScrollArea} from '@/components/ui/scroll-area';
 import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {AlertCircle, Building2, FlaskConical, Inbox} from 'lucide-react';
 import {EnhancedStructureEntity, EnhancedLigandEntity, EnhancedBindingSiteEntity} from './entity_wrapper';
@@ -59,7 +40,7 @@ const useSurroundingResidues = (currentLigand, msc, rootRef, bsiteRadius) => {
         fetchSurroundingResidues();
     }, [currentLigand, msc, rootRef, bsiteRadius]);
 
-    return { surroundingResidues, isLoading, error };
+    return {surroundingResidues, isLoading, error};
 };
 
 const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data) => {
@@ -144,9 +125,9 @@ const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data)
 };
 
 export default function CurrentBindingSiteInfoPanel() {
-    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
-    const dispatch = useAppDispatch();
+    const current_ligand   = useAppSelector(state => state.ligands_page.current_ligand);
+    const bsite_radius     = useAppSelector(state => state.ligands_page.radius);
+    const dispatch         = useAppDispatch();
     const ligand_component = useSelector(state =>
         selectComponentById(state, {
             instanceId: 'main',
@@ -230,7 +211,7 @@ export default function CurrentBindingSiteInfoPanel() {
             />
 
             <EnhancedLigandEntity
-                isLoading={isLoadingSetup}  // Ligand loading depends on structure setup
+                isLoading={isLoadingSetup} // Ligand loading depends on structure setup
                 error={setupError}
                 icon={<FlaskConical size={16} />}
                 loadingTitle="Loading ligand information..."
