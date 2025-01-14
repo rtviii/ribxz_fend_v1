@@ -8,109 +8,119 @@ import {useMolstarInstance} from '@/components/mstar/mstar_service';
 import {ResidueSummary, useRoutersRouterStructStructureProfileQuery} from '@/store/ribxz_api/ribxz_api';
 import {fetchPredictionData, set_selected_target_structure} from '@/store/slices/slice_ligands';
 import {mapAssetModelComponentsAdd} from '@/store/molstar/slice_refs';
+import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
+import {AlertCircle, Building2, Inbox} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import ResidueGrid from './residue_grid';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
 import {Spinner} from '@/components/ui/spinner';
-import {StructureEntity} from './entity_structure';
-import {BindingSiteEntity} from './entity_bsite';
+import {EnhancedStructureEntity, EnhancedBindingSiteEntity} from './entity_wrapper';
 
-export default function BindingSitePredictionPanel({}) {
-    const dispatch = useAppDispatch();
-    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
-    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
-    const is_prediction_pending = useAppSelector(state => state.ligands_page.prediction_pending);
-    const prediction_residues: ResidueSummary[] = useAppSelector(state =>
-        state.ligands_page.prediction_data?.purported_binding_site.chains.reduce((acc, next) => {
-            return [...acc, ...next.bound_residues];
-        }, [])
-    );
+const useStructureSetup = (
+    selected_target_structure,
+    data,
+    msc_secondary,
+    ctx_secondary,
+    current_ligand,
+    bsite_radius,
+    dispatch
+) => {
+    const [rootRef, setRootRef] = useState(null);
+    const [nomenclatureMap, setNomenclatureMap] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [predictionResidues, setPredictionResidues] = useState(null);
+    const [predictionError, setPredictionError] = useState(null);
 
-    const [rootRef, setRootRef] = useState<null | string>(null);
-    const [nomenclatureMap, setNomenclatureMap] = useState<null | Record<string, string>>(null);
-
-    const auxiliaryService = useMolstarInstance('auxiliary');
-    const ctx_secondary = auxiliaryService?.viewer;
-    const msc_secondary = auxiliaryService?.controller;
-
-    const {data} = useRoutersRouterStructStructureProfileQuery(
-        {rcsbId: selected_target_structure},
-        {skip: !selected_target_structure}
-    );
-
-    // First effect handles structure initialization
     useEffect(() => {
-        if (!selected_target_structure || !data) return;
+        if (!selected_target_structure || !data || !msc_secondary) return;
         let isActive = true;
 
         const initializeStructure = async () => {
+            setIsLoading(true);
+            setError(null);
+            setPredictionError(null);
+            setPredictionResidues(null);
+
             try {
-                const nomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
+                // Create nomenclature map
+                const newNomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
                     (prev, current) => {
                         prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
                         return prev;
                     },
                     {}
                 );
-                setNomenclatureMap(nomenclatureMap);
+                setNomenclatureMap(newNomenclatureMap);
 
-                msc_secondary?.clear();
-                const {root_ref} = await msc_secondary?.loadStructure(selected_target_structure, nomenclatureMap)!;
+                // Clear and load structure
+                msc_secondary.clear();
+                const {root_ref} = await msc_secondary.loadStructure(selected_target_structure, newNomenclatureMap);
+                if (!isActive) return;
                 setRootRef(root_ref);
 
-                if (!isActive) return;
-
+                // Only proceed with prediction if we have all required data
                 if (current_ligand?.ligand.chemicalId && current_ligand?.parent_structure.rcsb_id && bsite_radius) {
-                    const predictionResult = await dispatch(
-                        fetchPredictionData({
-                            chemid: current_ligand.ligand.chemicalId,
-                            src: current_ligand.parent_structure.rcsb_id,
-                            tgt: selected_target_structure,
-                            radius: bsite_radius
-                        })
-                    ).unwrap();
+                    try {
+                        // Redux will automatically set prediction_pending to true via matcher
+                        const predictionResult = await dispatch(
+                            fetchPredictionData({
+                                chemid: current_ligand.ligand.chemicalId,
+                                src: current_ligand.parent_structure.rcsb_id,
+                                tgt: selected_target_structure,
+                                radius: bsite_radius
+                            })
+                        ).unwrap();
 
-                    console.log('received prediction result:', predictionResult);
-                    if (!isActive) return;
-                    console.log('2received prediction result:', predictionResult);
+                        if (!isActive) return;
 
-                    if (predictionResult) {
-                        // assuming this is your prediction data
-                        const prediction_residues = predictionResult.purported_binding_site.chains.reduce(
-                            (acc, next) => {
-                                return [...acc, ...next.bound_residues];
-                            },
-                            []
-                        );
-
-                        const refs = await ctx_secondary?.ligands.create_from_prediction_data(
-                            selected_target_structure,
-                            root_ref,
-                            prediction_residues,
-                            current_ligand.ligand.chemicalId,
-                            nomenclatureMap
-                        );
-                        console.log('Received refs');
-
-                        if (refs && isActive) {
-                            console.log('Fired dispatch for mapadd');
-
-                            const bsiteId = `${current_ligand.ligand.chemicalId}_predicted_bsite`;
-                            dispatch(
-                                mapAssetModelComponentsAdd({
-                                    instanceId: 'auxiliary',
-                                    rcsbId: selected_target_structure,
-                                    components: {
-                                        [bsiteId]: refs
-                                    }
-                                })
+                        if (predictionResult) {
+                            const prediction_residues = predictionResult.purported_binding_site.chains.reduce(
+                                (acc, next) => [...acc, ...next.bound_residues],
+                                []
                             );
+                            setPredictionResidues(prediction_residues);
+
+                            // Create visualization for predicted binding site
+                            const refs = await ctx_secondary?.ligands.create_from_prediction_data(
+                                selected_target_structure,
+                                root_ref,
+                                prediction_residues,
+                                current_ligand.ligand.chemicalId,
+                                newNomenclatureMap
+                            );
+
+                            if (refs && isActive) {
+                                const bsiteId = `${current_ligand.ligand.chemicalId}_predicted_bsite`;
+                                dispatch(
+                                    mapAssetModelComponentsAdd({
+                                        instanceId: 'auxiliary',
+                                        rcsbId: selected_target_structure,
+                                        components: {
+                                            [bsiteId]: refs
+                                        }
+                                    })
+                                );
+                            }
+                        }
+                    } catch (err) {
+                        if (isActive) {
+                            setPredictionError(err);
+                            console.error('Error in prediction:', err);
                         }
                     }
                 }
-            } catch (error) {
-                console.error('Error in structure initialization:', error);
+            } catch (err) {
+                if (isActive) {
+                    setError(err);
+                    setRootRef(null);
+                    setNomenclatureMap(null);
+                    console.error('Error in structure setup:', err);
+                }
+            } finally {
+                if (isActive) {
+                    setIsLoading(false);
+                }
             }
         };
 
@@ -119,56 +129,131 @@ export default function BindingSitePredictionPanel({}) {
         return () => {
             isActive = false;
         };
-    }, [selected_target_structure, data, msc_secondary, current_ligand, bsite_radius]);
+    }, [selected_target_structure, data, msc_secondary, ctx_secondary, current_ligand, bsite_radius, dispatch]);
 
-    const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
+    return {
+        rootRef,
+        nomenclatureMap,
+        isLoading,
+        error,
+        predictionResidues,
+        predictionError
+    };
+};
+
+export default function BindingSitePredictionPanel() {
+    const dispatch = useAppDispatch();
+    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const selected_target_structure = useAppSelector(state => state.ligands_page.selected_target_structure);
+    const bsite_radius = useAppSelector(state => state.ligands_page.radius);
+    const isPredictionPending = useAppSelector(state => state.ligands_page.prediction_pending);
+    const auxiliaryService = useMolstarInstance('auxiliary');
+    const ctx_secondary = auxiliaryService?.viewer;
+    const msc_secondary = auxiliaryService?.controller;
+
+    // Structure profile query with loading state
+    const {
+        data,
+        isLoading: isLoadingProfile,
+        error: profileError
+    } = useRoutersRouterStructStructureProfileQuery(
+        {rcsbId: selected_target_structure},
+        {skip: !selected_target_structure}
+    );
+
+    // Structure setup and prediction with loading states
+    const {
+        rootRef,
+        nomenclatureMap,
+        isLoading: isLoadingSetup,
+        error: setupError,
+        predictionResidues,
+        predictionError
+    } = useStructureSetup(
+        selected_target_structure,
+        data,
+        msc_secondary,
+        ctx_secondary,
+        current_ligand,
+        bsite_radius,
+        dispatch
+    );
+
+    const [structureVisibility, setStructureVisibility] = useState(true);
+
+    if (!selected_target_structure) {
+        return (
+            <div className="space-y-4">
+                <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>No Target Structure</AlertTitle>
+                    <AlertDescription>
+                        Please select a target structure to view binding site predictions.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+
+    const isLoadingStructure = isLoadingProfile || isLoadingSetup;
+    const structureError = profileError || setupError;
+
 
     return (
         <div className="space-y-4">
-            <StructureEntity
+            <EnhancedStructureEntity
+                isLoading={isLoadingStructure}
+                error={structureError}
+                icon={<Building2 size={16} />}
+                loadingTitle="Loading structure information..."
+                errorTitle="Error loading structure"
+                className="min-w-0"
                 rcsb_id={selected_target_structure}
                 visible={structureVisibility}
                 onToggleVisibility={() => {
                     msc_secondary?.polymers.togglePolymersVisibility(selected_target_structure, !structureVisibility);
                     setStructureVisibility(!structureVisibility);
                 }}
-                className="min-w-0"
             />
-            {prediction_residues && (
-                <BindingSiteEntity
-                    chemicalId={current_ligand?.ligand.chemicalId}
-                    residueCount={prediction_residues.length}
-                    visible={true}
-                    onFocus={() => {
-                        msc_secondary?.bindingSites.focusBindingSite(
-                            selected_target_structure,
-                            current_ligand?.ligand.chemicalId
-                        );
-                    }}
-                    onToggleVisibility={() => {}}
-                    nomenclature_map={nomenclatureMap}
-                    onDownload={() => {
-                        alert('Download not implemented');
-                    }}
-                    residues={prediction_residues}
-                    onResidueClick={residue => {
-                        ctx_secondary?.residues.selectResidue(
-                            residue.rcsb_id,
-                            residue.auth_asym_id,
-                            residue.auth_seq_id,
-                            true
-                        );
-                    }}
-                    onResidueHover={residue => {
-                        ctx_secondary?.residues.highlightResidue(
-                            residue.rcsb_id,
-                            residue.auth_asym_id,
-                            residue.auth_seq_id
-                        );
-                    }}
-                    className="min-w-0"
-                />
-            )}
+
+            <EnhancedBindingSiteEntity
+                isLoading={isPredictionPending}
+                error={predictionError}
+                icon={<Inbox size={16} />}
+                loadingTitle="Predicting binding site..."
+                errorTitle="Error predicting binding site"
+                className="min-w-0"
+                chemicalId={current_ligand?.ligand.chemicalId}
+                residueCount={predictionResidues?.length ?? 0}
+                visible={true}
+                onFocus={() => {
+                    msc_secondary?.bindingSites.focusBindingSite(
+                        selected_target_structure,
+                        current_ligand?.ligand.chemicalId
+                    );
+                }}
+                onToggleVisibility={() => {}}
+                nomenclature_map={nomenclatureMap}
+                onDownload={() => {
+                    alert('Download not implemented');
+                }}
+                residues={predictionResidues ?? []}
+                onResidueClick={residue => {
+                    ctx_secondary?.residues.selectResidue(
+                        residue.rcsb_id,
+                        residue.auth_asym_id,
+                        residue.auth_seq_id,
+                        true
+                    );
+                }}
+                onResidueHover={residue => {
+                    ctx_secondary?.residues.highlightResidue(
+                        residue.rcsb_id,
+                        residue.auth_asym_id,
+                        residue.auth_seq_id
+                    );
+                }}
+            />
         </div>
     );
 }

@@ -198,7 +198,7 @@ export default function CurrentBindingSiteInfoPanel() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Selection</AlertTitle>
                     <AlertDescription>
-                        Please select a ligand-structure pair to view binding site information.
+                        Please select a ligand-structure pair (Binding Site Source) to view binding site information.
                     </AlertDescription>
                 </Alert>
             </div>
