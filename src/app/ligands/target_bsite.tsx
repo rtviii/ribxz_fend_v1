@@ -124,8 +124,7 @@ export default function BindingSitePredictionPanel({}) {
     const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
 
     return (
-        <ScrollArea className="h-[90vh] overflow-scroll  no-scrollbar space-y-4 mt-16">
-
+        <div className="space-y-4">
             <StructureEntity
                 rcsb_id={selected_target_structure}
                 visible={structureVisibility}
@@ -133,6 +132,7 @@ export default function BindingSitePredictionPanel({}) {
                     msc_secondary?.polymers.togglePolymersVisibility(selected_target_structure, !structureVisibility);
                     setStructureVisibility(!structureVisibility);
                 }}
+                className="min-w-0"
             />
             {prediction_residues && (
                 <BindingSiteEntity
@@ -166,8 +166,9 @@ export default function BindingSitePredictionPanel({}) {
                             residue.auth_seq_id
                         );
                     }}
+                    className="min-w-0"
                 />
             )}
-        </ScrollArea>
+        </div>
     );
 }

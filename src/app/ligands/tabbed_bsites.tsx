@@ -1,9 +1,8 @@
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CurrentBindingSiteInfoPanel from './source_bsite';
 import BindingSitePredictionPanel from './target_bsite';
 import { useAppSelector } from '@/store/store';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/components/utils';
 
 interface TabbedBindingSiteProps {
@@ -20,13 +19,28 @@ const TabbedBindingSite: React.FC<TabbedBindingSiteProps> = ({
         <Tabs 
             value={activeTab}
             onValueChange={setActiveTab}
-            className="relative h-[calc(100vh-200px)]"
+            className="flex flex-col h-[calc(100vh-200px)]"
         >
-            {/* Top-aligned tabs */}
-            <div className="absolute top-0 left-0 right-0 flex justify-start z-10">
-                <TabsList className="flex flex-row space-x-1 bg-transparent p-0">
+            <TabsList className="flex-shrink-0 flex flex-row space-x-1 bg-transparent p-0">
+                <TabsTrigger 
+                    value="source"
+                    className={cn(
+                        "justify-start px-4 py-2 rounded-t-md rounded-b-none",
+                        "border border-b-0",
+                        "data-[state=active]:bg-background",
+                        "data-[state=active]:border-border",
+                        "data-[state=active]:border-b-background",
+                        "data-[state=inactive]:bg-muted",
+                        "data-[state=inactive]:border-transparent",
+                        "transition-all duration-200",
+                        "min-w-0 truncate"
+                    )}
+                >
+                    Source Site
+                </TabsTrigger>
+                {isPredictionEnabled && (
                     <TabsTrigger 
-                        value="source"
+                        value="prediction"
                         className={cn(
                             "justify-start px-4 py-2 rounded-t-md rounded-b-none",
                             "border border-b-0",
@@ -35,54 +49,39 @@ const TabbedBindingSite: React.FC<TabbedBindingSiteProps> = ({
                             "data-[state=active]:border-b-background",
                             "data-[state=inactive]:bg-muted",
                             "data-[state=inactive]:border-transparent",
-                            "transition-all duration-200"
+                            "transition-all duration-200",
+                            "min-w-0 truncate"
                         )}
                     >
-                        Source Site
+                        Prediction
+                        {current_ligand && (
+                            <span className="ml-2 text-xs text-muted-foreground truncate">
+                                {current_ligand.ligand.chemicalId}
+                            </span>
+                        )}
                     </TabsTrigger>
-                    {isPredictionEnabled && (
-                        <TabsTrigger 
-                            value="prediction"
-                            className={cn(
-                                "justify-start px-4 py-2 rounded-t-md rounded-b-none",
-                                "border border-b-0",
-                                "data-[state=active]:bg-background",
-                                "data-[state=active]:border-border",
-                                "data-[state=active]:border-b-background",
-                                "data-[state=inactive]:bg-muted",
-                                "data-[state=inactive]:border-transparent",
-                                "transition-all duration-200"
-                            )}
-                        >
-                            Prediction
-                            {current_ligand && (
-                                <span className="ml-2 text-xs text-muted-foreground">
-                                    {current_ligand.ligand.chemicalId}
-                                </span>
-                            )}
-                        </TabsTrigger>
-                    )}
-                </TabsList>
-            </div>
+                )}
+            </TabsList>
 
-            {/* Content area with top padding for tabs */}
-            <ScrollArea className="h-full pt-12">
-                <div className="bg-background rounded-md border min-h-full">
-                    {/* Both panels always rendered, visibility controlled by CSS */}
-                    <div className={cn(
-                        'transition-opacity duration-200',
-                        activeTab === 'prediction' ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'
-                    )}>
-                        <BindingSitePredictionPanel />
-                    </div>
-                    <div className={cn(
-                        'transition-opacity duration-200',
-                        activeTab === 'source' ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'
-                    )}>
-                        <CurrentBindingSiteInfoPanel />
+            <div className="flex-grow min-h-0 bg-background rounded-md border mt-0">
+                <div className="w-full h-full relative overflow-hidden">
+                    {/* Both panels are in a horizontally sliding container */}
+                    <div 
+                        className={cn(
+                            "flex transition-transform duration-200 w-[200%] h-full",
+                            activeTab === 'prediction' ? '-translate-x-1/2' : 'translate-x-0'
+                        )}
+                    >
+                        {/* Each panel takes exactly half the container width */}
+                        <div className="w-1/2 h-full flex-shrink-0">
+                            <CurrentBindingSiteInfoPanel />
+                        </div>
+                        <div className="w-1/2 h-full flex-shrink-0">
+                            <BindingSitePredictionPanel />
+                        </div>
                     </div>
                 </div>
-            </ScrollArea>
+            </div>
         </Tabs>
     );
 };

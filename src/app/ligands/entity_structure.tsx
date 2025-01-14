@@ -1,22 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import {Eye, EyeOff, Building2, ChevronDown, ChevronRight} from 'lucide-react';
-import {cn} from '@/components/utils';
-import {useRoutersRouterStructStructureProfileQuery} from '@/store/ribxz_api/ribxz_api';
-import { EntityCard, IconButton } from './entity';
+import { Eye, EyeOff, Building2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { EntityCard, IconButton, EntityContent, EntityField } from './entity_base';
+import { useRoutersRouterStructStructureProfileQuery } from '@/store/ribxz_api/ribxz_api';
 
 interface StructureEntityProps {
     rcsb_id: string;
     visible: boolean;
     onToggleVisibility: () => void;
+    className?: string;
 }
 
-export const StructureEntity: React.FC<StructureEntityProps> = ({rcsb_id, visible, onToggleVisibility}) => {
-    const {data, isLoading} = useRoutersRouterStructStructureProfileQuery({rcsbId: rcsb_id}, {skip: !rcsb_id});
+export const StructureEntity: React.FC<StructureEntityProps> = ({
+    rcsb_id,
+    visible,
+    onToggleVisibility,
+    className
+}) => {
+    const {data, isLoading} = useRoutersRouterStructStructureProfileQuery(
+        {rcsbId: rcsb_id},
+        {skip: !rcsb_id}
+    );
 
     if (isLoading || !data) {
         return (
             <EntityCard
+                className={className}
                 icon={<Building2 size={16} />}
                 title="Loading structure information..."
                 controls={
@@ -26,7 +36,8 @@ export const StructureEntity: React.FC<StructureEntityProps> = ({rcsb_id, visibl
                         title={`${visible ? 'Hide' : 'Show'} structure`}
                         active={visible}
                     />
-                }>
+                }
+            >
                 <div className="animate-pulse">
                     <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded w-1/2"></div>
@@ -41,17 +52,27 @@ export const StructureEntity: React.FC<StructureEntityProps> = ({rcsb_id, visibl
 
     return (
         <EntityCard
+            className={className}
             icon={<Building2 size={16} />}
             title={
-                <div className="flex items-center gap-2">
-                    <span className="truncate">{title}</span>
-                    <Link
-                        href={`https://www.rcsb.org/structure/${rcsb_id}`}
-                        className="text-xs text-blue-500 hover:underline hover:text-blue-600 shrink-0"
-                        target="_blank">
-                        {rcsb_id}
-                    </Link>
-                </div>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2 min-w-0 max-w-full">
+                                <span className="truncate">{title}</span>
+                                <Link
+                                    href={`https://www.rcsb.org/structure/${rcsb_id}`}
+                                    className="text-xs text-blue-500 hover:underline hover:text-blue-600 flex-shrink-0"
+                                    target="_blank">
+                                    {rcsb_id}
+                                </Link>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            {title}
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             }
             controls={
                 <IconButton
@@ -60,31 +81,32 @@ export const StructureEntity: React.FC<StructureEntityProps> = ({rcsb_id, visibl
                     title={`${visible ? 'Hide' : 'Show'} structure`}
                     active={visible}
                 />
-            }>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                    <span className="text-gray-500">Organism:</span>
-                    <span className="text-gray-900">{mainOrganism}</span>
-                </div>
+            }
+        >
+            <EntityContent>
+                <EntityField
+                    label="Organism"
+                    value={mainOrganism}
+                />
                 {data.resolution && (
-                    <div className="flex items-center gap-2">
-                        <span className="text-gray-500">Resolution:</span>
-                        <span className="text-gray-900">{data.resolution.toFixed(1)}Å</span>
-                    </div>
+                    <EntityField
+                        label="Resolution"
+                        value={`${data.resolution.toFixed(1)}Å`}
+                    />
                 )}
                 {year && (
-                    <div className="flex items-center gap-2">
-                        <span className="text-gray-500">Year:</span>
-                        <span className="text-gray-900">{year}</span>
-                    </div>
+                    <EntityField
+                        label="Year"
+                        value={year}
+                    />
                 )}
                 {data.expMethod && (
-                    <div className="flex items-center gap-2">
-                        <span className="text-gray-500">Method:</span>
-                        <span className="text-gray-900">{data.expMethod}</span>
-                    </div>
+                    <EntityField
+                        label="Method"
+                        value={data.expMethod}
+                    />
                 )}
-            </div>
+            </EntityContent>
         </EntityCard>
     );
 };

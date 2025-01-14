@@ -36,13 +36,14 @@ interface ResidueCardProps {
 
 const ResidueCard: React.FC<ResidueCardProps> = ({residue, onHover, onClick}) => (
     <button
-        className="flex flex-row items-center justify-between w-20 px-1.5 py-0.5 bg-gray-50 hover:bg-gray-100 rounded text-xs border border-gray-200"
+        className="flex flex-row items-center justify-between w-[4.5rem] min-w-[4.5rem] px-1.5 py-0.5 bg-gray-50 hover:bg-gray-100 rounded text-xs border border-gray-200"
         onMouseEnter={() => onHover?.(residue)}
         onClick={() => onClick?.(residue)}>
-        <span className="font-mono font-medium min-w-6">{residue.label_comp_id}</span>
-        <span className="text-gray-500 min-w-6 text-right">{residue.auth_seq_id}</span>
+        <span className="font-mono font-medium w-6 truncate">{residue.label_comp_id}</span>
+        <span className="text-gray-500 w-6 text-right truncate">{residue.auth_seq_id}</span>
     </button>
 );
+
 
 interface ResidueGridProps {
     residues: ResidueSummary[];
@@ -74,7 +75,7 @@ const ResidueGrid: React.FC<ResidueGridProps> = ({
             );
             return acc;
         }, new Map<string, ResidueSummary[]>());
-        
+
     const getPolymerStyle = (polymerClass: string) => {
         const color = PolymerColorschemeWarm[polymerClass];
         if (!color) return {};
@@ -87,7 +88,7 @@ const ResidueGrid: React.FC<ResidueGridProps> = ({
     };
 
     const renderResidueGrid = (residuesToRender: ResidueSummary[]) => (
-        <div className="flex flex-wrap gap-0.5 p-1">
+        <div className="flex flex-wrap gap-0.5 p-1 min-w-0 overflow-x-auto">
             {residuesToRender.map((residue, index) => (
                 <ResidueCard
                     key={`${residue.auth_asym_id}-${residue.auth_seq_id}-${index}`}
@@ -100,7 +101,7 @@ const ResidueGrid: React.FC<ResidueGridProps> = ({
     );
 
     return groupByChain ? (
-        <Accordion type="multiple" className="space-y-1">
+        <Accordion type="multiple" className="space-y-1 min-w-0">
             {Array.from(groupedResidues.entries()).map(([chainId, chainResidues]) => {
                 const polymerClass = nomenclature_map[chainId];
                 const style = polymerClass ? getPolymerStyle(polymerClass) : {};
@@ -111,18 +112,18 @@ const ResidueGrid: React.FC<ResidueGridProps> = ({
                         key={chainId}
                         className="relative border rounded-lg overflow-hidden bg-white shadow-sm group/item hover:shadow-md transition-all duration-200">
                         <AccordionTrigger className="hover:no-underline py-1.5 px-2 group-hover/item:bg-gray-100/80">
-                            <div className="flex items-center justify-between w-full px-1">
-                                <div className="flex items-center gap-3">
-                                    <code className="text-xs text-gray-600">auth_asym_id: {chainId}</code>
+                            <div className="flex items-center justify-between w-full px-1 min-w-0">
+                                <div className="flex items-center gap-3 min-w-0 overflow-hidden">
+                                    <code className="text-xs text-gray-600 truncate">auth_asym_id: {chainId}</code>
                                     {polymerClass && (
                                         <span
-                                            className="px-2 py-0.5 rounded text-xs font-medium"
+                                            className="px-2 py-0.5 rounded text-xs font-medium truncate shrink-0"
                                             style={style}>
                                             {polymerClass}
                                         </span>
                                     )}
                                 </div>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-gray-500 shrink-0 ml-2">
                                     {chainResidues.length} residues
                                 </span>
                             </div>

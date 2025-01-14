@@ -22,6 +22,7 @@ import {Button} from '@/components/ui/button';
 import {LigandEntity} from './entity_ligand';
 import {StructureEntity} from './entity_structure';
 import {BindingSiteEntity} from './entity_bsite';
+import {ScrollArea} from '@/components/ui/scroll-area';
 
 /** This returns the link to the chemical structure image that rcsb stores. */
 const chemical_structure_link = (ligand_id: string | undefined) => {
@@ -150,86 +151,92 @@ export default function CurrentBindingSiteInfoPanel() {
         {skip: !current_ligand}
     );
     const {rootRef, nomenclatureMap} = useStructureSetup(current_ligand, msc, ctx, bsite_radius, dispatch, data);
-    const surroundingResidues        = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
+    const surroundingResidues = useSurroundingResidues(current_ligand, msc, rootRef, bsite_radius);
 
     const [structureVisibility, setStructureVisibility] = useState<boolean>(true);
-    const [bsiteVisibility, setBsiteVisibility]         = useState<boolean>(true);
+    const [bsiteVisibility, setBsiteVisibility] = useState<boolean>(true);
 
     useEffect(() => {
         setStructureVisibility(true);
-    },[rootRef])
+    }, [rootRef]);
 
     return (
-        <div>
-            <Accordion type="single" collapsible defaultValue="none" disabled={current_ligand === null}>
-                <StructureEntity
-                    rcsb_id={current_ligand?.parent_structure.rcsb_id}
-                    visible={structureVisibility}
-                    onToggleVisibility={() => {
-                        msc?.polymers.togglePolymersVisibility(
-                            current_ligand.parent_structure.rcsb_id,
-                            !structureVisibility
-                        );
-                        setStructureVisibility(!structureVisibility);
-                    }}
-                />
-
-                {current_ligand && (
-                    <LigandEntity
-                        chemicalId={current_ligand?.ligand.chemicalId}
-                        drugbank_id={current_ligand?.ligand.drugbank_id}
-                        drugbank_description={current_ligand?.ligand.drugbank_description}
-                        formula_weight={current_ligand?.ligand.formula_weight}
-                        pdbx_description={current_ligand?.ligand.pdbx_description}
-                        onFocus={() => {
-                            ctx?.interactions.focus(ligand_component?.sel_ref);
+                <div className="space-y-4">
+                    <StructureEntity
+                        className="min-w-0"
+                        rcsb_id={current_ligand?.parent_structure.rcsb_id}
+                        visible={structureVisibility}
+                        onToggleVisibility={() => {
+                            msc?.polymers.togglePolymersVisibility(
+                                current_ligand.parent_structure.rcsb_id,
+                                !structureVisibility
+                            );
+                            setStructureVisibility(!structureVisibility);
                         }}
                     />
-                )}
-                <BindingSiteEntity
-                    chemicalId={current_ligand?.ligand.chemicalId}
-                    residueCount={surroundingResidues.length}
-                    visible={bsiteVisibility}
-                    onFocus={() => {
-                        msc?.bindingSites.focusBindingSite(
-                            current_ligand?.parent_structure.rcsb_id,
-                            current_ligand?.ligand.chemicalId
-                        );
-                    }}
-                    onToggleVisibility={() => {
-                        (async () => {
-                            const bsite = msc?.bindingSites.retrieveBSiteComponent(
+
+                    {current_ligand && (
+                        <LigandEntity
+                            className="min-w-0"
+                            chemicalId={current_ligand?.ligand.chemicalId}
+                            drugbank_id={current_ligand?.ligand.drugbank_id}
+                            drugbank_description={current_ligand?.ligand.drugbank_description}
+                            formula_weight={current_ligand?.ligand.formula_weight}
+                            pdbx_description={current_ligand?.ligand.pdbx_description}
+                            onFocus={() => {
+                                ctx?.interactions.focus(ligand_component?.sel_ref);
+                            }}
+                        />
+                    )}
+                    <BindingSiteEntity
+                        className="min-w-0"
+                        chemicalId={current_ligand?.ligand.chemicalId}
+                        residueCount={surroundingResidues.length}
+                        visible={bsiteVisibility}
+                        onFocus={() => {
+                            msc?.bindingSites.focusBindingSite(
                                 current_ligand?.parent_structure.rcsb_id,
                                 current_ligand?.ligand.chemicalId
                             );
+                        }}
+                        onToggleVisibility={() => {
+                            (async () => {
+                                const bsite = msc?.bindingSites.retrieveBSiteComponent(
+                                    current_ligand?.parent_structure.rcsb_id,
+                                    current_ligand?.ligand.chemicalId
+                                );
 
-                            bsite &&
-                                (await ctx?.ctx.dataTransaction(async () => {
-                                    ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
-                                }));
-                        })();
-                        setBsiteVisibility(!bsiteVisibility);
-                    }}
-                    nomenclature_map={nomenclatureMap}
-                    onDownload={() => {
-                        alert('Download not implemented');
-                    }}
-                    residues={surroundingResidues}
-                    onResidueClick={residue => {
-                        ctx?.residues.selectResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id, true);
-                    }}
-                    onResidueHover={residue => {
-                        ctx?.residues.highlightResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id);
-                    }}
-                />
+                                bsite &&
+                                    (await ctx?.ctx.dataTransaction(async () => {
+                                        ctx.interactions.setSubtreeVisibility(bsite.ref, !bsiteVisibility);
+                                    }));
+                            })();
+                            setBsiteVisibility(!bsiteVisibility);
+                        }}
+                        nomenclature_map={nomenclatureMap}
+                        onDownload={() => {
+                            alert('Download not implemented');
+                        }}
+                        residues={surroundingResidues}
+                        onResidueClick={residue => {
+                            ctx?.residues.selectResidue(
+                                residue.rcsb_id,
+                                residue.auth_asym_id,
+                                residue.auth_seq_id,
+                                true
+                            );
+                        }}
+                        onResidueHover={residue => {
+                            ctx?.residues.highlightResidue(residue.rcsb_id, residue.auth_asym_id, residue.auth_seq_id);
+                        }}
+                    />
 
-                <Button
-                    onClick={() => {
-                        console.log(slice_refs);
-                    }}>
-                    Log State
-                </Button>
-            </Accordion>
-        </div>
+                    <Button
+                        onClick={() => {
+                            console.log(slice_refs);
+                        }}>
+                        Log State
+                    </Button>
+                </div>
     );
 }
