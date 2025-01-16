@@ -188,8 +188,8 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model      = await this.ctx.builders.structure.createModel(trajectory);
-            const structure  = await this.ctx.builders.structure.createStructure(model);
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
 
             // );
 
@@ -220,7 +220,7 @@ export class ribxzMstarv2 {
                 auth_seq_id: number;
             }[]
         ) => {
-            const expr = this.residues.selectionResidueClusterExpression(chain_residue_tuples);
+            const expr = this.residues.residue_cluster_expression(chain_residue_tuples);
             const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
             const sel = Script.getStructureSelection(expr, data);
             let loci = StructureSelection.toLociWithSourceUnits(sel);
@@ -229,7 +229,7 @@ export class ribxzMstarv2 {
             this.ctx.managers.camera.focusLoci(loci);
         },
 
-        selectionResidueClusterExpression: (
+        residue_cluster_expression: (
             chain_residues_tuples_tuples: {
                 auth_asym_id: string;
                 auth_seq_id: number;
@@ -644,7 +644,6 @@ export class ribxzMstarv2 {
             chemicalId: string,
             nomenclature_map: Record<string, string>
         ) => {
-
             // TODO
             // https://github.com/molstar/molstar/issues/449
         },
@@ -1087,7 +1086,7 @@ export class ribxzMstarv2 {
 
             // const state = this.ctx.state.data;
             // const cell = state.select(StateSelection.Generators.byRef(struct_ref))[0];
-            const expr = this.residues.selectionResidueClusterExpression(cluster);
+            const expr = this.residues.residue_cluster_expression(cluster);
             let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
                 structureRef,
                 number: i + 1
@@ -1231,5 +1230,10 @@ export class ribxzMstarv2 {
         const cell = state_sel[0];
         if (!cell?.obj) return;
         return Structure.toStructureElementLoci(cell.obj.data);
+    };
+    loci_from_expr = (expr: Expression, data: any): Loci => {
+        const compiled = compile<StructureSelection>(expr)(new QueryContext(data));
+        const loci     = StructureSelection.toLociWithSourceUnits(compiled);
+        return loci;
     };
 }

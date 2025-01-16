@@ -195,19 +195,6 @@ export const selectComponentById = createSelector(
         instances[instanceId].components[componentId]
 );
 
-// Updated to support type-specific component selection
-export const selectComponentByRCSBAndLocalId = createSelector(
-    [
-        selectInstances,
-        (_state, params: {
-            instanceId: MolstarInstanceId;
-            rcsbId: RCSB_ID;
-            localId: auth_asym_id | chemical_id;
-        }) => params
-    ],
-    (instances, { instanceId, rcsbId, localId }) =>
-        instances[instanceId].components[`${rcsbId}_${localId}`]
-);
 
 export const selectRefsForRCSB = createSelector(
     [selectComponentsForRCSB],

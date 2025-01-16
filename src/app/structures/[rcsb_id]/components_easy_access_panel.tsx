@@ -9,48 +9,19 @@ import {useMolstarInstance} from '@/components/mstar/mstar_service';
 import {sort_by_polymer_class} from '@/my_utils';
 import PolymerComponentRow from './polymer_component';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
-import {LandmarkHandlers, LocationLandmark, RegionLandmark} from '../landmarks/types';
-import LandmarkRow from '../landmarks/landmark_row';
-import { LandmarksPanel } from '../landmarks/helix_panel';
-const ptcLandmark: LocationLandmark = {
-    id: 'ptc-1',
-    name: 'Peptidyl Transferase Center',
-    type: 'location',
-    coordinates: [10, 20, 30],
-    description: 'Catalytic center of the ribosome'
-};
+import {HelixLandmarks} from '../landmarks/helix_row';
+import { selectComponentById } from '@/store/molstar/slice_refs';
 
-const helix26: RegionLandmark = {
-    id: 'h26',
-    name: 'Helix 26',
-    type: 'region',
-    chain_id: '16S',
-    start_residue: 824,
-    end_residue: 869,
-    description: 'Part of the central domain'
-};
-
-const landmarkHandlers: LandmarkHandlers = {
-    onToggleVisibility: id => {
-        /* implementation */
-    },
-    onHighlight: id => {
-        /* implementation */
-    },
-    onFocus: id => {
-        /* implementation */
-    },
-    onExport: id => {
-        /* implementation */
-    }
-};
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [activeView, setActiveView] = useState('polymers');
-    const service                     = useMolstarInstance('main');
-    const state                       = useAppSelector(state => state);
-    const rcsb_id                     = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const service = useMolstarInstance('main');
+    const state = useAppSelector(state => state);
+    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
 
-    const {data: helices_data}        = useRoutersRouterStructGetHelicesQuery({rcsb_id: data?.rcsb_id});
+    const {data: helices_data} = useRoutersRouterStructGetHelicesQuery({rcsb_id: data?.rcsb_id});
+    const mstar = useMolstarInstance('main');
+    const controller = mstar?.controller;
+    const ctx = mstar?.viewer;
 
     useEffect(() => {
         console.log(helices_data);
@@ -127,8 +98,40 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         <ScrollArea className="h-full">
                             <div>
                                 <div className="text-sm text-gray-500">
-                                    <LandmarksPanel helicesData={helices_data}/>
+                                    <HelixLandmarks
+                                        helicesData={helices_data}
+                                        onToggleVisibility={id => {
+                                            // Your visibility logic
+                                        }}
+                                        onHighlight={id => {
+                                            // Your highlight logic
+                                        }}
+                                        onFocus={helix => {
+                                            const residues = [];
+                                            for (let i = helix.start_residue; i <= helix.end_residue; i++) {
+                                                residues.push({
+                                                    auth_asym_id: helix.chain_id,
+                                                    auth_seq_id: i
+                                                });
+                                            }
+                                            console.log('fired');
 
+                                            console.log(helix);
+
+                                            const expr = ctx?.residues.residue_cluster_expression(residues);
+
+                                            const polymer_component = selectComponentById(state, {
+                                                componentId: helix.chain_id,
+                                                instanceId: 'main'
+                                            });
+                                            const data = ctx?.cell_from_ref(polymer_component.ref);
+                                            const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
+
+                                            ctx?.ctx.managers.camera.focusLoci(loci);
+
+                                            // Your focus logic
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </ScrollArea>
