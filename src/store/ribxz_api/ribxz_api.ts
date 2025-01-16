@@ -122,11 +122,11 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: () => ({url: `/structures/half_cylinder_residues`})
         }),
-        routersRouterStructGetRadial: build.query<
-            RoutersRouterStructGetRadialApiResponse,
-            RoutersRouterStructGetRadialApiArg
+        routersRouterStructGetHelices: build.query<
+            RoutersRouterStructGetHelicesApiResponse,
+            RoutersRouterStructGetHelicesApiArg
         >({
-            query: queryArg => ({url: `/structures/tunnel_radial`, params: {rcsb_id: queryArg.rcsbId}})
+            query: queryArg => ({url: `/structures/landmarks/helices/${queryArg.rcsbId}`})
         }),
         routersRouterClassesPolynucleotideClass: build.query<
             RoutersRouterClassesPolynucleotideClassApiResponse,
@@ -247,8 +247,8 @@ export type RoutersRouterStructCylinderResiduesApiResponse = unknown;
 export type RoutersRouterStructCylinderResiduesApiArg = void;
 export type RoutersRouterStructHalfCylinderResiduesApiResponse = unknown;
 export type RoutersRouterStructHalfCylinderResiduesApiArg = void;
-export type RoutersRouterStructGetRadialApiResponse = unknown;
-export type RoutersRouterStructGetRadialApiArg = {
+export type RoutersRouterStructGetHelicesApiResponse = unknown;
+export type RoutersRouterStructGetHelicesApiArg = {
     rcsbId: string;
 };
 export type RoutersRouterClassesPolynucleotideClassApiResponse = /** status 200 OK */ Rna[];
@@ -383,17 +383,12 @@ export type InitiationFactorClass =
     | 'aIF5A'
     | 'aIF5B';
 export type MitochondrialProteinClass =
-
     | 'bS1m'
-    | 'uS5m'
-    | 'bS6m'
-    | 'bS16m'
-    | 'bS18m'
-    | 'bS21m'
-
     | 'uS2m'
     | 'uS3m'
     | 'uS4m'
+    | 'uS5m'
+    | 'bS6m'
     | 'uS7m'
     | 'uS8m'
     | 'uS9m'
@@ -403,9 +398,11 @@ export type MitochondrialProteinClass =
     | 'uS13m'
     | 'uS14m'
     | 'uS15m'
+    | 'bS16m'
     | 'uS17m'
+    | 'bS18m'
     | 'uS19m'
-
+    | 'bS21m'
     | 'mS22'
     | 'mS23'
     | 'mS25'
@@ -427,41 +424,38 @@ export type MitochondrialProteinClass =
     | 'mS45'
     | 'mS46'
     | 'mS47'
-
     | 'uL1m'
     | 'uL2m'
     | 'uL3m'
     | 'uL4m'
     | 'uL5m'
     | 'uL6m'
+    | 'bL9m'
     | 'uL10m'
     | 'uL11m'
+    | 'bL12m'
     | 'uL13m'
     | 'uL14m'
     | 'uL15m'
     | 'uL16m'
-    | 'uL18m'
-    | 'uL22m'
-    | 'uL23m'
-    | 'uL24m'
-    | 'uL29m'
-    | 'uL30m'
-
-    | 'bL9m'
-    | 'bL12m'
     | 'bL17m'
+    | 'uL18m'
     | 'bL19m'
     | 'bL20m'
     | 'bL21m'
+    | 'uL22m'
+    | 'uL23m'
+    | 'uL24m'
     | 'bL27m'
     | 'bL28m'
+    | 'uL29m'
+    | 'uL30m'
     | 'bL31m'
     | 'bL32m'
     | 'bL33m'
     | 'bL34m'
     | 'bL35m'
     | 'bL36m'
-
     | 'mL37'
     | 'mL38'
     | 'mL39'
@@ -910,7 +904,7 @@ export const {
     useRoutersRouterStructGetShapeQuery,
     useRoutersRouterStructCylinderResiduesQuery,
     useRoutersRouterStructHalfCylinderResiduesQuery,
-    useRoutersRouterStructGetRadialQuery,
+    useRoutersRouterStructGetHelicesQuery,
     useRoutersRouterClassesPolynucleotideClassQuery,
     useRoutersRouterClassesPolypeptideClassQuery,
     useRoutersRouterClassesLifecycleFactorClassQuery,
