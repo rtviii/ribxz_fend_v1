@@ -11,7 +11,7 @@ import {
     useRoutersRouterStructStructurePtcQuery
 } from '@/store/ribxz_api/ribxz_api';
 import PolymersTable from '@/components/ribxz/polymer_table';
-import {ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {ReactNode, use, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 // import {MolstarRibxz} from '@/components/mstar/__molstar_ribxz';
 import {MolstarNode} from '@/components/mstar/spec';
@@ -41,7 +41,7 @@ import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
 import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
-import { useRibosomeStructureWithNomenclature } from '@/components/ribxzhooks';
+import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 
 const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
     const handleCifDownload = () => {
@@ -175,14 +175,14 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
 };
 
 const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
-    const dispatch                                    = useAppDispatch();
-    const state                                       = useAppSelector(s => s);
-    const rcsb_id                                     = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
-    const selected_polymers                           = useAppSelector(state => state.structure_page.selected);
-    const service                                     = useMolstarInstance('main');
-    const [newBookmarkName, promptForNewBookmark]     = useUserInputPrompt('Enter a name for the new bookmark:');
+    const dispatch = useAppDispatch();
+    const state = useAppSelector(s => s);
+    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const selected_polymers = useAppSelector(state => state.structure_page.selected);
+    const service = useMolstarInstance('main');
+    const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
-    const createNewSelection                          = async () => {
+    const createNewSelection = async () => {
         const name = promptForNewBookmark();
         dispatch(snapshot_selection({[name]: selected_polymers}));
     };
@@ -292,7 +292,10 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
     );
 };
 
-export default function StructurePage() {
+export default function StructurePage({params}: {params: Promise<{rcsb_id: string}>}) {
+    const {rcsb_id} = use(params);
+    const {data, nomenclatureMap, isLoading} = useRibosomeStructureWithNomenclature(rcsb_id);
+
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
@@ -300,8 +303,6 @@ export default function StructurePage() {
 
     // const molstarNodeRef = useRef<HTMLDivElement>(null);
     // const {rcsb_id} = params;
-    const rcsb_id = '4UG0';
-    const {data, nomenclatureMap, isLoading} = useRibosomeStructureWithNomenclature(rcsb_id);
 
     const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
 
