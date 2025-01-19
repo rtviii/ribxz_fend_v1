@@ -10,7 +10,7 @@ import {sort_by_polymer_class} from '@/my_utils';
 import PolymerComponentRow from './polymer_component';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 import {HelixLandmarks} from '../landmarks/helix_row';
-import { selectComponentById } from '@/store/molstar/slice_refs';
+import {selectComponentById} from '@/store/molstar/slice_refs';
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [activeView, setActiveView] = useState('polymers');
@@ -100,11 +100,46 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                 <div className="text-sm text-gray-500">
                                     <HelixLandmarks
                                         helicesData={helices_data}
-                                        onToggleVisibility={id => {
-                                            // Your visibility logic
+                                        onSelect={helix => {
+                                            const residues = [];
+                                            for (let i = helix.start_residue; i <= helix.end_residue; i++) {
+                                                residues.push({
+                                                    auth_asym_id: helix.chain_id,
+                                                    auth_seq_id: i
+                                                });
+                                            }
+                                            const expr = ctx?.residues.residue_cluster_expression(residues);
+                                            const polymer_component = selectComponentById(state, {
+                                                componentId: helix.chain_id,
+                                                instanceId: 'main'
+                                            });
+                                            const data = ctx?.cell_from_ref(polymer_component.ref);
+                                            const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
+                                            ctx?.ctx.managers.structure.selection.fromLoci('add', loci);
                                         }}
-                                        onHighlight={id => {
-                                            // Your highlight logic
+                                        onMouseEnter={helix => {
+                                            {
+                                                const residues = [];
+                                                for (let i = helix.start_residue; i <= helix.end_residue; i++) {
+                                                    residues.push({
+                                                        auth_asym_id: helix.chain_id,
+                                                        auth_seq_id: i
+                                                    });
+                                                }
+                                                const expr = ctx?.residues.residue_cluster_expression(residues);
+                                                const polymer_component = selectComponentById(state, {
+                                                    componentId: helix.chain_id,
+                                                    instanceId: 'main'
+                                                });
+                                                const data = ctx?.cell_from_ref(polymer_component.ref);
+                                                const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
+                                                console.log('Lcoi?', loci);
+
+                                                ctx?.ctx.managers.interactivity.lociHighlights.highlight({loci});
+                                            }
+                                        }}
+                                        onMouseLeave={() => {
+                                            ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
                                         }}
                                         onFocus={helix => {
                                             const residues = [];
@@ -114,12 +149,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                     auth_seq_id: i
                                                 });
                                             }
-                                            console.log('fired');
-
-                                            console.log(helix);
-
                                             const expr = ctx?.residues.residue_cluster_expression(residues);
-
                                             const polymer_component = selectComponentById(state, {
                                                 componentId: helix.chain_id,
                                                 instanceId: 'main'

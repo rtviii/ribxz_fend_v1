@@ -5,25 +5,28 @@ import {HelixData, HelixLandmark, HelixLandmarksProps, transformHelicesToLandmar
 
 interface HelixRowProps {
     helix: HelixLandmark;
-    onToggleVisibility: (id: HelixLandmark) => void;
-    onHighlight: (id: HelixLandmark) => void;
+    onMouseEnter: (id: HelixLandmark) => void;
+    onMouseLeave: () => void;
+    onSelect: (id: HelixLandmark) => void;
     onFocus: (id: HelixLandmark) => void;
 }
 
 const HelixRow: React.FC<HelixRowProps> = ({
     helix,
-    onToggleVisibility,
-    onHighlight,
+    onMouseEnter,
+    onMouseLeave,
+    onSelect,
     onFocus
 }) => {
     const isHighlighted = false;
     const isVisible = true;
+
     return (
         <div
             className="border-b border-gray-200 last:border-b-0"
-            // onMouseEnter={() => onHighlight(helix)}
-            // onMouseLeave={() => onHighlight()}
-        >
+            onClick={() => onSelect(helix)}
+            onMouseEnter={() => onMouseEnter(helix)}
+            onMouseLeave={() => onMouseLeave()}>
             <div
                 className={cn(
                     'flex items-center justify-between rounded-md px-2 transition-colors hover:cursor-pointer py-1',
@@ -45,12 +48,12 @@ const HelixRow: React.FC<HelixRowProps> = ({
                         <Focus size={14} />
                     </button>
 
-                    <button
+                    {/* <button
                         className="rounded-full p-1 text-gray-500 hover:bg-gray-100"
                         onClick={() => onToggleVisibility(helix)}
                         title={isVisible ? 'Hide' : 'Show'}>
                         {isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
-                    </button>
+                    </button> */}
                 </div>
             </div>
         </div>
@@ -61,10 +64,9 @@ interface ChainGroupProps {
     chainId: string;
     polymerClass: string;
     helices: HelixLandmark[];
-    visibleHelices: Set<string>;
-    highlightedHelix: string | null;
-    onToggleVisibility: (h: HelixLandmark) => void;
-    onHighlight: (h: HelixLandmark) => void;
+    onMouseEnter: (id: HelixLandmark) => void;
+    onMouseLeave: () => void;
+    onSelect: (h: HelixLandmark) => void;
     onFocus: (h: HelixLandmark) => void;
 }
 
@@ -72,8 +74,9 @@ const ChainGroup: React.FC<ChainGroupProps> = ({
     chainId,
     polymerClass,
     helices,
-    onToggleVisibility,
-    onHighlight,
+    onMouseEnter,
+    onMouseLeave,
+    onSelect,
     onFocus
 }) => {
     const [isExpanded, setIsExpanded] = useState(true);
@@ -112,8 +115,9 @@ const ChainGroup: React.FC<ChainGroupProps> = ({
                         <HelixRow
                             key={helix.id}
                             helix={helix}
-                            onToggleVisibility={onToggleVisibility}
-                            onHighlight={onHighlight}
+                            onSelect={onSelect}
+                            onMouseEnter={onMouseEnter}
+                            onMouseLeave={onMouseLeave}
                             onFocus={onFocus}
                         />
                     ))}
@@ -123,12 +127,7 @@ const ChainGroup: React.FC<ChainGroupProps> = ({
     );
 };
 
-export const HelixLandmarks: React.FC<HelixLandmarksProps> = ({
-    helicesData,
-    onToggleVisibility,
-    onHighlight,
-    onFocus
-}) => {
+export const HelixLandmarks: React.FC<HelixLandmarksProps> = ({helicesData, onSelect,  onMouseEnter, onMouseLeave, onFocus}) => {
     if (!helicesData) return null;
 
     const helixLandmarks = transformHelicesToLandmarks(helicesData);
@@ -152,8 +151,9 @@ export const HelixLandmarks: React.FC<HelixLandmarksProps> = ({
                     chainId={chainId}
                     polymerClass={polymer_class}
                     helices={helices}
-                    onToggleVisibility={onToggleVisibility}
-                    onHighlight={onHighlight}
+                    onSelect={onSelect}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
                     onFocus={onFocus}
                 />
             ))}

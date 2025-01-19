@@ -13,9 +13,9 @@ export type chemical_id = string;
 export type ComponentType = 'polymer' | 'ligand' | 'bsite';
 
 interface BaseComponent {
-    type   : ComponentType;
+    type: ComponentType;
     rcsb_id: RCSB_ID;
-    ref    : MolstarRef;
+    ref: MolstarRef;
 }
 
 export interface PolymerComponent extends BaseComponent {
@@ -181,7 +181,7 @@ export const selectComponentsForRCSB = createSelector(
         const instance = instances[instanceId];
         const localIds = instance.rcsb_id_components_map[rcsbId] || [];
         const components = localIds.map(localId => instance.components[localId]);
-        
+
         if (componentType) {
             return components.filter(component => component.type === componentType);
         }
@@ -240,8 +240,8 @@ export const selectBsiteForLigand = createSelector(
     (instances, { instanceId, rcsbId, chemicalId }) => {
         const instance = instances[instanceId];
         const bsiteComponents = Object.values(instance.components)
-            .filter((component): component is BsiteComponent => 
-                component.type === 'bsite' && 
+            .filter((component): component is BsiteComponent =>
+                component.type === 'bsite' &&
                 component.chemicalId === chemicalId &&
                 component.rcsb_id === rcsbId
             );
