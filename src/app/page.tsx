@@ -13,10 +13,10 @@ const Homepage = () => {
         <div className="container mx-auto px-4 max-w-6xl">
             <Hero />
             <StructureCarousel />
-            {/* <div className="w-full flex flex-col md:flex-row gap-8 py-8">
+            <div className="w-full flex flex-col md:flex-row gap-8 py-8">
                 <TunnelDemo />
-                <BsiteDemo />
-            </div> */}
+                {/* <BsiteDemo /> */}
+            </div>
             <Footer />
         </div>
     );

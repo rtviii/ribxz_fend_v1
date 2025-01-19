@@ -4,19 +4,28 @@ import {useEffect, useRef, useState} from 'react';
 import * as React from 'react';
 import {Card} from '@/components/ui/card';
 import {MolstarNode, ribxzSpec} from '@/components/mstar/spec';
-import {MolstarRibxz, MyViewportControls} from '@/components/mstar/__molstar_ribxz';
+// import {MolstarRibxz, MyViewportControls} from '@/components/mstar/__molstar_ribxz';
+
 import {DefaultPluginUISpec, PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {Quat, Vec3} from 'molstar/lib/mol-math/linear-algebra';
+import { MolstarContext } from '@/components/mstar/mstar_service';
+import { ribxzMstarv2 } from '@/components/mstar/mstar_v2';
+import { PluginUIComponent } from 'molstar/lib/mol-plugin-ui/base';
+export class EmptyViewportControls extends PluginUIComponent<{}, {}> {
+    render() {
+        return <div className={'msp-viewport-controls'}> </div>;
+    }
+}
 
 export const TunnelDemo = () => {
-    const [ctx, setCtx] = useState<MolstarRibxz | null>(null);
-    const rcsb_id = '4UG0';
+    const [ctx, setCtx]  = useState<ribxzMstarv2 | null>(null);
+    const rcsb_id        = '4UG0';
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
     // !Autoload structure
     useEffect(() => {
         (async () => {
-            const x = new MolstarRibxz();
+            const x = new ribxzMstarv2();
             const custom_spec: PluginUISpec = {
                 ...DefaultPluginUISpec(),
                 actions: [],
@@ -25,7 +34,7 @@ export const TunnelDemo = () => {
                     disableDragOverlay: true,
                     hideTaskOverlay: true,
                     viewport: {
-                        controls: MyViewportControls
+                        controls: EmptyViewportControls
                     },
                     controls: {
                         right: 'none',
@@ -76,7 +85,7 @@ export const TunnelDemo = () => {
         //     LP_residues.push( Number.parseInt(j) )
         // }
 
-        ctx?.tunnel_geoemetry('4UG0');
+        ctx?.tunnel_geometry('4UG0');
         if (ctx?.ctx) {
             const snapshot = ctx?.ctx.canvas3d?.camera.getSnapshot();
             const newSnapshot = {...snapshot, up: Vec3.create(-1, 0, 0)};

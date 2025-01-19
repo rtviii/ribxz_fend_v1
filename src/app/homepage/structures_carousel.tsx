@@ -1,17 +1,26 @@
-"use client"
 import { useEffect, useRef, useState } from 'react';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import * as React from "react"
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { StructureCard } from '@/components/ribxz/structure_card';
-import { useAppSelector } from '@/store/store';
+import { useAppSelector, useAppDispatch } from '@/store/store';
+import { 
+    set_current_structures, 
+    set_structures_cursor, 
+    set_total_structures_count 
+} from '@/store/slices/slice_structures';
+import { useGetStructuresMutation } from '@/store/ribxz_api/structures_api';
 
 export const StructureCarousel = () => {
-
-    const current_structures = useAppSelector(state => state.structures_page.current_structures);
+    const dispatch = useAppDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const last_updated       = useAppSelector(state => state.structures_page.last_db_update);
+    const current_structures = useAppSelector(state => state.structures_page.current_structures);
+    const structures_cursor = useAppSelector(state => state.structures_page.structures_cursor);
+    const last_updated = useAppSelector(state => state.structures_page.last_db_update);
+    
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const [getStructures] = useGetStructuresMutation();
 
     const handleWheel = (e: WheelEvent) => {
         const scrollViewport = scrollContainerRef.current?.querySelector('[data-radix-scroll-area-viewport]');
@@ -23,6 +32,40 @@ export const StructureCarousel = () => {
         }
     };
 
+    const fetchStructures = async (newCursor: string | null = null) => {
+        setIsLoading(true);
+        try {
+            const payload = {
+                cursor: newCursor,
+                limit: 10,
+                // Add any additional filter parameters here if needed
+            };
+
+            const result = await getStructures(payload).unwrap();
+            const { structures: new_structures, next_cursor, total_count } = result;
+
+            if (newCursor === null) {
+                dispatch(set_current_structures(new_structures));
+            } else {
+                dispatch(set_current_structures([...current_structures, ...new_structures]));
+            }
+
+            dispatch(set_total_structures_count(total_count));
+            dispatch(set_structures_cursor(next_cursor));
+            setHasMore(next_cursor !== null);
+        } catch (err) {
+            console.error('Error fetching structures:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const loadMore = () => {
+        if (!isLoading && hasMore) {
+            fetchStructures(structures_cursor);
+        }
+    };
+
     useEffect(() => {
         const element = scrollContainerRef.current;
         if (element) {
@@ -31,26 +74,44 @@ export const StructureCarousel = () => {
         }
     }, []);
 
-    return (
-        <div className="w-full space-y-4 py-8" ref={scrollContainerRef} >
+    useEffect(() => {
+        if (current_structures.length === 0) {
+            fetchStructures();
+        }
+    }, []);
 
+    return (
+        <div className="w-full space-y-4 py-8" ref={scrollContainerRef}>
             <div className="px-4">
-                <h2 className="text-sm font-medium text-muted-foreground">Latest PDB Depositions [ {last_updated} ] </h2>
+                <h2 className="text-sm font-medium text-muted-foreground">
+                    Latest PDB Depositions [ {last_updated} ]
+                </h2>
             </div>
             <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
                 <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
-                    {current_structures.slice(0, 10).map((_, i) => (
-                        <StructureCard _={_} key={i} />
+                    {current_structures.map((structure, i) => (
+                        <StructureCard _={structure} key={i} />
                     ))}
 
-                    <div className="w-64 shrink-0">
-                        <Card className="w-full h-full flex items-center justify-center hover:bg-muted cursor-pointer transition-colors rounded-md bg-slate-50">
-                            <Plus className="w-10 h-10 text-muted-foreground" />
-                            <span>Load More</span>
-                        </Card>
-                    </div>
+                    {hasMore && (
+                        <div className="w-64 shrink-0" onClick={loadMore}>
+                            <Card className="w-full h-full flex flex-col items-center justify-center hover:bg-muted cursor-pointer transition-colors rounded-md bg-slate-50">
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />
+                                        <span className="mt-2">Loading...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Plus className="w-10 h-10 text-muted-foreground" />
+                                        <span className="mt-2">Load More</span>
+                                    </>
+                                )}
+                            </Card>
+                        </div>
+                    )}
                 </div>
             </ScrollArea>
         </div>
     );
-}
+};

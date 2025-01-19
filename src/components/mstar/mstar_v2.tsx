@@ -1233,7 +1233,47 @@ export class ribxzMstarv2 {
     };
     loci_from_expr = (expr: Expression, data: any): Loci => {
         const compiled = compile<StructureSelection>(expr)(new QueryContext(data));
-        const loci     = StructureSelection.toLociWithSourceUnits(compiled);
+        const loci = StructureSelection.toLociWithSourceUnits(compiled);
         return loci;
+    };
+
+    toggleSpin() {
+        if (!this.ctx) {
+            return;
+        }
+        const trackball = this.ctx?.canvas3d.props.trackball;
+
+        PluginCommands.Canvas3D.SetSettings(this.ctx, {
+            settings: {
+                trackball: {
+                    ...trackball,
+                    animate:
+                        trackball.animate.name === 'spin'
+                            ? {name: 'off', params: {}}
+                            : {name: 'spin', params: {speed: 1}}
+                }
+            }
+        });
+        return this;
+    }
+
+    tunnel_geometry = async (rcsb_id: string): Promise<Loci> => {
+        const provider = this.ctx.dataFormats.get('ply')!;
+        const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
+        const data = await this.ctx.builders.data.download({
+            url: Asset.Url(myurl.toString()),
+            isBinary: false
+        });
+        const parsed = await provider!.parse(this.ctx, data!);
+
+        if (provider.visuals) {
+            const visual = await provider.visuals!(this.ctx, parsed);
+            const shape_ref = visual.ref;
+            const meshObject = this.ctx.state.data.select(shape_ref)[0];
+            const shape_loci = await meshObject.obj.data.repr.getAllLoci();
+            return shape_loci;
+        } else {
+            throw Error('provider.visuals is undefined for this `ply` data format');
+        }
     };
 }
