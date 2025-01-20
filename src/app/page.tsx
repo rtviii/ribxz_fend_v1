@@ -15,7 +15,7 @@ const Homepage = () => {
             <StructureCarousel />
             <div className="w-full flex flex-col md:flex-row gap-8 py-8">
                 <TunnelDemo />
-                {/* <BsiteDemo /> */}
+                <BsiteDemo />
             </div>
             <Footer />
         </div>

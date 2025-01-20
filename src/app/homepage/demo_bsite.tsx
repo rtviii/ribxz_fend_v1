@@ -4,12 +4,13 @@ import {useEffect, useRef, useState} from 'react';
 import * as React from 'react';
 import {Card} from '@/components/ui/card';
 import {MolstarNode, ribxzSpec} from '@/components/mstar/spec';
-import {MolstarRibxz, MyViewportControls} from '@/components/mstar/__molstar_ribxz';
+// import {MolstarRibxz, MyViewportControls} from '@/components/mstar/__molstar_ribxz';
 import {DefaultPluginUISpec, PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {Quat, Vec3} from 'molstar/lib/mol-math/linear-algebra';
 import {MolstarDemoBsites, ScoredBsite} from '@/components/mstar/demos/molstar_demo_bsites';
 import {ribxz_api} from '@/store/ribxz_api/ribxz_api';
 import {useAppDispatch} from '@/store/store';
+import { EmptyViewportControls } from './demo_tunnel';
 
 export const BsiteDemo = () => {
     const [ctx, setCtx] = useState<MolstarDemoBsites | null>(null);
@@ -28,7 +29,7 @@ export const BsiteDemo = () => {
                     disableDragOverlay: true,
                     hideTaskOverlay: true,
                     viewport: {
-                        controls: MyViewportControls
+                        controls: EmptyViewportControls
                     },
                     controls: {
                         right: 'none',

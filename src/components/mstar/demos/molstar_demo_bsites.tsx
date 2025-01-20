@@ -32,7 +32,6 @@ import {PluginUIComponent} from 'molstar/lib/mol-plugin-ui/base';
 import '../mstar.css';
 import {StructureQueryHelper} from 'molstar/lib/mol-plugin-state/helpers/structure-query';
 import {StructureComponent, StructureFromModel} from 'molstar/lib/mol-plugin-state/transforms/model';
-import {MolstarRibxz, ResidueList, StateElements} from '../__molstar_ribxz';
 import {Location} from 'molstar/lib/mol-model/location';
 import {ThemeDataContext} from 'molstar/lib/mol-theme/theme';
 import {PluginContext} from 'molstar/lib/mol-plugin/context';
@@ -44,6 +43,7 @@ import {Model, ElementIndex} from 'molstar/lib/mol-model/structure';
 import {VaryingResidueColorThemeProvider} from './color-scheme';
 import {TransparencySchema} from 'molstar/lib/mol-gl/renderable/schema';
 import {TransparencyStructureRepresentation3DFromBundle} from 'molstar/lib/mol-plugin-state/transforms/representation';
+import { ribxzMstarv2 } from '../mstar_v2';
 
 export interface ScoredBsite {
     [chain_auth_asym_id: string]: {[auth_seq_id: number]: number};
@@ -72,7 +72,7 @@ export const BsiteResidues = CustomElementProperty.create<number>({
 });
 
 _.memoize.Cache = WeakMap;
-export class MolstarDemoBsites extends MolstarRibxz {
+export class MolstarDemoBsites extends ribxzMstarv2 {
     //@ts-ignore
     ctx: PluginUIContext;
     constructor() {
@@ -487,90 +487,90 @@ export class MolstarDemoBsites extends MolstarRibxz {
         // this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
     }
 
-    async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<ResidueList> {
-        if (!chemicalId) {
-            return [];
-        }
-        const RADIUS = radius;
-        let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
-            structureRef,
-            number: i + 1
-        }));
-        const struct = structures[0];
-        const update = this.ctx.build();
+    // async get_selection_constituents(chemicalId: string | undefined, radius: number): Promise<ResidueList> {
+    //     if (!chemicalId) {
+    //         return [];
+    //     }
+    //     const RADIUS = radius;
+    //     let structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
+    //         structureRef,
+    //         number: i + 1
+    //     }));
+    //     const struct = structures[0];
+    //     const update = this.ctx.build();
 
-        const ligand = MS.struct.filter.first([
-            MS.struct.generator.atomGroups({
-                'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
-                'group-by': MS.core.str.concat([
-                    MS.struct.atomProperty.core.operatorName(),
-                    MS.struct.atomProperty.macromolecular.residueKey()
-                ])
-            })
-        ]);
+    //     const ligand = MS.struct.filter.first([
+    //         MS.struct.generator.atomGroups({
+    //             'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.label_comp_id(), chemicalId]),
+    //             'group-by': MS.core.str.concat([
+    //                 MS.struct.atomProperty.core.operatorName(),
+    //                 MS.struct.atomProperty.macromolecular.residueKey()
+    //             ])
+    //         })
+    //     ]);
 
-        const surroundings = MS.struct.modifier.includeSurroundings({
-            0: ligand,
-            radius: RADIUS,
-            'as-whole-residues': true
-        });
-        const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({
-            0: surroundings,
-            by: ligand
-        });
+    //     const surroundings = MS.struct.modifier.includeSurroundings({
+    //         0: ligand,
+    //         radius: RADIUS,
+    //         'as-whole-residues': true
+    //     });
+    //     const surroundingsWithoutLigand = MS.struct.modifier.exceptBy({
+    //         0: surroundings,
+    //         by: ligand
+    //     });
 
-        const group = update
-            .to(struct.structureRef.cell)
-            .group(StateTransforms.Misc.CreateGroup, {label: `${chemicalId} Surroundins Group`}, {ref: 'surroundings'});
-        const surroundingsSel = group.apply(
-            StateTransforms.Model.StructureSelectionFromExpression,
-            {
-                label: `${chemicalId} Surroundings (${RADIUS} Å)`,
-                expression: surroundingsWithoutLigand
-            },
-            {ref: 'surroundingsSel'}
-        );
+    //     const group = update
+    //         .to(struct.structureRef.cell)
+    //         .group(StateTransforms.Misc.CreateGroup, {label: `${chemicalId} Surroundins Group`}, {ref: 'surroundings'});
+    //     const surroundingsSel = group.apply(
+    //         StateTransforms.Model.StructureSelectionFromExpression,
+    //         {
+    //             label: `${chemicalId} Surroundings (${RADIUS} Å)`,
+    //             expression: surroundingsWithoutLigand
+    //         },
+    //         {ref: 'surroundingsSel'}
+    //     );
 
-        surroundingsSel.apply(
-            StateTransforms.Representation.StructureRepresentation3D,
-            createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {type: 'ball-and-stick'}),
-            {ref: 'surroundingsBallAndStick'}
-        );
-        surroundingsSel.apply(
-            StateTransforms.Representation.StructureRepresentation3D,
-            createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
-                type: 'label',
-                typeParams: {level: 'residue'}
-            }),
-            {ref: 'surroundingsLabels'}
-        );
+    //     surroundingsSel.apply(
+    //         StateTransforms.Representation.StructureRepresentation3D,
+    //         createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {type: 'ball-and-stick'}),
+    //         {ref: 'surroundingsBallAndStick'}
+    //     );
+    //     surroundingsSel.apply(
+    //         StateTransforms.Representation.StructureRepresentation3D,
+    //         createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
+    //             type: 'label',
+    //             typeParams: {level: 'residue'}
+    //         }),
+    //         {ref: 'surroundingsLabels'}
+    //     );
 
-        await PluginCommands.State.Update(this.ctx, {
-            state: this.ctx.state.data,
-            tree: update
-        });
+    //     await PluginCommands.State.Update(this.ctx, {
+    //         state: this.ctx.state.data,
+    //         tree: update
+    //     });
 
-        const compiled2 = compile<StructureSelection>(surroundingsWithoutLigand);
-        const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
-        const loci = StructureSelection.toLociWithSourceUnits(selection2);
+    //     const compiled2 = compile<StructureSelection>(surroundingsWithoutLigand);
+    //     const selection2 = compiled2(new QueryContext(struct.structureRef.cell.obj?.data!));
+    //     const loci = StructureSelection.toLociWithSourceUnits(selection2);
 
-        const residueList: ResidueList = [];
+    //     const residueList: ResidueList = [];
 
-        const struct_Element = StructureElement.Loci.toStructure(loci);
-        Structure.eachAtomicHierarchyElement(struct_Element, {
-            residue: loc => {
-                residueList.push({
-                    label_seq_id: StructureProperties.residue.label_seq_id(loc),
-                    auth_seq_id: StructureProperties.residue.auth_seq_id(loc),
+    //     const struct_Element = StructureElement.Loci.toStructure(loci);
+    //     Structure.eachAtomicHierarchyElement(struct_Element, {
+    //         residue: loc => {
+    //             residueList.push({
+    //                 label_seq_id: StructureProperties.residue.label_seq_id(loc),
+    //                 auth_seq_id: StructureProperties.residue.auth_seq_id(loc),
 
-                    label_comp_id: StructureProperties.atom.label_comp_id(loc),
-                    auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
-                    rcsb_id: StructureProperties.unit.model_entry_id(loc)
-                });
-            }
-        });
-        return residueList;
-    }
+    //                 label_comp_id: StructureProperties.atom.label_comp_id(loc),
+    //                 auth_asym_id: StructureProperties.chain.auth_asym_id(loc),
+    //                 rcsb_id: StructureProperties.unit.model_entry_id(loc)
+    //             });
+    //         }
+    //     });
+    //     return residueList;
+    // }
 
     async create_ligand_and_surroundings(chemicalId: string | undefined, radius: number) {
         if (!chemicalId) {
