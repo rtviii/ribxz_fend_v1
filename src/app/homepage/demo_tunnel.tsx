@@ -75,88 +75,132 @@ export const TunnelDemo = () => {
     }, []);
     useEffect(() => {
         (async () => {
-            // const LP_residues = range(120, 144);
-            // const LP          = await ctx?.components.upload_mmcif_chain('4UG0', 'LP')
-            // const LP_data = LP?.obj?.data
-            // const LP_expr = ctx?.residues.residue_cluster_expression( LP_residues.map(r => ({auth_asym_id: 'LP', auth_seq_id: r})), );
+            if (!ctx) return;
 
-            const LC_residues = range(57, 103);
-            const LC = await ctx?.components.upload_mmcif_chain('4ug0', 'LC');
-            const LC_data = LC?.obj?.data;
-            const LC_expr = ctx?.residues.residue_cluster_expression(
-                LC_residues.map(r => ({auth_asym_id: 'LC', auth_seq_id: r}))
-            )!;
-            const LC_sel = Script.getStructureSelection(LC_expr, LC_data!);
+            try {
+                // First cluster - LP
+                console.log('Starting LP cluster creation...');
+                const LP_residues = range(120, 144);
+                const LP = await ctx.components.upload_mmcif_chain('4UG0', 'LP');
 
-            const LC_loci = ctx?.loci_from_expr(LC_expr, LC_data!);
+                if (!LP?.obj?.data) {
+                    console.error('LP data not loaded properly');
+                    return;
+                }
 
-            const update = ctx?.ctx.build()!;
+                const LP_expr = ctx.residues.residue_cluster_expression(
+                    LP_residues.map(r => ({auth_asym_id: 'LP', auth_seq_id: r}))
+                );
 
-            // Create bsite group
-            const bsiteGroup = update
-                .to(LC?.cell!)
-                .group(StateTransforms.Misc.CreateGroup, {label: `LC tail`}, {ref: `res`});
+                const update_lp = ctx.ctx.build();
+                const group_lp = update_lp
+                    .to(LP.cell)
+                    .group(StateTransforms.Misc.CreateGroup, {label: 'LP tail'}, {ref: 'lp_res'});
 
-            const chainGroup = bsiteGroup.apply(
-                StateTransforms.Model.StructureSelectionFromExpression,
-                {
-                    label: `some`,
-                    expression: LC_expr
-                },
-                {ref: `some_ref`}
-            );
-
-            chainGroup.apply(
-                StateTransforms.Representation.StructureRepresentation3D,
-                createStructureRepresentationParams(ctx?.ctx!, LC?.obj?.data, {
-                    type: 'ball-and-stick',
-                    color: 'uniform',
-                    colorParams: {
-                        value: Color(0x00ff00)
+                const group_lp1 = group_lp.apply(
+                    StateTransforms.Model.StructureSelectionFromExpression,
+                    {
+                        label: 'LP_selection',
+                        expression: LP_expr
                     },
-                    typeParams: {
-                        ignoreLight: true,
-                        emissive: 0.1
-                    }
-                }),
-                {ref: `some_repr`}
-            );
-            await PluginCommands.State.Update(ctx.ctx, {
-                state: ctx.ctx.state.data,
-                tree: update
-            });
+                    {ref: 'lp_selection'}
+                );
 
+                group_lp1.apply(
+                    StateTransforms.Representation.StructureRepresentation3D,
+                    createStructureRepresentationParams(ctx.ctx, LP.obj.data, {
+                        type: 'ball-and-stick',
+                        color: 'uniform',
+                        colorParams: {
+                            value: Color(0x93c5fd)
+                        },
+                        typeParams: {
+                            ignoreLight: true,
+                            sizeFactor: 0.25
+                        }
+                    }),
+                    {ref: 'lp_repr'}
+                );
 
+                await PluginCommands.State.Update(ctx.ctx, {
+                    state: ctx.ctx.state.data,
+                    tree: update_lp
+                });
+                console.log('LP cluster created successfully');
 
-            // let loci = StructureSelection.toLociWithSourceUnits(sel);
-            // this.ctx.managers.structure.selection.clear();
-            // this.ctx.managers.structure.selection.fromLoci('add', loci);
-            // this.ctx.managers.camera.focusLoci(loci);
+                // Second cluster - LC
+                console.log('Starting LC cluster creation...');
+                const LC_residues = range(57, 103);
+                const LC = await ctx.components.upload_mmcif_chain('4ug0', 'LC');
 
-            // for (var i of range(57, 103)) {
-            //     LC_residues.push(i)
-            // }
-            // console.log(LC_residues);
-            // ctx?.select_multiple_residues([['LC', LC_residues]], LC?.data)
-            // ctx?.create_ball_and_stick_representation(LC!, 'some')
+                if (!LC?.obj?.data) {
+                    console.error('LC data not loaded properly');
+                    return;
+                }
+
+                const LC_expr = ctx.residues.residue_cluster_expression(
+                    LC_residues.map(r => ({auth_asym_id: 'LC', auth_seq_id: r}))
+                );
+
+                const update_lc = ctx.ctx.build();
+                const group_lc = update_lc
+                    .to(LC.cell)
+                    .group(StateTransforms.Misc.CreateGroup, {label: 'LC tail'}, {ref: 'lc_res'});
+
+                const group_lc1 = group_lc.apply(
+                    StateTransforms.Model.StructureSelectionFromExpression,
+                    {
+                        label: 'LC_selection',
+                        expression: LC_expr
+                    },
+                    {ref: 'lc_selection'}
+                );
+
+                group_lc1.apply(
+                    StateTransforms.Representation.StructureRepresentation3D,
+                    createStructureRepresentationParams(ctx.ctx, LC.obj.data, {
+                        type: 'ball-and-stick',
+                        color: 'uniform',
+                        colorParams: {
+                            value: Color(0xea580c)
+                        },
+                        typeParams: {
+                            ignoreLight: true,
+                            sizeFactor: 0.25
+                        }
+                    }),
+                    {ref: 'lc_repr'}
+                );
+
+                await PluginCommands.State.Update(ctx.ctx, {
+                    state: ctx.ctx.state.data,
+                    tree: update_lc
+                });
+                console.log('LC cluster created successfully');
+            } catch (error) {
+                console.error('Error creating residue clusters:', error);
+            }
+
+            ctx.tunnel_geometry('4UG0');
+            ctx.toggleSpin();
+            // Camera and tunnel setup
+
+            if (ctx.ctx) {
+                const snapshot = ctx.ctx.canvas3d?.camera.getSnapshot();
+                if (snapshot) {
+                    const newSnapshot = {
+                        ...snapshot,
+                        up: Vec3.create(-1, 0, 0)
+                    };
+                    ctx.ctx.canvas3d?.camera.setState(newSnapshot, 300);
+                }
+            }
+            setTimeout(() => {
+                if (ctx.ctx?.canvas3d?.camera) {
+                    ctx.ctx.canvas3d.requestCameraReset();
+                }
+            }, 300);
         })();
-
-
-
-        // 120-144
-
-        // let LP_residues = []
-        // for (var j in range(120,144)) {
-        //     LP_residues.push( Number.parseInt(j) )
-        // }
-
-        ctx?.tunnel_geometry('4UG0');
-        if (ctx?.ctx) {
-            const snapshot = ctx?.ctx.canvas3d?.camera.getSnapshot();
-            const newSnapshot = {...snapshot, up: Vec3.create(-1, 0, 0)};
-            ctx?.ctx.canvas3d?.camera.setState(newSnapshot, 500);
-        }
-        ctx?.toggleSpin();
     }, [ctx, rcsb_id]);
 
     return (
