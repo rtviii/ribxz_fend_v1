@@ -210,6 +210,18 @@ export class ribxzMstarv2 {
                 objects_polymer,
                 objects_ligand
             };
+        },
+
+        upload_mmcif_chain: async (rcsb_id: string, auth_asym_id: string) => {
+            const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`;
+            const data = await this.ctx.builders.data.download(
+                {url: Asset.Url(myUrl.toString()), isBinary: false},
+                {state: {isGhost: true}}
+            );
+            const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
+            const model      = await this.ctx.builders.structure.createModel(trajectory);
+            const structure  = await this.ctx.builders.structure.createStructure(model);
+            return structure
         }
     };
 
