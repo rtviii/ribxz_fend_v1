@@ -176,17 +176,17 @@ const injectedRtkApi = api.injectEndpoints({
                 }
             })
         }),
-        routersRouterLigLigChemicalCategories: build.query<
-            RoutersRouterLigLigChemicalCategoriesApiResponse,
-            RoutersRouterLigLigChemicalCategoriesApiArg
-        >({
-            query: () => ({url: `/ligand/chemical_classification`})
-        }),
         routersRouterLigBsiteComposite: build.query<
             RoutersRouterLigBsiteCompositeApiResponse,
             RoutersRouterLigBsiteCompositeApiArg
         >({
             query: () => ({url: `/ligand/bsite_composite`})
+        }),
+        routersRouterLigClassifyreReport: build.query<
+            RoutersRouterLigClassifyreReportApiResponse,
+            RoutersRouterLigClassifyreReportApiArg
+        >({
+            query: () => ({url: `/ligand/classifyre_report`})
         })
     }),
     overrideExisting: false
@@ -281,10 +281,10 @@ export type RoutersRouterLigLigTransposeApiArg = {
     chemicalId: string;
     radius: number;
 };
-export type RoutersRouterLigLigChemicalCategoriesApiResponse = /** status 200 OK */ object;
-export type RoutersRouterLigLigChemicalCategoriesApiArg = void;
 export type RoutersRouterLigBsiteCompositeApiResponse = /** status 200 OK */ object;
 export type RoutersRouterLigBsiteCompositeApiArg = void;
+export type RoutersRouterLigClassifyreReportApiResponse = /** status 200 OK */ object;
+export type RoutersRouterLigClassifyreReportApiArg = void;
 export type CompositionStats = {
     lsu_only: number;
     ssu_only: number;
@@ -911,6 +911,6 @@ export const {
     useRoutersRouterMmcifPolymerQuery,
     useRoutersRouterLigLigNbhdQuery,
     useRoutersRouterLigLigTransposeQuery,
-    useRoutersRouterLigLigChemicalCategoriesQuery,
-    useRoutersRouterLigBsiteCompositeQuery
+    useRoutersRouterLigBsiteCompositeQuery,
+    useRoutersRouterLigClassifyreReportQuery
 } = injectedRtkApi;
