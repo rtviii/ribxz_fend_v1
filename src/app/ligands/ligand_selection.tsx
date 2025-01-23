@@ -94,27 +94,6 @@ export default function LigandSelection() {
                     );
                 }}
             />
-            {/* <InputNumber
-                addonAfter="Å"
-                className={`w-[30%] ${
-                    radChanged
-                        ? ' outline-green-200 shadow-md shadow-green-400   rounded-md transition-all duration-200'
-                        : null
-                }`}
-                max={20}
-                min={2}
-                placeholder="Radius"
-                value={lig_state.radius}
-                onChange={v => {
-                    if (v === null) {
-                        return;
-                    }
-                    {
-                        dispatch(set_ligands_radius(v));
-                        setRadChanged(true);
-                    }
-                }}
-            /> */}
         </div>
     );
 }

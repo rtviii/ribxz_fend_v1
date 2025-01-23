@@ -9,7 +9,7 @@ import {BsiteDemo} from './homepage/demo_bsite';
 import {useRoutersRouterLigClassifyreReportQuery} from '@/store/ribxz_api/ribxz_api';
 import {TreeSelect} from 'antd';
 import {useState, useMemo, useRef, useEffect} from 'react';
-import DemoComponent from './ligselect';
+import { LigandSelectDemo } from './ligselect';
 
 const Homepage = () => {
     return (
@@ -20,7 +20,6 @@ const Homepage = () => {
                 <TunnelDemo />
             </div>
             <div className="w-full h-[32rem] py-8 space-y-2">
-                <DemoComponent onChange={() => {}} />
                 <BsiteDemo />
             </div>
 

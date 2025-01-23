@@ -1,13 +1,8 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 
 interface BindingSite {
-    chemicalId: string;
-    residues: {
-        auth_asym_id: string;
-        auth_seq_id: number;
-    }[];
-    isVisible: boolean;
-    ref?: string;
+    isVisible : boolean;
+    ref      ?: string;
 }
 
 interface BindingSiteState {
@@ -18,8 +13,8 @@ const initialState: BindingSiteState = {
     sites: {}
 };
 
-export const bindingSiteSlice = createSlice({
-    name: 'bindingSites',
+export const bsite_demo_slice = createSlice({
+    name: 'bsite_demo',
     initialState,
     reducers: {
         addBindingSite(
@@ -63,7 +58,7 @@ export const bindingSiteSlice = createSlice({
 });
 
 // Export actions and types
-export const {addBindingSite, setBindingSiteRef, setBindingSiteVisibility} = bindingSiteSlice.actions;
+export const {addBindingSite, setBindingSiteRef, setBindingSiteVisibility} = bsite_demo_slice.actions;
 
 export type {BindingSite, BindingSiteState};
-export default bindingSiteSlice.reducer;
+export default bsite_demo_slice.reducer;

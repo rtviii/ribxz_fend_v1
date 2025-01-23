@@ -14,7 +14,7 @@ import {
     useRoutersRouterLigDemo7K00Query,
     useRoutersRouterStructStructureProfileQuery
 } from '@/store/ribxz_api/ribxz_api';
-import {AppDispatch, useAppDispatch} from '@/store/store';
+import {AppDispatch, useAppDispatch, useAppSelector} from '@/store/store';
 import {EmptyViewportControls} from './demo_tunnel';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
@@ -23,25 +23,27 @@ import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {Color} from 'molstar/lib/mol-util/color/color';
 import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
-import {setBindingSiteRef} from './demo_bsite_slice';
+import {setBindingSiteRef, setBindingSiteVisibility} from './demo_bsite_slice';
+import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
+import {LigandSelectDemo} from '../ligselect';
 
-const createBindingSite = async (
+export const createBindingSite = async (
     viewer: ribxzMstarv2,
     dispatch: AppDispatch,
     chemicalId: string,
-    residues: {auth_asym_id: string; auth_seq_id: number}[]
+    residueArray: Array<[string, number]> // Now expecting direct array of [chain, residue] tuples
 ) => {
     const update = viewer.ctx.build();
     const structRef = viewer.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
-    if (!structRef) return;
-    const groups: Expression[] = residues.map(({auth_asym_id, auth_seq_id}) =>
+
+    if (!structRef || !residueArray) return;
+
+    const groups = residueArray.map(([chain, residue]) =>
         MS.struct.generator.atomGroups({
-            'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), auth_asym_id]),
-            'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), auth_seq_id])
+            'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), chain]),
+            'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), residue])
         })
     );
-
-    const expression = MS.struct.combinator.merge(groups);
 
     const bindingSiteRef = `bsite_${chemicalId}`;
     const group = update
@@ -50,7 +52,7 @@ const createBindingSite = async (
 
     const selection = group.apply(
         StateTransforms.Model.StructureSelectionFromExpression,
-        {expression},
+        {expression: MS.struct.combinator.merge(groups)},
         {ref: `${bindingSiteRef}_sel`}
     );
 
@@ -72,14 +74,19 @@ const createBindingSite = async (
         tree: update
     });
 
-    dispatch(
-        setBindingSiteRef({
-            chemicalId,
-            ref: bindingSiteRef
-        })
-    );
-
+    dispatch(setBindingSiteRef({chemicalId, ref: bindingSiteRef}));
     return bindingSiteRef;
+};
+
+export const toggleBindingSiteVisibility = (
+    viewer: ribxzMstarv2,
+    dispatch: AppDispatch,
+    chemicalId: string,
+    visible: boolean
+) => {
+    const ref = `bsite_${chemicalId}`;
+    setSubtreeVisibility(viewer.ctx.state.data, ref, visible);
+    dispatch(setBindingSiteVisibility({chemicalId, isVisible: visible}));
 };
 
 export const BsiteDemo = () => {
@@ -136,8 +143,6 @@ export const BsiteDemo = () => {
         error: profileError
     } = useRoutersRouterStructStructureProfileQuery({rcsbId: '7K00'});
 
-    console.log(ligands_data);
-
     useEffect(() => {
         if (!ctx || !structure_data) return;
         const newNomenclatureMap = [
@@ -152,23 +157,36 @@ export const BsiteDemo = () => {
         (async () => {
             if (!ligands_data || !ctx) return;
             const sos = await ctx?.upload_mmcif_structure(rcsb_id, newNomenclatureMap);
-
-            const reduced6no = Object.entries(ligands_data['6NO']).flatMap(([auth_asym_id, residues]) =>
-                residues.map((res: [number, string]) => ({
-                    auth_asym_id,
-                    auth_seq_id: res[0]
-                }))
-            );
-            const bsite = await createBindingSite(ctx, dispatch, '6NO', reduced6no);
-
             await ctx?.toggleSpin(0.5);
             await ctx?.ctx.canvas3d?.requestCameraReset();
         })();
     }, [ctx, structure_data, ligands_data]);
 
+    const bindingSites = useAppSelector(state => state.bsites_demo.sites);
+
+    const handleLigandSelect = React.useCallback(
+        async (selectedLigands: string[]) => {
+            if (!ctx || !ligands_data) return;
+            Object.keys(bindingSites).forEach(chemicalId => {
+                if (!selectedLigands.includes(chemicalId)) {
+                    toggleBindingSiteVisibility(ctx, dispatch, chemicalId, false);
+                }
+            });
+            for (const ligand of selectedLigands) {
+                var chemical_id = ligand['identifier'];
+                if (!bindingSites[chemical_id]?.ref) {
+                    await createBindingSite(ctx, dispatch, chemical_id, ligands_data[chemical_id]);
+                } else {
+                    toggleBindingSiteVisibility(ctx, dispatch, chemical_id, true);
+                }
+            }
+        },
+        [ctx, ligands_data, bindingSites, dispatch]
+    );
     return (
         <Card className="flex-1 h-[32rem] rounded-md p-2 shadow-inner">
             <div className="w-full h-full">
+                <LigandSelectDemo onChange={handleLigandSelect} />
                 <MolstarNode ref={molstarNodeRef} />
             </div>
         </Card>

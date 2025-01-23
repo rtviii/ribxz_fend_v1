@@ -70,7 +70,7 @@ const extractCategories = (ligand) => {
     };
 };
 
-const LigandSelect = ({ onChange }) => {
+export const LigandSelectDemo = ({ onChange }) => {
     const { data: ligands, isLoading } = useRoutersRouterLigClassifyreReportQuery();
     const [selectedValues, setSelectedValues] = useState([]);
 
@@ -247,5 +247,3 @@ const LigandSelect = ({ onChange }) => {
         </Space>
     );
 };
-
-export default LigandSelect;
