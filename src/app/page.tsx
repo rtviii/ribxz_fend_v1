@@ -8,22 +8,25 @@ import '@/components/mstar/mstar.css';
 import {BsiteDemo} from './homepage/demo_bsite';
 import {useRoutersRouterLigClassifyreReportQuery} from '@/store/ribxz_api/ribxz_api';
 import {TreeSelect} from 'antd';
-import {useState, useMemo, useRef, useEffect} from 'react'
+import {useState, useMemo, useRef, useEffect} from 'react';
 import DemoComponent from './ligselect';
 
 const Homepage = () => {
     return (
-        <div className="container mx-auto px-4 max-w-6xl">
+        <div className="container mx-auto px-4 max-w-6xl min-h-screen space-y-4">
             <Hero />
             <StructureCarousel />
-            <div className="w-full flex flex-col md:flex-row gap-8 py-8">
+            <div className="w-full h-80 py-8">
                 <TunnelDemo />
+            </div>
+            <div className="w-full h-[32rem] py-8 space-y-2">
+                <DemoComponent onChange={() => {}} />
                 <BsiteDemo />
             </div>
-            <div className="w-full flex flex-col md:flex-row gap-8 py-8">
-                <DemoComponent/>
-            </div>
-            <Footer />
+
+            {/* <div className="w-full h-[32rem] py-8">
+                <Footer />
+            </div> */}
         </div>
     );
 };

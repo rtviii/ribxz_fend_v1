@@ -1,10 +1,10 @@
-import { InputNumber, TreeSelect } from 'antd';
-import { useAppDispatch, useAppSelector } from '@/store/store';
-import { LigandInstances, set_current_ligand, set_ligands_radius } from '@/store/slices/slice_ligands';
-import { capitalize_only_first_letter_w } from '@/my_utils';
-import { useState } from 'react';
+import {InputNumber, TreeSelect} from 'antd';
+import {useAppDispatch, useAppSelector} from '@/store/store';
+import {LigandInstances, set_current_ligand, set_ligands_radius} from '@/store/slices/slice_ligands';
+import {capitalize_only_first_letter_w} from '@/my_utils';
+import {useState} from 'react';
 
-export default function LigandSelection()  {
+export default function LigandSelection() {
     const lig_data_to_tree = (lig_data: LigandInstances) => {
         return lig_data.map(([lig, structs]) => ({
             key: lig.chemicalId,
@@ -32,7 +32,7 @@ export default function LigandSelection()  {
                 lig.chemicalId +
                 structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '')
             ).toLowerCase(),
-            children: structs.map((struct, index) => ({
+           children: structs.map((struct, index) => ({
                 search_aggregator: (
                     lig.chemicalName +
                     lig.chemicalId +
@@ -94,7 +94,7 @@ export default function LigandSelection()  {
                     );
                 }}
             />
-            <InputNumber
+            {/* <InputNumber
                 addonAfter="Å"
                 className={`w-[30%] ${
                     radChanged
@@ -114,10 +114,7 @@ export default function LigandSelection()  {
                         setRadChanged(true);
                     }
                 }}
-            />
+            /> */}
         </div>
     );
-};
-
-
-
+}

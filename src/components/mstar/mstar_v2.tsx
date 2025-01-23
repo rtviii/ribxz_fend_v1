@@ -1249,7 +1249,7 @@ export class ribxzMstarv2 {
         return loci;
     };
 
-    toggleSpin() {
+    toggleSpin(speed:number=1) {
         if (!this.ctx) {
             return;
         }
@@ -1262,7 +1262,7 @@ export class ribxzMstarv2 {
                     animate:
                         trackball.animate.name === 'spin'
                             ? {name: 'off', params: {}}
-                            : {name: 'spin', params: {speed: 1}}
+                            : {name: 'spin', params: {speed: speed}}
                 }
             }
         });

@@ -187,6 +187,9 @@ const injectedRtkApi = api.injectEndpoints({
             RoutersRouterLigClassifyreReportApiArg
         >({
             query: () => ({url: `/ligand/classifyre_report`})
+        }),
+        routersRouterLigDemo7K00: build.query<RoutersRouterLigDemo7K00ApiResponse, RoutersRouterLigDemo7K00ApiArg>({
+            query: () => ({url: `/ligand/demo_7k00`})
         })
     }),
     overrideExisting: false
@@ -285,6 +288,8 @@ export type RoutersRouterLigBsiteCompositeApiResponse = /** status 200 OK */ obj
 export type RoutersRouterLigBsiteCompositeApiArg = void;
 export type RoutersRouterLigClassifyreReportApiResponse = /** status 200 OK */ object;
 export type RoutersRouterLigClassifyreReportApiArg = void;
+export type RoutersRouterLigDemo7K00ApiResponse = /** status 200 OK */ object;
+export type RoutersRouterLigDemo7K00ApiArg = void;
 export type CompositionStats = {
     lsu_only: number;
     ssu_only: number;
@@ -912,5 +917,6 @@ export const {
     useRoutersRouterLigLigNbhdQuery,
     useRoutersRouterLigLigTransposeQuery,
     useRoutersRouterLigBsiteCompositeQuery,
-    useRoutersRouterLigClassifyreReportQuery
+    useRoutersRouterLigClassifyreReportQuery,
+    useRoutersRouterLigDemo7K00Query
 } = injectedRtkApi;

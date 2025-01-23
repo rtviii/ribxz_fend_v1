@@ -2,17 +2,12 @@ import {MolScriptBuilder as MS, MolScriptBuilder} from 'molstar/lib/mol-script/l
 import {Queries, StructureQuery, StructureSelection} from 'molstar/lib/mol-model/structure';
 import {Structure, StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure/structure';
 import {
-    StructureSelectionQueries,
     StructureSelectionQuery
 } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
-import {Asset} from 'molstar/lib/mol-util/assets';
 import {StateObjectRef, StateObjectSelector} from 'molstar/lib/mol-state/object';
 import {compile} from 'molstar/lib/mol-script/runtime/query/compiler';
-import {superpose} from 'molstar/lib/mol-model/structure/structure/util/superposition';
 import {QueryContext} from 'molstar/lib/mol-model/structure/query/context';
 import {Expression} from 'molstar/lib/mol-script/language/expression';
-import {PluginStateObject, PluginStateObject as PSO} from 'molstar/lib/mol-plugin-state/objects';
-import {Mat4} from 'molstar/lib/mol-math/linear-algebra/3d/mat4';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
 import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
@@ -20,29 +15,17 @@ import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
 import 'molstar/lib/mol-plugin-ui/skin/light.scss';
 import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
-import {ribxzSpec} from '../spec';
 import _, {range} from 'lodash';
 import {Script} from 'molstar/lib/mol-script/script';
 import {Color} from 'molstar/lib/mol-util/color/color';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
 import {ArbitrarySphereRepresentationProvider} from '../providers/sphere_provider';
-import {Loci} from 'molstar/lib/mol-model/structure/structure/element/loci';
 import {PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
-import {PluginUIComponent} from 'molstar/lib/mol-plugin-ui/base';
 import '../mstar.css';
-import {StructureQueryHelper} from 'molstar/lib/mol-plugin-state/helpers/structure-query';
-import {StructureComponent, StructureFromModel} from 'molstar/lib/mol-plugin-state/transforms/model';
-import {Location} from 'molstar/lib/mol-model/location';
 import {ThemeDataContext} from 'molstar/lib/mol-theme/theme';
-import {PluginContext} from 'molstar/lib/mol-plugin/context';
-import {StateBuilder} from 'molstar/lib/mol-state';
-import {ColorTheme} from 'molstar/lib/mol-theme/color';
-
 import {CustomElementProperty} from 'molstar/lib/mol-model-props/common/custom-element-property';
 import {Model, ElementIndex} from 'molstar/lib/mol-model/structure';
 import {VaryingResidueColorThemeProvider} from './color-scheme';
-import {TransparencySchema} from 'molstar/lib/mol-gl/renderable/schema';
-import {TransparencyStructureRepresentation3DFromBundle} from 'molstar/lib/mol-plugin-state/transforms/representation';
 import { ribxzMstarv2 } from '../mstar_v2';
 
 export interface ScoredBsite {
@@ -336,24 +319,6 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
         });
     }
 
-    toggleSpin() {
-        if (!this.ctx.canvas3d) return this;
-
-        const trackball = this.ctx.canvas3d.props.trackball;
-
-        PluginCommands.Canvas3D.SetSettings(this.ctx, {
-            settings: {
-                trackball: {
-                    ...trackball,
-                    animate:
-                        trackball.animate.name === 'spin'
-                            ? {name: 'off', params: {}}
-                            : {name: 'spin', params: {speed: 1}}
-                }
-            }
-        });
-        return this;
-    }
 
     async toggle_visibility_by_ref(representation: any, on_off: boolean) {
         if (representation['components'] === undefined) {

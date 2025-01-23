@@ -8,9 +8,9 @@ import {MolstarNode, ribxzSpec} from '@/components/mstar/spec';
 import {DefaultPluginUISpec, PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {Quat, Vec3} from 'molstar/lib/mol-math/linear-algebra';
 import {MolstarDemoBsites, ScoredBsite} from '@/components/mstar/demos/molstar_demo_bsites';
-import {ribxz_api} from '@/store/ribxz_api/ribxz_api';
+import {ribxz_api, useRoutersRouterLigDemo7K00Query} from '@/store/ribxz_api/ribxz_api';
 import {useAppDispatch} from '@/store/store';
-import { EmptyViewportControls } from './demo_tunnel';
+import {EmptyViewportControls} from './demo_tunnel';
 
 export const BsiteDemo = () => {
     const [ctx, setCtx] = useState<MolstarDemoBsites | null>(null);
@@ -58,18 +58,26 @@ export const BsiteDemo = () => {
     }, []);
 
     const dispatch = useAppDispatch();
+    const {data} = useRoutersRouterLigDemo7K00Query();
+    console.log(data);
+
     useEffect(() => {
         (async () => {
-            const composite_bsite = await dispatch(ribxz_api.endpoints.routersRouterLigBsiteComposite.initiate());
             await ctx?.upload_mmcif_structure(rcsb_id, {});
-            await ctx?.applyBsiteColors(composite_bsite.data as ScoredBsite);
-            await ctx?.toggleSpin();
+            ctx?.ligands.createBindingSiteComponent(data?.ligands);
+            await ctx?.toggleSpin(0.5);
+            await ctx?.ctx.canvas3d?.requestCameraReset()
         })();
     }, [ctx, rcsb_id]);
 
+
+
+
     return (
-        <Card className="flex-1 h-80 rounded-md p-2 shadow-inner">
-            <MolstarNode ref={molstarNodeRef} />
-        </Card>
+<Card className="flex-1 h-[32rem] rounded-md p-2 shadow-inner">
+    <div className="w-full h-full">
+        <MolstarNode ref={molstarNodeRef} />
+    </div>
+</Card>
     );
 };

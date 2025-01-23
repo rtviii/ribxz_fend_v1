@@ -18,7 +18,7 @@ import {set_ligands_radius, set_selected_target_structure} from '@/store/slices/
 import {Label} from '@/components/ui/label';
 import BindingSiteControlPanel from './controls_selections';
 import TabbedBindingSite from './tabbed_bsites';
-import { cn } from '@/components/utils';
+import {cn} from '@/components/utils';
 
 interface LigandInfo {
     chemicalId: string;
