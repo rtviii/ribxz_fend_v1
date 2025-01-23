@@ -12,6 +12,8 @@ import {
 } from '@/store/molstar/slice_refs';
 import {ribxzMstarv2} from './mstar_v2';
 import {AppDispatch, RootState} from '@/store/store';
+
+import {MolScriptBuilder, MolScriptBuilder as MS} from 'molstar/lib/mol-script/language/builder';
 import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
 import {
     initializePolymerStates,
@@ -23,6 +25,12 @@ import {
 import {InteractionManagerConfig, MolstarEventHandlers} from './mstar_interactions';
 import {StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure';
 import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
+import {setBindingSiteRef} from '@/app/homepage/demo_bsite_slice';
+import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
+import {Color} from 'molstar/lib/mol-util/color/color';
+import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
+import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
+import {Expression} from 'molstar/lib/mol-script/language/expression';
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
@@ -410,7 +418,9 @@ export class MolstarStateController {
                     this.viewer.interactions.focus(bsite.sel_ref);
                 }
             });
-        }
+        },
+
+        
     };
 
     async applyStylizedLighting() {

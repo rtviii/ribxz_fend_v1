@@ -99,49 +99,6 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
         });
     }
 
-    bsite_theme = async () => {
-        interface ScoredResidue {
-            auth_asym_id: string;
-            auth_seq_id: number;
-            score: number;
-        }
-
-        interface CustomColorTheme {
-            name: string;
-            color: (location: StructureElement.Location, ctx?: ThemeDataContext) => Color;
-        }
-
-        // const createCustomColorTheme = (
-        //   sites: ScoredResidue[]
-        // ): CustomColorTheme => {
-        //   // Create a map of residue identifiers to scores
-        //   const scoreMap: Map<string, number> = new Map(
-        //     sites.map((site) => [
-        //       `${site.auth_asym_id}/${site.auth_seq_id}`,
-        //       site.score,
-        //     ])
-        //   );
-
-        //   return {
-        //     name: "custom-residue-coloring",
-        //     color: (location: StructureElement.Location): Color => {
-        //       const key = `${
-        //         location.unit.model.atomicHierarchy.chainAtomSegments.label_asym_id[
-        //           location.unit.chainIndex
-        //         ]
-        //       }/${location.residueIndex + 1}`;
-        //       const score = scoreMap.get(key);
-
-        //       if (score !== undefined) {
-        //         // Return red with varying opacity based on score
-        //         return Color.fromRgb(255, 0, 0, score);
-        //       }
-        //       // Return transparent for non-highlighted residues
-        //       return Color.fromRgb(255, 255, 255, 0);
-        //     },
-        //   };
-        // };
-    };
     applyBsiteColors = async (bsite: ScoredBsite) => {
         this.ctx.dataTransaction(async () => {
             for (const s of this.ctx.managers.structure.hierarchy.current.structures) {
@@ -266,10 +223,13 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
         return expression;
     };
 
+
+
+
     async upload_mmcif_structure(
         rcsb_id: string,
         nomenclature_map: Record<string, string>
-    ): Promise<{ctx: MolstarDemoBsites; struct_representation: any}> {
+    ): Promise<StateObjectSelector> {
         // if (clear) {
         //   await this.ctx.clear();
         // }
@@ -295,11 +255,8 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
             {tag: 'canvas'}
         );
 
-        // const data = await this.ctx.builders.data.download({ url: `https://files.rcsb.org/download/${rcsb_id.toUpperCase()}.cif` }, { state: { isGhost: true } });
-        // const trajectory = await this.ctx.builders.structure.parseTrajectory(data, "mmcif");
-        // const st = await this.ctx.builders.structure.hierarchy.applyPreset(trajectory, "default");
         await this.stylized();
-        return {ctx: this, struct_representation: repr};
+        return structure
     }
 
     // TODO+============== REPRESENTATIONS
