@@ -418,9 +418,7 @@ export class MolstarStateController {
                     this.viewer.interactions.focus(bsite.sel_ref);
                 }
             });
-        },
-
-        
+        }
     };
 
     async applyStylizedLighting() {

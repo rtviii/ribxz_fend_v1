@@ -6,7 +6,6 @@ import {Hero} from './homepage/hero';
 import {TunnelDemo} from './homepage/demo_tunnel';
 import '@/components/mstar/mstar.css';
 import {BsiteDemo} from './homepage/demo_bsite';
-import {useRoutersRouterLigClassifyreReportQuery} from '@/store/ribxz_api/ribxz_api';
 import {TreeSelect} from 'antd';
 import {useState, useMemo, useRef, useEffect} from 'react';
 import { LigandSelectDemo } from './ligselect';

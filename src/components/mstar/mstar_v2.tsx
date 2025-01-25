@@ -4,7 +4,7 @@ import {ArbitrarySphereRepresentationProvider} from './providers/sphere_provider
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
 import {PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {ribxzSpec} from './spec';
-import {chainSelectionPreset} from './providers/polymer_preset';
+import {SplitPolymerPreset as SplitPolymerPreset} from './providers/polymer_preset';
 import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
 import {Color} from 'molstar/lib/mol-util/color';
 import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
@@ -84,7 +84,7 @@ export class ribxzMstarv2 {
         this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
         this.ctx.representation.structure.registry.add(ArbitraryCylinderRepresentationProvider);
-        this.ctx.builders.structure.representation.registerPreset(chainSelectionPreset);
+        this.ctx.builders.structure.representation.registerPreset(SplitPolymerPreset);
         this.ctx.canvas3d?.setProps({
             camera: {helper: {axes: {name: 'off', params: {}}}}
         });
@@ -219,9 +219,9 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model      = await this.ctx.builders.structure.createModel(trajectory);
-            const structure  = await this.ctx.builders.structure.createStructure(model);
-            return structure
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
+            return structure;
         }
     };
 
@@ -1249,7 +1249,7 @@ export class ribxzMstarv2 {
         return loci;
     };
 
-    toggleSpin(speed:number=1) {
+    toggleSpin(speed: number = 1) {
         if (!this.ctx) {
             return;
         }

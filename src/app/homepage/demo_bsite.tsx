@@ -202,19 +202,78 @@ export const BsiteDemo = () => {
     // Get binding sites from Redux state
 
     useEffect(() => {
-        if (!ctx || !structure_data) return;
-        const newNomenclatureMap = [
-            ...structure_data.proteins,
-            ...structure_data.rnas,
-            ...structure_data.other_polymers
-        ].reduce((prev, current) => {
-            prev[current.auth_asym_id] = current.nomenclature.length > 0 ? current.nomenclature[0] : '';
-            return prev;
-        }, {});
-
+        if (!ctx || !ligands_data) return;
         (async () => {
-            if (!ligands_data || !ctx) return;
-            const sos = await ctx?.upload_mmcif_structure(rcsb_id, newNomenclatureMap);
+            // Upload structure first
+
+            let asset_url: string;
+            asset_url = `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`;
+            const data = await ctx.ctx.builders.data.download(
+                {
+                    url: asset_url,
+                    isBinary: true,
+                    label: `${rcsb_id.toUpperCase()}`
+                },
+                {state: {isGhost: true}}
+            );
+            const trajectory = await ctx.ctx.builders.structure.parseTrajectory(data, 'mmcif');
+            const model = await ctx.ctx.builders.structure.createModel(trajectory);
+            const structure = await ctx.ctx.builders.structure.createStructure(model);
+
+            await await ctx.ctx.builders.structure.representation.addRepresentation(structure, {
+                type: 'cartoon',
+                color: 'element-symbol',
+                colorParams: {},
+                typeParams: {
+                    alpha: 0.01
+                }
+            });
+            // const {components, representations, objects_polymer, objects_ligand} =
+            //     await ctx.ctx.builders.structure.representation.applyPreset(
+            //         structure.ref,
+            //         'polymers-ligand-ribxz-theme',
+            //         {
+            //             structureId: rcsb_id,
+            //             nomenclature_map: {}
+            //         }
+            //     );
+
+            ctx.representations.stylized_lighting();
+
+            const _ = await ctx.ctx.builders.structure.representation.applyPreset(
+                structure.ref,
+                'binding-sites-preset',
+                {
+                    bindingSites: ligands_data
+                }
+            );
+            console.log(_);
+            console.log(ligands_data);
+
+            // Initialize Redux state with all sites (hidden by default)
+            // ligands_data.forEach(ligand => {
+            //     if (!ligand.purported_7K00_binding_site) {
+            //         console.log('No binding site for ligand', ligand.chemicalId);
+
+            //         return;
+            //     }
+            //     dispatch(
+            //         addBindingSite({
+            //             chemicalId: ligand.chemicalId,
+            //             residues: ligand.purported_7K00_binding_site.map(([chain, residue]) => ({
+            //                 auth_asym_id: chain,
+            //                 auth_seq_id: residue
+            //             }))
+            //         })
+            //     );
+            //     dispatch(
+            //         setBindingSiteRef({
+            //             chemicalId: ligand.chemicalId,
+            //             ref: `bsite_${ligand.chemicalId}`
+            //         })
+            //     );
+            // });
+
             await ctx?.toggleSpin(0.5);
             await ctx?.ctx.canvas3d?.requestCameraReset();
         })();
