@@ -222,14 +222,17 @@ export const BsiteDemo = () => {
             const model = await ctx.ctx.builders.structure.createModel(trajectory);
             const structure = await ctx.ctx.builders.structure.createStructure(model);
 
-            await await ctx.ctx.builders.structure.representation.addRepresentation(structure, {
+            await ctx.ctx.builders.structure.representation.addRepresentation(structure, {
                 type: 'cartoon',
                 color: 'uniform',
                 colorParams: {
                     value: Color(0xffffff)
                 },
                 typeParams: {
-                    alpha: 0.01
+                    alpha: 0.01,
+                    // sizeFactor:3,
+                    // aspectRatio:0.8
+
                 }
             });
 
@@ -241,10 +244,9 @@ export const BsiteDemo = () => {
                 }
             );
 
-
             ctx.representations.stylized_lighting();
-            await ctx?.toggleSpin(0.5);
-            await ctx?.ctx.canvas3d?.requestCameraReset();
+            ctx?.toggleSpin(0.2);
+            ctx?.ctx.canvas3d?.requestCameraReset();
         })();
     }, [ctx, structure_data, ligands_data]);
 

@@ -190,6 +190,9 @@ export const compositeBSitesPreset = StructureRepresentationPresetProvider({
                     color      : 'uniform',
                     colorParams: {
                         value: categoryColors[category] || Color(0x808080) // Default gray if category not found
+                    },
+                    typeParams:{
+                        emissive: 0.15
                     }
                 });
 
