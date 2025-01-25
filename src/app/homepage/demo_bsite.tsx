@@ -199,15 +199,9 @@ export const BsiteDemo = () => {
         isLoading: isLoadingProfile,
         error: profileError
     } = useRoutersRouterStructStructureProfileQuery({rcsbId: '7K00'});
-
-    console.log('ligands_data', ligands_data);
-    // Get binding sites from Redux state
-
     useEffect(() => {
         if (!ctx || !ligands_data) return;
         (async () => {
-            // Upload structure first
-
             let asset_url: string;
             asset_url = `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`;
             const data = await ctx.ctx.builders.data.download(
@@ -229,10 +223,7 @@ export const BsiteDemo = () => {
                     value: Color(0xffffff)
                 },
                 typeParams: {
-                    alpha: 0.01,
-                    // sizeFactor:3,
-                    // aspectRatio:0.8
-
+                    alpha: 0.01
                 }
             });
 
@@ -246,7 +237,6 @@ export const BsiteDemo = () => {
 
             ctx.representations.stylized_lighting();
             ctx?.toggleSpin(0.2);
-            ctx?.ctx.canvas3d?.requestCameraReset();
         })();
     }, [ctx, structure_data, ligands_data]);
 

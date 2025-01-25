@@ -350,7 +350,6 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                                 }}>
                                 log state
                             </Button>
-                            {/* <StructureHeader data={data!} isLoading={isLoading} /> */}
                             <SelectionAndStructureActions nomenclature_map={nomMap} />
                             <StructureInfoTab data={data!} isLoading={isLoading} />
                         </div>

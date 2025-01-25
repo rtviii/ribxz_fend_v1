@@ -30,8 +30,8 @@ const range = (start: number, end: number): number[] => {
 };
 
 export const TunnelDemo = () => {
-    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
-    const rcsb_id = '4UG0';
+    const [ctx, setCtx]  = useState<ribxzMstarv2 | null>(null);
+    const rcsb_id        = '4UG0';
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
     // !Autoload structure
@@ -76,13 +76,9 @@ export const TunnelDemo = () => {
     useEffect(() => {
         (async () => {
             if (!ctx) return;
-
             try {
-                // First cluster - LP
-                console.log('Starting LP cluster creation...');
                 const LP_residues = range(120, 144);
-                const LP = await ctx.components.upload_mmcif_chain('4UG0', 'LP');
-
+                const LP          = await ctx.components.upload_mmcif_chain('4UG0', 'LP');
                 if (!LP?.obj?.data) {
                     console.error('LP data not loaded properly');
                     return;
