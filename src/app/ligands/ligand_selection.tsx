@@ -59,27 +59,26 @@ export default function LigandSelection() {
             }))
         }));
     };
-    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const lig_state = useAppSelector(state => state.ligands_page);
-
+    const current_ligand              = useAppSelector(state => state.ligands_page.current_ligand);
+    const lig_state                   = useAppSelector(state => state.ligands_page);
     const [radChanged, setRadChanged] = useState(false);
-    const dispatch = useAppDispatch();
+
+    const dispatch                    = useAppDispatch();
+
     return (
         <div className="flex flex-row space-x-4">
             <TreeSelect
-                status={current_ligand === null ? 'warning' : undefined}
-                showSearch={true}
-                treeNodeFilterProp="search_aggregator" // Changed from 'search_front' to 'title'
-                placeholder="Select ligand-structure pair..."
-                variant="outlined"
-                treeData={lig_data_to_tree(lig_state.data)}
-                className="w-full"
-                treeExpandAction="click"
-                showCheckedStrategy="SHOW_CHILD"
-                filterTreeNode={(input, treenode) => {
-                    return (treenode.search_aggregator as string).includes(input.toLowerCase());
-                }}
-                onChange={(value: string, _) => {
+                status              = {current_ligand === null ? 'warning' : undefined}
+                showSearch          = {true}
+                treeNodeFilterProp  = "search_aggregator"
+                placeholder         = "Select ligand-structure pair..."
+                variant             = "outlined"
+                treeData            = {lig_data_to_tree(lig_state.data)}
+                className           = "w-full"
+                treeExpandAction    = "click"
+                showCheckedStrategy = "SHOW_CHILD"
+                filterTreeNode      = {(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()); }}
+                onChange            = {(value: string, _) => {
                     var [chemId, rcsb_id_selected] = value.split('_');
                     const lig_and_its_structs = lig_state.data.filter(kvp => {
                         var [lig, structs] = kvp;

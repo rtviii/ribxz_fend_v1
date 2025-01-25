@@ -1,8 +1,8 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 
 interface BindingSite {
-    isVisible : boolean;
-    ref      ?: string;
+    isVisible: boolean;
+    ref?: string;
 }
 
 interface BindingSiteState {
@@ -28,7 +28,6 @@ export const bsite_demo_slice = createSlice({
             }>
         ) {
             state.sites[action.payload.chemicalId] = {
-                ...action.payload,
                 isVisible: false
             };
         },
@@ -53,12 +52,24 @@ export const bsite_demo_slice = createSlice({
             if (state.sites[action.payload.chemicalId]) {
                 state.sites[action.payload.chemicalId].isVisible = action.payload.isVisible;
             }
+        },
+        batchSetVisibility(
+            state,
+            action: PayloadAction<{
+                updates: Array<{chemicalId: string; isVisible: boolean}>;
+            }>
+        ) {
+            action.payload.updates.forEach(({chemicalId, isVisible}) => {
+                if (state.sites[chemicalId]) {
+                    state.sites[chemicalId].isVisible = isVisible;
+                }
+            });
         }
     }
 });
 
 // Export actions and types
-export const {addBindingSite, setBindingSiteRef, setBindingSiteVisibility} = bsite_demo_slice.actions;
+export const {addBindingSite, setBindingSiteRef, setBindingSiteVisibility, batchSetVisibility} = bsite_demo_slice.actions;
 
 export type {BindingSite, BindingSiteState};
 export default bsite_demo_slice.reducer;

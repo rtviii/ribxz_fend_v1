@@ -5,7 +5,6 @@ import * as React from 'react';
 import {Card} from '@/components/ui/card';
 import {MolstarNode, ribxzSpec} from '@/components/mstar/spec';
 import {MolScriptBuilder, MolScriptBuilder as MS} from 'molstar/lib/mol-script/language/builder';
-// import {MolstarRibxz, MyViewportControls} from '@/components/mstar/__molstar_ribxz';
 import {DefaultPluginUISpec, PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {Quat, Vec3} from 'molstar/lib/mol-math/linear-algebra';
 import {MolstarDemoBsites, ScoredBsite} from '@/components/mstar/demos/molstar_demo_bsites';
@@ -23,60 +22,22 @@ import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {Color} from 'molstar/lib/mol-util/color/color';
 import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
-import {setBindingSiteRef, setBindingSiteVisibility} from './demo_bsite_slice';
+import {
+    addBindingSite,
+    batchSetVisibility,
+    BindingSite,
+    setBindingSiteRef,
+    setBindingSiteVisibility
+} from './demo_bsite_slice';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
 import {LigandSelectDemo} from '../ligselect';
+import {debounce} from 'lodash';
+import {Button} from '@/components/ui/button';
 
-export const createBindingSite = async (
-    viewer: ribxzMstarv2,
-    dispatch: AppDispatch,
-    chemicalId: string,
-    residueArray: Array<[string, number]> // Now expecting direct array of [chain, residue] tuples
-) => {
-    const update = viewer.ctx.build();
-    const structRef = viewer.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
-
-    if (!structRef || !residueArray) return;
-
-    const groups = residueArray.map(([chain, residue]) =>
-        MS.struct.generator.atomGroups({
-            'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), chain]),
-            'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), residue])
-        })
-    );
-
-    const bindingSiteRef = `bsite_${chemicalId}`;
-    const group = update
-        .to(structRef)
-        .group(StateTransforms.Misc.CreateGroup, {label: `Binding Site ${chemicalId}`}, {ref: bindingSiteRef});
-
-    const selection = group.apply(
-        StateTransforms.Model.StructureSelectionFromExpression,
-        {expression: MS.struct.combinator.merge(groups)},
-        {ref: `${bindingSiteRef}_sel`}
-    );
-
-    selection.apply(
-        StateTransforms.Representation.StructureRepresentation3D,
-        createStructureRepresentationParams(
-            viewer.ctx,
-            viewer.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data,
-            {
-                type: 'ball-and-stick',
-                color: 'uniform',
-                colorParams: {value: Color(0xe24e1b)}
-            }
-        )
-    );
-
-    await PluginCommands.State.Update(viewer.ctx, {
-        state: viewer.ctx.state.data,
-        tree: update
-    });
-
-    dispatch(setBindingSiteRef({chemicalId, ref: bindingSiteRef}));
-    return bindingSiteRef;
-};
+interface Ligand {
+    chemicalId: string;
+    purported_7K00_binding_site: Array<[string, number]>;
+}
 
 export const toggleBindingSiteVisibility = (
     viewer: ribxzMstarv2,
@@ -84,9 +45,104 @@ export const toggleBindingSiteVisibility = (
     chemicalId: string,
     visible: boolean
 ) => {
+    console.time('toggleBindingSiteVisibility');
     const ref = `bsite_${chemicalId}`;
+
+    // Toggle visibility in Molstar
     setSubtreeVisibility(viewer.ctx.state.data, ref, visible);
+
+    // Update visibility in Redux state
     dispatch(setBindingSiteVisibility({chemicalId, isVisible: visible}));
+
+    console.timeEnd('toggleBindingSiteVisibility');
+};
+// new utility function
+const updateMolstarState = async (viewer: ribxzMstarv2, operations: (update: any) => Promise<void>) => {
+    await viewer.ctx.dataTransaction(async () => {
+        const update = viewer.ctx.build();
+        await operations(update);
+        await PluginCommands.State.Update(viewer.ctx, {
+            state: viewer.ctx.state.data,
+            tree: update
+        });
+    });
+};
+
+// Modified createBindingSites
+export const createBindingSites = async (
+    viewer: ribxzMstarv2,
+    dispatch: AppDispatch,
+    ligands: Ligand[],
+    bindingSites: Record<string, BindingSite>
+) => {
+    console.time('createBindingSites');
+    const structRef = viewer.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+    if (!structRef) return;
+
+    await updateMolstarState(viewer, async update => {
+        // Create single group for all new sites
+        const bsitesGroup = update
+            .to(structRef)
+            .group(StateTransforms.Misc.CreateGroup, {label: 'Binding Sites'}, {ref: 'bsites_group'});
+
+        // Group residues by chemical ID
+        const siteGroups = ligands.reduce((acc, {chemicalId, purported_7K00_binding_site}) => {
+            if (bindingSites[chemicalId]?.ref) return acc;
+
+            const groups = purported_7K00_binding_site.map(([chain, residue]) =>
+                MS.struct.generator.atomGroups({
+                    'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), chain]),
+                    'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), residue])
+                })
+            );
+
+            acc[chemicalId] = MS.struct.combinator.merge(groups);
+            return acc;
+        }, {});
+
+        // Create single selection with all sites
+        const selection = bsitesGroup.apply(
+            StateTransforms.Model.StructureSelectionFromExpression,
+            {
+                expression: MS.struct.combinator.merge(Object.values(siteGroups))
+            },
+            {ref: 'bsites_selection'}
+        );
+
+        // Single representation for all sites
+        selection.apply(
+            StateTransforms.Representation.StructureRepresentation3D,
+            createStructureRepresentationParams(
+                viewer.ctx,
+                viewer.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data,
+                {
+                    type: 'ball-and-stick',
+                    color: 'uniform',
+                    colorParams: {value: Color(0xe24e1b)}
+                }
+            )
+        );
+
+        // Update Redux state
+        Object.keys(siteGroups).forEach(chemicalId => {
+            const bindingSiteRef = `bsite_${chemicalId}`;
+            dispatch(
+                addBindingSite({
+                    chemicalId,
+                    residues:
+                        ligands
+                            .find(l => l.chemicalId === chemicalId)
+                            ?.purported_7K00_binding_site.map(([chain, residue]) => ({
+                                auth_asym_id: chain,
+                                auth_seq_id: residue
+                            })) || []
+                })
+            );
+            dispatch(setBindingSiteRef({chemicalId, ref: bindingSiteRef}));
+        });
+    });
+
+    console.timeEnd('createBindingSites');
 };
 
 export const BsiteDemo = () => {
@@ -94,7 +150,6 @@ export const BsiteDemo = () => {
     const rcsb_id = '7K00';
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
-    // !Autoload structure
     useEffect(() => {
         (async () => {
             const x = new MolstarDemoBsites();
@@ -135,6 +190,7 @@ export const BsiteDemo = () => {
     }, []);
 
     const dispatch = useAppDispatch();
+
     const {data: ligands_data} = useRoutersRouterLigDemo7K00Query();
 
     const {
@@ -142,6 +198,8 @@ export const BsiteDemo = () => {
         isLoading: isLoadingProfile,
         error: profileError
     } = useRoutersRouterStructStructureProfileQuery({rcsbId: '7K00'});
+
+    // Get binding sites from Redux state
 
     useEffect(() => {
         if (!ctx || !structure_data) return;
@@ -163,30 +221,116 @@ export const BsiteDemo = () => {
     }, [ctx, structure_data, ligands_data]);
 
     const bindingSites = useAppSelector(state => state.bsites_demo.sites);
+    const createBindingSitesInternal = async (
+        viewer: ribxzMstarv2,
+        update: any,
+        dispatch: AppDispatch,
+        ligands: Ligand[],
+        bindingSites: Record<string, BindingSite>
+    ) => {
+        const structRef = viewer.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+        if (!structRef) return;
+
+        ligands.forEach(({chemicalId, purported_7K00_binding_site}) => {
+            if (!purported_7K00_binding_site || bindingSites[chemicalId]?.ref) return;
+
+            const groups = purported_7K00_binding_site.map(([chain, residue]) =>
+                MS.struct.generator.atomGroups({
+                    'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), chain]),
+                    'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), residue])
+                })
+            );
+
+            const bindingSiteRef = `bsite_${chemicalId}`;
+            const group = update
+                .to(structRef)
+                .group(StateTransforms.Misc.CreateGroup, {label: `Binding Site ${chemicalId}`}, {ref: bindingSiteRef});
+
+            const selection = group.apply(
+                StateTransforms.Model.StructureSelectionFromExpression,
+                {expression: MS.struct.combinator.merge(groups)},
+                {ref: `${bindingSiteRef}_sel`}
+            );
+
+            selection.apply(
+                StateTransforms.Representation.StructureRepresentation3D,
+                createStructureRepresentationParams(
+                    viewer.ctx,
+                    viewer.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data,
+                    {
+                        type: 'ball-and-stick',
+                        color: 'uniform',
+                        colorParams: {value: Color(0xe24e1b)}
+                    }
+                )
+            );
+
+            dispatch(
+                addBindingSite({
+                    chemicalId,
+                    residues: purported_7K00_binding_site.map(([chain, residue]) => ({
+                        auth_asym_id: chain,
+                        auth_seq_id: residue
+                    }))
+                })
+            );
+            dispatch(setBindingSiteRef({chemicalId, ref: bindingSiteRef}));
+        });
+    };
 
     const handleLigandSelect = React.useCallback(
-        async (selectedLigands: string[]) => {
+        async (selectedLigands: Ligand[]) => {
             if (!ctx || !ligands_data) return;
-            Object.keys(bindingSites).forEach(chemicalId => {
-                if (!selectedLigands.includes(chemicalId)) {
-                    toggleBindingSiteVisibility(ctx, dispatch, chemicalId, false);
+            console.time('handleLigandSelect');
+
+            const selectedChemicalIds = new Set(selectedLigands.map(ligand => ligand.chemicalId));
+
+            await updateMolstarState(ctx, async update => {
+                // Handle visibility
+                Object.keys(bindingSites).forEach(chemicalId => {
+                    const isSelected = selectedChemicalIds.has(chemicalId);
+                    if (bindingSites[chemicalId]?.ref) {
+                        setSubtreeVisibility(ctx.ctx.state.data, `bsite_${chemicalId}`, isSelected);
+                    }
+                });
+
+                // Batch Redux updates
+                dispatch(
+                    batchSetVisibility({
+                        updates: Object.keys(bindingSites).map(chemicalId => ({
+                            chemicalId,
+                            isVisible: selectedChemicalIds.has(chemicalId)
+                        }))
+                    })
+                );
+
+                // Create new sites if needed
+                const newSites = selectedLigands.filter(ligand => !bindingSites[ligand.chemicalId]?.ref);
+                if (newSites.length) {
+                    // Create binding sites using the same update object
+                    await createBindingSitesInternal(ctx, update, dispatch, newSites, bindingSites);
                 }
             });
-            for (const ligand of selectedLigands) {
-                var chemical_id = ligand['identifier'];
-                if (!bindingSites[chemical_id]?.ref) {
-                    await createBindingSite(ctx, dispatch, chemical_id, ligands_data[chemical_id]);
-                } else {
-                    toggleBindingSiteVisibility(ctx, dispatch, chemical_id, true);
-                }
-            }
+
+            console.timeEnd('handleLigandSelect');
         },
         [ctx, ligands_data, bindingSites, dispatch]
     );
+    const debouncedHandleLigandSelect = debounce(handleLigandSelect, 300);
+
+    const demo_state = useAppSelector(state => state.bsites_demo);
+
     return (
         <Card className="flex-1 h-[32rem] rounded-md p-2 shadow-inner">
             <div className="w-full h-full">
-                <LigandSelectDemo onChange={handleLigandSelect} />
+                <Button
+                    onClick={() => {
+                        console.log(demo_state);
+                    }}>
+                    {' '}
+                    Log state
+                </Button>
+                <LigandSelectDemo onChange={debouncedHandleLigandSelect} />
                 <MolstarNode ref={molstarNodeRef} />
             </div>
         </Card>

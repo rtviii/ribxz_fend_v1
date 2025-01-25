@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Select, Space, Typography, Button } from 'antd';
-import { useRoutersRouterLigClassifyreReportQuery } from '@/store/ribxz_api/ribxz_api';
+import React, {useMemo, useState} from 'react';
+import {Select, Space, Typography, Button} from 'antd';
+import {useRoutersRouterLigDemo7K00Query} from '@/store/ribxz_api/ribxz_api';
 
-const { Text } = Typography;
+const {Text} = Typography;
 
 const PRIMARY_CATEGORIES = {
     Aminoglycosides: '#BFDBFE',
     Macrolides: '#BBF7D0',
     Tetracyclines: '#E9D5FF',
-    Oxazolidinones: '#FFEDD5',
+    Oxazolidinones: '#FFEDD5'
 };
 
-const CategoryButton = ({ category, color, isSelected, onClick }) => (
+const CategoryButton = ({category, color, isSelected, onClick}) => (
     <Button
         type="default"
         onClick={onClick}
@@ -27,158 +27,123 @@ const CategoryButton = ({ category, color, isSelected, onClick }) => (
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center'
-        }}
-    >
-        <span style={{ marginRight: '4px' }}>{isSelected ? '−' : '+'}</span>
+        }}>
+        <span style={{marginRight: '4px'}}>{isSelected ? '−' : '+'}</span>
         {category}
     </Button>
 );
 
-// Helper functions
-const normalizeString = (str) => str.toLowerCase().replace(/[-_\s]/g, '');
-
-const extractCategories = (ligand) => {
-    if (!ligand) return { primary: [], secondary: [] };
-    
-    const primary = new Set();
-    const secondary = new Set();
-
-    const processCategory = (category) => {
-        if (!category) return;
-        const normalizedCategory = normalizeString(category);
-        const primaryMatch = Object.keys(PRIMARY_CATEGORIES).find(
-            key => normalizeString(key) === normalizedCategory
-        );
-        if (primaryMatch) {
-            primary.add(primaryMatch);
-        } else {
-            secondary.add(category);
-        }
-    };
-
-    ligand.direct_parent?.name && processCategory(ligand.direct_parent.name);
-    ligand.alternative_parents?.forEach(parent => processCategory(parent.name));
-    ligand.ancestors?.forEach(processCategory);
-    ligand.intermediate_nodes?.forEach(node => processCategory(node.name));
-    ligand.external_descriptors?.forEach(desc => 
-        desc.annotations?.forEach(processCategory)
-    );
-
-    return {
-        primary: Array.from(primary),
-        secondary: Array.from(secondary).slice(0, 2)
-    };
+const extractCategories = ligand => {
+    if (!ligand) return {primary: [], secondary: []};
+    const primary = ligand.tags.filter(tag => PRIMARY_CATEGORIES.hasOwnProperty(tag));
+    return {primary, secondary: []};
 };
 
-export const LigandSelectDemo = ({ onChange }) => {
-    const { data: ligands, isLoading } = useRoutersRouterLigClassifyreReportQuery();
+export const LigandSelectDemo = ({onChange}) => {
+    const {data: ligands, isLoading} = useRoutersRouterLigDemo7K00Query();
     const [selectedValues, setSelectedValues] = useState([]);
 
     const filterOption = (input, option) => {
         if (!input?.trim() || !option?.value) return true;
-        
+
         const searchStr = input.toLowerCase();
-        if (option.value.toLowerCase().includes(searchStr)) return true;
-        
-        const ligand = ligands?.find(l => l.identifier === option.value);
+        const ligand = ligands?.find(l => l.chemicalId === option.value);
         if (!ligand) return false;
-        
-        const { primary, secondary } = extractCategories(ligand);
-        return [...primary, ...secondary].some(
-            category => category.toLowerCase().includes(searchStr)
+
+        // Search in chemicalId, chemicalName, and categories
+        return (
+            ligand.chemicalId.toLowerCase().includes(searchStr) ||
+            ligand.chemicalName.toLowerCase().includes(searchStr) ||
+            ligand.tags.some(tag => tag.toLowerCase().includes(searchStr))
         );
     };
 
-    const handleChange = (values) => {
+    const handleChange = values => {
         if (!ligands) return;
         setSelectedValues(values);
-        const selectedLigands = values.map(value => 
-            ligands.find(l => l.identifier === value)
-        ).filter(Boolean);
+        const selectedLigands = values.map(value => ligands.find(l => l.chemicalId === value)).filter(Boolean);
         onChange?.(selectedLigands);
     };
 
-    const handleCategorySelect = (category) => {
+    const handleCategorySelect = category => {
         if (!ligands) return;
-        
+
         const categoryLigands = ligands.filter(ligand => {
-            const { primary } = extractCategories(ligand);
+            const {primary} = extractCategories(ligand);
             return primary.includes(category);
         });
-        
-        const categoryIds = categoryLigands.map(l => l.identifier);
+
+        const categoryIds = categoryLigands.map(l => l.chemicalId);
         const hasSelectedFromCategory = selectedValues.some(value => categoryIds.includes(value));
-        
+
         const newSelection = hasSelectedFromCategory
             ? selectedValues.filter(value => !categoryIds.includes(value))
             : [...new Set([...selectedValues, ...categoryIds])];
-        
+
         handleChange(newSelection);
     };
 
-    const isCategorySelected = (category) => {
+    const isCategorySelected = category => {
         if (!ligands) return false;
         const categoryLigands = ligands.filter(ligand => {
-            const { primary } = extractCategories(ligand);
+            const {primary} = extractCategories(ligand);
             return primary.includes(category);
         });
-        return categoryLigands.some(ligand => selectedValues.includes(ligand.identifier));
+        return categoryLigands.some(ligand => selectedValues.includes(ligand.chemicalId));
     };
 
-    const options = ligands
-        ?.filter(ligand => ligand && ligand.identifier)
-        .map(ligand => {
-            const { primary, secondary } = extractCategories(ligand);
-            
-            return {
-                value: ligand.identifier,
-                label: (
-                    <Space direction="vertical" style={{ width: '100%', minHeight: '32px' }}>
-                        <Space style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            alignItems: 'center',
-                            minHeight: '24px'
-                        }}>
-                            <Text strong style={{ fontFamily: 'monospace' }}>{ligand.identifier}</Text>
-                            <Space wrap style={{ justifyContent: 'flex-end' }}>
-                                {primary.map(category => (
-                                    <span
-                                        key={`${ligand.identifier}-${category}`}
-                                        style={{
-                                            backgroundColor: PRIMARY_CATEGORIES[category],
-                                            padding: '2px 8px',
-                                            borderRadius: '12px',
-                                            fontSize: '12px',
-                                            fontWeight: 500
-                                        }}
-                                    >
-                                        {category}
-                                    </span>
-                                ))}
-                                {secondary.map(category => (
-                                    <span
-                                        key={`${ligand.identifier}-${category}`}
-                                        style={{
-                                            backgroundColor: '#F3F4F6',
-                                            padding: '2px 8px',
-                                            borderRadius: '12px',
-                                            fontSize: '12px'
-                                        }}
-                                    >
-                                        {category}
-                                    </span>
-                                ))}
+    const options = useMemo(
+        () =>
+            ligands
+                ?.filter(ligand => ligand && ligand.chemicalId)
+                .map(ligand => {
+                    const {primary} = extractCategories(ligand);
+
+                    return {
+                        value: ligand.chemicalId,
+                        label: (
+                            <Space direction="vertical" style={{width: '100%', minHeight: '32px'}}>
+                                <Space
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        width: '100%',
+                                        alignItems: 'center',
+                                        minHeight: '24px'
+                                    }}>
+                                    <Space direction="vertical" size={0}>
+                                        <Text strong style={{fontFamily: 'monospace'}}>
+                                            {ligand.chemicalId}
+                                        </Text>
+                                        <Text type="secondary" style={{fontSize: '12px'}}>
+                                            {ligand.chemicalName}
+                                        </Text>
+                                    </Space>
+                                    <Space wrap style={{justifyContent: 'flex-end'}}>
+                                        {primary.map(category => (
+                                            <span
+                                                key={`${ligand.chemicalId}-${category}`}
+                                                style={{
+                                                    backgroundColor: PRIMARY_CATEGORIES[category],
+                                                    padding: '2px 8px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 500
+                                                }}>
+                                                {category}
+                                            </span>
+                                        ))}
+                                    </Space>
+                                </Space>
                             </Space>
-                        </Space>
-                    </Space>
-                ),
-            };
-        }) || [];
+                        )
+                    };
+                }) || [],
+        [ligands]
+    );
 
     return (
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
+        <Space direction="vertical" style={{width: '100%'}} size="small">
             <Space wrap>
                 {Object.entries(PRIMARY_CATEGORIES).map(([category, color]) => (
                     <CategoryButton
@@ -203,10 +168,10 @@ export const LigandSelectDemo = ({ onChange }) => {
                 value={selectedValues}
                 maxTagCount={false}
                 allowClear={true}
-                tagRender={(props) => {
-                    const { value, closable, onClose } = props;
+                tagRender={props => {
+                    const {value, closable, onClose} = props;
                     return (
-                        <span 
+                        <span
                             style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -216,19 +181,17 @@ export const LigandSelectDemo = ({ onChange }) => {
                                 backgroundColor: '#f0f0f0',
                                 fontSize: '14px',
                                 fontFamily: 'monospace'
-                            }}
-                        >
+                            }}>
                             {value}
                             {closable && (
-                                <span 
+                                <span
                                     style={{
                                         marginLeft: '4px',
                                         cursor: 'pointer',
                                         color: '#999',
                                         fontSize: '12px'
                                     }}
-                                    onClick={onClose}
-                                >
+                                    onClick={onClose}>
                                     ×
                                 </span>
                             )}
