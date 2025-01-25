@@ -91,14 +91,28 @@ export const bindingSitesPreset = StructureRepresentationPresetProvider({
     }
 });
 
+// const categoryColors = {
+//     'Aminocyclitols': Color(0xe24e1b),
+//     'Lincosamides': Color(0x4287f5),
+//     'Ketolides': Color(0x42f554),
+//     'Macrolides': Color(0xf542f2),
+//     'Oxazolidinones': Color(0xf5d742),
+//     'Phenicols': Color(0x42f5f2),
+//     'Streptogramins': Color(0xf54242)
+// };
+
 const categoryColors = {
-    'Aminocyclitols': Color(0xe24e1b),
-    'Lincosamides': Color(0x4287f5),
-    'Ketolides': Color(0x42f554),
-    'Macrolides': Color(0xf542f2),
-    'Oxazolidinones': Color(0xf5d742),
-    'Phenicols': Color(0x42f5f2),
-    'Streptogramins': Color(0xf54242)
+    // Aminosugar-based (warm oranges)
+    Aminoglycosides: Color(0xe8916b), // Muted coral orange
+    Aminocyclitols: Color(0xd4775e), // Faded terracotta
+    Fluoroquinolones: Color(0x5c6bc0), // Bright indigo (kept as is)
+    Macrolides: Color(0x00bcd4), // Bright cyan
+    Ketolides: Color(0x00acc1), // Deeper cyan
+    Lincosamides: Color(0x0288d1), // Bright blue (kept as is)
+    Streptogramins: Color(0xff8a65), // Soft coral
+    Pleuromutilins: Color(0x2e7d32), // Forest green
+    Oxazolidinones: Color(0xffb74d), // Muted gold
+    Tetracyclines: Color(0x2e7d32) // Forest green
 };
 
 // Type for our processed data
@@ -133,16 +147,16 @@ export const compositeBSitesPreset = StructureRepresentationPresetProvider({
 
         console.log('Running composite binding sites preset');
 
-        const { update, builder } = StructureRepresentationPresetProvider.reprBuilder(plugin, params, structure);
+        const {update, builder} = StructureRepresentationPresetProvider.reprBuilder(plugin, params, structure);
 
-        const components: { [k: string]: StateObjectSelector | undefined } = {};
-        const representations: { [k: string]: StateObjectSelector | undefined } = {};
+        const components: {[k: string]: StateObjectSelector | undefined} = {};
+        const representations: {[k: string]: StateObjectSelector | undefined} = {};
 
         // Process each category
         for (const [category, data] of Object.entries(params.processedData)) {
             // Skip aminoglycosides and "other" categories
             if (category === 'Aminoglycosides' || category === 'Other') continue;
-            
+
             if (!data.composite_bsite || data.composite_bsite.length === 0) {
                 console.log(`Skipping ${category} - no composite binding site`);
                 continue;
@@ -170,10 +184,10 @@ export const compositeBSitesPreset = StructureRepresentationPresetProvider({
             );
 
             if (component) {
-                // Add representation with category-specific color
                 const representation = await plugin.builders.structure.representation.addRepresentation(component, {
-                    type: 'ball-and-stick',
-                    color: 'uniform',
+
+                    type       : 'ball-and-stick',
+                    color      : 'uniform',
                     colorParams: {
                         value: categoryColors[category] || Color(0x808080) // Default gray if category not found
                     }
@@ -184,7 +198,7 @@ export const compositeBSitesPreset = StructureRepresentationPresetProvider({
             }
         }
 
-        await update.commit({ revertOnError: true });
+        await update.commit({revertOnError: true});
 
         return {
             components,
