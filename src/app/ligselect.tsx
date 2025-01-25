@@ -6,9 +6,9 @@ const {Text} = Typography;
 
 const PRIMARY_CATEGORIES = {
     Aminoglycosides: '#BFDBFE',
-    Macrolides: '#BBF7D0',
-    Tetracyclines: '#E9D5FF',
-    Oxazolidinones: '#FFEDD5'
+    Macrolides     : '#BBF7D0',
+    Tetracyclines  : '#E9D5FF',
+    Oxazolidinones : '#FFEDD5'
 };
 
 const CategoryButton = ({category, color, isSelected, onClick}) => (

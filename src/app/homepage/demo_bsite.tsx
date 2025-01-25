@@ -199,6 +199,7 @@ export const BsiteDemo = () => {
         error: profileError
     } = useRoutersRouterStructStructureProfileQuery({rcsbId: '7K00'});
 
+    console.log('ligands_data', ligands_data);
     // Get binding sites from Redux state
 
     useEffect(() => {
@@ -221,35 +222,23 @@ export const BsiteDemo = () => {
             const structure = await ctx.ctx.builders.structure.createStructure(model);
 
             await await ctx.ctx.builders.structure.representation.addRepresentation(structure, {
-                type: 'cartoon',
-                color: 'element-symbol',
-                colorParams: {},
+                type: 'spacefill',
+                color: 'uniform',
                 typeParams: {
                     alpha: 0.01
                 }
             });
-            // const {components, representations, objects_polymer, objects_ligand} =
-            //     await ctx.ctx.builders.structure.representation.applyPreset(
-            //         structure.ref,
-            //         'polymers-ligand-ribxz-theme',
-            //         {
-            //             structureId: rcsb_id,
-            //             nomenclature_map: {}
-            //         }
-            //     );
-
-            ctx.representations.stylized_lighting();
 
             const _ = await ctx.ctx.builders.structure.representation.applyPreset(
                 structure.ref,
-                'binding-sites-preset',
+                'composite-bsites-preset',
                 {
-                    bindingSites: ligands_data
+                    processedData: ligands_data
                 }
             );
-            console.log(_);
-            console.log(ligands_data);
 
+
+            ctx.representations.stylized_lighting();
             // Initialize Redux state with all sites (hidden by default)
             // ligands_data.forEach(ligand => {
             //     if (!ligand.purported_7K00_binding_site) {
@@ -389,7 +378,7 @@ export const BsiteDemo = () => {
                     {' '}
                     Log state
                 </Button>
-                <LigandSelectDemo onChange={debouncedHandleLigandSelect} />
+                {/* <LigandSelectDemo onChange={debouncedHandleLigandSelect} /> */}
                 <MolstarNode ref={molstarNodeRef} />
             </div>
         </Card>

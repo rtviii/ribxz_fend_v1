@@ -27,7 +27,7 @@ import {CustomElementProperty} from 'molstar/lib/mol-model-props/common/custom-e
 import {Model, ElementIndex} from 'molstar/lib/mol-model/structure';
 import {VaryingResidueColorThemeProvider} from './color-scheme';
 import { ribxzMstarv2 } from '../mstar_v2';
-import { bindingSitesPreset } from '@/app/homepage/bsite_preset';
+import { bindingSitesPreset, compositeBSitesPreset } from '@/app/homepage/bsite_preset';
 import { SplitPolymerPreset } from '../providers/polymer_preset';
 
 export interface ScoredBsite {
@@ -73,7 +73,7 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
         this.ctx.representation.structure.themes.colorThemeRegistry.add(VaryingResidueColorThemeProvider);
         this.ctx.builders.structure.representation.registerPreset(bindingSitesPreset);
         this.ctx.builders.structure.representation.registerPreset(SplitPolymerPreset);
-
+        this.ctx.builders.structure.representation.registerPreset(compositeBSitesPreset);
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
         this.ctx.canvas3d?.setProps({
             camera: {helper: {axes: {name: 'off', params: {}}}}

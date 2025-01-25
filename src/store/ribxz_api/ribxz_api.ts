@@ -280,7 +280,7 @@ export type RoutersRouterLigLigTransposeApiArg = {
 };
 export type RoutersRouterLigBsiteCompositeApiResponse = /** status 200 OK */ object;
 export type RoutersRouterLigBsiteCompositeApiArg = void;
-export type RoutersRouterLigDemo7K00ApiResponse = /** status 200 OK */ object;
+export type RoutersRouterLigDemo7K00ApiResponse = /** status 200 OK */ ProcessedLigands;
 export type RoutersRouterLigDemo7K00ApiArg = void;
 export type CompositionStats = {
     lsu_only: number;
@@ -880,6 +880,9 @@ export type LigandTransposition = {
     target: string;
     constituent_chains: ResiduesMapping[];
     purported_binding_site: BindingSite;
+};
+export type ProcessedLigands = {
+    [key: string]: any;
 };
 export const {
     useRoutersRouterStructAllRcsbIdsQuery,

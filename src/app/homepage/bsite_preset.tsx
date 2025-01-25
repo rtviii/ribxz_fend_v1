@@ -90,3 +90,105 @@ export const bindingSitesPreset = StructureRepresentationPresetProvider({
         };
     }
 });
+
+const categoryColors = {
+    'Aminocyclitols': Color(0xe24e1b),
+    'Lincosamides': Color(0x4287f5),
+    'Ketolides': Color(0x42f554),
+    'Macrolides': Color(0xf542f2),
+    'Oxazolidinones': Color(0xf5d742),
+    'Phenicols': Color(0x42f5f2),
+    'Streptogramins': Color(0xf54242)
+};
+
+// Type for our processed data
+interface CategoryData {
+    items: Array<{
+        chemicalId: string;
+        chemicalName: string;
+        purported_7K00_binding_site: Array<[string, number]>;
+    }>;
+    composite_bsite: Array<[string, number]>;
+}
+
+interface ProcessedData {
+    [category: string]: CategoryData;
+}
+
+export const compositeBSitesPreset = StructureRepresentationPresetProvider({
+    id: 'composite-bsites-preset',
+    display: {
+        name: 'Composite Binding Sites',
+        group: 'ribxz',
+        description: 'Creates components for composite binding sites from each category'
+    },
+    params: () => ({
+        ...StructureRepresentationPresetProvider.CommonParams,
+        processedData: PD.Value<ProcessedData>({})
+    }),
+    async apply(ref, params, plugin) {
+        const structureCell = StateObjectRef.resolveAndCheck(plugin.state.data, ref);
+        if (!structureCell) return {};
+        const structure = structureCell.obj!.data;
+
+        console.log('Running composite binding sites preset');
+
+        const { update, builder } = StructureRepresentationPresetProvider.reprBuilder(plugin, params, structure);
+
+        const components: { [k: string]: StateObjectSelector | undefined } = {};
+        const representations: { [k: string]: StateObjectSelector | undefined } = {};
+
+        // Process each category
+        for (const [category, data] of Object.entries(params.processedData)) {
+            // Skip aminoglycosides and "other" categories
+            if (category === 'Aminoglycosides' || category === 'Other') continue;
+            
+            if (!data.composite_bsite || data.composite_bsite.length === 0) {
+                console.log(`Skipping ${category} - no composite binding site`);
+                continue;
+            }
+
+            // Create selection expression for this category's composite binding site
+            const groups = data.composite_bsite.map(([chain, residue]) =>
+                MS.struct.generator.atomGroups({
+                    'chain-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_asym_id(), chain]),
+                    'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), residue])
+                })
+            );
+
+            const bindingSiteSelection = MS.struct.combinator.merge(groups);
+
+            // Create component
+            const component = await plugin.builders.structure.tryCreateComponentFromExpression(
+                ref,
+                bindingSiteSelection,
+                `composite_${category}`,
+                {
+                    label: `${category} Composite Site`,
+                    tags: [`composite_${category}`]
+                }
+            );
+
+            if (component) {
+                // Add representation with category-specific color
+                const representation = await plugin.builders.structure.representation.addRepresentation(component, {
+                    type: 'ball-and-stick',
+                    color: 'uniform',
+                    colorParams: {
+                        value: categoryColors[category] || Color(0x808080) // Default gray if category not found
+                    }
+                });
+
+                components[category] = component;
+                representations[category] = representation;
+            }
+        }
+
+        await update.commit({ revertOnError: true });
+
+        return {
+            components,
+            representations
+        };
+    }
+});
