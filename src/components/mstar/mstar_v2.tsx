@@ -145,25 +145,52 @@ export class ribxzMstarv2 {
                 throw Error('provider.visuals is undefined for this `ply` data format');
             }
         },
-        ptc: async (xyz: number[]) => {
+        ptc: (xyz: number[]) => {
             let [x, y, z] = xyz;
-            let sphere = {x: x, y: y, z: z, radius: 2, color: 'blue'};
+            console.log(x, y, z);
+
+            let sphere = {
+                x: x,
+                y: y,
+                z: z,
+                radius: 2,
+                label: 'PTC', // Add custom label
+                selectable: true // Make it selectable
+            };
+
             const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: sphere.color ? {value: Color(0xffffff)} : void 0
+                colorParams: {value: Color(0x0000ff)} // Blue color
             });
+
+            console.log('ptc site added');
         },
+
         constriction_site: (xyz: number[]) => {
             let [x, y, z] = xyz;
-            let sphere = {x: x, y: y, z: z, radius: 2, color: 'red'};
+            console.log(x, y, z);
+
+            let sphere = {
+                x: x,
+                y: y,
+                z: z,
+                radius: 2,
+                label: 'Constriction Site', // Add custom label
+                selectable: true // Make it selectable
+            };
+
             const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: sphere.color ? {value: Color(0xffffff)} : void 0
+                colorParams: {value: Color(0xff0000)} // Red color
             });
+
+            console.log('Constriction site added');
         }
     };
 
