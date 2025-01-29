@@ -20,6 +20,8 @@ import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
 import {Task} from 'molstar/lib/mol-task/task';
 import {compile} from 'molstar/lib/mol-script/runtime/query/compiler';
 import {QueryContext, StructureElement, StructureProperties, StructureSelection} from 'molstar/lib/mol-model/structure';
+import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
+import {Asset} from 'molstar/lib/mol-util/assets';
 export class EmptyViewportControls extends PluginUIComponent<{}, {}> {
     render() {
         return <div className={'msp-viewport-controls'}> </div>;
@@ -29,9 +31,72 @@ const range = (start: number, end: number): number[] => {
     return Array.from({length: end - start + 1}, (_, i) => start + i);
 };
 
+async function createChainRangeVisualization(
+    ctx: ribxzMstarv2,
+    params: {
+        rcsb_id: string;
+        auth_asym_id: string;
+        range_start: number;
+        range_end: number;
+        color: number;
+        label?: string;
+    }
+) {
+    const {rcsb_id, auth_asym_id, range_start, range_end, color, label = `${auth_asym_id} cluster`} = params;
+
+    // Generate the range of residues
+    const residues = Array.from({length: range_end - range_start + 1}, (_, i) => range_start + i);
+
+    // Upload the chain
+    const chain = await ctx.components.upload_mmcif_chain(rcsb_id, auth_asym_id);
+    if (!chain?.obj?.data) {
+        console.error(`${auth_asym_id} data not loaded properly`);
+        return;
+    }
+
+    // Create residue expression
+    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
+
+    // Build the visualization
+    const update = ctx.ctx.build();
+    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
+
+    const selection = group.apply(
+        StateTransforms.Model.StructureSelectionFromExpression,
+        {
+            label: `${auth_asym_id}_selection`,
+            expression: expr
+        },
+        {ref: `${auth_asym_id}_selection`}
+    );
+
+    selection.apply(
+        StateTransforms.Representation.StructureRepresentation3D,
+        createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+            type: 'ball-and-stick',
+            color: 'uniform',
+            colorParams: {
+                value: Color(color)
+            },
+            typeParams: {
+                ignoreLight: true,
+                sizeFactor: 0.25
+            }
+        }),
+        {ref: `${auth_asym_id}_repr`}
+    );
+
+    await PluginCommands.State.Update(ctx.ctx, {
+        state: ctx.ctx.state.data,
+        tree: update
+    });
+
+    console.log(`${auth_asym_id} cluster created successfully`);
+}
+
 export const TunnelDemo = () => {
-    const [ctx, setCtx]  = useState<ribxzMstarv2 | null>(null);
-    const rcsb_id        = '4UG0';
+    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
+    const rcsb_id = '4UG0';
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
     // !Autoload structure
@@ -77,102 +142,22 @@ export const TunnelDemo = () => {
         (async () => {
             if (!ctx) return;
             try {
-                const LP_residues = range(120, 144);
-                const LP          = await ctx.components.upload_mmcif_chain('4UG0', 'LP');
-                if (!LP?.obj?.data) {
-                    console.error('LP data not loaded properly');
-                    return;
-                }
-
-                const LP_expr = ctx.residues.residue_cluster_expression(
-                    LP_residues.map(r => ({auth_asym_id: 'LP', auth_seq_id: r}))
-                );
-
-                const update_lp = ctx.ctx.build();
-                const group_lp = update_lp
-                    .to(LP.cell)
-                    .group(StateTransforms.Misc.CreateGroup, {label: 'LP tail'}, {ref: 'lp_res'});
-
-                const group_lp1 = group_lp.apply(
-                    StateTransforms.Model.StructureSelectionFromExpression,
-                    {
-                        label: 'LP_selection',
-                        expression: LP_expr
-                    },
-                    {ref: 'lp_selection'}
-                );
-
-                group_lp1.apply(
-                    StateTransforms.Representation.StructureRepresentation3D,
-                    createStructureRepresentationParams(ctx.ctx, LP.obj.data, {
-                        type: 'ball-and-stick',
-                        color: 'uniform',
-                        colorParams: {
-                            value: Color(0x93c5fd)
-                        },
-                        typeParams: {
-                            ignoreLight: true,
-                            sizeFactor: 0.25
-                        }
-                    }),
-                    {ref: 'lp_repr'}
-                );
-
-                await PluginCommands.State.Update(ctx.ctx, {
-                    state: ctx.ctx.state.data,
-                    tree: update_lp
+                await createChainRangeVisualization(ctx, {
+                    rcsb_id     : '4UG0',
+                    auth_asym_id: 'LP',
+                    range_start : 120,
+                    range_end   : 144,
+                    color       : 0x93c5fd,   // Now required
+                    label       : 'LP tail'   // Still optional
                 });
-                console.log('LP cluster created successfully');
-
-                // Second cluster - LC
-                console.log('Starting LC cluster creation...');
-                const LC_residues = range(57, 103);
-                const LC = await ctx.components.upload_mmcif_chain('4ug0', 'LC');
-
-                if (!LC?.obj?.data) {
-                    console.error('LC data not loaded properly');
-                    return;
-                }
-
-                const LC_expr = ctx.residues.residue_cluster_expression(
-                    LC_residues.map(r => ({auth_asym_id: 'LC', auth_seq_id: r}))
-                );
-
-                const update_lc = ctx.ctx.build();
-                const group_lc = update_lc
-                    .to(LC.cell)
-                    .group(StateTransforms.Misc.CreateGroup, {label: 'LC tail'}, {ref: 'lc_res'});
-
-                const group_lc1 = group_lc.apply(
-                    StateTransforms.Model.StructureSelectionFromExpression,
-                    {
-                        label: 'LC_selection',
-                        expression: LC_expr
-                    },
-                    {ref: 'lc_selection'}
-                );
-
-                group_lc1.apply(
-                    StateTransforms.Representation.StructureRepresentation3D,
-                    createStructureRepresentationParams(ctx.ctx, LC.obj.data, {
-                        type: 'ball-and-stick',
-                        color: 'uniform',
-                        colorParams: {
-                            value: Color(0xea580c)
-                        },
-                        typeParams: {
-                            ignoreLight: true,
-                            sizeFactor: 0.25
-                        }
-                    }),
-                    {ref: 'lc_repr'}
-                );
-
-                await PluginCommands.State.Update(ctx.ctx, {
-                    state: ctx.ctx.state.data,
-                    tree: update_lc
+                await createChainRangeVisualization(ctx, {
+                    rcsb_id: '4UG0',
+                    auth_asym_id: 'LC',
+                    range_start: 57,
+                    range_end: 103,
+                    color: 0xea580c, // Now required
+                    label: 'LC tail' // Still optional
                 });
-                console.log('LC cluster created successfully');
             } catch (error) {
                 console.error('Error creating residue clusters:', error);
             }
@@ -200,7 +185,7 @@ export const TunnelDemo = () => {
     }, [ctx, rcsb_id]);
 
     return (
-        <Card className="flex-1 h-80 rounded-md p-2 shadow-inner">
+        <Card className="w-1/3 h-80 rounded-md p-2 shadow-inner">
             <MolstarNode ref={molstarNodeRef} />
         </Card>
     );

@@ -14,7 +14,7 @@ import {
     useRoutersRouterStructStructureProfileQuery
 } from '@/store/ribxz_api/ribxz_api';
 import {AppDispatch, useAppDispatch, useAppSelector} from '@/store/store';
-import {EmptyViewportControls} from './demo_tunnel';
+import {EmptyViewportControls} from './demo_tunnel_human';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
 import {Expression} from 'molstar/lib/mol-script/language/expression';

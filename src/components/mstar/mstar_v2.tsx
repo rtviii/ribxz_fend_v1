@@ -126,25 +126,7 @@ export class ribxzMstarv2 {
                 colorParams: {value: Color(0x000000)} // Black color
             });
         },
-        tunnel_geometry: async (rcsb_id: string): Promise<Loci> => {
-            const provider = this.ctx.dataFormats.get('ply')!;
-            const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
-            const data = await this.ctx.builders.data.download({
-                url: Asset.Url(myurl.toString()),
-                isBinary: false
-            });
-            const parsed = await provider!.parse(this.ctx, data!);
 
-            if (provider.visuals) {
-                const visual = await provider.visuals!(this.ctx, parsed);
-                const shape_ref = visual.ref;
-                const meshObject = this.ctx.state.data.select(shape_ref)[0];
-                const shape_loci = await meshObject.obj.data.repr.getAllLoci();
-                return shape_loci;
-            } else {
-                throw Error('provider.visuals is undefined for this `ply` data format');
-            }
-        },
         ptc: (xyz: number[]) => {
             let [x, y, z] = xyz;
             console.log(x, y, z);
@@ -1295,8 +1277,8 @@ export class ribxzMstarv2 {
         });
         return this;
     }
-
-    tunnel_geometry = async (rcsb_id: string): Promise<Loci> => {
+    tunnel_geometry = async (rcsb_id: string, transparency: number = 0.5): Promise<Loci> => {
+        // 1. Get provider and fetch data
         const provider = this.ctx.dataFormats.get('ply')!;
         const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
         const data = await this.ctx.builders.data.download({
@@ -1305,14 +1287,45 @@ export class ribxzMstarv2 {
         });
         const parsed = await provider!.parse(this.ctx, data!);
 
-        if (provider.visuals) {
-            const visual = await provider.visuals!(this.ctx, parsed);
-            const shape_ref = visual.ref;
-            const meshObject = this.ctx.state.data.select(shape_ref)[0];
-            const shape_loci = await meshObject.obj.data.repr.getAllLoci();
-            return shape_loci;
-        } else {
+        if (!provider.visuals) {
             throw Error('provider.visuals is undefined for this `ply` data format');
         }
+
+        // 2. Create the visual and wait for state update to complete
+        const visual = await provider.visuals!(this.ctx, parsed);
+        const update1 = this.ctx.build();
+
+        // 3. Get ref for created visual and ensure it exists in state
+        const shape_ref = visual.ref;
+        await PluginCommands.State.Update(this.ctx, {
+            state: this.ctx.state.data,
+            tree: update1
+        });
+
+        // 4. Now that state is updated, we can select and modify
+        const meshObject = this.ctx.state.data.select(shape_ref)[0];
+        if (!meshObject?.obj?.data) {
+            throw Error('Failed to find mesh object in state');
+        }
+
+        const params = {
+            alpha: transparency, // Try direct param modification
+            material: {
+                transparency: true,
+                opacity: transparency
+            }
+        };
+
+        const update2 = this.ctx.build();
+        update2.to(meshObject).update(params);
+
+        await PluginCommands.State.Update(this.ctx, {
+            state: this.ctx.state.data,
+            tree: update2
+        });
+
+        // 7. Get loci after all updates complete
+        const shape_loci = await meshObject.obj.data.repr.getAllLoci();
+        return shape_loci;
     };
 }
