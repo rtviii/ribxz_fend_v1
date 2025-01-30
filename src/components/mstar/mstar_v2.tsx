@@ -231,6 +231,60 @@ export class ribxzMstarv2 {
             const model = await this.ctx.builders.structure.createModel(trajectory);
             const structure = await this.ctx.builders.structure.createStructure(model);
             return structure;
+        },
+        upload_mmcif_nonpolymer: async (rcsb_id: string, chemicalId: string) => {
+            const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/nonpolymer?rcsb_id=${rcsb_id}&chemicalId=${chemicalId}`;
+            const data = await this.ctx.builders.data.download(
+                {url: Asset.Url(myUrl.toString()), isBinary: false},
+                {state: {isGhost: true}}
+            );
+            const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
+            await this.ctx.builders.structure.representation.addRepresentation(
+                structure,
+                {
+                    color: 'uniform',
+
+                    colorParams: {
+                        value: Color(0x3300ff)
+                    },
+                    typeParams: {
+                        emissive: 0.5,
+                        sizeFactor: 0.31,
+                        sizeAspectRatio: 0.45
+                    },
+
+                    type: 'ball-and-stick',
+                    size: 'uniform',
+                    sizeParams: {}
+                },
+                {tag: `${chemicalId}`} // tag is optional, but useful for later reference
+            );
+
+            await this.ctx.builders.structure.representation.addRepresentation(
+                structure,
+                {
+                    color: 'uniform',
+                    colorParams: {value: '0x3300ff'},
+                    type: 'label',
+                    typeParams: {
+                        attachment:'bottom-left',
+                        level          : 'residue',
+                        tether         : true,
+                        tetherBaseWidth: 2.5,
+                        tetherLength   : 50,
+                        borderColor    : Color(0x3300ff)
+                    },
+                    size: 'uniform',
+                    sizeParams: {value: 8}
+                },
+                {tag: `${chemicalId}_`} // tag is optional, but useful for later reference
+            );
+
+            console.log('Created non-polymer structure', structure);
+
+            return structure;
         }
     };
 

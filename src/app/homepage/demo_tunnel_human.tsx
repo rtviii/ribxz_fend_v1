@@ -143,26 +143,26 @@ export const TunnelDemo = () => {
             if (!ctx) return;
             try {
                 await createChainRangeVisualization(ctx, {
-                    rcsb_id     : '4UG0',
+                    rcsb_id: rcsb_id,
                     auth_asym_id: 'LP',
-                    range_start : 120,
-                    range_end   : 144,
-                    color       : 0x93c5fd,   // Now required
-                    label       : 'LP tail'   // Still optional
+                    range_start: 120,
+                    range_end: 144,
+                    color: 0xea580c, // Now required
+                    label: 'uL4 tail' // Still optional
                 });
                 await createChainRangeVisualization(ctx, {
-                    rcsb_id: '4UG0',
+                    rcsb_id: rcsb_id,
                     auth_asym_id: 'LC',
                     range_start: 57,
                     range_end: 103,
-                    color: 0xea580c, // Now required
-                    label: 'LC tail' // Still optional
+                    color: 0x93c5fd, // Now required
+                    label: 'uL22 tail' // Still optional
                 });
             } catch (error) {
                 console.error('Error creating residue clusters:', error);
             }
 
-            ctx.tunnel_geometry('4UG0');
+            ctx.tunnel_geometry(rcsb_id);
             ctx.toggleSpin();
             // Camera and tunnel setup
 

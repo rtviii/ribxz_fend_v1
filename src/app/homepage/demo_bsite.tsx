@@ -190,10 +190,7 @@ export const BsiteDemo = () => {
         })();
     }, []);
 
-    const dispatch = useAppDispatch();
-
     const {data: ligands_data} = useRoutersRouterLigDemo7K00Query();
-
     const {
         data: structure_data,
         isLoading: isLoadingProfile,
@@ -227,7 +224,7 @@ export const BsiteDemo = () => {
                 }
             });
 
-            const {components, representations} = await ctx.ctx.builders.structure.representation.applyPreset(
+            await ctx.ctx.builders.structure.representation.applyPreset(
                 structure.ref,
                 'composite-bsites-preset',
                 {

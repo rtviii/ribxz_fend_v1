@@ -142,8 +142,8 @@ export const TunnelDemoMito = () => {
         (async () => {
             if (!ctx) return;
 
-                // ul4m  = F3 120 150
-                // ul22 = T3 150 170
+            // ul4m  = F3 120 150
+            // ul22 = T3 150 170
             try {
                 await createChainRangeVisualization(ctx, {
                     rcsb_id: rcsb_id,
@@ -167,18 +167,6 @@ export const TunnelDemoMito = () => {
 
             await ctx.tunnel_geometry(rcsb_id);
             ctx.toggleSpin();
-            // Camera and tunnel setup
-
-            if (ctx.ctx) {
-                const snapshot = ctx.ctx.canvas3d?.camera.getSnapshot();
-                if (snapshot) {
-                    const newSnapshot = {
-                        ...snapshot,
-                        up: Vec3.create(-1, 0, 0)
-                    };
-                    ctx.ctx.canvas3d?.camera.setState(newSnapshot, 300);
-                }
-            }
             setTimeout(() => {
                 if (ctx.ctx?.canvas3d?.camera) {
                     ctx.ctx.canvas3d.requestCameraReset();

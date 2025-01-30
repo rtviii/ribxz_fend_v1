@@ -65,7 +65,7 @@ async function createChainRangeVisualization(
     selection.apply(
         StateTransforms.Representation.StructureRepresentation3D,
         createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
-            type: 'ball-and-stick',
+            type: 'cartoon',
             color: 'uniform',
             colorParams: {
                 value: Color(color)
@@ -152,24 +152,35 @@ export const TunnelDemoBacterial = () => {
                     color: 0xea580c, 
                     label: 'uL22 tail'
                 });
+                await createChainRangeVisualization(ctx, {
+                    rcsb_id: rcsb_id,
+                    auth_asym_id: 'a',
+                    range_start: 3,
+                    range_end: 9,
+                    color: 0xea580c, 
+                    label: 'Nascent Chain'
+                });
             } catch (error) {
                 console.error('Error creating residue clusters:', error);
             }
 
+            ctx.components.upload_mmcif_nonpolymer(rcsb_id,'ERY');
             ctx.tunnel_geometry(rcsb_id);
+
             ctx.toggleSpin();
+            ctx.ligands.create_ligand(rcsb_id,'ERY')
             // Camera and tunnel setup
 
-            if (ctx.ctx) {
-                const snapshot = ctx.ctx.canvas3d?.camera.getSnapshot();
-                if (snapshot) {
-                    const newSnapshot = {
-                        ...snapshot,
-                        up: Vec3.create(-1, 0, 0)
-                    };
-                    ctx.ctx.canvas3d?.camera.setState(newSnapshot, 300);
-                }
-            }
+            // if (ctx.ctx) {
+            //     const snapshot = ctx.ctx.canvas3d?.camera.getSnapshot();
+            //     if (snapshot) {
+            //         const newSnapshot = {
+            //             ...snapshot,
+            //             up: Vec3.create(-1, 0, 0)
+            //         };
+            //         ctx.ctx.canvas3d?.camera.setState(newSnapshot, 300);
+            //     }
+            // }
             setTimeout(() => {
                 if (ctx.ctx?.canvas3d?.camera) {
                     ctx.ctx.canvas3d.requestCameraReset();
