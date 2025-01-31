@@ -10,7 +10,7 @@ import {MolstarNode, ribxzSpec} from '@/components/mstar/spec';
 import {DefaultPluginUISpec, PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {Quat, Vec3} from 'molstar/lib/mol-math/linear-algebra';
 import {MolstarContext, useMolstarService} from '@/components/mstar/mstar_service';
-import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
+import {createChainRangeVisualization, ribxzMstarv2} from '@/components/mstar/mstar_v2';
 import {PluginUIComponent} from 'molstar/lib/mol-plugin-ui/base';
 import {Script} from 'molstar/lib/mol-script/script';
 import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
@@ -30,69 +30,6 @@ export class EmptyViewportControls extends PluginUIComponent<{}, {}> {
 const range = (start: number, end: number): number[] => {
     return Array.from({length: end - start + 1}, (_, i) => start + i);
 };
-
-async function createChainRangeVisualization(
-    ctx: ribxzMstarv2,
-    params: {
-        rcsb_id: string;
-        auth_asym_id: string;
-        range_start: number;
-        range_end: number;
-        color: number;
-        label?: string;
-    }
-) {
-    const {rcsb_id, auth_asym_id, range_start, range_end, color, label = `${auth_asym_id} cluster`} = params;
-
-    // Generate the range of residues
-    const residues = Array.from({length: range_end - range_start + 1}, (_, i) => range_start + i);
-
-    // Upload the chain
-    const chain = await ctx.components.upload_mmcif_chain(rcsb_id, auth_asym_id);
-    if (!chain?.obj?.data) {
-        console.error(`${auth_asym_id} data not loaded properly`);
-        return;
-    }
-
-    // Create residue expression
-    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
-
-    // Build the visualization
-    const update = ctx.ctx.build();
-    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
-
-    const selection = group.apply(
-        StateTransforms.Model.StructureSelectionFromExpression,
-        {
-            label: `${auth_asym_id}_selection`,
-            expression: expr
-        },
-        {ref: `${auth_asym_id}_selection`}
-    );
-
-    selection.apply(
-        StateTransforms.Representation.StructureRepresentation3D,
-        createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
-            type: 'ball-and-stick',
-            color: 'uniform',
-            colorParams: {
-                value: Color(color)
-            },
-            typeParams: {
-                ignoreLight: true,
-                sizeFactor: 0.25
-            }
-        }),
-        {ref: `${auth_asym_id}_repr`}
-    );
-
-    await PluginCommands.State.Update(ctx.ctx, {
-        state: ctx.ctx.state.data,
-        tree: update
-    });
-
-    console.log(`${auth_asym_id} cluster created successfully`);
-}
 
 export const TunnelDemoMito = () => {
     const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);

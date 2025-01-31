@@ -47,16 +47,6 @@ export interface HoverEventDetail {
     chainId?: string;
     structureId?: string;
 }
-// How should the objects be stored? What kind of selections and operations do we like to make a lot?
-
-// - toggle/ select/highligh/focus/get nbhd for objects
-// object:
-// atom?
-// - residue
-// - ligand
-// - chain
-// - collections thereof
-// manipulate
 
 declare global {
     interface Window {
@@ -228,8 +218,8 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model = await this.ctx.builders.structure.createModel(trajectory);
-            const structure = await this.ctx.builders.structure.createStructure(model);
+            const model      = await this.ctx.builders.structure.createModel(trajectory);
+            const structure  = await this.ctx.builders.structure.createStructure(model);
             return structure;
         },
         upload_mmcif_nonpolymer: async (rcsb_id: string, chemicalId: string) => {
@@ -238,46 +228,47 @@ export class ribxzMstarv2 {
                 {url: Asset.Url(myUrl.toString()), isBinary: false},
                 {state: {isGhost: true}}
             );
-            const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model = await this.ctx.builders.structure.createModel(trajectory);
-            const structure = await this.ctx.builders.structure.createStructure(model);
+            const trajectory   = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
+            const model        = await this.ctx.builders.structure.createModel(trajectory);
+            const structure    = await this.ctx.builders.structure.createStructure(model);
+            const ligand_color = 0x00FF00
+
             await this.ctx.builders.structure.representation.addRepresentation(
                 structure,
                 {
                     color: 'uniform',
 
                     colorParams: {
-                        value: Color(0x3300ff)
+                        value: Color(ligand_color)
                     },
                     typeParams: {
-                        emissive: 0.5,
-                        sizeFactor: 0.31,
-                        sizeAspectRatio: 0.45
+                        emissive       : 0.2,
+                        sizeFactor     : 0.6,
+                        sizeAspectRatio: 0.8,
                     },
 
                     type: 'ball-and-stick',
                     size: 'uniform',
                     sizeParams: {}
                 },
-                {tag: `${chemicalId}`} // tag is optional, but useful for later reference
             );
 
             await this.ctx.builders.structure.representation.addRepresentation(
                 structure,
                 {
-                    color: 'uniform',
-                    colorParams: {value: '0x3300ff'},
-                    type: 'label',
-                    typeParams: {
-                        attachment:'bottom-left',
+                    color      : 'uniform',
+                    colorParams: {value: `${ligand_color}`},
+                    type       : 'label',
+                    typeParams : {
+                        attachment     : 'bottom-left',
                         level          : 'residue',
                         tether         : true,
-                        tetherBaseWidth: 2.5,
-                        tetherLength   : 50,
-                        borderColor    : Color(0x3300ff)
+                        tetherBaseWidth: 1.5,
+                        tetherLength   : 5,
+                        borderColor    : Color(0x000000)
                     },
                     size: 'uniform',
-                    sizeParams: {value: 8}
+                    sizeParams: {value: 10}
                 },
                 {tag: `${chemicalId}_`} // tag is optional, but useful for later reference
             );
@@ -295,10 +286,10 @@ export class ribxzMstarv2 {
                 auth_seq_id: number;
             }[]
         ) => {
-            const expr = this.residues.residue_cluster_expression(chain_residue_tuples);
+            const expr      = this.residues.residue_cluster_expression(chain_residue_tuples);
             const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-            const sel = Script.getStructureSelection(expr, data);
-            let loci = StructureSelection.toLociWithSourceUnits(sel);
+            const sel       = Script.getStructureSelection(expr, data);
+            let   loci      = StructureSelection.toLociWithSourceUnits(sel);
             this.ctx.managers.structure.selection.clear();
             this.ctx.managers.structure.selection.fromLoci('add', loci);
             this.ctx.managers.camera.focusLoci(loci);
@@ -1382,4 +1373,111 @@ export class ribxzMstarv2 {
         const shape_loci = await meshObject.obj.data.repr.getAllLoci();
         return shape_loci;
     };
+}
+
+export async function createChainRangeVisualization(
+    ctx: ribxzMstarv2,
+    params: {
+        rcsb_id: string;
+        auth_asym_id: string;
+        range_start: number;
+        range_end: number;
+        color: number;
+        label?: string;
+        showLabels?: boolean;
+        labelParams?: {
+            level?: 'residue' | 'chain';
+            fontSize?: number;
+            attachment?: 'bottom-left' | 'top-left' | 'top-right' | 'bottom-right';
+            offsetX?: number;
+            offsetY?: number;
+        };
+    }
+) {
+    const {
+        rcsb_id,
+        auth_asym_id,
+        range_start,
+        range_end,
+        color,
+        label = `${auth_asym_id} cluster`,
+        showLabels = false,
+        labelParams = {
+            level: 'chain',
+            attachment: 'bottom-left',
+            offsetX: 0,
+            offsetY: 0
+        }
+    } = params;
+
+    // Generate the range of residues
+    const residues = Array.from({length: range_end - range_start + 1}, (_, i) => range_start + i);
+
+    // Upload the chain
+    const chain = await ctx.components.upload_mmcif_chain(rcsb_id, auth_asym_id);
+    if (!chain?.obj?.data) {
+        console.error(`${auth_asym_id} data not loaded properly`);
+        return;
+    }
+
+    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
+    const update = ctx.ctx.build();
+    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
+
+    const selection = group.apply(
+        StateTransforms.Model.StructureSelectionFromExpression,
+        {
+            label: `${auth_asym_id}_selection`,
+            expression: expr
+        },
+        {ref: `${auth_asym_id}_selection`}
+    );
+
+    // Ball and stick representation
+    selection.apply(
+        StateTransforms.Representation.StructureRepresentation3D,
+        createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+            type: 'ball-and-stick',
+            color: 'uniform',
+            colorParams: {
+                value: Color(color)
+            },
+            typeParams: {
+                ignoreLight: true,
+                sizeFactor: 0.25
+            }
+        }),
+        {ref: `${auth_asym_id}_repr`}
+    );
+
+    // Add label representation if enabled
+    if (showLabels) {
+        selection.apply(
+            StateTransforms.Representation.StructureRepresentation3D,
+            createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+                type: 'label',
+                color: 'uniform',
+                colorParams: {
+                    value: Color(color)
+                },
+                typeParams: {
+                    level            : labelParams.level,
+                    attachment       : labelParams.attachment,
+                    borderColor      : Color(0x000000),
+                    backgroundOpacity: 0.5,
+                    offsetX          : labelParams.offsetX,
+                    offsetY          : labelParams.offsetY
+                },
+                size: 'uniform',
+            }),
+            {ref: `${auth_asym_id}_label`}
+        );
+    }
+
+    await PluginCommands.State.Update(ctx.ctx, {
+        state: ctx.ctx.state.data,
+        tree: update
+    });
+
+    console.log(`${auth_asym_id} cluster created successfully`);
 }
