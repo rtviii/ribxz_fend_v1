@@ -8,18 +8,17 @@ import {QueryContext} from 'molstar/lib/mol-model/structure';
 import {StructureSelection} from 'molstar/lib/mol-model/structure';
 
 const categoryColors = {
-    Aminoglycosides : '#E8916B',   
-    Aminocyclitols  : '#D4775E',   
-    Fluoroquinolones: '#5C6BC0',   
-    Macrolides      : '#00BCD4',   
-    Ketolides       : '#00ACC1',   
-    Lincosamides    : '#0288D1',   
-    Streptogramins  : '#FF8A65',   
-    Pleuromutilins  : '#2E7D32',   
-    Oxazolidinones  : '#FFB74D',   
-    Tetracyclines   : '#2E7D32'    
+    Aminoglycosides: '#E8916B',
+    Aminocyclitols: '#D4775E',
+    Fluoroquinolones: '#5C6BC0',
+    Macrolides: '#00BCD4',
+    Ketolides: '#00ACC1',
+    Lincosamides: '#0288D1',
+    Streptogramins: '#FF8A65',
+    Pleuromutilins: '#2E7D32',
+    Oxazolidinones: '#FFB74D',
+    Tetracyclines: '#2E7D32'
 };
-
 
 const CategoryLabel: React.FC<{text: string; count: number; color: string}> = ({text, count, color}) => {
     return (
@@ -50,7 +49,6 @@ const LigandItem: React.FC<{
     purported_7K00_binding_site: Array<[string, number]>;
     ctx: MolstarDemoBsites;
 }> = ({chemicalId, chemicalName, color, purported_7K00_binding_site, ctx}) => {
-    
     const createResidueExpression = useCallback(() => {
         const groups = purported_7K00_binding_site.map(([chain, residue]) =>
             MS.struct.generator.atomGroups({
@@ -58,7 +56,7 @@ const LigandItem: React.FC<{
                 'residue-test': MS.core.rel.eq([MS.struct.atomProperty.macromolecular.auth_seq_id(), residue])
             })
         );
-        
+
         return MS.struct.combinator.merge(groups);
     }, [purported_7K00_binding_site]);
 
@@ -66,7 +64,7 @@ const LigandItem: React.FC<{
         if (!ctx?.ctx.managers.structure.hierarchy.current.structures[0]) return;
         const data = ctx.ctx.managers.structure.hierarchy.current.structures[0].cell.obj?.data;
         if (!data) return;
-        
+
         const expr = createResidueExpression();
         const compiled = compile<StructureSelection>(expr)(new QueryContext(data));
         return StructureSelection.toLociWithSourceUnits(compiled);
@@ -74,11 +72,11 @@ const LigandItem: React.FC<{
 
     const handleMouseEnter = useCallback(() => {
         if (!ctx || purported_7K00_binding_site.length === 0) return;
-        
+
         const loci = getLociFromExpression();
         if (!loci) return;
-        
-        ctx.ctx.managers.interactivity.lociHighlights.highlightOnly({ loci });
+
+        ctx.ctx.managers.interactivity.lociHighlights.highlightOnly({loci});
     }, [ctx, purported_7K00_binding_site, getLociFromExpression]);
 
     const handleMouseLeave = useCallback(() => {
@@ -88,14 +86,14 @@ const LigandItem: React.FC<{
 
     const handleClick = useCallback(() => {
         if (!ctx || purported_7K00_binding_site.length === 0) return;
-        
+
         const loci = getLociFromExpression();
         if (!loci) return;
 
         // Clear existing selection and add new one
         ctx.ctx.managers.structure.selection.clear();
         ctx.ctx.managers.structure.selection.fromLoci('add', loci);
-        
+
         // Focus camera on selection
         ctx.ctx.managers.camera.focusLoci(loci);
     }, [ctx, purported_7K00_binding_site, getLociFromExpression]);
@@ -120,7 +118,7 @@ const LigandItem: React.FC<{
 
 const LigandCategoryViewer: React.FC<{data: Record<string, any>; ctx: MolstarDemoBsites}> = ({data, ctx}) => {
     const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
-    
+
     const toggleCategory = (category: string) => {
         const newOpen = new Set(openCategories);
         if (newOpen.has(category)) {
@@ -132,7 +130,7 @@ const LigandCategoryViewer: React.FC<{data: Record<string, any>; ctx: MolstarDem
     };
 
     return (
- <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col">
             <div className="flex-1 overflow-y-auto overflow-x-hidden">
                 {Object.entries(data).map(([category, categoryData]) => {
                     if (category === 'Other' || category === 'Aminoglycosides') return null;
