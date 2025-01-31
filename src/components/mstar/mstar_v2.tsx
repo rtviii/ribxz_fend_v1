@@ -119,8 +119,6 @@ export class ribxzMstarv2 {
 
         ptc: (xyz: number[]) => {
             let [x, y, z] = xyz;
-            console.log(x, y, z);
-
             let sphere = {
                 x: x,
                 y: y,
@@ -138,7 +136,6 @@ export class ribxzMstarv2 {
                 colorParams: {value: Color(0x0000ff)} // Blue color
             });
 
-            console.log('ptc site added');
         },
 
         constriction_site: (xyz: number[]) => {
@@ -218,8 +215,8 @@ export class ribxzMstarv2 {
                 {state: {isGhost: true}}
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model      = await this.ctx.builders.structure.createModel(trajectory);
-            const structure  = await this.ctx.builders.structure.createStructure(model);
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
             return structure;
         },
         upload_mmcif_nonpolymer: async (rcsb_id: string, chemicalId: string) => {
@@ -228,44 +225,41 @@ export class ribxzMstarv2 {
                 {url: Asset.Url(myUrl.toString()), isBinary: false},
                 {state: {isGhost: true}}
             );
-            const trajectory   = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
-            const model        = await this.ctx.builders.structure.createModel(trajectory);
-            const structure    = await this.ctx.builders.structure.createStructure(model);
-            const ligand_color = 0x00FF00
+            const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
+            const ligand_color = 0x00ff00;
+
+            await this.ctx.builders.structure.representation.addRepresentation(structure, {
+                color: 'uniform',
+
+                colorParams: {
+                    value: Color(ligand_color)
+                },
+                typeParams: {
+                    emissive: 0.2,
+                    sizeFactor: 0.6,
+                    sizeAspectRatio: 0.8
+                },
+
+                type: 'ball-and-stick',
+                size: 'uniform',
+                sizeParams: {}
+            });
 
             await this.ctx.builders.structure.representation.addRepresentation(
                 structure,
                 {
                     color: 'uniform',
-
-                    colorParams: {
-                        value: Color(ligand_color)
-                    },
-                    typeParams: {
-                        emissive       : 0.2,
-                        sizeFactor     : 0.6,
-                        sizeAspectRatio: 0.8,
-                    },
-
-                    type: 'ball-and-stick',
-                    size: 'uniform',
-                    sizeParams: {}
-                },
-            );
-
-            await this.ctx.builders.structure.representation.addRepresentation(
-                structure,
-                {
-                    color      : 'uniform',
                     colorParams: {value: `${ligand_color}`},
-                    type       : 'label',
-                    typeParams : {
-                        attachment     : 'bottom-left',
-                        level          : 'residue',
-                        tether         : true,
-                        tetherBaseWidth: 1.5,
-                        tetherLength   : 5,
-                        borderColor    : Color(0x000000)
+                    type: 'label',
+                    typeParams: {
+                        attachment: 'top-left',
+                        level: 'residue',
+                        tether: true,
+                        tetherBaseWidth: 1,
+                        tetherLength: 2.5,
+                        borderColor: Color(0x000000)
                     },
                     size: 'uniform',
                     sizeParams: {value: 10}
@@ -286,10 +280,10 @@ export class ribxzMstarv2 {
                 auth_seq_id: number;
             }[]
         ) => {
-            const expr      = this.residues.residue_cluster_expression(chain_residue_tuples);
+            const expr = this.residues.residue_cluster_expression(chain_residue_tuples);
             const data: any = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
-            const sel       = Script.getStructureSelection(expr, data);
-            let   loci      = StructureSelection.toLociWithSourceUnits(sel);
+            const sel = Script.getStructureSelection(expr, data);
+            let loci = StructureSelection.toLociWithSourceUnits(sel);
             this.ctx.managers.structure.selection.clear();
             this.ctx.managers.structure.selection.fromLoci('add', loci);
             this.ctx.managers.camera.focusLoci(loci);
@@ -1322,7 +1316,7 @@ export class ribxzMstarv2 {
         });
         return this;
     }
-    tunnel_geometry = async (rcsb_id: string, transparency: number = 0.5): Promise<Loci> => {
+    tunnel_geometry = async (rcsb_id: string, transparency: number = 0.6): Promise<Loci> => {
         // 1. Get provider and fetch data
         const provider = this.ctx.dataFormats.get('ply')!;
         const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
@@ -1385,6 +1379,9 @@ export async function createChainRangeVisualization(
         color: number;
         label?: string;
         showLabels?: boolean;
+        emissive?: number;
+        representation?: 'cartoon' | 'ball-and-stick';
+        point_representation?: boolean;
         labelParams?: {
             level?: 'residue' | 'chain';
             fontSize?: number;
@@ -1402,6 +1399,9 @@ export async function createChainRangeVisualization(
         color,
         label = `${auth_asym_id} cluster`,
         showLabels = false,
+        emissive = 0,
+        representation,
+        point_representation = false,
         labelParams = {
             level: 'chain',
             attachment: 'bottom-left',
@@ -1420,10 +1420,9 @@ export async function createChainRangeVisualization(
         return;
     }
 
-    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
-    const update = ctx.ctx.build();
-    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
-
+    const expr      = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
+    const update    = ctx.ctx.build();
+    const group     = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
     const selection = group.apply(
         StateTransforms.Model.StructureSelectionFromExpression,
         {
@@ -1433,22 +1432,41 @@ export async function createChainRangeVisualization(
         {ref: `${auth_asym_id}_selection`}
     );
 
-    // Ball and stick representation
-    selection.apply(
-        StateTransforms.Representation.StructureRepresentation3D,
-        createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
-            type: 'ball-and-stick',
-            color: 'uniform',
-            colorParams: {
-                value: Color(color)
-            },
-            typeParams: {
-                ignoreLight: true,
-                sizeFactor: 0.25
-            }
-        }),
-        {ref: `${auth_asym_id}_repr`}
-    );
+    if (!point_representation) {
+        selection.apply(
+            StateTransforms.Representation.StructureRepresentation3D,
+            createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+                type: representation,
+                color: 'uniform',
+                colorParams: {
+                    value: Color(color)
+                },
+                typeParams: {
+                    emissive: emissive,
+                    ignoreLight: true,
+                    sizeFactor: 0.25
+                }
+            }),
+            {ref: `${auth_asym_id}_repr`}
+        );
+    } else {
+        selection.apply(
+            StateTransforms.Representation.StructureRepresentation3D,
+            createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+                type: 'point',
+                color: 'uniform',
+                colorParams: {
+                    value: Color(color)
+                },
+                typeParams: {
+                    emissive: 0.2,
+                    pointStyle: 'circle',
+                    sizeFactor: 4
+                }
+            }),
+            {ref: `${auth_asym_id}_repr`}
+        );
+    }
 
     // Add label representation if enabled
     if (showLabels) {
@@ -1461,14 +1479,14 @@ export async function createChainRangeVisualization(
                     value: Color(color)
                 },
                 typeParams: {
-                    level            : labelParams.level,
-                    attachment       : labelParams.attachment,
-                    borderColor      : Color(0x000000),
+                    level: labelParams.level,
+                    attachment: labelParams.attachment,
+                    borderColor: Color(0x000000),
                     backgroundOpacity: 0.5,
-                    offsetX          : labelParams.offsetX,
-                    offsetY          : labelParams.offsetY
+                    offsetX: labelParams.offsetX,
+                    offsetY: labelParams.offsetY
                 },
-                size: 'uniform',
+                size: 'uniform'
             }),
             {ref: `${auth_asym_id}_label`}
         );

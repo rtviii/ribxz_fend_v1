@@ -31,8 +31,6 @@ const range = (start: number, end: number): number[] => {
     return Array.from({length: end - start + 1}, (_, i) => start + i);
 };
 
-
-
 export const TunnelDemo = () => {
     const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
     const rcsb_id = '4UG0';
@@ -83,29 +81,41 @@ export const TunnelDemo = () => {
             try {
                 await createChainRangeVisualization(ctx, {
                     rcsb_id: rcsb_id,
+                    auth_asym_id: 'Ll',
+                    range_start: 20,
+                    range_end: 42,
+                    color: 0xcbc3e3,
+                    label: 'eL39 tail',
+
+                    point_representation:true
+                    // showLabels: true
+                });
+                await createChainRangeVisualization(ctx, {
+                    rcsb_id: rcsb_id,
                     auth_asym_id: 'LP',
                     range_start: 120,
                     range_end: 144,
-                    color: 0xea580c, 
+                    color: 0xea580c,
                     label: 'uL4 tail',
-                    showLabels: true
+                    point_representation:true
+                    // showLabels: true
                 });
                 await createChainRangeVisualization(ctx, {
                     rcsb_id: rcsb_id,
                     auth_asym_id: 'LC',
                     range_start: 57,
                     range_end: 103,
-                    color: 0x93c5fd, 
-                    label: 'uL22 tail', 
-                    showLabels: true
+                    color: 0x93c5fd,
+                    label: 'uL22 tail',
+                    point_representation:true
+                    // showLabels: true
                 });
             } catch (error) {
                 console.error('Error creating residue clusters:', error);
             }
 
-            ctx.tunnel_geometry(rcsb_id);
+            ctx.tunnel_geometry(rcsb_id,1);
             ctx.toggleSpin();
-            // Camera and tunnel setup
 
             if (ctx.ctx) {
                 const snapshot = ctx.ctx.canvas3d?.camera.getSnapshot();
@@ -126,8 +136,8 @@ export const TunnelDemo = () => {
     }, [ctx, rcsb_id]);
 
     return (
-        <Card className="w-1/3 h-80 rounded-md p-2 shadow-inner">
+  <div className="h-full">
             <MolstarNode ref={molstarNodeRef} />
-        </Card>
+  </div>
     );
 };

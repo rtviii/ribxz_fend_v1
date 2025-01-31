@@ -224,13 +224,9 @@ export const BsiteDemo = () => {
                 }
             });
 
-            await ctx.ctx.builders.structure.representation.applyPreset(
-                structure.ref,
-                'composite-bsites-preset',
-                {
-                    processedData: ligands_data
-                }
-            );
+            await ctx.ctx.builders.structure.representation.applyPreset(structure.ref, 'composite-bsites-preset', {
+                processedData: ligands_data
+            });
 
             ctx.representations.stylized_lighting();
             ctx?.toggleSpin(0.2);
@@ -238,17 +234,17 @@ export const BsiteDemo = () => {
     }, [ctx, structure_data, ligands_data]);
 
     return (
-        <Card className="flex-1 h-[32rem] rounded-md shadow-inner">
-            <div className="w-full h-full flex">
+        <div className="bg-slate-100 rounded-md shadow-inner p-4">
+            <div className="flex gap-4 h-[32rem]">
                 {ligands_data && (
-                    <div className="h-full border-r">
+                    <div className="w-96 bg-white rounded-md p-2 shadow-sm">
                         <LigandCategoryViewer ctx={ctx!} data={ligands_data} />
                     </div>
                 )}
-                <div className="flex-1">
+                <div className="flex-1 bg-white rounded-md p-2 shadow-sm">
                     <MolstarNode ref={molstarNodeRef} />
                 </div>
             </div>
-        </Card>
+        </div>
     );
 };

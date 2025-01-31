@@ -132,7 +132,7 @@ const LigandCategoryViewer: React.FC<{data: Record<string, any>; ctx: MolstarDem
     };
 
     return (
-        <div className="w-64 h-full overflow-hidden flex flex-col border rounded-md">
+ <div className="h-full flex flex-col">
             <div className="flex-1 overflow-y-auto overflow-x-hidden">
                 {Object.entries(data).map(([category, categoryData]) => {
                     if (category === 'Other' || category === 'Aminoglycosides') return null;
@@ -144,19 +144,19 @@ const LigandCategoryViewer: React.FC<{data: Record<string, any>; ctx: MolstarDem
                         <div key={category} className="border-b border-gray-200 last:border-b-0">
                             <div
                                 className={cn(
-                                    'flex items-center px-2 py-1 hover:cursor-pointer hover:bg-gray-50 transition-colors',
+                                    'flex items-center px-3 py-2 hover:cursor-pointer hover:bg-gray-50 transition-colors',
                                     'hover:border-l-4 hover:border-l-slate-400'
                                 )}
                                 onClick={() => toggleCategory(category)}>
                                 {isOpen ? (
-                                    <ChevronDown size={14} className="shrink-0 mr-1 text-gray-400" />
+                                    <ChevronDown size={16} className="shrink-0 mr-2 text-gray-400" />
                                 ) : (
-                                    <ChevronRight size={14} className="shrink-0 mr-1 text-gray-400" />
+                                    <ChevronRight size={16} className="shrink-0 mr-2 text-gray-400" />
                                 )}
                                 <CategoryLabel text={category} count={categoryData.items.length} color={color} />
                             </div>
                             {isOpen && (
-                                <div className="pl-7">
+                                <div className="pl-8 py-1">
                                     {categoryData.items.map(ligand => (
                                         <LigandItem
                                             key={ligand.chemicalId}

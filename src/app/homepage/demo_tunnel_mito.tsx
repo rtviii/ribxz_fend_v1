@@ -78,17 +78,26 @@ export const TunnelDemoMito = () => {
     useEffect(() => {
         (async () => {
             if (!ctx) return;
-
-            // ul4m  = F3 120 150
-            // ul22 = T3 150 170
             try {
+                await createChainRangeVisualization(ctx, {
+                    rcsb_id: rcsb_id,
+                    auth_asym_id: 'Y2',
+                    range_start: 0,
+                    range_end: 200,
+                    color: 0x006fb1,
+                    label: 'nascent chain', // Still optional
+                    representation: 'ball-and-stick',
+                    emissive: 0.4
+                });
                 await createChainRangeVisualization(ctx, {
                     rcsb_id: rcsb_id,
                     auth_asym_id: 'F3',
                     range_start: 120,
                     range_end: 150,
                     color: 0x93c5fd, // Now required
-                    label: 'uL4m tail' // Still optional
+                    label: 'uL4m tail', // Still optional
+
+                    point_representation: true
                 });
                 await createChainRangeVisualization(ctx, {
                     rcsb_id: rcsb_id,
@@ -96,13 +105,33 @@ export const TunnelDemoMito = () => {
                     range_start: 150,
                     range_end: 170,
                     color: 0xea580c, // Now required
-                    label: 'uL22m tail' // Still optional
+                    label: 'uL22m tail', // Still optional
+                    point_representation: true
+                });
+                await createChainRangeVisualization(ctx, {
+                    rcsb_id: rcsb_id,
+                    auth_asym_id: 'U3',
+                    range_start: 74,
+                    range_end: 90,
+                    color: 0xfacc15, // Now required
+                    label: 'uL23m tail', // Still optional
+
+                    point_representation: true
+                });
+                await createChainRangeVisualization(ctx, {
+                    rcsb_id: rcsb_id,
+                    auth_asym_id: 'V3',
+                    range_start: 15,
+                    range_end: 46,
+                    color: 0xfacc15,
+                    label: 'uL22m tail',
+                    point_representation: true
                 });
             } catch (error) {
                 console.error('Error creating residue clusters:', error);
             }
 
-            await ctx.tunnel_geometry(rcsb_id);
+            await ctx.tunnel_geometry(rcsb_id, 0.8);
             ctx.toggleSpin();
             setTimeout(() => {
                 if (ctx.ctx?.canvas3d?.camera) {
@@ -113,8 +142,8 @@ export const TunnelDemoMito = () => {
     }, [ctx, rcsb_id]);
 
     return (
-        <Card className="w-1/3 h-80 rounded-md p-2 shadow-inner">
+        <div className="h-full">
             <MolstarNode ref={molstarNodeRef} />
-        </Card>
+        </div>
     );
 };

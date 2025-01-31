@@ -23,11 +23,9 @@ const range = (start: number, end: number): number[] => {
     return Array.from({length: end - start + 1}, (_, i) => start + i);
 };
 
-
-
 export const TunnelDemoBacterial = () => {
-    const [ctx, setCtx]  = useState<ribxzMstarv2 | null>(null);
-    const rcsb_id        = '3J7Z';
+    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
+    const rcsb_id = '3J7Z';
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
     // !Autoload structure
@@ -76,38 +74,42 @@ export const TunnelDemoBacterial = () => {
                 // ul4  = E
                 // ul22 = S
                 await createChainRangeVisualization(ctx, {
-                    rcsb_id     : rcsb_id,
+                    rcsb_id: rcsb_id,
                     auth_asym_id: 'E',
-                    range_start : 55,
-                    range_end   : 78,
-                    color       : 0x93c5fd,   // Now required
-                    label       : 'uL4 tail'   // Still optional
+                    range_start: 55,
+                    range_end: 78,
+                    color: 0x93c5fd, // Now required
+                    label: 'uL4 tail', // Still optional
+                    point_representation: true
                 });
                 await createChainRangeVisualization(ctx, {
                     rcsb_id: rcsb_id,
                     auth_asym_id: 'S',
                     range_start: 80,
                     range_end: 100,
-                    color: 0xea580c, 
-                    label: 'uL22 tail'
+                    color: 0xea580c,
+                    label: 'uL22 tail',
+                    point_representation: true
                 });
+                // uL23
                 await createChainRangeVisualization(ctx, {
-                    rcsb_id: rcsb_id,
-                    auth_asym_id: 'a',
-                    range_start: 3,
-                    range_end: 9,
-                    color: 0xea580c, 
-                    label: 'Nascent Chain'
+                    rcsb_id             : rcsb_id,
+                    auth_asym_id        : 'T',
+                    range_start         : 60,
+                    range_end           : 80,
+                    color               : 0xfbbf24,
+                    label               : 'uL23 tail',
+                    point_representation: true
                 });
             } catch (error) {
                 console.error('Error creating residue clusters:', error);
             }
 
-            ctx.components.upload_mmcif_nonpolymer(rcsb_id,'ERY');
-            ctx.tunnel_geometry(rcsb_id);
+            ctx.components.upload_mmcif_nonpolymer(rcsb_id, 'ERY');
+            ctx.tunnel_geometry(rcsb_id, 0.8);
 
             ctx.toggleSpin();
-            ctx.ligands.create_ligand(rcsb_id,'ERY')
+            ctx.ligands.create_ligand(rcsb_id, 'ERY');
             // Camera and tunnel setup
 
             // if (ctx.ctx) {
@@ -117,7 +119,7 @@ export const TunnelDemoBacterial = () => {
             //             ...snapshot,
             //             up: Vec3.create(-1, 0, 0)
             //         };
-            //         ctx.ctx.canvas3d?.camera.setState(newSnapshot, 300);
+            //         ctx.ctx.canvas3d?.camera.setState(newSnapshot, 500);
             //     }
             // }
             setTimeout(() => {
@@ -129,8 +131,8 @@ export const TunnelDemoBacterial = () => {
     }, [ctx, rcsb_id]);
 
     return (
-        <Card className="w-1/3 h-80 rounded-md p-2 shadow-inner">
+  <div className="h-full">
             <MolstarNode ref={molstarNodeRef} />
-        </Card>
+        </div>
     );
 };
