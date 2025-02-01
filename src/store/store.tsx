@@ -14,6 +14,7 @@ import {HomepageSlice, set_tax_dict} from './slices/slice_homepage';
 import {handleReferencesSlice} from './molstar/slice_refs';
 import {sequenceViewerSlice} from './molstar/slice_seq_viewer';
 import {polymerStatesSlice} from './slices/slice_polymer_states';
+import { bsite_demo_slice } from '@/app/homepage/demo_bsite_slice';
 
 export const makeStore = () => {
 
@@ -30,7 +31,8 @@ export const makeStore = () => {
             homepage                   : HomepageSlice.reducer,
             mstar_refs                 : handleReferencesSlice.reducer,
             sequenceViewer             : sequenceViewerSlice.reducer,
-            polymer_states             : polymerStatesSlice.reducer
+            polymer_states             : polymerStatesSlice.reducer,
+            bsites_demo                : bsite_demo_slice.reducer,
             // mstar_seq_viewer           : sequenceViewerSlice.reducer,
         },
 

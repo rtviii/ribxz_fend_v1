@@ -1,10 +1,10 @@
-import { InputNumber, TreeSelect } from 'antd';
-import { useAppDispatch, useAppSelector } from '@/store/store';
-import { LigandInstances, set_current_ligand, set_ligands_radius } from '@/store/slices/slice_ligands';
-import { capitalize_only_first_letter_w } from '@/my_utils';
-import { useState } from 'react';
+import {InputNumber, TreeSelect} from 'antd';
+import {useAppDispatch, useAppSelector} from '@/store/store';
+import {LigandInstances, set_current_ligand, set_ligands_radius} from '@/store/slices/slice_ligands';
+import {capitalize_only_first_letter_w} from '@/my_utils';
+import {useState} from 'react';
 
-export default function LigandSelection()  {
+export default function LigandSelection() {
     const lig_data_to_tree = (lig_data: LigandInstances) => {
         return lig_data.map(([lig, structs]) => ({
             key: lig.chemicalId,
@@ -32,7 +32,7 @@ export default function LigandSelection()  {
                 lig.chemicalId +
                 structs.reduce((acc: string, next) => acc + next.rcsb_id + next.tax_node.scientific_name, '')
             ).toLowerCase(),
-            children: structs.map((struct, index) => ({
+           children: structs.map((struct, index) => ({
                 search_aggregator: (
                     lig.chemicalName +
                     lig.chemicalId +
@@ -59,27 +59,26 @@ export default function LigandSelection()  {
             }))
         }));
     };
-    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
-    const lig_state = useAppSelector(state => state.ligands_page);
-
+    const current_ligand              = useAppSelector(state => state.ligands_page.current_ligand);
+    const lig_state                   = useAppSelector(state => state.ligands_page);
     const [radChanged, setRadChanged] = useState(false);
-    const dispatch = useAppDispatch();
+
+    const dispatch                    = useAppDispatch();
+
     return (
         <div className="flex flex-row space-x-4">
             <TreeSelect
-                status={current_ligand === null ? 'warning' : undefined}
-                showSearch={true}
-                treeNodeFilterProp="search_aggregator" // Changed from 'search_front' to 'title'
-                placeholder="Select ligand-structure pair..."
-                variant="outlined"
-                treeData={lig_data_to_tree(lig_state.data)}
-                className="w-full"
-                treeExpandAction="click"
-                showCheckedStrategy="SHOW_CHILD"
-                filterTreeNode={(input, treenode) => {
-                    return (treenode.search_aggregator as string).includes(input.toLowerCase());
-                }}
-                onChange={(value: string, _) => {
+                status              = {current_ligand === null ? 'warning' : undefined}
+                showSearch          = {true}
+                treeNodeFilterProp  = "search_aggregator"
+                placeholder         = "Select ligand-structure pair..."
+                variant             = "outlined"
+                treeData            = {lig_data_to_tree(lig_state.data)}
+                className           = "w-full"
+                treeExpandAction    = "click"
+                showCheckedStrategy = "SHOW_CHILD"
+                filterTreeNode      = {(input, treenode) => { return (treenode.search_aggregator as string).includes(input.toLowerCase()); }}
+                onChange            = {(value: string, _) => {
                     var [chemId, rcsb_id_selected] = value.split('_');
                     const lig_and_its_structs = lig_state.data.filter(kvp => {
                         var [lig, structs] = kvp;
@@ -94,30 +93,6 @@ export default function LigandSelection()  {
                     );
                 }}
             />
-            <InputNumber
-                addonAfter="Å"
-                className={`w-[30%] ${
-                    radChanged
-                        ? ' outline-green-200 shadow-md shadow-green-400   rounded-md transition-all duration-200'
-                        : null
-                }`}
-                max={20}
-                min={2}
-                placeholder="Radius"
-                value={lig_state.radius}
-                onChange={v => {
-                    if (v === null) {
-                        return;
-                    }
-                    {
-                        dispatch(set_ligands_radius(v));
-                        setRadChanged(true);
-                    }
-                }}
-            />
         </div>
     );
-};
-
-
-
+}

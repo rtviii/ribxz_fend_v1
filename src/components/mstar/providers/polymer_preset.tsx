@@ -293,7 +293,7 @@ function getResidueSequence(component: StateObjectSelector, chainId: string, rcs
     }
     return sequence;
 }
-export const chainSelectionPreset = StructureRepresentationPresetProvider({
+export const SplitPolymerPreset = StructureRepresentationPresetProvider({
     id: 'polymers-ligand-ribxz-theme',
     display: {
         name: 'Split Components',

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {cn} from '@/components/utils';
 import {Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch} from 'lucide-react';
@@ -14,26 +14,24 @@ import {selectPolymerStateByAuthId} from '@/store/slices/slice_polymer_states';
 import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/colorscheme_warm';
 import {getContrastColor} from '@/my_utils';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
-import { useMolstarInstance } from '@/components/mstar/mstar_service';
+import {useMolstarInstance} from '@/components/mstar/mstar_service';
 
 export type ResidueData = [string, number];
 
 const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
- const polyComponent = useAppSelector(state => 
+    const polyComponent = useAppSelector(state =>
         selectComponentById(state, {
             instanceId: 'main',
             componentId: polymer.auth_asym_id
         })
     ) as PolymerComponent;
-    
-    const polymerState = useAppSelector(state => 
-        selectPolymerStateByAuthId(state, polymer.auth_asym_id)
-    );
-    
-    const service                      = useMolstarInstance('main');
+
+    const polymerState = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
+
+    const service = useMolstarInstance('main');
     const ctx = service?.viewer;
     const msc = service?.controller;
-    const onToggleVisibility           = (e: React.MouseEvent) => {
+    const onToggleVisibility = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
             msc?.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState.visible);
@@ -63,9 +61,9 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
         ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
     };
 
-    const color            = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
-    const hexcol           = Color.toHexStyle(color);
-    const textColor        = getContrastColor(hexcol);
+    const color = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
+    const hexcol = Color.toHexStyle(color);
+    const textColor = getContrastColor(hexcol);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200';
 
     return (
@@ -81,14 +79,19 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
                 )}>
                 <div className="flex items-center space-x-2">
                     <div
-                        style={{
-                            backgroundColor: hexcol,
-                            color: textColor
-                        }}
                         className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors`}>
-                        {polymer.nomenclature.length > 0 ? polymer.nomenclature[0] : polymer.auth_asym_id}
+                        {polymer.auth_asym_id}
                     </div>
-                    {/* {polymer.auth_asym_id} */}
+                    {polymer.nomenclature.length > 0 ? (
+                        <div
+                            style={{
+                                backgroundColor: hexcol,
+                                color: textColor
+                            }}
+                            className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors`}>
+                            {polymer.nomenclature[0]}
+                        </div>
+                    ) : null}
                 </div>
 
                 <div className="flex items-center space-x-2" onClick={e => e.stopPropagation()}>
