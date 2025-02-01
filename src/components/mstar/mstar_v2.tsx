@@ -47,16 +47,6 @@ export interface HoverEventDetail {
     chainId?: string;
     structureId?: string;
 }
-// How should the objects be stored? What kind of selections and operations do we like to make a lot?
-
-// - toggle/ select/highligh/focus/get nbhd for objects
-// object:
-// atom?
-// - residue
-// - ligand
-// - chain
-// - collections thereof
-// manipulate
 
 declare global {
     interface Window {
@@ -126,44 +116,50 @@ export class ribxzMstarv2 {
                 colorParams: {value: Color(0x000000)} // Black color
             });
         },
-        tunnel_geometry: async (rcsb_id: string): Promise<Loci> => {
-            const provider = this.ctx.dataFormats.get('ply')!;
-            const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
-            const data = await this.ctx.builders.data.download({
-                url: Asset.Url(myurl.toString()),
-                isBinary: false
-            });
-            const parsed = await provider!.parse(this.ctx, data!);
 
-            if (provider.visuals) {
-                const visual = await provider.visuals!(this.ctx, parsed);
-                const shape_ref = visual.ref;
-                const meshObject = this.ctx.state.data.select(shape_ref)[0];
-                const shape_loci = await meshObject.obj.data.repr.getAllLoci();
-                return shape_loci;
-            } else {
-                throw Error('provider.visuals is undefined for this `ply` data format');
-            }
-        },
-        ptc: async (xyz: number[]) => {
+        ptc: (xyz: number[]) => {
             let [x, y, z] = xyz;
-            let sphere = {x: x, y: y, z: z, radius: 2, color: 'blue'};
+            let sphere = {
+                x: x,
+                y: y,
+                z: z,
+                radius: 2,
+                label: 'PTC', // Add custom label
+                selectable: true // Make it selectable
+            };
+
             const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: sphere.color ? {value: Color(0xffffff)} : void 0
+                colorParams: {value: Color(0x0000ff)} // Blue color
             });
+
         },
+
         constriction_site: (xyz: number[]) => {
             let [x, y, z] = xyz;
-            let sphere = {x: x, y: y, z: z, radius: 2, color: 'red'};
+            console.log(x, y, z);
+
+            let sphere = {
+                x: x,
+                y: y,
+                z: z,
+                radius: 2,
+                label: 'Constriction Site', // Add custom label
+                selectable: true // Make it selectable
+            };
+
             const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: sphere.color ? {value: Color(0xffffff)} : void 0
+                colorParams: {value: Color(0xff0000)} // Red color
             });
+
+            console.log('Constriction site added');
         }
     };
 
@@ -221,6 +217,58 @@ export class ribxzMstarv2 {
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
             const model = await this.ctx.builders.structure.createModel(trajectory);
             const structure = await this.ctx.builders.structure.createStructure(model);
+            return structure;
+        },
+        upload_mmcif_nonpolymer: async (rcsb_id: string, chemicalId: string) => {
+            const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/nonpolymer?rcsb_id=${rcsb_id}&chemicalId=${chemicalId}`;
+            const data = await this.ctx.builders.data.download(
+                {url: Asset.Url(myUrl.toString()), isBinary: false},
+                {state: {isGhost: true}}
+            );
+            const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
+            const model = await this.ctx.builders.structure.createModel(trajectory);
+            const structure = await this.ctx.builders.structure.createStructure(model);
+            const ligand_color = 0x00ff00;
+
+            await this.ctx.builders.structure.representation.addRepresentation(structure, {
+                color: 'uniform',
+
+                colorParams: {
+                    value: Color(ligand_color)
+                },
+                typeParams: {
+                    emissive: 0.2,
+                    sizeFactor: 0.6,
+                    sizeAspectRatio: 0.8
+                },
+
+                type: 'ball-and-stick',
+                size: 'uniform',
+                sizeParams: {}
+            });
+
+            await this.ctx.builders.structure.representation.addRepresentation(
+                structure,
+                {
+                    color: 'uniform',
+                    colorParams: {value: `${ligand_color}`},
+                    type: 'label',
+                    typeParams: {
+                        attachment: 'top-left',
+                        level: 'residue',
+                        tether: true,
+                        tetherBaseWidth: 1,
+                        tetherLength: 2.5,
+                        borderColor: Color(0x000000)
+                    },
+                    size: 'uniform',
+                    sizeParams: {value: 10}
+                },
+                {tag: `${chemicalId}_`} // tag is optional, but useful for later reference
+            );
+
+            console.log('Created non-polymer structure', structure);
+
             return structure;
         }
     };
@@ -1268,8 +1316,8 @@ export class ribxzMstarv2 {
         });
         return this;
     }
-
-    tunnel_geometry = async (rcsb_id: string): Promise<Loci> => {
+    tunnel_geometry = async (rcsb_id: string, transparency: number = 0.6): Promise<Loci> => {
+        // 1. Get provider and fetch data
         const provider = this.ctx.dataFormats.get('ply')!;
         const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
         const data = await this.ctx.builders.data.download({
@@ -1278,14 +1326,176 @@ export class ribxzMstarv2 {
         });
         const parsed = await provider!.parse(this.ctx, data!);
 
-        if (provider.visuals) {
-            const visual = await provider.visuals!(this.ctx, parsed);
-            const shape_ref = visual.ref;
-            const meshObject = this.ctx.state.data.select(shape_ref)[0];
-            const shape_loci = await meshObject.obj.data.repr.getAllLoci();
-            return shape_loci;
-        } else {
+        if (!provider.visuals) {
             throw Error('provider.visuals is undefined for this `ply` data format');
         }
+
+        // 2. Create the visual and wait for state update to complete
+        const visual = await provider.visuals!(this.ctx, parsed);
+        const update1 = this.ctx.build();
+
+        // 3. Get ref for created visual and ensure it exists in state
+        const shape_ref = visual.ref;
+        await PluginCommands.State.Update(this.ctx, {
+            state: this.ctx.state.data,
+            tree: update1
+        });
+
+        // 4. Now that state is updated, we can select and modify
+        const meshObject = this.ctx.state.data.select(shape_ref)[0];
+        if (!meshObject?.obj?.data) {
+            throw Error('Failed to find mesh object in state');
+        }
+
+        const params = {
+            alpha: transparency, // Try direct param modification
+            material: {
+                transparency: true,
+                opacity: transparency
+            }
+        };
+
+        const update2 = this.ctx.build();
+        update2.to(meshObject).update(params);
+
+        await PluginCommands.State.Update(this.ctx, {
+            state: this.ctx.state.data,
+            tree: update2
+        });
+
+        // 7. Get loci after all updates complete
+        const shape_loci = await meshObject.obj.data.repr.getAllLoci();
+        return shape_loci;
     };
+}
+
+export async function createChainRangeVisualization(
+    ctx: ribxzMstarv2,
+    params: {
+        rcsb_id: string;
+        auth_asym_id: string;
+        range_start: number;
+        range_end: number;
+        color: number;
+        label?: string;
+        showLabels?: boolean;
+        emissive?: number;
+        representation?: 'cartoon' | 'ball-and-stick';
+        point_representation?: boolean;
+        labelParams?: {
+            level?: 'residue' | 'chain';
+            fontSize?: number;
+            attachment?: 'bottom-left' | 'top-left' | 'top-right' | 'bottom-right';
+            offsetX?: number;
+            offsetY?: number;
+        };
+    }
+) {
+    const {
+        rcsb_id,
+        auth_asym_id,
+        range_start,
+        range_end,
+        color,
+        label = `${auth_asym_id} cluster`,
+        showLabels = false,
+        emissive = 0,
+        representation,
+        point_representation = false,
+        labelParams = {
+            level: 'chain',
+            attachment: 'bottom-left',
+            offsetX: 0,
+            offsetY: 0
+        }
+    } = params;
+
+    // Generate the range of residues
+    const residues = Array.from({length: range_end - range_start + 1}, (_, i) => range_start + i);
+
+    // Upload the chain
+    const chain = await ctx.components.upload_mmcif_chain(rcsb_id, auth_asym_id);
+    if (!chain?.obj?.data) {
+        console.error(`${auth_asym_id} data not loaded properly`);
+        return;
+    }
+
+    const expr      = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
+    const update    = ctx.ctx.build();
+    const group     = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
+    const selection = group.apply(
+        StateTransforms.Model.StructureSelectionFromExpression,
+        {
+            label: `${auth_asym_id}_selection`,
+            expression: expr
+        },
+        {ref: `${auth_asym_id}_selection`}
+    );
+
+    if (!point_representation) {
+        selection.apply(
+            StateTransforms.Representation.StructureRepresentation3D,
+            createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+                type: representation,
+                color: 'uniform',
+                colorParams: {
+                    value: Color(color)
+                },
+                typeParams: {
+                    emissive: emissive,
+                    ignoreLight: true,
+                    sizeFactor: 0.25
+                }
+            }),
+            {ref: `${auth_asym_id}_repr`}
+        );
+    } else {
+        selection.apply(
+            StateTransforms.Representation.StructureRepresentation3D,
+            createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+                type: 'point',
+                color: 'uniform',
+                colorParams: {
+                    value: Color(color)
+                },
+                typeParams: {
+                    emissive: 0.2,
+                    pointStyle: 'circle',
+                    sizeFactor: 4
+                }
+            }),
+            {ref: `${auth_asym_id}_repr`}
+        );
+    }
+
+    // Add label representation if enabled
+    if (showLabels) {
+        selection.apply(
+            StateTransforms.Representation.StructureRepresentation3D,
+            createStructureRepresentationParams(ctx.ctx, chain.obj.data, {
+                type: 'label',
+                color: 'uniform',
+                colorParams: {
+                    value: Color(color)
+                },
+                typeParams: {
+                    level: labelParams.level,
+                    attachment: labelParams.attachment,
+                    borderColor: Color(0x000000),
+                    backgroundOpacity: 0.5,
+                    offsetX: labelParams.offsetX,
+                    offsetY: labelParams.offsetY
+                },
+                size: 'uniform'
+            }),
+            {ref: `${auth_asym_id}_label`}
+        );
+    }
+
+    await PluginCommands.State.Update(ctx.ctx, {
+        state: ctx.ctx.state.data,
+        tree: update
+    });
+
+    console.log(`${auth_asym_id} cluster created successfully`);
 }

@@ -152,6 +152,15 @@ const injectedRtkApi = api.injectEndpoints({
                 params: {rcsb_id: queryArg.rcsbId, auth_asym_id: queryArg.authAsymId}
             })
         }),
+        routersRouterMmcifNonpolymer: build.query<
+            RoutersRouterMmcifNonpolymerApiResponse,
+            RoutersRouterMmcifNonpolymerApiArg
+        >({
+            query: queryArg => ({
+                url: `/mmcif/nonpolymer`,
+                params: {rcsb_id: queryArg.rcsbId, chemicalId: queryArg.chemicalId}
+            })
+        }),
         routersRouterLigLigNbhd: build.query<RoutersRouterLigLigNbhdApiResponse, RoutersRouterLigLigNbhdApiArg>({
             query: queryArg => ({
                 url: `/ligand/binding_pocket`,
@@ -264,6 +273,11 @@ export type RoutersRouterMmcifPolymerApiResponse = unknown;
 export type RoutersRouterMmcifPolymerApiArg = {
     rcsbId: string;
     authAsymId: string;
+};
+export type RoutersRouterMmcifNonpolymerApiResponse = unknown;
+export type RoutersRouterMmcifNonpolymerApiArg = {
+    rcsbId: string;
+    chemicalId: string;
 };
 export type RoutersRouterLigLigNbhdApiResponse = /** status 200 OK */ BindingSite;
 export type RoutersRouterLigLigNbhdApiArg = {
@@ -909,6 +923,7 @@ export const {
     useRoutersRouterClassesPolypeptideClassQuery,
     useRoutersRouterClassesLifecycleFactorClassQuery,
     useRoutersRouterMmcifPolymerQuery,
+    useRoutersRouterMmcifNonpolymerQuery,
     useRoutersRouterLigLigNbhdQuery,
     useRoutersRouterLigLigTransposeQuery,
     useRoutersRouterLigBsiteCompositeQuery,

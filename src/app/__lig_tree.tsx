@@ -3,39 +3,37 @@ import * as React from 'react';
 import {StructureCarousel} from './homepage/structures_carousel';
 import {Footer} from './homepage/footer';
 import {Hero} from './homepage/hero';
-import {TunnelDemo} from './homepage/demo_tunnel';
+import {TunnelDemo} from './homepage/demo_tunnel_human';
 import '@/components/mstar/mstar.css';
 import {BsiteDemo} from './homepage/demo_bsite';
 import {useRoutersRouterLigClassifyreReportQuery} from '@/store/ribxz_api/ribxz_api';
 import {TreeSelect} from 'antd';
-import {useState, useMemo, useRef, useEffect} from 'react'
+import {useState, useMemo, useRef, useEffect} from 'react';
 
 // Utility to build tree data structure for antd TreeSelect from chemical entities
 export function buildChemicalTreeData(entities) {
     if (!Array.isArray(entities)) return [];
-    
+
     // Pre-allocate maps with estimated size
     const categoryMap = new Map();
     const treeMap = new Map();
-    
+
     // First pass - quick categorization
     for (let i = 0; i < entities.length; i++) {
         const entity = entities[i];
         if (!entity?.kingdom?.name) continue;
-        
+
         // Handle inorganic compounds with early return
-        if (entity.kingdom.name !== "Organic compounds") {
-            const inorganics = categoryMap.get("Inorganic/Metals") || [];
+        if (entity.kingdom.name !== 'Organic compounds') {
+            const inorganics = categoryMap.get('Inorganic/Metals') || [];
             inorganics.push(entity);
-            categoryMap.set("Inorganic/Metals", inorganics);
+            categoryMap.set('Inorganic/Metals', inorganics);
             continue;
         }
 
         // Quick category determination
-        const mainCategory = entity.direct_parent?.name || 
-                           entity.subclass?.name || 
-                           entity.class?.name || 
-                           entity.superclass?.name;
+        const mainCategory =
+            entity.direct_parent?.name || entity.subclass?.name || entity.class?.name || entity.superclass?.name;
 
         if (mainCategory) {
             const categoryCompounds = categoryMap.get(mainCategory) || [];
@@ -45,24 +43,24 @@ export function buildChemicalTreeData(entities) {
     }
 
     // Set up organic compounds root once
-    treeMap.set("Organic compounds", {
-        description: "Organic compounds",
+    treeMap.set('Organic compounds', {
+        description: 'Organic compounds',
         children: new Map()
     });
 
     // Build tree structure efficiently
     for (const [category, compounds] of categoryMap) {
-        if (category === "Organic compounds") continue;
-        
-        const parentMap = category === "Inorganic/Metals" ? treeMap : treeMap.get("Organic compounds").children;
-        
+        if (category === 'Organic compounds') continue;
+
+        const parentMap = category === 'Inorganic/Metals' ? treeMap : treeMap.get('Organic compounds').children;
+
         if (compounds.length > 0) {
             parentMap.set(category, {
                 description: compounds[0]?.direct_parent?.description || '',
                 children: new Map(
                     compounds.map(compound => [
                         compound.identifier,
-                        { description: compound.description, children: null }
+                        {description: compound.description, children: null}
                     ])
                 )
             });
@@ -83,7 +81,6 @@ export function buildChemicalTreeData(entities) {
     return convertMapToAntd(treeMap);
 }
 
-
 const ChemicalTreeSelect = ({
     placeholder = 'Search chemical classes...',
     label = 'Chemical Classification',
@@ -91,9 +88,9 @@ const ChemicalTreeSelect = ({
 }) => {
     const [selectedValues, setSelectedValues] = useState([]);
     const [dropdownVisible, setDropdownVisible] = useState(false);
-    const { data: entities, isLoading } = useRoutersRouterLigClassifyreReportQuery();
+    const {data: entities, isLoading} = useRoutersRouterLigClassifyreReportQuery();
     const dropdownRef = useRef(null);
-    
+
     const treeData = useMemo(() => {
         if (!entities) return [];
         return buildChemicalTreeData(entities);
@@ -112,7 +109,7 @@ const ChemicalTreeSelect = ({
         }
     }, [dropdownVisible]);
 
-    const handleDropdownVisibleChange = (visible) => {
+    const handleDropdownVisibleChange = visible => {
         setDropdownVisible(visible);
     };
 
@@ -120,12 +117,9 @@ const ChemicalTreeSelect = ({
         const entity = entities?.find(e => e.identifier === node.value);
         if (entity) {
             if (node.title.toLowerCase().includes(input.toLowerCase())) return true;
-            if (entity.alternative_parents?.some(parent => 
-                parent.name.toLowerCase().includes(input.toLowerCase())
-            )) return true;
-            if (entity.substituents?.some(sub => 
-                sub.toLowerCase().includes(input.toLowerCase())
-            )) return true;
+            if (entity.alternative_parents?.some(parent => parent.name.toLowerCase().includes(input.toLowerCase())))
+                return true;
+            if (entity.substituents?.some(sub => sub.toLowerCase().includes(input.toLowerCase()))) return true;
             return false;
         }
         return node.title.toLowerCase().includes(input.toLowerCase());
@@ -141,7 +135,7 @@ const ChemicalTreeSelect = ({
                 dropdownStyle={{
                     maxHeight: 400,
                     overflow: 'auto',
-                    padding: '4px 0',
+                    padding: '4px 0'
                 }}
                 treeNodeFilterProp="title"
                 placeholder={placeholder}
@@ -159,11 +153,11 @@ const ChemicalTreeSelect = ({
                     </div>
                 }
                 popupMatchSelectWidth={true}
-                virtual={false}  // Disable virtual scrolling
+                virtual={false} // Disable virtual scrolling
                 listHeight={400}
-                style={{ width: '100%' }}
+                style={{width: '100%'}}
                 maxTagCount={5}
-                maxTagPlaceholder={(omittedValues) => `+ ${omittedValues.length} more...`}
+                maxTagPlaceholder={omittedValues => `+ ${omittedValues.length} more...`}
                 onDropdownVisibleChange={handleDropdownVisibleChange}
                 // Use CSS to ensure the dropdown is always visible
                 popupClassName="chemical-tree-select-dropdown"
