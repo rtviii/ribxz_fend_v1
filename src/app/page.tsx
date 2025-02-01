@@ -40,89 +40,83 @@ const ProteinPill = ({text, color}) => {
     );
 };
 
-const DemoFooter = ({ species }) => (
-  <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-    <div className="flex items-center space-x-1">
-      <span>To structure</span>
-      <ChevronRight size={14} />
+const DemoFooter = ({species}) => (
+    <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+        <div className="flex items-center space-x-1">
+            <span>To structure</span>
+            <ChevronRight size={14} />
+        </div>
+        {species && <span className='italic '>{species}</span>}
     </div>
-    {species && <em>{species}</em>}
-  </div>
 );
-const SectionHeader = ({ title, description, apiDocs, lastUpdate, className, children }) => {
-  const [showDocs, setShowDocs] = useState(false);
-  const [copied, setCopied] = useState(false);
+const SectionHeader = ({title, description, apiDocs, lastUpdate, className, children}) => {
+    const [showDocs, setShowDocs] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-  const copyCode = (code) => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  
-  return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
-        </div>
-        
-        <button
-          onClick={() => setShowDocs(prev => !prev)}
-          className={cn(
-            "p-2 rounded-md transition-colors group",
-            showDocs ? "text-blue-600 bg-blue-50" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
-          )}
-        >
-          <Terminal className="h-5 w-5" />
-          <span className="absolute right-0 -mt-8 px-2 py-1 text-xs bg-gray-800 text-white rounded 
-            opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Get this data via API
-          </span>
-        </button>
-      </div>
+    const copyCode = code => {
+        navigator.clipboard.writeText(code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
-      {lastUpdate && (
-        <p className="mt-2 text-xs text-gray-500">Last update: {lastUpdate}</p>
-      )}
-
-      <div className="mt-4 overflow-hidden">
-        <div className={cn(
-          'transition-all duration-300 flex w-[200%]',
-          showDocs ? '-translate-x-1/2' : 'translate-x-0'
-        )}>
-          <div className="w-1/2 flex-shrink-0">
-            <div className={className}>{children}</div>
-          </div>
-          
-          <div className="w-1/2 flex-shrink-0 pl-4">
-            <div className="bg-gray-50 rounded-lg overflow-hidden">
-              <div className="p-4">
-                <h3 className="text-sm font-medium mb-4">API Documentation</h3>
-                <div className="relative group">
-                  <pre className="text-sm bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
-                    <code>{apiDocs}</code>
-                  </pre>
-                  <button
-                    onClick={() => copyCode(apiDocs)}
-                    className="absolute top-2 right-2 p-1.5 rounded-md 
-                      bg-gray-800 text-gray-300 opacity-0 group-hover:opacity-100 
-                      hover:bg-gray-700 transition-all duration-150"
-                  >
-                    {copied ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </button>
+    return (
+        <div className="mb-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+                    <p className="mt-1 text-sm text-gray-500">{description}</p>
                 </div>
-              </div>
+
+                <button
+                    onClick={() => setShowDocs(prev => !prev)}
+                    className={cn(
+                        'p-2 rounded-md transition-colors group',
+                        showDocs ? 'text-blue-600 bg-blue-50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                    )}>
+                    <Terminal className="h-5 w-5" />
+                    <span
+                        className="absolute right-0 -mt-8 px-2 py-1 text-xs bg-gray-800 text-white rounded 
+            opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        Get this data via API
+                    </span>
+                </button>
             </div>
-          </div>
+
+            {lastUpdate && <p className="mt-2 text-xs text-gray-500">Last update: {lastUpdate}</p>}
+
+            <div className="mt-4 overflow-hidden">
+                <div
+                    className={cn(
+                        'transition-all duration-300 flex w-[200%]',
+                        showDocs ? '-translate-x-1/2' : 'translate-x-0'
+                    )}>
+                    <div className="w-1/2 flex-shrink-0">
+                        <div className={className}>{children}</div>
+                    </div>
+
+                    <div className="w-1/2 flex-shrink-0 pl-4">
+                        <div className="bg-gray-50 rounded-lg overflow-hidden">
+                            <div className="p-4">
+                                <h3 className="text-sm font-medium mb-4">API Documentation</h3>
+                                <div className="relative group">
+                                    <pre className="text-sm bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
+                                        <code>{apiDocs}</code>
+                                    </pre>
+                                    <button
+                                        onClick={() => copyCode(apiDocs)}
+                                        className="absolute top-2 right-2 p-1.5 rounded-md 
+                      bg-gray-800 text-gray-300 opacity-0 group-hover:opacity-100 
+                      hover:bg-gray-700 transition-all duration-150">
+                                        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 const Homepage = () => {
@@ -165,7 +159,7 @@ GET /api/structures/{pdb_id}/tunnel
                                         <div className="flex-1">
                                             <TunnelDemo />
                                         </div>
-                                        <DemoFooter species={"H. sapiens"}/>
+                                        <DemoFooter species={'H. sapiens'} />
                                     </div>
                                 </div>
 
@@ -185,7 +179,7 @@ GET /api/structures/{pdb_id}/tunnel
                                         <div className="flex-1">
                                             <TunnelDemoBacterial />
                                         </div>
-                                        <DemoFooter species={"E. coli"} />
+                                        <DemoFooter species={'E. coli'} />
                                     </div>
                                 </div>
 
@@ -206,7 +200,7 @@ GET /api/structures/{pdb_id}/tunnel
                                         <div className="flex-1">
                                             <TunnelDemoMito />
                                         </div>
-                                        <DemoFooter species={"Mitochondria (H. sapiens)"}/>
+                                        <DemoFooter species={'Mitochondria (H. sapiens)'} />
                                     </div>
                                 </div>
                             </div>
