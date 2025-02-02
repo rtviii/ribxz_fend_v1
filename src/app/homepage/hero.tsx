@@ -21,14 +21,9 @@ import { useGetStructuresMutation } from '@/store/ribxz_api/structures_api';
 import { useDebounceFilters } from '@/components/filters/structure_filters_component';
 import { set_current_structures, set_structures_cursor, set_structures_filter, set_total_structures_count } from '@/store/slices/slice_structures';
 
-const InkscapeOverlay = ({ active }:{ active:boolean }) => {
-    const [isHovered, setIsHovered] = useState(false);
+const InkscapeOverlay = ({ active }) => {
     return (
-        <div
-            className="relative w-full h-full cursor-pointer"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className="relative w-full h-full pointer-events-none"> {/* Added pointer-events-none */}
             <Image
                 width={80}
                 height={80}
@@ -51,7 +46,7 @@ const InkscapeOverlay = ({ active }:{ active:boolean }) => {
                     object-contain 
                     transition-opacity 
                     duration-300 
-                    ${isHovered || active ? 'opacity-100' : 'opacity-0'}
+                    ${active ? 'opacity-100' : 'opacity-0'}
                 `}
             />
         </div>

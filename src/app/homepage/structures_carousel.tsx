@@ -16,7 +16,6 @@ export const StructureCarousel = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const current_structures = useAppSelector(state => state.structures_page.current_structures);
     const structures_cursor = useAppSelector(state => state.structures_page.structures_cursor);
-    const last_updated = useAppSelector(state => state.structures_page.last_db_update);
     
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +52,7 @@ export const StructureCarousel = () => {
             dispatch(set_total_structures_count(total_count));
             dispatch(set_structures_cursor(next_cursor));
             setHasMore(next_cursor !== null);
-        } catch (err) {
+            } catch (err) {
             console.error('Error fetching structures:', err);
         } finally {
             setIsLoading(false);
@@ -81,12 +80,7 @@ export const StructureCarousel = () => {
     }, []);
 
     return (
-        <div className="w-full space-y-4 py-8" ref={scrollContainerRef}>
-            <div className="px-4">
-                <h2 className="text-sm font-medium text-muted-foreground">
-                    Latest PDB Depositions [ {last_updated} ]
-                </h2>
-            </div>
+        <div className="w-full space-y-4 " ref={scrollContainerRef}>
             <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
                 <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
                     {current_structures.map((structure, i) => (

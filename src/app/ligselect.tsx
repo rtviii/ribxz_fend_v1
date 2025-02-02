@@ -16,17 +16,17 @@ const CategoryButton = ({category, color, isSelected, onClick}) => (
         type="default"
         onClick={onClick}
         style={{
-            backgroundColor: isSelected ? color : '#f3f4f6',
-            borderColor: color,
-            borderRadius: '16px',
-            fontSize: '12px',
-            fontWeight: 500,
-            color: '#1f2937',
-            padding: '4px 12px',
-            height: 'auto',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            backgroundColor: isSelected ? color: '#f3f4f6',
+            borderColor    : color,
+            borderRadius   : '16px',
+            fontSize       : '12px',
+            fontWeight     : 500,
+            color          : '#1f2937',
+            padding        : '4px 12px',
+            height         : 'auto',
+            display        : 'inline-flex',
+            alignItems     : 'center',
+            justifyContent : 'center'
         }}>
         <span style={{marginRight: '4px'}}>{isSelected ? '−' : '+'}</span>
         {category}
