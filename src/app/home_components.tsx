@@ -1,4 +1,4 @@
-import { ScrollArea } from '@/components/ui/scroll-area';
+  import { ScrollArea } from '@/components/ui/scroll-area';
 import * as React from 'react';
 import {StructureCarousel} from './homepage/structures_carousel';
 import {Hero} from './homepage/hero';
@@ -71,23 +71,6 @@ export const ProteinPill = ({text, color}) => {
         </span>
     );
 };
-
-export const DemoFooter = ({species, pdbId}) => (
-    <Link 
-        href={`/structures/${pdbId}`} 
-        className="block"
-    >
-        <div className="flex items-center justify-between mt-2 text-xs text-gray-500 group hover:text-gray-700">
-            <div className="flex items-center space-x-1">
-                <span>
-                    To structure <CitationTooltip pdbId={pdbId} />
-                </span>
-                <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-            </div>
-            {species && <span className="italic">{species}</span>}
-        </div>
-    </Link>
-);
 
 export const DocSection = ({ text, code }) => (
   <div className="mb-6">
@@ -172,43 +155,61 @@ export const SectionHeader = ({
     </div>
   );
 };
+const CitationContent = ({ citation }) => (
+    <div className="absolute z-50 w-96 p-4 text-sm bg-white rounded-lg shadow-lg border border-gray-200 bottom-full left-full -ml-4">
+        <p className="font-medium text-gray-900 mb-2">Citation:</p>
+        <p className="text-gray-600">
+            {citation.authors} {citation.title}. {citation.journal} {citation.volume}, {citation.pages} ({citation.year}).
+        </p>
+        <p className="text-blue-600 hover:text-blue-800 mt-2">
+            DOI: {citation.doi}
+        </p>
+    </div>
+);
 
-export const CitationTooltip = ({pdbId}) => {
+
+export const CitationTooltip = ({ pdbId }) => {
     const [isHovered, setIsHovered] = useState(false);
     const citation = tunnel_struct_citations[pdbId];
 
     if (!citation) return null;
 
+    const handleClick = (e) => {
+        e.preventDefault(); // Prevent the parent Link from triggering
+        window.open(`https://doi.org/${citation.doi}`, '_blank', 'noopener,noreferrer');
+    };
+
     return (
-        <div
+        <span
             className="relative inline-block group"
             onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}>
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={handleClick}
+            role="button"
+            tabIndex={0}>
             <span className="italic cursor-help">
                 {pdbId}
                 <sup className="text-gray-400 ml-0.5">*</sup>
             </span>
 
-            {isHovered && (
-                <div className="absolute z-50 w-96 p-4 text-sm bg-white rounded-lg shadow-lg border border-gray-200 bottom-full left-full -ml-4">
-                    <p className="font-medium text-gray-900 mb-2">Citation:</p>
-                    <p className="text-gray-600">
-                        {citation.authors} {citation.title}. {citation.journal} {citation.volume}, {citation.pages} (
-                        {citation.year}).
-                    </p>
-                    <a
-                        href={`https://doi.org/${citation.doi}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 mt-2 inline-block">
-                        DOI: {citation.doi}
-                    </a>
-                </div>
-            )}
-        </div>
+            {isHovered && <CitationContent citation={citation} />}
+        </span>
     );
 };
 
+export const DemoFooter = ({ species, pdbId }) => (
+    <Link href={`/structures/${pdbId}`} className="block">
+        <div className="flex items-center justify-between mt-2 text-xs text-gray-500 group hover:text-gray-700">
+            <div className="flex items-center space-x-1">
+                <span>
+                    To structure <CitationTooltip pdbId={pdbId} />
+                </span>
+                <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+            </div>
+            {species && <span className="italic">{species}</span>}
+        </div>
+    </Link>
+);
 
 
 export const CodeBlock = ({ code, language = 'bash' }) => {

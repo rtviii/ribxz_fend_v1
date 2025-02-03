@@ -4,10 +4,13 @@ import {TooltipProvider, Tooltip, TooltipContent, TooltipTrigger} from '@/compon
 import {DownloadIcon, Eye, EyeIcon} from 'lucide-react';
 import {cn} from '@/components/utils';
 import {useAppSelector} from '@/store/store';
+
+import {Search} from 'lucide-react';
+import {Input} from '@/components/ui/input';
 import {
     RibosomeStructure,
-    useRoutersRouterStructGetHelicesQuery,
-    useRoutersRouterStructStructurePtcQuery
+    useRoutersRouterLociGetHelicesQuery,
+    useRoutersRouterLociStructurePtcQuery
 } from '@/store/ribxz_api/ribxz_api';
 import {useMolstarInstance} from '@/components/mstar/mstar_service';
 import {sort_by_polymer_class} from '@/my_utils';
@@ -94,14 +97,50 @@ const ConstrictionSiteLandmark = ({
     );
 };
 
+const PolymerSearch = ({ polymers, onFilterChange }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    
+    const filtered = polymers.filter(polymer => {
+      return (
+        polymer.auth_asym_id.toLowerCase().includes(query) ||
+        polymer.nomenclature.some(name => 
+          name.toLowerCase().includes(query)
+        ) ||
+        polymer.entity_poly_polymer_type.toLowerCase().includes(query)
+      );
+    });
+    
+    onFilterChange(filtered);
+  };
+
+  return (
+    <div className="px-2 mb-2">
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Search polymers..."
+          value={searchQuery}
+          onChange={handleSearch}
+          className="w-full text-sm py-1 pl-7 pr-2 bg-gray-50 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition-colors"
+        />
+        <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+      </div>
+    </div>
+  );
+};
+
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [activeView, setActiveView] = useState('polymers');
     const service = useMolstarInstance('main');
     const state = useAppSelector(state => state);
     const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
 
-    const {data: helices_data} = useRoutersRouterStructGetHelicesQuery({rcsb_id: data?.rcsb_id});
-    const {data: ptc_data} = useRoutersRouterStructStructurePtcQuery({rcsb_id: data?.rcsb_id});
+    const {data: helices_data} = useRoutersRouterLociGetHelicesQuery({rcsb_id: data?.rcsb_id});
+    const {data: ptc_data} = useRoutersRouterLociStructurePtcQuery({rcsb_id: data?.rcsb_id});
 
     const mstar = useMolstarInstance('main');
     const controller = mstar?.controller;
@@ -111,7 +150,19 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         console.log(helices_data);
     }, [helices_data]);
 
+    const [filteredPolymers, setFilteredPolymers] = useState([]);
+
+    // Combine all polymers
+    const allPolymers = [...data.rnas, ...data.proteins, ...data.other_polymers]
+        .filter(r => r.assembly_id === 0)
+        .toSorted(sort_by_polymer_class);
+
+    useEffect(() => {
+        setFilteredPolymers(allPolymers);
+    }, [data]);
+
     if (isLoading) return <div className="text-xs">Loading components...</div>;
+
     if (!service?.viewer || !service?.controller) {
         return <div className="text-xs">Initializing viewer...</div>;
     }
@@ -168,12 +219,10 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         <ScrollArea className="h-full">
                             <div className="space-y-1">
                                 <SequenceMolstarSync />
-                                {[...data.rnas, ...data.proteins, ...data.other_polymers]
-                                    .toSorted(sort_by_polymer_class)
-                                    .filter(r => r.assembly_id === 0)
-                                    .map(component => (
-                                        <PolymerComponentRow polymer={component} key={component.auth_asym_id} />
-                                    ))}
+                                <PolymerSearch polymers={allPolymers} onFilterChange={setFilteredPolymers} />
+                                {filteredPolymers.map(component => (
+                                    <PolymerComponentRow polymer={component} key={component.auth_asym_id} />
+                                ))}
                             </div>
                         </ScrollArea>
                     </div>

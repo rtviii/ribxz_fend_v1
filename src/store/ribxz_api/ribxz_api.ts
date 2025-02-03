@@ -53,6 +53,18 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: () => ({url: `/structures/chains_by_struct`})
         }),
+        routersRouterStructListSourceTaxa: build.query<
+            RoutersRouterStructListSourceTaxaApiResponse,
+            RoutersRouterStructListSourceTaxaApiArg
+        >({
+            query: queryArg => ({url: `/structures/list_source_taxa`, params: {source_or_host: queryArg.sourceOrHost}})
+        }),
+        routersRouterStructPolymerClassesNomenclature: build.query<
+            RoutersRouterStructPolymerClassesNomenclatureApiResponse,
+            RoutersRouterStructPolymerClassesNomenclatureApiArg
+        >({
+            query: () => ({url: `/structures/list_nomenclature`})
+        }),
         routersRouterPolymersPolynucleotideClass: build.query<
             RoutersRouterPolymersPolynucleotideClassApiResponse,
             RoutersRouterPolymersPolynucleotideClassApiArg
@@ -181,6 +193,12 @@ export type RoutersRouterStructStructureProfileApiArg = {
 };
 export type RoutersRouterStructChainsByStructApiResponse = /** status 200 OK */ ChainsByStruct[];
 export type RoutersRouterStructChainsByStructApiArg = void;
+export type RoutersRouterStructListSourceTaxaApiResponse = /** status 200 OK */ object[];
+export type RoutersRouterStructListSourceTaxaApiArg = {
+    sourceOrHost: 'source' | 'host';
+};
+export type RoutersRouterStructPolymerClassesNomenclatureApiResponse = /** status 200 OK */ NomenclatureSet;
+export type RoutersRouterStructPolymerClassesNomenclatureApiArg = void;
 export type RoutersRouterPolymersPolynucleotideClassApiResponse = /** status 200 OK */ Rna[];
 export type RoutersRouterPolymersPolynucleotideClassApiArg = {
     rnaClass: CytosolicRnaClass | MitochondrialRnaClass | TRna;
@@ -713,6 +731,15 @@ export type ChainsByStruct = {
     polymers: PolymerByStruct[];
     rcsb_id: string;
 };
+export type NomenclatureSet = {
+    ElongationFactorClass: string[];
+    InitiationFactorClass: string[];
+    CytosolicProteinClass: string[];
+    MitochondrialProteinClass: string[];
+    CytosolicRNAClass: string[];
+    MitochondrialRNAClass: string[];
+    tRNAClass: string[];
+};
 export type PolymersFilterParams = {
     cursor?: [string | null, string | null] | (string | null)[] | string | null;
     limit?: number;
@@ -833,6 +860,8 @@ export const {
     useRoutersRouterStructOverviewQuery,
     useRoutersRouterStructStructureProfileQuery,
     useRoutersRouterStructChainsByStructQuery,
+    useRoutersRouterStructListSourceTaxaQuery,
+    useRoutersRouterStructPolymerClassesNomenclatureQuery,
     useRoutersRouterPolymersPolynucleotideClassQuery,
     useRoutersRouterPolymersPolypeptideClassQuery,
     useRoutersRouterPolymersLifecycleFactorClassQuery,
