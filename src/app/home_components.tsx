@@ -99,6 +99,20 @@ export const SectionHeader = ({
   children
 }) => {
   const [showDocs, setShowDocs] = useState(false);
+  const [demoHeight, setDemoHeight] = useState(0);
+  const demoRef = React.useRef(null);
+
+  // Update demo height when content changes or becomes visible
+  React.useEffect(() => {
+    if (demoRef.current) {
+      const updateHeight = () => {
+        setDemoHeight(demoRef.current.offsetHeight);
+      };
+      updateHeight();
+      window.addEventListener('resize', updateHeight);
+      return () => window.removeEventListener('resize', updateHeight);
+    }
+  }, [children]);
 
   return (
     <div className="mb-6">
@@ -129,13 +143,16 @@ export const SectionHeader = ({
             'transition-all duration-300 flex w-[200%]',
             showDocs ? '-translate-x-1/2' : 'translate-x-0'
           )}>
-          <div className="w-1/2 flex-shrink-0">
+          <div className="w-1/2 flex-shrink-0" ref={demoRef}>
             <div className={className}>{children}</div>
           </div>
 
           <div className="w-1/2 flex-shrink-0">
-            <div className="bg-gray-50 rounded-lg">
-              <ScrollArea className="h-[400px]">
+            <div 
+              className="bg-gray-50 rounded-lg" 
+              style={{ height: `${demoHeight}px` }}
+            >
+              <ScrollArea className="h-full">
                 <div className="p-4">
                   {documentation.map((doc, index) => (
                     <DocSection key={index} {...doc} />
@@ -148,7 +165,7 @@ export const SectionHeader = ({
       </div>
     </div>
   );
-};
+}
 
 export const CitationTooltip = ({pdbId}) => {
     const [isHovered, setIsHovered] = useState(false);
