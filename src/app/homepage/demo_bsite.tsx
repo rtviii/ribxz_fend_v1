@@ -11,7 +11,10 @@ import {MolstarDemoBsites, ScoredBsite} from '@/components/mstar/demos/molstar_d
 import {
     ribxz_api,
     useRoutersRouterLigDemo7K00Query,
-    useRoutersRouterStructStructureProfileQuery
+    useRoutersRouterStructStructureProfileQuery,
+    
+    
+
 } from '@/store/ribxz_api/ribxz_api';
 import {AppDispatch, useAppDispatch, useAppSelector} from '@/store/store';
 import {EmptyViewportControls} from './demo_tunnel_human';
@@ -30,9 +33,6 @@ import {
     setBindingSiteVisibility
 } from './demo_bsite_slice';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
-import {LigandSelectDemo} from '../ligselect';
-import {debounce} from 'lodash';
-import {Button} from '@/components/ui/button';
 import LigandCategoryViewer from './lig_category_viewer';
 
 interface Ligand {
@@ -190,7 +190,7 @@ export const BsiteDemo = () => {
         })();
     }, []);
 
-    const {data: ligands_data} = useRoutersRouterLigDemo7K00Query();
+    const {data: ligands_data} = useRoutersRouterLigDemo7K00Query()
     const {
         data: structure_data,
         isLoading: isLoadingProfile,

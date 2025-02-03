@@ -190,7 +190,7 @@ $ curl -X 'POST' \
                                 text: 'List all unique nonpolymeric ligands along with the structures they bind.',
                                 code: `
 $ curl -X 'GET' \n
-  'http://localhost:8000/ligands/list_ligands' \n
+  'https://api.ribosome.xyz/ligands/list_ligands' \n
   -H 'accept: application/json'
 `
                             },
@@ -198,14 +198,14 @@ $ curl -X 'GET' \n
                                 text: 'Get residues in the proximity of a given ligand in a structure. Ex. Get all residues within 5 Angstrom of Paromomcyin in E. coli 7K00:',
                                 code: `
 $ curl -X 'GET' \n
-  'http://localhost:8000/ligands/binding_pocket?source_structure=7K00&chemical_id=PAR&radius=5' \n
+  'https://api.ribosome.xyz/ligands/binding_pocket?source_structure=7K00&chemical_id=PAR&radius=5' \n
   -H 'accept: application/json'
 `
                             },
                             {
                                 text: "Attempt to predict a given ligand's binding site in a target structure based on existing site in source structure. Ex. Predict the binding site of PAR(Paromomycin) in E. coli 5AFI using 7K00.PAR as template:",
                                 code: `$ curl -X 'GET' \n
-  'http://localhost:8000/ligands/transpose?source_structure=7K00&target_structure=5AFI&chemical_id=PAR&radius=10' \n
+  'https://api.ribosome.xyz/ligands/transpose?source_structure=7K00&target_structure=5AFI&chemical_id=PAR&radius=10' \n
   -H 'accept: application/json'
 `
                             }
@@ -221,7 +221,7 @@ $ curl -X 'GET' \n
                                 text: 'Download a `.ply` file containing the geometry of the human ribosome exit tunnel in 4UG0',
                                 code: `
 $ curl -X 'GET' \n
-  'http://localhost:8000/loci/tunnel_geometry?rcsb_id=4ug0&is_ascii=false' \n
+  'https://api.ribosome.xyz/loci/tunnel_geometry?rcsb_id=4ug0&is_ascii=false' \n
   -H 'accept: */*'
 `
                             },
@@ -229,7 +229,7 @@ $ curl -X 'GET' \n
                                 text: 'The coordinate of the constriction site formed by ribosomal proteins uL4 and uL22 in 8FC4',
                                 code: `
 $ curl -X 'GET' \n
-  'http://localhost:8000/loci/constriction_site?rcsb_id=8fc4' \n
+  'https://api.ribosome.xyz/loci/constriction_site?rcsb_id=8fc4' \n
   -H 'accept: application/json'
 `
                             },
@@ -237,7 +237,7 @@ $ curl -X 'GET' \n
                                 text: 'The coordinate of the peptidyl transferase center (PTC) in the human ribosome 3J7Z',
                                 code: `
 $ curl -X 'GET' \n
-  'http://localhost:8000/loci/ptc?rcsb_id=3j7z' \n
+  'https://api.ribosome.xyz/loci/ptc?rcsb_id=3j7z' \n
   -H 'accept: application/json'
 `
                             }

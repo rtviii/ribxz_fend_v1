@@ -1319,7 +1319,7 @@ export class ribxzMstarv2 {
     tunnel_geometry = async (rcsb_id: string, transparency: number = 0.6): Promise<Loci> => {
         // 1. Get provider and fetch data
         const provider = this.ctx.dataFormats.get('ply')!;
-        const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
+        const myurl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/tunnel_geometry?rcsb_id=${rcsb_id}&is_ascii=true`;
         const data = await this.ctx.builders.data.download({
             url: Asset.Url(myurl.toString()),
             isBinary: false
