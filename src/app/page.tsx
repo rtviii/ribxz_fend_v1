@@ -139,7 +139,7 @@ const Homepage = () => {
 
                 <section className="space-y-8">
                     <SectionHeader
-                        title="Atomic Models & Loci of Interest"
+                        title="Atomic Models: Structures and Polymers"
                         description={
                             <span>
                                 Latest structures deposited to the PDB {last_pdb_sync ? `(${last_pdb_sync})` : null}{' '}
@@ -184,7 +184,7 @@ $ curl -X 'POST' \
 
                     <SectionHeader
                         title="Ligand Binding Sites & Predictions"
-                        description="All existing nonpolymer-ligand binding sites..."
+                        description={ `Data for nonpolymer-ligand binding sites across deposited structures and predictions derived from it. \nDemo: Multiple classes of antibiotics and their binding sites identified on the structure 7K00 (due to Watson et al., 2021) of the E. coli ribosome .` }
                         documentation={[
                             {
                                 text: 'List all unique nonpolymeric ligands along with the structures they bind.',
@@ -214,12 +214,12 @@ $ curl -X 'GET' \n
                     </SectionHeader>
 
                     <SectionHeader
-                        title="Nascent Peptide Exit Tunnel (NPET) geometries"
-                        description="Loci and regions of biological interest in the ribosome. "
+                        title="Loci, Functional Sites & Regions of Interest"
+                        description={ `Coordinates, primary sequence annotations and structural landmarks. \nDemo:  Nascent Peptide Exit Tunnel (NPET) geometries produced via PTC and Constriction Site landmarks. ` }
                         documentation={[
                             {
                                 text: 'Download a `.ply` file containing the geometry of the human ribosome exit tunnel in 4UG0',
-                                code: `
+                                code: ` 
 $ curl -X 'GET' \n
   'https://api.ribosome.xyz/loci/tunnel_geometry?rcsb_id=4ug0&is_ascii=false' \n
   -H 'accept: */*'

@@ -13,6 +13,7 @@ import {Terminal} from 'lucide-react';
 import {useState} from 'react';
 import {useAppSelector} from '@/store/store';
 import BottomSection from './home_footer';
+import Link from 'next/link';
 const tunnel_struct_citations = {
     '4UG0': {
         title: 'Ribosome structures to near-atomic resolution from thirty thousand cryo-EM particles',
@@ -72,16 +73,22 @@ export const ProteinPill = ({text, color}) => {
 };
 
 export const DemoFooter = ({species, pdbId}) => (
-    <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-        <div className="flex items-center space-x-1">
-            <span>
-                To structure <CitationTooltip pdbId={pdbId} />
-            </span>
-            <ChevronRight size={14} />
+    <Link 
+        href={`/structures/${pdbId}`} 
+        className="block"
+    >
+        <div className="flex items-center justify-between mt-2 text-xs text-gray-500 group hover:text-gray-700">
+            <div className="flex items-center space-x-1">
+                <span>
+                    To structure <CitationTooltip pdbId={pdbId} />
+                </span>
+                <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+            </div>
+            {species && <span className="italic">{species}</span>}
         </div>
-        {species && <span className="italic ">{species}</span>}
-    </div>
+    </Link>
 );
+
 export const DocSection = ({ text, code }) => (
   <div className="mb-6">
     <p className="text-sm text-gray-600 mb-2">{text}</p>
@@ -102,7 +109,6 @@ export const SectionHeader = ({
   const [demoHeight, setDemoHeight] = useState(0);
   const demoRef = React.useRef(null);
 
-  // Update demo height when content changes or becomes visible
   React.useEffect(() => {
     if (demoRef.current) {
       const updateHeight = () => {
@@ -116,16 +122,16 @@ export const SectionHeader = ({
 
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-start justify-between">
+        <div className="max-w-[75%]"> {/* Added max-width constraint */}
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
+          <p className="mt-1 text-sm text-gray-500 whitespace-pre-line">{description}</p>
         </div>
 
         <button
           onClick={() => setShowDocs(prev => !prev)}
           className={cn(
-            'px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 border-2',
+            'px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 border-2 flex-shrink-0', // Added flex-shrink-0
             showDocs
               ? 'text-blue-600 bg-blue-50 border-blue-200 shadow-md'
               : 'text-gray-600 hover:text-gray-800 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
@@ -165,7 +171,7 @@ export const SectionHeader = ({
       </div>
     </div>
   );
-}
+};
 
 export const CitationTooltip = ({pdbId}) => {
     const [isHovered, setIsHovered] = useState(false);
