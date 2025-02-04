@@ -125,6 +125,15 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: () => ({url: `/ligands/list_ligands`})
         }),
+        routersRouterLigEntity: build.query<RoutersRouterLigEntityApiResponse, RoutersRouterLigEntityApiArg>({
+            query: queryArg => ({url: `/ligands/entity`, params: {rcsb_id: queryArg.rcsbId}})
+        }),
+        routersRouterLigInStructure: build.query<
+            RoutersRouterLigInStructureApiResponse,
+            RoutersRouterLigInStructureApiArg
+        >({
+            query: queryArg => ({url: `/ligands/in_structure`, params: {rcsb_id: queryArg.rcsbId}})
+        }),
         routersRouterLigDemo7K00: build.query<RoutersRouterLigDemo7K00ApiResponse, RoutersRouterLigDemo7K00ApiArg>({
             query: () => ({url: `/ligands/demo_7k00`})
         }),
@@ -232,6 +241,14 @@ export type RoutersRouterLigLigTransposeApiArg = {
 };
 export type RoutersRouterLigListLigandsApiResponse = /** status 200 OK */ [object, object[]][];
 export type RoutersRouterLigListLigandsApiArg = void;
+export type RoutersRouterLigEntityApiResponse = unknown;
+export type RoutersRouterLigEntityApiArg = {
+    rcsbId: string;
+};
+export type RoutersRouterLigInStructureApiResponse = unknown;
+export type RoutersRouterLigInStructureApiArg = {
+    rcsbId: string;
+};
 export type RoutersRouterLigDemo7K00ApiResponse = /** status 200 OK */ ProcessedLigands;
 export type RoutersRouterLigDemo7K00ApiArg = void;
 export type RoutersRouterLociGetShapeApiResponse = unknown;
@@ -870,6 +887,8 @@ export const {
     useRoutersRouterLigLigNbhdQuery,
     useRoutersRouterLigLigTransposeQuery,
     useRoutersRouterLigListLigandsQuery,
+    useRoutersRouterLigEntityQuery,
+    useRoutersRouterLigInStructureQuery,
     useRoutersRouterLigDemo7K00Query,
     useRoutersRouterLociGetShapeQuery,
     useRoutersRouterLociGetHelicesQuery,

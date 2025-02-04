@@ -9,6 +9,8 @@ import {Search} from 'lucide-react';
 import {Input} from '@/components/ui/input';
 import {
     RibosomeStructure,
+    useRoutersRouterLigEntityQuery,
+    useRoutersRouterLigInStructureQuery,
     useRoutersRouterLociGetHelicesQuery,
     useRoutersRouterLociStructurePtcQuery
 } from '@/store/ribxz_api/ribxz_api';
@@ -19,6 +21,7 @@ import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 import {HelixLandmarks} from '../landmarks/helix_row';
 import {selectComponentById} from '@/store/molstar/slice_refs';
 import {Button} from '@/components/ui/button';
+import LigandRow from './ligand_component';
 interface PTCLandmarkProps {
     onFocus?: () => void;
     onClick?: () => void;
@@ -133,12 +136,13 @@ const PolymerSearch = ({polymers, onFilterChange}) => {
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [activeView, setActiveView] = useState('polymers');
-    const service = useMolstarInstance('main');
-    const state = useAppSelector(state => state);
-    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const service                     = useMolstarInstance('main');
+    const state                       = useAppSelector(state => state);
+    const rcsb_id                     = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
 
-    const {data: helices_data} = useRoutersRouterLociGetHelicesQuery({rcsb_id: data?.rcsb_id});
-    const {data: ptc_data} = useRoutersRouterLociStructurePtcQuery({rcsb_id: data?.rcsb_id});
+    const {data: helices_data} = useRoutersRouterLociGetHelicesQuery({rcsbId: data?.rcsb_id});
+    const {data: ptc_data}     = useRoutersRouterLociStructurePtcQuery({rcsbId: data?.rcsb_id});
+    const {data: ligands_data}     = useRoutersRouterLigInStructureQuery({rcsbId: data?.rcsb_id});
 
     const mstar = useMolstarInstance('main');
     const controller = mstar?.controller;
@@ -149,6 +153,9 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     }, [helices_data]);
 
     const [filteredPolymers, setFilteredPolymers] = useState([]);
+
+
+    
 
     // Combine all polymers
     const allPolymers = [...data.rnas, ...data.proteins, ...data.other_polymers]
@@ -166,7 +173,6 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     }
 
     const {controller: msc} = service;
-
     const tabs = [
         {id: 'polymers', label: 'Polymers'},
         {id: 'landmarks', label: 'Landmarks'},
@@ -219,7 +225,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                             <ScrollArea className="h-full relative">
                                 <div className="space-y-1">
                                     <SequenceMolstarSync />
-                                    
+
                                     <PolymerSearch polymers={allPolymers} onFilterChange={setFilteredPolymers} />
                                     {filteredPolymers.map(component => (
                                         <PolymerComponentRow polymer={component} key={component.auth_asym_id} />
@@ -312,7 +318,21 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         <div className="w-1/3 h-full flex-shrink-0">
                             <ScrollArea className="h-full">
                                 <div>
-                                    <div className="text-sm text-gray-500">Ligands view (to be implemented)</div>
+                                    <div className="text-sm text-gray-500">
+                                        {ligands_data &&
+                                            ligands_data.map(ligand => (
+                                                <LigandRow
+                                                key={ligand.chemicalId}
+                                                    ligand={ligand }
+                                                    onToggleVisibility={() => {}}
+                                                    onToggleSelection={() => {}}
+                                                    onIsolate={() => {}}
+                                                    onDownload={() => {}}
+                                                    isVisible={true}
+                                                    isSelected={false}
+                                                />
+                                            ))}
+                                    </div>
                                 </div>
                             </ScrollArea>
                         </div>

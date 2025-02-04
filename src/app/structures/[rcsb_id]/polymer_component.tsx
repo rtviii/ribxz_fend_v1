@@ -5,17 +5,13 @@ import {Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch} from 'lucide-react'
 import {Polymer} from '@/store/ribxz_api/ribxz_api';
 import PolymerColorschemeDarkTemple from '@/components/mstar/providers/colorschemes/colorscheme_darktemple';
 import {Color} from 'molstar/lib/mol-util/color';
-// import {MolstarContext} from '@/components/mstar/__molstar_context';
-import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {useAppDispatch, useAppSelector} from '@/store/store';
 import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
 import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
 import {selectPolymerStateByAuthId} from '@/store/slices/slice_polymer_states';
 import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/colorscheme_warm';
 import {getContrastColor} from '@/my_utils';
-import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 import {useMolstarInstance} from '@/components/mstar/mstar_service';
-import PolymerTooltipWrapper from '@/app/polymers/polymer_tooltip';
 
 export type ResidueData = [string, number];
 

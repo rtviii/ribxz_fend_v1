@@ -320,7 +320,7 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
         [resizeObserver]
     );
 
-    const state = useAppSelector(s => s);
+
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
@@ -330,12 +330,6 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                         className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
                         ref={leftPanelRef}>
                         <div className="sticky top-0 space-y-2  ">
-                            <Button
-                                onClick={() => {
-                                    console.log(state);
-                                }}>
-                                log state
-                            </Button>
                             <SelectionAndStructureActions nomenclature_map={nomMap} />
                             <StructureInfoTab data={data!} isLoading={isLoading} />
                         </div>
