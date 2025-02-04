@@ -136,3 +136,16 @@
   stroke      : red;  /* Highlight color */
   stroke-width: 2;    /* Increased width on hover */
 }
+.tooltip-content {
+    z-index: 50;
+}
+.sliding-panels-container {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.sliding-panel {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    will-change: transform;
+}

@@ -15,34 +15,42 @@ import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/co
 import {getContrastColor} from '@/my_utils';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
 import {useMolstarInstance} from '@/components/mstar/mstar_service';
+import PolymerTooltipWrapper from '@/app/polymers/polymer_tooltip';
 
 export type ResidueData = [string, number];
 
-const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
+interface PolymerComponentRowProps {
+    polymer: Polymer;
+}
+
+const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
     const polyComponent = useAppSelector(state =>
         selectComponentById(state, {
             instanceId: 'main',
             componentId: polymer.auth_asym_id
         })
-    ) as PolymerComponent;
+    );
 
     const polymerState = useAppSelector(state => selectPolymerStateByAuthId(state, polymer.auth_asym_id));
 
     const service = useMolstarInstance('main');
     const ctx = service?.viewer;
     const msc = service?.controller;
+
     const onToggleVisibility = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
             msc?.polymers.setPolymerVisibility(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState.visible);
         }
     };
+
     const onToggleSelection = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
             msc?.polymers.selectPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id, !polymerState?.selected);
         }
     };
+
     const onIsolate = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (ctx) {
@@ -57,6 +65,7 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
     const onMouseEnter = () => {
         ctx && msc?.polymers.highlightPolymerComponent(polymer.parent_rcsb_id, polymer.auth_asym_id);
     };
+
     const onMouseLeave = () => {
         ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
     };
@@ -68,30 +77,30 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
 
     return (
         <div
-            className="border-b border-gray-200 last:border-b-0 "
+            className="border-b border-gray-200 last:border-b-0"
             onMouseLeave={onMouseLeave}
             onMouseEnter={onMouseEnter}
             onClick={onClick}>
+            {/* <PolymerTooltipWrapper polymer={polymer}> */}
             <div
                 className={cn(
-                    'flex items-center justify-between rounded-md px-2 transition-colors hover:cursor-pointer py-1  hover:border-l-4 hover:border-l-slate-400 hover:bg-slate-200',
+                    'flex items-center justify-between rounded-md px-2 transition-colors hover:cursor-pointer py-1 hover:border-l-4 hover:border-l-slate-400 hover:bg-slate-200',
                     polymerState?.hovered ? on_hover_styling : ''
                 )}>
                 <div className="flex items-center space-x-2">
-                    <div
-                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors`}>
+                    <div className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors">
                         {polymer.auth_asym_id}
                     </div>
-                    {polymer.nomenclature.length > 0 ? (
+                    {polymer.nomenclature.length > 0 && (
                         <div
                             style={{
                                 backgroundColor: hexcol,
                                 color: textColor
                             }}
-                            className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors`}>
+                            className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-semibold transition-colors">
                             {polymer.nomenclature[0]}
                         </div>
-                    ) : null}
+                    )}
                 </div>
 
                 <div className="flex items-center space-x-2" onClick={e => e.stopPropagation()}>
@@ -113,7 +122,9 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
                         <ScanSearch size={14} />
                     </button>
 
-                    <button className={cn('rounded-full p-1 text-gray-500')} onClick={onToggleVisibility}>
+                    <button
+                        className={cn('rounded-full p-1', polymerState?.visible ? 'text-blue-400' : 'text-gray-300')}
+                        onClick={onToggleVisibility}>
                         {polymerState?.visible ? <Eye size={14} /> : <EyeOff size={14} />}
                     </button>
 
@@ -124,8 +135,8 @@ const PolymerComponentRow: React.FC<{polymer: Polymer}> = ({polymer}) => {
                     </button>
                 </div>
             </div>
+            {/* </PolymerTooltipWrapper> */}
         </div>
     );
 };
-
 export default PolymerComponentRow;

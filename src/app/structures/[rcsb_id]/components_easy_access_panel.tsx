@@ -97,40 +97,38 @@ const ConstrictionSiteLandmark = ({
     );
 };
 
-const PolymerSearch = ({ polymers, onFilterChange }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+const PolymerSearch = ({polymers, onFilterChange}) => {
+    const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-    
-    const filtered = polymers.filter(polymer => {
-      return (
-        polymer.auth_asym_id.toLowerCase().includes(query) ||
-        polymer.nomenclature.some(name => 
-          name.toLowerCase().includes(query)
-        ) ||
-        polymer.entity_poly_polymer_type.toLowerCase().includes(query)
-      );
-    });
-    
-    onFilterChange(filtered);
-  };
+    const handleSearch = e => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
 
-  return (
-    <div className="px-2 mb-2">
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Search polymers..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className="w-full text-sm py-1 pl-7 pr-2 bg-gray-50 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition-colors"
-        />
-        <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-      </div>
-    </div>
-  );
+        const filtered = polymers.filter(polymer => {
+            return (
+                polymer.auth_asym_id.toLowerCase().includes(query) ||
+                polymer.nomenclature.some(name => name.toLowerCase().includes(query)) ||
+                polymer.entity_poly_polymer_type.toLowerCase().includes(query)
+            );
+        });
+
+        onFilterChange(filtered);
+    };
+
+    return (
+        <div className="px-2 mb-2 mt-1">
+            <div className="relative">
+                <input
+                    type="text"
+                    placeholder="Search polymers..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="w-full text-sm py-1 pl-7 pr-2 bg-gray-50 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition-colors"
+                />
+                <Search className="h-3.5 w-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
+        </div>
+    );
 };
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
@@ -176,90 +174,75 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     ];
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="h-8 flex items-center justify-between bg-gray-50 border-b">
-                <div className="flex items-center">
-                    {tabs.map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveView(tab.id)}
-                            className={cn(
-                                'px-3 py-1 text-xs transition-colors',
-                                activeView === tab.id
-                                    ? 'bg-white text-blue-600 font-medium'
-                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                            )}>
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
+        <TooltipProvider delayDuration={100}>
+            <div className="flex flex-col h-full">
+                <div className="h-8 flex items-center justify-between bg-gray-50 border-b">
+                    <div className="flex items-center">
+                        {tabs.map(tab => (
                             <button
-                                onClick={() => msc.polymers.restoreAllVisibility(rcsb_id)}
-                                className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100">
-                                <Eye className="h-4 w-4" />
+                                key={tab.id}
+                                onClick={() => setActiveView(tab.id)}
+                                className={cn(
+                                    'px-3 py-1 text-xs transition-colors',
+                                    activeView === tab.id
+                                        ? 'bg-white text-blue-600 font-medium'
+                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                )}>
+                                {tab.label}
                             </button>
-                        </TooltipTrigger>
-                        <TooltipContent>Show all components</TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-
-            <div className="flex-grow min-h-0 relative overflow-hidden mt-4">
-                <div
-                    className={cn('flex transition-transform duration-300 w-[300%] h-full', {
-                        'translate-x-0': activeView === 'polymers',
-                        '-translate-x-1/3': activeView === 'landmarks',
-                        '-translate-x-2/3': activeView === 'ligands'
-                    })}>
-                    <div className="w-1/3 h-full flex-shrink-0">
-                        <ScrollArea className="h-full">
-                            <div className="space-y-1">
-                                <SequenceMolstarSync />
-                                <PolymerSearch polymers={allPolymers} onFilterChange={setFilteredPolymers} />
-                                {filteredPolymers.map(component => (
-                                    <PolymerComponentRow polymer={component} key={component.auth_asym_id} />
-                                ))}
-                            </div>
-                        </ScrollArea>
+                        ))}
                     </div>
 
-                    <div className="w-1/3 h-full flex-shrink-0">
-                        <ScrollArea className="h-full">
-                            <div>
-                                <div className="text-sm text-gray-500">
-                                    <PTCLandmark
-                                        onClick={() => {
-                                            controller?.landmarks.ptc(rcsb_id);
-                                        }}
-                                    />
-                                    <ConstrictionSiteLandmark
-                                        onClick={() => controller?.landmarks.constriction_site(rcsb_id)}
-                                    />
-                                    <HelixLandmarks
-                                        helicesData={helices_data}
-                                        onSelect={helix => {
-                                            const residues = [];
-                                            for (let i = helix.start_residue; i <= helix.end_residue; i++) {
-                                                residues.push({
-                                                    auth_asym_id: helix.chain_id,
-                                                    auth_seq_id: i
-                                                });
-                                            }
-                                            const expr = ctx?.residues.residue_cluster_expression(residues);
-                                            const polymer_component = selectComponentById(state, {
-                                                componentId: helix.chain_id,
-                                                instanceId: 'main'
-                                            });
-                                            const data = ctx?.cell_from_ref(polymer_component.ref);
-                                            const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
-                                            ctx?.ctx.managers.structure.selection.fromLoci('add', loci);
-                                        }}
-                                        onMouseEnter={helix => {
-                                            {
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <button
+                                    onClick={() => msc.polymers.restoreAllVisibility(rcsb_id)}
+                                    className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100">
+                                    <Eye className="h-4 w-4" />
+                                </button>
+                            </TooltipTrigger>
+                            <TooltipContent>Show all components</TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                </div>
+
+                <div className="flex-grow min-h-0 relative overflow-hidden mt-4">
+                    <div
+                        className={cn('flex w-[300%] h-full sliding-panels-container', {
+                            'transform transition-transform duration-300': true,
+                            'translate-x-0': activeView === 'polymers',
+                            '-translate-x-1/3': activeView === 'landmarks',
+                            '-translate-x-2/3': activeView === 'ligands'
+                        })}>
+                        <div className="w-1/3 h-full flex-shrink-0 sliding-panel">
+                            <ScrollArea className="h-full relative">
+                                <div className="space-y-1">
+                                    <SequenceMolstarSync />
+                                    
+                                    <PolymerSearch polymers={allPolymers} onFilterChange={setFilteredPolymers} />
+                                    {filteredPolymers.map(component => (
+                                        <PolymerComponentRow polymer={component} key={component.auth_asym_id} />
+                                    ))}
+                                </div>
+                            </ScrollArea>
+                        </div>
+
+                        <div className="w-1/3 h-full flex-shrink-0">
+                            <ScrollArea className="h-full">
+                                <div>
+                                    <div className="text-sm text-gray-500">
+                                        <PTCLandmark
+                                            onClick={() => {
+                                                controller?.landmarks.ptc(rcsb_id);
+                                            }}
+                                        />
+                                        <ConstrictionSiteLandmark
+                                            onClick={() => controller?.landmarks.constriction_site(rcsb_id)}
+                                        />
+                                        <HelixLandmarks
+                                            helicesData={helices_data}
+                                            onSelect={helix => {
                                                 const residues = [];
                                                 for (let i = helix.start_residue; i <= helix.end_residue; i++) {
                                                     residues.push({
@@ -274,50 +257,69 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                 });
                                                 const data = ctx?.cell_from_ref(polymer_component.ref);
                                                 const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
-                                                console.log('Lcoi?', loci);
+                                                ctx?.ctx.managers.structure.selection.fromLoci('add', loci);
+                                            }}
+                                            onMouseEnter={helix => {
+                                                {
+                                                    const residues = [];
+                                                    for (let i = helix.start_residue; i <= helix.end_residue; i++) {
+                                                        residues.push({
+                                                            auth_asym_id: helix.chain_id,
+                                                            auth_seq_id: i
+                                                        });
+                                                    }
+                                                    const expr = ctx?.residues.residue_cluster_expression(residues);
+                                                    const polymer_component = selectComponentById(state, {
+                                                        componentId: helix.chain_id,
+                                                        instanceId: 'main'
+                                                    });
+                                                    const data = ctx?.cell_from_ref(polymer_component.ref);
+                                                    const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
+                                                    console.log('Lcoi?', loci);
 
-                                                ctx?.ctx.managers.interactivity.lociHighlights.highlight({loci});
-                                            }
-                                        }}
-                                        onMouseLeave={() => {
-                                            ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
-                                        }}
-                                        onFocus={helix => {
-                                            const residues = [];
-                                            for (let i = helix.start_residue; i <= helix.end_residue; i++) {
-                                                residues.push({
-                                                    auth_asym_id: helix.chain_id,
-                                                    auth_seq_id: i
+                                                    ctx?.ctx.managers.interactivity.lociHighlights.highlight({loci});
+                                                }
+                                            }}
+                                            onMouseLeave={() => {
+                                                ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
+                                            }}
+                                            onFocus={helix => {
+                                                const residues = [];
+                                                for (let i = helix.start_residue; i <= helix.end_residue; i++) {
+                                                    residues.push({
+                                                        auth_asym_id: helix.chain_id,
+                                                        auth_seq_id: i
+                                                    });
+                                                }
+                                                const expr = ctx?.residues.residue_cluster_expression(residues);
+                                                const polymer_component = selectComponentById(state, {
+                                                    componentId: helix.chain_id,
+                                                    instanceId: 'main'
                                                 });
-                                            }
-                                            const expr = ctx?.residues.residue_cluster_expression(residues);
-                                            const polymer_component = selectComponentById(state, {
-                                                componentId: helix.chain_id,
-                                                instanceId: 'main'
-                                            });
-                                            const data = ctx?.cell_from_ref(polymer_component.ref);
-                                            const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
+                                                const data = ctx?.cell_from_ref(polymer_component.ref);
+                                                const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
 
-                                            ctx?.ctx.managers.camera.focusLoci(loci);
+                                                ctx?.ctx.managers.camera.focusLoci(loci);
 
-                                            // Your focus logic
-                                        }}
-                                    />
+                                                // Your focus logic
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                        </ScrollArea>
-                    </div>
+                            </ScrollArea>
+                        </div>
 
-                    <div className="w-1/3 h-full flex-shrink-0">
-                        <ScrollArea className="h-full">
-                            <div>
-                                <div className="text-sm text-gray-500">Ligands view (to be implemented)</div>
-                            </div>
-                        </ScrollArea>
+                        <div className="w-1/3 h-full flex-shrink-0">
+                            <ScrollArea className="h-full">
+                                <div>
+                                    <div className="text-sm text-gray-500">Ligands view (to be implemented)</div>
+                                </div>
+                            </ScrollArea>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </TooltipProvider>
     );
 };
 

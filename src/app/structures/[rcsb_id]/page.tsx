@@ -340,7 +340,9 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                             <StructureInfoTab data={data!} isLoading={isLoading} />
                         </div>
                         <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
-                            <ComponentsEasyAccessPanel data={data!} isLoading={isLoading} />
+                            {data ? (
+                            <ComponentsEasyAccessPanel data={data} isLoading={isLoading} />
+                            ) : <span>Loading..</span>}
                         </div>
                     </Card>
                 </ResizablePanel>
