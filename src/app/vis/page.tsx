@@ -14,13 +14,13 @@ import {useParams} from 'next/navigation';
 // import ChainPicker from "@/components/ribxz/chainPicker"
 import {StructureFiltersComponent} from '@/components/filters/structure_filters_component';
 import {Button} from '@/components/ui/button';
-import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 import {MolstarNode} from '@/components/mstar/spec';
 import {MolstarRibxz} from '@/components/mstar/__molstar_ribxz';
 import {MolstarContext} from '@/components/mstar/__molstar_context';
 import {Structure} from 'molstar/lib/mol-model/structure';
 import {Select} from 'antd';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
+import FloatingMenu from '@/components/ribxz/menu_floating';
 
 const ChainSelection = ({polymers}: {polymers: Polymer[]}) => {
     const [selectedItems, setSelectedItems] = useState<Polymer[]>([]);
@@ -94,7 +94,7 @@ export default function Vis() {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <SidebarMenu />
+            <FloatingMenu />
             <ResizablePanelGroup
                 direction="horizontal"
                 className={'rounded-lg border ' + (test_active ? 'bg-black' : 'bg-white')}>

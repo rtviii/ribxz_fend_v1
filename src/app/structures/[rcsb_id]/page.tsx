@@ -34,6 +34,7 @@ import PolymerComponentRow from './polymer_component';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
 import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
 import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
+import FloatingMenu from '@/components/ribxz/menu_floating';
 
 const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
     const handleCifDownload = () => {
@@ -167,11 +168,12 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
 };
 
 const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
-    const dispatch = useAppDispatch();
-    const state = useAppSelector(s => s);
-    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const dispatch          = useAppDispatch();
+    const state             = useAppSelector(s => s);
+    const rcsb_id           = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
-    const service = useMolstarInstance('main');
+    const service           = useMolstarInstance('main');
+
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
     const createNewSelection = async () => {
@@ -345,7 +347,7 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                     <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
             </ResizablePanelGroup>
-            <SidebarMenu />
+            <FloatingMenu/>
         </div>
     );
 }

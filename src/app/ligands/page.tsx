@@ -5,7 +5,6 @@ import _ from 'lodash';
 import {createContext, useContext, useEffect, useRef, useState} from 'react';
 import {MolstarNode, MolstarNode_secondary} from '@/components/mstar/spec';
 import React from 'react';
-import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 import {ImperativePanelHandle} from 'react-resizable-panels';
 import {PanelProvider, usePanelContext} from './panels_context';
 import {useMolstarService} from '@/components/mstar/mstar_service';
@@ -19,6 +18,7 @@ import {Label} from '@/components/ui/label';
 import BindingSiteControlPanel from './controls_selections';
 import TabbedBindingSite from './tabbed_bsites';
 import {cn} from '@/components/utils';
+import FloatingMenu from '@/components/ribxz/menu_floating';
 
 interface LigandInfo {
     chemicalId: string;
@@ -119,7 +119,7 @@ function LigandsPageWithoutContext() {
                 </ResizablePanel>
             </ResizablePanelGroup>
 
-            <SidebarMenu />
+            <FloatingMenu/>
         </div>
     );
 }

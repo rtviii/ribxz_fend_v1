@@ -144,9 +144,9 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const {data: ptc_data}     = useRoutersRouterLociStructurePtcQuery({rcsbId: data?.rcsb_id});
     const {data: ligands_data}     = useRoutersRouterLigInStructureQuery({rcsbId: data?.rcsb_id});
 
-    const mstar = useMolstarInstance('main');
+    const mstar      = useMolstarInstance('main');
     const controller = mstar?.controller;
-    const ctx = mstar?.viewer;
+    const ctx        = mstar?.viewer;
 
     useEffect(() => {
         console.log(helices_data);

@@ -207,7 +207,6 @@ export class ribxzMstarv2 {
                 objects_ligand
             };
         },
-
         upload_mmcif_chain: async (rcsb_id: string, auth_asym_id: string) => {
             const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`;
             const data = await this.ctx.builders.data.download(

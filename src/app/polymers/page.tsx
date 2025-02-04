@@ -1,7 +1,6 @@
 'use client'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StructureFiltersComponent, Group, useDebounceFilters } from "@/components/filters/structure_filters_component"
-import { SidebarMenu } from "@/components/ribxz/sidebar_menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Label } from "@/components/ui/label"
 import { Suspense, useEffect, useState } from "react"
@@ -16,6 +15,7 @@ import PolymerFiltersComponent from "@/components/filters/polymers_filters_compo
 import { useGetPolymersMutation } from "@/store/ribxz_api/polymers_api"
 import { set_current_polymers, set_total_parent_structures_count, set_total_polymers_count } from "@/store/slices/slice_polymers"
 import { Button } from "@/components/ui/button"
+import FloatingMenu from "@/components/ribxz/menu_floating"
 
 export default function PolymersCatalogue() {
     //     TODO
@@ -100,7 +100,7 @@ export default function PolymersCatalogue() {
                             <div className="col-span-3  flex flex-col min-h-full pr-4 space-y-4">
                                 <StructureFiltersComponent update_state="polymers" />
                                 <PolymerFiltersComponent />
-                                <SidebarMenu />
+                                <FloatingMenu />
                             </div>
                             <div className="col-span-9 scrollbar-hidden">
                                 <PolymersTable polymers={current_polymers} />
