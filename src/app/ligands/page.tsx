@@ -54,7 +54,7 @@ function LigandsPageWithoutContext() {
     const molstarNodeRef_secondary = useRef<HTMLDivElement>(null);
 
     const mstar_service_main = useMolstarService(molstarNodeRef, 'main');
-    const mstar_service_aux = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
+    const mstar_service_aux  = useMolstarService(molstarNodeRef_secondary, 'auxiliary');
 
     const lowerPanelRef = React.useRef<ImperativePanelHandle>(null);
     const upperPanelRef = React.useRef<ImperativePanelHandle>(null);

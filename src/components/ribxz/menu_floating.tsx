@@ -13,9 +13,9 @@ export default function FloatingMenu() {
     <TooltipProvider>
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <button className="fixed bottom-16 right-8 z-50 flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 bg-white rounded-lg border border-gray-200 shadow-sm hover:bg-gray-50 hover:scale-105 transition-all">
+          <button className="group fixed bottom-16 right-8 z-50 flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 bg-white rounded-lg border border-gray-200 shadow-sm hover:bg-gray-50 hover:scale-105 transition-all">
             <span>Menu</span>
-            <Settings2 className="w-4 h-4" />
+            <Settings2 className="w-4 h-4 transition-transform duration-700 ease-in-out group-hover:rotate-180" />
           </button>
         </TooltipTrigger>
         
@@ -43,11 +43,9 @@ export default function FloatingMenu() {
                 </nav>
               </div>
             </div>
-
             {/* Footer Links */}
             <div className="border-t border-gray-100 p-3">
               <div className="space-y-1">
-                {/* <Link href="/about" className="block text-xs text-gray-500 hover:text-gray-700">About</Link> */}
                 <Link href="mailto:rtkushner@gmail.com,kdd@math.ubc.ca" className="block text-xs text-gray-500 hover:text-gray-700">Contact</Link>
                 <span className="block text-xs text-gray-400">v1.0.0</span>
               </div>

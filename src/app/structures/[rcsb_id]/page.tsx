@@ -1,12 +1,9 @@
 'use client';
 import {Card} from '@/components/ui/card';
 import {ResizableHandle, ResizablePanel, ResizablePanelGroup} from '@/components/ui/resizable';
-import {
-    RibosomeStructure,
-} from '@/store/ribxz_api/ribxz_api';
+import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
 import PolymersTable from '@/components/ribxz/polymer_table';
 import {ReactNode, use, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 import {MolstarNode} from '@/components/mstar/spec';
 import {ScrollArea} from '@radix-ui/react-scroll-area';
 import {ExpMethodBadge} from '@/components/ribxz/text_aides/exp_method_badge';
@@ -168,11 +165,11 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
 };
 
 const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
-    const dispatch          = useAppDispatch();
-    const state             = useAppSelector(s => s);
-    const rcsb_id           = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const dispatch = useAppDispatch();
+    const state = useAppSelector(s => s);
+    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
-    const service           = useMolstarInstance('main');
+    const service = useMolstarInstance('main');
 
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
@@ -322,7 +319,6 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
         [resizeObserver]
     );
 
-
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
@@ -337,8 +333,10 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                         </div>
                         <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
                             {data ? (
-                            <ComponentsEasyAccessPanel data={data} isLoading={isLoading} />
-                            ) : <span>Loading..</span>}
+                                <ComponentsEasyAccessPanel data={data} isLoading={isLoading} />
+                            ) : (
+                                <span>Loading..</span>
+                            )}
                         </div>
                     </Card>
                 </ResizablePanel>
@@ -347,7 +345,7 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                     <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
             </ResizablePanelGroup>
-            <FloatingMenu/>
+            <FloatingMenu />
         </div>
     );
 }

@@ -16,6 +16,8 @@ import {Button} from '@/components/ui/button';
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 import {useState} from 'react';
 import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
+import { selectRCSBIdsForInstance } from '@/store/molstar/slice_refs';
+import { useAppSelector } from '@/store/store';
 
 const CopyButton = ({text}) => {
     const [copied, setCopied] = useState(false);
@@ -51,12 +53,20 @@ const LigandRow = ({
     const service = useMolstarInstance('main');
     const controller = service?.controller;
     const viewer = service?.viewer;
+    const rcsbid = useAppSelector(state=> selectRCSBIdsForInstance(state,'main'))[0]
+    
 
     const handleRowClick = () => {
         setIsExpanded(!isExpanded);
+
+        viewer?.ligands.create_ligand(rcsbid, ligand.chemicalId);
+
     };
 
     const handleActionClick = (e, action) => {
+
+
+
         e.stopPropagation();
         action();
     };

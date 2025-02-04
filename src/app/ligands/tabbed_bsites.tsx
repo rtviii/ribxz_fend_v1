@@ -11,9 +11,9 @@ interface TabbedBindingSiteProps {
 }
 
 const TabbedBindingSite: React.FC<TabbedBindingSiteProps> = ({isPredictionEnabled}) => {
-    const current_ligand = useAppSelector(state => state.ligands_page.current_ligand);
+    const current_ligand            = useAppSelector(state => state.ligands_page.current_ligand);
     const [activeTab, setActiveTab] = React.useState<string>('source');
-    const isPredictionPending = useAppSelector(state => state.ligands_page.prediction_pending);
+    const isPredictionPending       = useAppSelector(state => state.ligands_page.prediction_pending);
 
     return (
         <div className="h-[calc(100vh-200px)] flex flex-col">
