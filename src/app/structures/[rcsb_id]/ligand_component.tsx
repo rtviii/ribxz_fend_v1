@@ -16,8 +16,8 @@ import {Button} from '@/components/ui/button';
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 import {useState} from 'react';
 import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
-import { selectRCSBIdsForInstance } from '@/store/molstar/slice_refs';
-import { useAppSelector } from '@/store/store';
+import {selectComponentById, selectRCSBIdsForInstance, selectRefsForRCSB} from '@/store/molstar/slice_refs';
+import {useAppSelector} from '@/store/store';
 
 const CopyButton = ({text}) => {
     const [copied, setCopied] = useState(false);
@@ -53,20 +53,22 @@ const LigandRow = ({
     const service = useMolstarInstance('main');
     const controller = service?.controller;
     const viewer = service?.viewer;
-    const rcsbid = useAppSelector(state=> selectRCSBIdsForInstance(state,'main'))[0]
-    
+    const rcsbid = useAppSelector(state => selectRCSBIdsForInstance(state, 'main'))[0];
+    const ligref = useAppSelector(state =>
+        selectComponentById(state, {
+            componentId: ligand.chemicalId,
+            instanceId: 'main'
+        })
+    );
 
     const handleRowClick = () => {
         setIsExpanded(!isExpanded);
 
         viewer?.ligands.create_ligand(rcsbid, ligand.chemicalId);
-
+        viewer?.interactions.focus(ligref.ref);
     };
 
     const handleActionClick = (e, action) => {
-
-
-
         e.stopPropagation();
         action();
     };
@@ -74,16 +76,13 @@ const LigandRow = ({
     return (
         <div className="border-b border-gray-200 last:border-b-0">
             <div className="flex flex-col">
-                {/* Main Row */}
                 <div
                     onClick={handleRowClick}
                     className="flex items-center justify-between rounded-md px-2 py-2 transition-colors hover:cursor-pointer hover:bg-slate-200">
-                    {/* Left side - Basic Info */}
                     <div className="flex items-center space-x-3">
                         <div className="text-gray-500">
                             {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </div>
-
                         <div className="flex flex-col">
                             <div className="flex items-center space-x-2">
                                 <span className="font-mono text-sm font-medium text-gray-900">
