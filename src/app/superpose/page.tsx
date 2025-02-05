@@ -19,10 +19,8 @@ import {Button} from '@/components/ui/button';
 import {useRoutersRouterStructChainsByStructQuery} from '@/store/ribxz_api/ribxz_api';
 import {Label} from '@/components/ui/label';
 // import { dynamicSuperimpose } from "@/store/molstar/dynamic_superposition";
-import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 import {MolstarNode} from '@/components/mstar/spec';
-import {MolstarRibxz} from '@/components/mstar/__molstar_ribxz';
-import {MolstarContext} from '@/components/mstar/__molstar_context';
+import FloatingMenu from '@/components/ribxz/menu_floating';
 // import {
 //   superimpose_pop_chain,
 //   superimpose_select_pivot_chain,
@@ -135,7 +133,7 @@ export default function Superimpose() {
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
-            <SidebarMenu />
+            <FloatingMenu />
             <ResizablePanelGroup
                 direction="horizontal"
                 className={'rounded-lg border ' + (test_active ? 'bg-black' : 'bg-white')}>

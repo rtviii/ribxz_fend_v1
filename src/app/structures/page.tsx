@@ -5,7 +5,6 @@ import {CardContent, Card} from '@/components/ui/card';
 import {StructureCard, StructureStack} from '../../components/ribxz/structure_card';
 import {useCallback, useEffect, useState} from 'react';
 import {StructureFiltersComponent, useDebounceFilters} from '@/components/filters/structure_filters_component';
-import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {useSelector} from 'react-redux';
 import {RootState, useAppDispatch} from '@/store/store';
@@ -16,6 +15,7 @@ import {
     set_structures_cursor,
     set_total_structures_count
 } from '@/store/slices/slice_structures';
+import FloatingMenu from '@/components/ribxz/menu_floating';
 
 export default function StructureCatalogue() {
     // TODO:
@@ -93,7 +93,7 @@ export default function StructureCatalogue() {
                 <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
                     <div className="col-span-3  flex flex-col min-h-full pr-4">
                         <StructureFiltersComponent update_state="structures" />
-                        <SidebarMenu />
+                        <FloatingMenu />
                     </div>
                     <div className="col-span-9 scrollbar-hidden">
                         <ScrollArea

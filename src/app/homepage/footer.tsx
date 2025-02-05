@@ -1,11 +1,9 @@
 "use client"
 import DiceIcon from '../../public/dice.svg'
 import Image from 'next/image';
-import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
 import { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button"
-import { SidebarMenu } from '@/components/ribxz/sidebar_menu';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { HoverCard, HoverCardContent, HoverCardTrigger, } from "@/components/ui/hover-card"

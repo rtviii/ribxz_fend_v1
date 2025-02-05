@@ -7,12 +7,6 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: () => ({url: `/structures/all_rcsb_ids`})
         }),
-        routersRouterStructPolymerClassesStats: build.query<
-            RoutersRouterStructPolymerClassesStatsApiResponse,
-            RoutersRouterStructPolymerClassesStatsApiArg
-        >({
-            query: () => ({url: `/structures/polymer_classes_stats`})
-        }),
         routersRouterStructTaxDict: build.query<
             RoutersRouterStructTaxDictApiResponse,
             RoutersRouterStructTaxDictApiArg
@@ -25,23 +19,11 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: queryArg => ({url: `/structures/polymer_classification_report`, params: {rcsb_id: queryArg.rcsbId}})
         }),
-        routersRouterStructStructureCompositionStats: build.query<
-            RoutersRouterStructStructureCompositionStatsApiResponse,
-            RoutersRouterStructStructureCompositionStatsApiArg
-        >({
-            query: () => ({url: `/structures/structure_composition_stats`})
-        }),
         routersRouterStructRandomProfile: build.query<
             RoutersRouterStructRandomProfileApiResponse,
             RoutersRouterStructRandomProfileApiArg
         >({
             query: () => ({url: `/structures/random_profile`})
-        }),
-        routersRouterStructListLigands: build.query<
-            RoutersRouterStructListLigandsApiResponse,
-            RoutersRouterStructListLigandsApiArg
-        >({
-            query: () => ({url: `/structures/list_ligands`})
         }),
         routersRouterStructListStructures: build.mutation<
             RoutersRouterStructListStructuresApiResponse,
@@ -52,12 +34,6 @@ const injectedRtkApi = api.injectEndpoints({
                 method: 'POST',
                 body: queryArg.structureFilterParams
             })
-        }),
-        routersRouterStructListPolymers: build.mutation<
-            RoutersRouterStructListPolymersApiResponse,
-            RoutersRouterStructListPolymersApiArg
-        >({
-            query: queryArg => ({url: `/structures/list_polymers`, method: 'POST', body: queryArg.polymersFilterParams})
         }),
         routersRouterStructOverview: build.query<
             RoutersRouterStructOverviewApiResponse,
@@ -71,29 +47,11 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: queryArg => ({url: `/structures/profile`, params: {rcsb_id: queryArg.rcsbId}})
         }),
-        routersRouterStructStructurePtc: build.query<
-            RoutersRouterStructStructurePtcApiResponse,
-            RoutersRouterStructStructurePtcApiArg
-        >({
-            query: queryArg => ({url: `/structures/ptc`, params: {rcsb_id: queryArg.rcsbId}})
-        }),
-        routersRouterStructConstrictionSite: build.query<
-            RoutersRouterStructConstrictionSiteApiResponse,
-            RoutersRouterStructConstrictionSiteApiArg
-        >({
-            query: queryArg => ({url: `/structures/constriction_site`, params: {rcsb_id: queryArg.rcsbId}})
-        }),
         routersRouterStructChainsByStruct: build.query<
             RoutersRouterStructChainsByStructApiResponse,
             RoutersRouterStructChainsByStructApiArg
         >({
             query: () => ({url: `/structures/chains_by_struct`})
-        }),
-        routersRouterStructPolymerClassesNomenclature: build.query<
-            RoutersRouterStructPolymerClassesNomenclatureApiResponse,
-            RoutersRouterStructPolymerClassesNomenclatureApiArg
-        >({
-            query: () => ({url: `/structures/list_nomenclature`})
         }),
         routersRouterStructListSourceTaxa: build.query<
             RoutersRouterStructListSourceTaxaApiResponse,
@@ -101,50 +59,107 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: queryArg => ({url: `/structures/list_source_taxa`, params: {source_or_host: queryArg.sourceOrHost}})
         }),
-        routersRouterStructGetShape: build.query<
-            RoutersRouterStructGetShapeApiResponse,
-            RoutersRouterStructGetShapeApiArg
+        routersRouterStructPolymerClassesNomenclature: build.query<
+            RoutersRouterStructPolymerClassesNomenclatureApiResponse,
+            RoutersRouterStructPolymerClassesNomenclatureApiArg
         >({
-            query: queryArg => ({
-                url: `/structures/tunnel_geometry`,
-                params: {rcsb_id: queryArg.rcsbId, is_ascii: queryArg.isAscii}
-            })
+            query: () => ({url: `/structures/list_nomenclature`})
         }),
-        routersRouterStructCylinderResidues: build.query<
-            RoutersRouterStructCylinderResiduesApiResponse,
-            RoutersRouterStructCylinderResiduesApiArg
-        >({
-            query: () => ({url: `/structures/cylinder_residues`})
-        }),
-        routersRouterStructHalfCylinderResidues: build.query<
-            RoutersRouterStructHalfCylinderResiduesApiResponse,
-            RoutersRouterStructHalfCylinderResiduesApiArg
-        >({
-            query: () => ({url: `/structures/half_cylinder_residues`})
-        }),
-        routersRouterStructGetHelices: build.query<
-            RoutersRouterStructGetHelicesApiResponse,
-            RoutersRouterStructGetHelicesApiArg
-        >({
-            query: queryArg => ({url: `/structures/landmarks/helices/${queryArg.rcsbId}`})
-        }),
-        routersRouterClassesPolynucleotideClass: build.query<
-            RoutersRouterClassesPolynucleotideClassApiResponse,
-            RoutersRouterClassesPolynucleotideClassApiArg
+        routersRouterPolymersPolynucleotideClass: build.query<
+            RoutersRouterPolymersPolynucleotideClassApiResponse,
+            RoutersRouterPolymersPolynucleotideClassApiArg
         >({
             query: queryArg => ({url: `/polymers/polynucleotide`, params: {rna_class: queryArg.rnaClass}})
         }),
-        routersRouterClassesPolypeptideClass: build.query<
-            RoutersRouterClassesPolypeptideClassApiResponse,
-            RoutersRouterClassesPolypeptideClassApiArg
+        routersRouterPolymersPolypeptideClass: build.query<
+            RoutersRouterPolymersPolypeptideClassApiResponse,
+            RoutersRouterPolymersPolypeptideClassApiArg
         >({
             query: queryArg => ({url: `/polymers/polypeptide`, params: {protein_class: queryArg.proteinClass}})
         }),
-        routersRouterClassesLifecycleFactorClass: build.query<
-            RoutersRouterClassesLifecycleFactorClassApiResponse,
-            RoutersRouterClassesLifecycleFactorClassApiArg
+        routersRouterPolymersLifecycleFactorClass: build.query<
+            RoutersRouterPolymersLifecycleFactorClassApiResponse,
+            RoutersRouterPolymersLifecycleFactorClassApiArg
         >({
             query: queryArg => ({url: `/polymers/lifecyle_factor`, params: {factor_class: queryArg.factorClass}})
+        }),
+        routersRouterPolymersListPolymers: build.mutation<
+            RoutersRouterPolymersListPolymersApiResponse,
+            RoutersRouterPolymersListPolymersApiArg
+        >({
+            query: queryArg => ({url: `/polymers/list_polymers`, method: 'POST', body: queryArg.polymersFilterParams})
+        }),
+        routersRouterPolymersPolymerClassesStats: build.query<
+            RoutersRouterPolymersPolymerClassesStatsApiResponse,
+            RoutersRouterPolymersPolymerClassesStatsApiArg
+        >({
+            query: () => ({url: `/polymers/polymer_classes_stats`})
+        }),
+        routersRouterLigLigNbhd: build.query<RoutersRouterLigLigNbhdApiResponse, RoutersRouterLigLigNbhdApiArg>({
+            query: queryArg => ({
+                url: `/ligands/binding_pocket`,
+                params: {
+                    source_structure: queryArg.sourceStructure,
+                    chemical_id: queryArg.chemicalId,
+                    radius: queryArg.radius
+                }
+            })
+        }),
+        routersRouterLigLigTranspose: build.query<
+            RoutersRouterLigLigTransposeApiResponse,
+            RoutersRouterLigLigTransposeApiArg
+        >({
+            query: queryArg => ({
+                url: `/ligands/transpose`,
+                params: {
+                    source_structure: queryArg.sourceStructure,
+                    target_structure: queryArg.targetStructure,
+                    chemical_id: queryArg.chemicalId,
+                    radius: queryArg.radius
+                }
+            })
+        }),
+        routersRouterLigListLigands: build.query<
+            RoutersRouterLigListLigandsApiResponse,
+            RoutersRouterLigListLigandsApiArg
+        >({
+            query: () => ({url: `/ligands/list_ligands`})
+        }),
+        routersRouterLigEntity: build.query<RoutersRouterLigEntityApiResponse, RoutersRouterLigEntityApiArg>({
+            query: queryArg => ({url: `/ligands/entity`, params: {rcsb_id: queryArg.rcsbId}})
+        }),
+        routersRouterLigInStructure: build.query<
+            RoutersRouterLigInStructureApiResponse,
+            RoutersRouterLigInStructureApiArg
+        >({
+            query: queryArg => ({url: `/ligands/in_structure`, params: {rcsb_id: queryArg.rcsbId}})
+        }),
+        routersRouterLigDemo7K00: build.query<RoutersRouterLigDemo7K00ApiResponse, RoutersRouterLigDemo7K00ApiArg>({
+            query: () => ({url: `/ligands/demo_7k00`})
+        }),
+        routersRouterLociGetShape: build.query<RoutersRouterLociGetShapeApiResponse, RoutersRouterLociGetShapeApiArg>({
+            query: queryArg => ({
+                url: `/loci/tunnel_geometry`,
+                params: {rcsb_id: queryArg.rcsbId, is_ascii: queryArg.isAscii}
+            })
+        }),
+        routersRouterLociGetHelices: build.query<
+            RoutersRouterLociGetHelicesApiResponse,
+            RoutersRouterLociGetHelicesApiArg
+        >({
+            query: queryArg => ({url: `/loci/helices/${queryArg.rcsbId}`})
+        }),
+        routersRouterLociStructurePtc: build.query<
+            RoutersRouterLociStructurePtcApiResponse,
+            RoutersRouterLociStructurePtcApiArg
+        >({
+            query: queryArg => ({url: `/loci/ptc`, params: {rcsb_id: queryArg.rcsbId}})
+        }),
+        routersRouterLociConstrictionSite: build.query<
+            RoutersRouterLociConstrictionSiteApiResponse,
+            RoutersRouterLociConstrictionSiteApiArg
+        >({
+            query: queryArg => ({url: `/loci/constriction_site`, params: {rcsb_id: queryArg.rcsbId}})
         }),
         routersRouterMmcifPolymer: build.query<RoutersRouterMmcifPolymerApiResponse, RoutersRouterMmcifPolymerApiArg>({
             query: queryArg => ({
@@ -160,39 +175,6 @@ const injectedRtkApi = api.injectEndpoints({
                 url: `/mmcif/nonpolymer`,
                 params: {rcsb_id: queryArg.rcsbId, chemicalId: queryArg.chemicalId}
             })
-        }),
-        routersRouterLigLigNbhd: build.query<RoutersRouterLigLigNbhdApiResponse, RoutersRouterLigLigNbhdApiArg>({
-            query: queryArg => ({
-                url: `/ligand/binding_pocket`,
-                params: {
-                    source_structure: queryArg.sourceStructure,
-                    chemical_id: queryArg.chemicalId,
-                    radius: queryArg.radius
-                }
-            })
-        }),
-        routersRouterLigLigTranspose: build.query<
-            RoutersRouterLigLigTransposeApiResponse,
-            RoutersRouterLigLigTransposeApiArg
-        >({
-            query: queryArg => ({
-                url: `/ligand/transpose`,
-                params: {
-                    source_structure: queryArg.sourceStructure,
-                    target_structure: queryArg.targetStructure,
-                    chemical_id: queryArg.chemicalId,
-                    radius: queryArg.radius
-                }
-            })
-        }),
-        routersRouterLigBsiteComposite: build.query<
-            RoutersRouterLigBsiteCompositeApiResponse,
-            RoutersRouterLigBsiteCompositeApiArg
-        >({
-            query: () => ({url: `/ligand/bsite_composite`})
-        }),
-        routersRouterLigDemo7K00: build.query<RoutersRouterLigDemo7K00ApiResponse, RoutersRouterLigDemo7K00ApiArg>({
-            query: () => ({url: `/ligand/demo_7k00`})
         })
     }),
     overrideExisting: false
@@ -200,27 +182,17 @@ const injectedRtkApi = api.injectEndpoints({
 export {injectedRtkApi as ribxz_api};
 export type RoutersRouterStructAllRcsbIdsApiResponse = /** status 200 OK */ string[];
 export type RoutersRouterStructAllRcsbIdsApiArg = void;
-export type RoutersRouterStructPolymerClassesStatsApiResponse = /** status 200 OK */ [string, number][];
-export type RoutersRouterStructPolymerClassesStatsApiArg = void;
 export type RoutersRouterStructTaxDictApiResponse = /** status 200 OK */ object;
 export type RoutersRouterStructTaxDictApiArg = void;
 export type RoutersRouterStructPolymerClassificationReportApiResponse = unknown;
 export type RoutersRouterStructPolymerClassificationReportApiArg = {
     rcsbId: string;
 };
-export type RoutersRouterStructStructureCompositionStatsApiResponse = /** status 200 OK */ StructureCompositionStats;
-export type RoutersRouterStructStructureCompositionStatsApiArg = void;
 export type RoutersRouterStructRandomProfileApiResponse = /** status 200 OK */ RibosomeStructure;
 export type RoutersRouterStructRandomProfileApiArg = void;
-export type RoutersRouterStructListLigandsApiResponse = /** status 200 OK */ [object, object[]][];
-export type RoutersRouterStructListLigandsApiArg = void;
 export type RoutersRouterStructListStructuresApiResponse = /** status 200 OK */ object;
 export type RoutersRouterStructListStructuresApiArg = {
     structureFilterParams: StructureFilterParams;
-};
-export type RoutersRouterStructListPolymersApiResponse = /** status 200 OK */ object;
-export type RoutersRouterStructListPolymersApiArg = {
-    polymersFilterParams: PolymersFilterParams;
 };
 export type RoutersRouterStructOverviewApiResponse = /** status 200 OK */ object[];
 export type RoutersRouterStructOverviewApiArg = void;
@@ -228,57 +200,32 @@ export type RoutersRouterStructStructureProfileApiResponse = /** status 200 OK *
 export type RoutersRouterStructStructureProfileApiArg = {
     rcsbId: string;
 };
-export type RoutersRouterStructStructurePtcApiResponse = /** status 200 OK */ PtcInfo;
-export type RoutersRouterStructStructurePtcApiArg = {
-    rcsbId: string;
-};
-export type RoutersRouterStructConstrictionSiteApiResponse = /** status 200 OK */ ConstrictionSite;
-export type RoutersRouterStructConstrictionSiteApiArg = {
-    rcsbId: string;
-};
 export type RoutersRouterStructChainsByStructApiResponse = /** status 200 OK */ ChainsByStruct[];
 export type RoutersRouterStructChainsByStructApiArg = void;
-export type RoutersRouterStructPolymerClassesNomenclatureApiResponse = /** status 200 OK */ NomenclatureSet;
-export type RoutersRouterStructPolymerClassesNomenclatureApiArg = void;
 export type RoutersRouterStructListSourceTaxaApiResponse = /** status 200 OK */ object[];
 export type RoutersRouterStructListSourceTaxaApiArg = {
     sourceOrHost: 'source' | 'host';
 };
-export type RoutersRouterStructGetShapeApiResponse = unknown;
-export type RoutersRouterStructGetShapeApiArg = {
-    rcsbId: string;
-    isAscii?: boolean;
-};
-export type RoutersRouterStructCylinderResiduesApiResponse = unknown;
-export type RoutersRouterStructCylinderResiduesApiArg = void;
-export type RoutersRouterStructHalfCylinderResiduesApiResponse = unknown;
-export type RoutersRouterStructHalfCylinderResiduesApiArg = void;
-export type RoutersRouterStructGetHelicesApiResponse = unknown;
-export type RoutersRouterStructGetHelicesApiArg = {
-    rcsbId: string;
-};
-export type RoutersRouterClassesPolynucleotideClassApiResponse = /** status 200 OK */ Rna[];
-export type RoutersRouterClassesPolynucleotideClassApiArg = {
+export type RoutersRouterStructPolymerClassesNomenclatureApiResponse = /** status 200 OK */ NomenclatureSet;
+export type RoutersRouterStructPolymerClassesNomenclatureApiArg = void;
+export type RoutersRouterPolymersPolynucleotideClassApiResponse = /** status 200 OK */ Rna[];
+export type RoutersRouterPolymersPolynucleotideClassApiArg = {
     rnaClass: CytosolicRnaClass | MitochondrialRnaClass | TRna;
 };
-export type RoutersRouterClassesPolypeptideClassApiResponse = /** status 200 OK */ Protein[];
-export type RoutersRouterClassesPolypeptideClassApiArg = {
+export type RoutersRouterPolymersPolypeptideClassApiResponse = /** status 200 OK */ Protein[];
+export type RoutersRouterPolymersPolypeptideClassApiArg = {
     proteinClass: ElongationFactorClass | InitiationFactorClass | MitochondrialProteinClass | CytosolicProteinClass;
 };
-export type RoutersRouterClassesLifecycleFactorClassApiResponse = /** status 200 OK */ Protein[];
-export type RoutersRouterClassesLifecycleFactorClassApiArg = {
+export type RoutersRouterPolymersLifecycleFactorClassApiResponse = /** status 200 OK */ Protein[];
+export type RoutersRouterPolymersLifecycleFactorClassApiArg = {
     factorClass: ElongationFactorClass | InitiationFactorClass;
 };
-export type RoutersRouterMmcifPolymerApiResponse = unknown;
-export type RoutersRouterMmcifPolymerApiArg = {
-    rcsbId: string;
-    authAsymId: string;
+export type RoutersRouterPolymersListPolymersApiResponse = /** status 200 OK */ object;
+export type RoutersRouterPolymersListPolymersApiArg = {
+    polymersFilterParams: PolymersFilterParams;
 };
-export type RoutersRouterMmcifNonpolymerApiResponse = unknown;
-export type RoutersRouterMmcifNonpolymerApiArg = {
-    rcsbId: string;
-    chemicalId: string;
-};
+export type RoutersRouterPolymersPolymerClassesStatsApiResponse = /** status 200 OK */ [string, number][];
+export type RoutersRouterPolymersPolymerClassesStatsApiArg = void;
 export type RoutersRouterLigLigNbhdApiResponse = /** status 200 OK */ BindingSite;
 export type RoutersRouterLigLigNbhdApiArg = {
     sourceStructure: string;
@@ -292,21 +239,44 @@ export type RoutersRouterLigLigTransposeApiArg = {
     chemicalId: string;
     radius: number;
 };
-export type RoutersRouterLigBsiteCompositeApiResponse = /** status 200 OK */ object;
-export type RoutersRouterLigBsiteCompositeApiArg = void;
+export type RoutersRouterLigListLigandsApiResponse = /** status 200 OK */ [object, object[]][];
+export type RoutersRouterLigListLigandsApiArg = void;
+export type RoutersRouterLigEntityApiResponse = unknown;
+export type RoutersRouterLigEntityApiArg = {
+    rcsbId: string;
+};
+export type RoutersRouterLigInStructureApiResponse = unknown;
+export type RoutersRouterLigInStructureApiArg = {
+    rcsbId: string;
+};
 export type RoutersRouterLigDemo7K00ApiResponse = /** status 200 OK */ ProcessedLigands;
 export type RoutersRouterLigDemo7K00ApiArg = void;
-export type CompositionStats = {
-    lsu_only: number;
-    ssu_only: number;
-    ssu_lsu: number;
-    drugbank_compounds: number;
-    mitochondrial: number;
+export type RoutersRouterLociGetShapeApiResponse = unknown;
+export type RoutersRouterLociGetShapeApiArg = {
+    rcsbId: string;
+    isAscii?: boolean;
 };
-export type StructureCompositionStats = {
-    archaea: CompositionStats;
-    bacteria: CompositionStats;
-    eukaryota: CompositionStats;
+export type RoutersRouterLociGetHelicesApiResponse = unknown;
+export type RoutersRouterLociGetHelicesApiArg = {
+    rcsbId: string;
+};
+export type RoutersRouterLociStructurePtcApiResponse = /** status 200 OK */ PtcInfo;
+export type RoutersRouterLociStructurePtcApiArg = {
+    rcsbId: string;
+};
+export type RoutersRouterLociConstrictionSiteApiResponse = /** status 200 OK */ ConstrictionSite;
+export type RoutersRouterLociConstrictionSiteApiArg = {
+    rcsbId: string;
+};
+export type RoutersRouterMmcifPolymerApiResponse = unknown;
+export type RoutersRouterMmcifPolymerApiArg = {
+    rcsbId: string;
+    authAsymId: string;
+};
+export type RoutersRouterMmcifNonpolymerApiResponse = unknown;
+export type RoutersRouterMmcifNonpolymerApiArg = {
+    rcsbId: string;
+    chemicalId: string;
 };
 export type NonpolymerEntityInstanceContainerIdentifiers = {
     entity_id: string;
@@ -760,6 +730,33 @@ export type StructureFilterParams = {
     host_taxa?: number[] | null;
     subunit_presence?: ('SSU+LSU' | 'LSU' | 'SSU') | null;
 };
+export type PolymerByStruct = {
+    nomenclature: (
+        | CytosolicRnaClass
+        | MitochondrialRnaClass
+        | TRna
+        | ElongationFactorClass
+        | InitiationFactorClass
+        | MitochondrialProteinClass
+        | CytosolicProteinClass
+    )[];
+    auth_asym_id: string;
+    entity_poly_polymer_type: string;
+    entity_poly_seq_length: number;
+};
+export type ChainsByStruct = {
+    polymers: PolymerByStruct[];
+    rcsb_id: string;
+};
+export type NomenclatureSet = {
+    ElongationFactorClass: string[];
+    InitiationFactorClass: string[];
+    CytosolicProteinClass: string[];
+    MitochondrialProteinClass: string[];
+    CytosolicRNAClass: string[];
+    MitochondrialRNAClass: string[];
+    tRNAClass: string[];
+};
 export type PolymersFilterParams = {
     cursor?: [string | null, string | null] | (string | null)[] | string | null;
     limit?: number;
@@ -799,40 +796,6 @@ export type ResidueSummary = {
     auth_seq_id: number;
     rcsb_id: string;
     full_id: [string, number, string, [string, number, string]] | null;
-};
-export type PtcInfo = {
-    location: number[];
-    residues: ResidueSummary[];
-};
-export type ConstrictionSite = {
-    location: number[];
-};
-export type PolymerByStruct = {
-    nomenclature: (
-        | CytosolicRnaClass
-        | MitochondrialRnaClass
-        | TRna
-        | ElongationFactorClass
-        | InitiationFactorClass
-        | MitochondrialProteinClass
-        | CytosolicProteinClass
-    )[];
-    auth_asym_id: string;
-    entity_poly_polymer_type: string;
-    entity_poly_seq_length: number;
-};
-export type ChainsByStruct = {
-    polymers: PolymerByStruct[];
-    rcsb_id: string;
-};
-export type NomenclatureSet = {
-    ElongationFactorClass: string[];
-    InitiationFactorClass: string[];
-    CytosolicProteinClass: string[];
-    MitochondrialProteinClass: string[];
-    CytosolicRNAClass: string[];
-    MitochondrialRNAClass: string[];
-    tRNAClass: string[];
 };
 export type BindingSiteChain = {
     assembly_id: number;
@@ -898,34 +861,39 @@ export type LigandTransposition = {
 export type ProcessedLigands = {
     [key: string]: any;
 };
+export type PtcInfo = {
+    location: number[];
+    residues: ResidueSummary[];
+};
+export type ConstrictionSite = {
+    location: number[];
+};
 export const {
     useRoutersRouterStructAllRcsbIdsQuery,
-    useRoutersRouterStructPolymerClassesStatsQuery,
     useRoutersRouterStructTaxDictQuery,
     useRoutersRouterStructPolymerClassificationReportQuery,
-    useRoutersRouterStructStructureCompositionStatsQuery,
     useRoutersRouterStructRandomProfileQuery,
-    useRoutersRouterStructListLigandsQuery,
     useRoutersRouterStructListStructuresMutation,
-    useRoutersRouterStructListPolymersMutation,
     useRoutersRouterStructOverviewQuery,
     useRoutersRouterStructStructureProfileQuery,
-    useRoutersRouterStructStructurePtcQuery,
-    useRoutersRouterStructConstrictionSiteQuery,
     useRoutersRouterStructChainsByStructQuery,
-    useRoutersRouterStructPolymerClassesNomenclatureQuery,
     useRoutersRouterStructListSourceTaxaQuery,
-    useRoutersRouterStructGetShapeQuery,
-    useRoutersRouterStructCylinderResiduesQuery,
-    useRoutersRouterStructHalfCylinderResiduesQuery,
-    useRoutersRouterStructGetHelicesQuery,
-    useRoutersRouterClassesPolynucleotideClassQuery,
-    useRoutersRouterClassesPolypeptideClassQuery,
-    useRoutersRouterClassesLifecycleFactorClassQuery,
-    useRoutersRouterMmcifPolymerQuery,
-    useRoutersRouterMmcifNonpolymerQuery,
+    useRoutersRouterStructPolymerClassesNomenclatureQuery,
+    useRoutersRouterPolymersPolynucleotideClassQuery,
+    useRoutersRouterPolymersPolypeptideClassQuery,
+    useRoutersRouterPolymersLifecycleFactorClassQuery,
+    useRoutersRouterPolymersListPolymersMutation,
+    useRoutersRouterPolymersPolymerClassesStatsQuery,
     useRoutersRouterLigLigNbhdQuery,
     useRoutersRouterLigLigTransposeQuery,
-    useRoutersRouterLigBsiteCompositeQuery,
-    useRoutersRouterLigDemo7K00Query
+    useRoutersRouterLigListLigandsQuery,
+    useRoutersRouterLigEntityQuery,
+    useRoutersRouterLigInStructureQuery,
+    useRoutersRouterLigDemo7K00Query,
+    useRoutersRouterLociGetShapeQuery,
+    useRoutersRouterLociGetHelicesQuery,
+    useRoutersRouterLociStructurePtcQuery,
+    useRoutersRouterLociConstrictionSiteQuery,
+    useRoutersRouterMmcifPolymerQuery,
+    useRoutersRouterMmcifNonpolymerQuery
 } = injectedRtkApi;

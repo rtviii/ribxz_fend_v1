@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { cn } from '@/components/utils';
 
+import { Mail } from 'lucide-react';
 const CITATION_FORMATS = [
     { id: 'bibtex', label: 'BibTeX' },
     { id: 'vancouver', label: 'Vancouver' },
@@ -25,6 +26,58 @@ const CITATIONS = {
     mla: `Kushner, Artem, Anton S. Petrov, and Khanh Dao Duc. "RiboXYZ: a comprehensive database for visualizing and analyzing ribosome structures." Nucleic Acids Research 51.D1 (2023): D509-D516.`,
 };
 
+const ContactSection = () => {
+  const mailtoLink = "mailto:rtkushner@gmail.com,kdd@math.ubc.ca?subject=riboxyz%20Feedback";
+  
+  
+  return (
+    <div className="flex flex-col divide-y divide-gray-100">
+      {/* Contact section - 3/4 */}
+      <div className="pb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">Contact</h2>
+          <a 
+            href={mailtoLink}
+            className="text-gray-600 hover:text-gray-900 transition-colors group"
+          >
+            <Mail className="h-5 w-5 group-hover:text-blue-600" />
+          </a>
+        </div>
+        
+        <p className="text-sm text-gray-600">
+          Drop us a line regarding improvements to the service, errors or direct requests for data you couldn't find.
+        </p>
+      </div>
+
+      {/* Developed by section - 1/4 */}
+      <div className="pt-8">
+        <div className="text-sm text-gray-600 mb-3">Developed by:</div>
+        <ul className="list-none space-y-2 pl-0">
+          <li>
+            <a 
+              href="https://artemkushner.com" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              Artem Kushner
+            </a>
+          </li>
+          <li>
+            <a 
+              href="https://www.math.ubc.ca/~kdaoduc/" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              Khanh Dao Duc
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+};
 const Citations = () => {
     const [format, setFormat] = useState('bibtex');
     const [copied, setCopied] = useState(false);
@@ -36,7 +89,7 @@ const Citations = () => {
     };
 
     return (
-        <div className="w-2/3 pl-8">
+        <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">How to Cite</h2>
             <div className="flex gap-2 mb-4">
                 {CITATION_FORMATS.map((citationFormat) => (
@@ -53,7 +106,7 @@ const Citations = () => {
                     </button>
                 ))}
             </div>
-            <div className="relative h-64"> {/* Fixed height container */}
+            <div className="relative h-64">
                 <div className="absolute inset-0 overflow-auto">
                     <pre className="text-sm bg-gray-50 p-4 rounded-lg border border-gray-200 font-mono whitespace-pre-wrap">
                         {CITATIONS[format]}
@@ -135,7 +188,10 @@ const BottomSection = ({ acknowledgements }) => {
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="flex">
                     <Acknowledgements items={acknowledgements} />
-                    <Citations />
+                    <div className="w-2/3 pl-8 space-y-8">
+                        <Citations />
+                        <ContactSection />
+                    </div>
                 </div>
             </div>
         </section>

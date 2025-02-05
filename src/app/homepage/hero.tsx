@@ -1,11 +1,9 @@
 "use client"
 import DiceIcon from '../../public/dice.svg'
 import Image from 'next/image';
-import { ribxz_api, useRoutersRouterStructAllRcsbIdsQuery, useRoutersRouterStructListLigandsQuery, useRoutersRouterStructPolymerClassesNomenclatureQuery, useRoutersRouterStructPolymerClassesStatsQuery, useRoutersRouterStructRandomProfileQuery, useRoutersRouterStructStructureCompositionStatsQuery } from '@/store/ribxz_api/ribxz_api';
 import Link from "next/link"
 import { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button"
-import { SidebarMenu } from '@/components/ribxz/sidebar_menu';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { HoverCard, HoverCardContent, HoverCardTrigger, } from "@/components/ui/hover-card"
@@ -20,6 +18,7 @@ import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useGetStructuresMutation } from '@/store/ribxz_api/structures_api';
 import { useDebounceFilters } from '@/components/filters/structure_filters_component';
 import { set_current_structures, set_structures_cursor, set_structures_filter, set_total_structures_count } from '@/store/slices/slice_structures';
+import FloatingMenu from '@/components/ribxz/menu_floating';
 
 const InkscapeOverlay = ({ active }) => {
     return (
@@ -155,7 +154,7 @@ export const Hero = () => {
 
     return (
         <div className="mt-20 flex flex-col items-center justify-center">
-            <SidebarMenu/>
+            <FloatingMenu/>
             {/* Logo + Text Container */}
             <div className="w-full max-w-2xl flex gap-4 items-start relative mb-4">
                 {/* InkscapeOverlay - Larger and positioned to extend below */}

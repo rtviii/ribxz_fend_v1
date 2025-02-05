@@ -1,21 +1,10 @@
 'use client';
-import {CardContent, Card} from '@/components/ui/card';
-import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/components/ui/tabs';
+import {Card} from '@/components/ui/card';
 import {ResizableHandle, ResizablePanel, ResizablePanelGroup} from '@/components/ui/resizable';
-import {
-    Polymer,
-    Protein,
-    RibosomeStructure,
-    Rna,
-    useRoutersRouterStructStructureProfileQuery,
-    useRoutersRouterStructStructurePtcQuery
-} from '@/store/ribxz_api/ribxz_api';
+import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
 import PolymersTable from '@/components/ribxz/polymer_table';
 import {ReactNode, use, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {SidebarMenu} from '@/components/ribxz/sidebar_menu';
-// import {MolstarRibxz} from '@/components/mstar/__molstar_ribxz';
 import {MolstarNode} from '@/components/mstar/spec';
-// import {MolstarContext} from '@/components/mstar/__molstar_context';
 import {ScrollArea} from '@radix-ui/react-scroll-area';
 import {ExpMethodBadge} from '@/components/ribxz/text_aides/exp_method_badge';
 import {
@@ -42,6 +31,7 @@ import PolymerComponentRow from './polymer_component';
 import ComponentsEasyAccessPanel from './components_easy_access_panel';
 import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
 import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
+import FloatingMenu from '@/components/ribxz/menu_floating';
 
 const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
     const handleCifDownload = () => {
@@ -180,6 +170,7 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
     const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
     const service = useMolstarInstance('main');
+
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
     const createNewSelection = async () => {
@@ -300,10 +291,6 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
 
     const molstarNodeRef = useRef<HTMLDivElement>(null);
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef, 'main');
-
-    // const molstarNodeRef = useRef<HTMLDivElement>(null);
-    // const {rcsb_id} = params;
-
     const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
 
     useEffect(() => {
@@ -332,29 +319,24 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
         [resizeObserver]
     );
 
-    const state = useAppSelector(s => s);
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
-
-            {/* <MolstarServiceContext.Provider value={molstarServiceInstance}> */}
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={25}>
                     <Card
                         className="h-full flex flex-col border-0 rounded-none p-2 outline-red-600 space-y-2 py-4"
                         ref={leftPanelRef}>
                         <div className="sticky top-0 space-y-2  ">
-                            <Button
-                                onClick={() => {
-                                    console.log(state);
-                                }}>
-                                log state
-                            </Button>
                             <SelectionAndStructureActions nomenclature_map={nomMap} />
                             <StructureInfoTab data={data!} isLoading={isLoading} />
                         </div>
                         <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
-                            <ComponentsEasyAccessPanel  data={data!} isLoading={isLoading} />
+                            {data ? (
+                                <ComponentsEasyAccessPanel data={data} isLoading={isLoading} />
+                            ) : (
+                                <span>Loading..</span>
+                            )}
                         </div>
                     </Card>
                 </ResizablePanel>
@@ -363,8 +345,7 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                     <MolstarNode ref={molstarNodeRef} />
                 </ResizablePanel>
             </ResizablePanelGroup>
-            {/* </MolstarServiceContext.Provider> */}
-            <SidebarMenu />
+            <FloatingMenu />
         </div>
     );
 }
