@@ -6,11 +6,12 @@ export const polymersApi = createApi({
   endpoints: (builder) => ({
     getPolymers: builder.mutation({  // Change this to mutation
       query: (args) => ({
-        url   : 'structures/list_polymers',
+        url   : 'polymers/list_polymers',
         method: 'POST',
         body  : args,
       }),
     }),
   }),
 })
+
 export const { useGetPolymersMutation} = polymersApi 

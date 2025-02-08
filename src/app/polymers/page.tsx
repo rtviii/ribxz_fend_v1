@@ -20,13 +20,13 @@ function PolymersContent() {
     const searchParams = useSearchParams()
     const class_param = searchParams.get('class')
     
-    const dispatch = useAppDispatch();
-    const total_polymers_count = useAppSelector((state) => state.polymers_page.total_polymers_count)
-    const current_polymers = useAppSelector((state) => state.polymers_page.current_polymers)
-    const filter_state = useAppSelector((state) => state.polymers_page.filters)
-    const debounced_filters = useDebounceFilters(filter_state, 250)
-    const [hasMore, setHasMore] = useState(true);
-    const [cursor, setCursor] = useState(null)
+    const dispatch                  = useAppDispatch();
+    const total_polymers_count      = useAppSelector((state) => state.polymers_page.total_polymers_count)
+    const current_polymers          = useAppSelector((state) => state.polymers_page.current_polymers)
+    const filter_state              = useAppSelector((state) => state.polymers_page.filters)
+    const debounced_filters         = useDebounceFilters(filter_state, 250)
+    const [hasMore, setHasMore]     = useState(true);
+    const [cursor, setCursor]       = useState(null)
     const [isLoading, setIsLoading] = useState(false);
 
     const [getPolymers] = useGetPolymersMutation()

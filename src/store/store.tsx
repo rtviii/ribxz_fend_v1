@@ -14,10 +14,9 @@ import {HomepageSlice, set_tax_dict} from './slices/slice_homepage';
 import {handleReferencesSlice} from './molstar/slice_refs';
 import {sequenceViewerSlice} from './molstar/slice_seq_viewer';
 import {polymerStatesSlice} from './slices/slice_polymer_states';
-import { bsite_demo_slice } from '@/app/homepage/demo_bsite_slice';
+import {bsite_demo_slice} from '@/app/homepage/demo_bsite_slice';
 
 export const makeStore = () => {
-
     const store = configureStore({
         reducer: {
             [ribxz_api.reducerPath]    : ribxz_api.reducer,
@@ -32,14 +31,14 @@ export const makeStore = () => {
             mstar_refs                 : handleReferencesSlice.reducer,
             sequenceViewer             : sequenceViewerSlice.reducer,
             polymer_states             : polymerStatesSlice.reducer,
-            bsites_demo                : bsite_demo_slice.reducer,
-            // mstar_seq_viewer           : sequenceViewerSlice.reducer,
+            bsites_demo                : bsite_demo_slice.reducer
         },
 
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware({serializableCheck: false})
                 .concat(ribxz_api.middleware)
                 .concat(structuresApi.middleware)
+                .concat(polymersApi.middleware) // Add this lin
     });
 
     //* All prefetching can happen here via thunks.
