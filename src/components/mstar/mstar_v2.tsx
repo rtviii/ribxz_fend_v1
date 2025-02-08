@@ -140,7 +140,6 @@ export class ribxzMstarv2 {
 
         constriction_site: (xyz: number[]) => {
             let [x, y, z] = xyz;
-            console.log(x, y, z);
 
             let sphere = {
                 x: x,
@@ -159,7 +158,6 @@ export class ribxzMstarv2 {
                 colorParams: {value: Color(0xff0000)} // Red color
             });
 
-            console.log('Constriction site added');
         }
     };
 
@@ -266,7 +264,6 @@ export class ribxzMstarv2 {
                 {tag: `${chemicalId}_`} // tag is optional, but useful for later reference
             );
 
-            console.log('Created non-polymer structure', structure);
 
             return structure;
         }
@@ -958,10 +955,8 @@ export class ribxzMstarv2 {
         focus: (ref: string) => {
             const state = this.ctx.state.data;
             const cell = state.select(StateSelection.Generators.byRef(ref))[0];
-            console.log('Returned cell', cell);
             if (!cell?.obj) return;
             const loci = Structure.toStructureElementLoci(cell.obj.data);
-            console.log('But loci?', loci);
             this.ctx.managers.camera.focusLoci(loci);
             return;
         },
@@ -974,7 +969,6 @@ export class ribxzMstarv2 {
             return;
         },
         selection: (ref: string, modifier: 'add' | 'remove') => {
-            console.log('selection', ref, modifier);
             const state = this.ctx.state.data;
             const state_sel = state.select(StateSelection.Generators.byRef(ref));
             const cell = state_sel[0];
@@ -1496,5 +1490,4 @@ export async function createChainRangeVisualization(
         tree: update
     });
 
-    console.log(`${auth_asym_id} cluster created successfully`);
 }

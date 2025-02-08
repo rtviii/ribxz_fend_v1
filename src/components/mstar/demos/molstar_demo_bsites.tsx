@@ -363,7 +363,6 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
         const data = structure ?? this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.obj?.data;
 
         if (data === undefined) {
-            console.log('Not found data');
             return;
         }
 

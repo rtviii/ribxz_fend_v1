@@ -110,7 +110,6 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                                     polymer.nomenclature.length > 1 ? polymer.nomenclature[0] : polymer.auth_asym_id
                             }}
                             onSelectionChange={selection => {
-                                console.log('Selection changed:', selection);
                             }}
                         />
                     )}

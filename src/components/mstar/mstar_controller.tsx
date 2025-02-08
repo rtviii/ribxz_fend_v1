@@ -308,11 +308,13 @@ export class MolstarStateController {
                 visible: true
             }));
 
-            // Batch update Molstar state
             visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                const ref = this.retrievePolymerRef(auth_asym_id);
-                if (ref) {
-                    this.viewer.interactions.setSubtreeVisibility(ref, visible);
+                try {
+                    const ref = this.retrievePolymerRef(auth_asym_id);
+                    if (ref) {
+                        this.viewer.interactions.setSubtreeVisibility(ref, visible);
+                    }
+                } catch (e) {
                 }
             });
 
@@ -374,7 +376,6 @@ export class MolstarStateController {
         // Focus on a binding site
         focusBindingSite: async (rcsb_id: string, chemicalId: string) => {
             const bsite = this.bindingSites.retrieveBSiteComponent(rcsb_id, chemicalId);
-            console.log('returned bsite ', bsite);
 
             if (bsite) {
                 // Could use either the main ref or sel_ref depending on your needs

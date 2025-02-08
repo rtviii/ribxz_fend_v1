@@ -28,8 +28,6 @@ export const bindingSitesPreset = StructureRepresentationPresetProvider({
         if (!structureCell) return {};
         const structure = structureCell.obj!.data;
 
-        console.log('Running preset');
-
         const {update, builder} = StructureRepresentationPresetProvider.reprBuilder(plugin, params, structure);
 
         const components: {[k: string]: StateObjectSelector | undefined} = {};
@@ -37,10 +35,7 @@ export const bindingSitesPreset = StructureRepresentationPresetProvider({
 
         // Create components for each binding site
         for (const site of params.bindingSites) {
-            console.log('Running site', site);
             if (!site.purported_7K00_binding_site) {
-                console.log('Skipping site', site);
-
                 continue;
             }
 
@@ -145,7 +140,6 @@ export const compositeBSitesPreset = StructureRepresentationPresetProvider({
         if (!structureCell) return {};
         const structure = structureCell.obj!.data;
 
-        console.log('Running composite binding sites preset');
 
         const {update, builder} = StructureRepresentationPresetProvider.reprBuilder(plugin, params, structure);
 
@@ -158,7 +152,6 @@ export const compositeBSitesPreset = StructureRepresentationPresetProvider({
             if (category === 'Aminoglycosides' || category === 'Other') continue;
 
             if (!data.composite_bsite || data.composite_bsite.length === 0) {
-                console.log(`Skipping ${category} - no composite binding site`);
                 continue;
             }
 

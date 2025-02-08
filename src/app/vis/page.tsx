@@ -60,7 +60,6 @@ export default function Vis() {
     }, []);
 
     useEffect(() => {
-        console.log('Fired off download struct');
         // ctx?.upload_mmcif_structure("5afi");
     }, [ctx]);
 

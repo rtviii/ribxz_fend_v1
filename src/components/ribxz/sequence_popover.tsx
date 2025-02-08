@@ -85,7 +85,6 @@ const SequencePopover = ({
                     });
                 }
             }
-            console.log('ress----->', residues);
             // @ts-ignore
             ctx?.select_residueCluster(residues);
         }

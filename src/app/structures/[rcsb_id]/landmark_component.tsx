@@ -29,11 +29,9 @@ export const TunnelLandmarkComponent: React.FC<{
         },
         render: async (rcsb_id: string, ctx) => {
             const tunnel_loci = await ctx?.tunnel_geoemetry(rcsb_id);
-            console.log('Returned loci:', tunnel_loci);
             dispatch(set_tunnel_shape_loci(tunnel_loci));
         },
         on_click: () => {
-            console.log(tunnel_loci);
             // ctx.ctx.managers.structure.selection.fromLoci('add', tunnel_loci[0]);
             // ctx.ctx.managers.camera.focusLoci(tunnel_loci);
         }

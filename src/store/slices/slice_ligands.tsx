@@ -118,7 +118,6 @@ export const fetchPredictionData = createAsyncThunk(
 
         if ('data' in result) {
             dispatch(set_ligand_prediction_data(result.data));
-            console.log('Dispatched prediction data:', result.data);
             return result.data; // <-- Return the data here
         }
 

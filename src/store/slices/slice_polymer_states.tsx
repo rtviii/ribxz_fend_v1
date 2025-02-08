@@ -24,6 +24,10 @@ interface PolymerVisibilityUpdate {
     auth_asym_id: string;
     visible: boolean;
 }
+interface ComponentVisibilityUpdate {
+    id: string;
+    visible: boolean;
+}
 
 export const polymerStatesSlice = createSlice({
     name: 'polymerStates',
@@ -70,6 +74,13 @@ export const polymerStatesSlice = createSlice({
             }
         },
 
+        setBatchComponentVisibility: (state, action: PayloadAction<ComponentVisibilityUpdate[]>) => {
+            action.payload.forEach(({id, visible}) => {
+                if (state.statesByPolymer[auth_asym_id]) {
+                    state.statesByPolymer[auth_asym_id].visible = visible;
+                }
+            });
+        },
         setBatchPolymerVisibility: (state, action: PayloadAction<PolymerVisibilityUpdate[]>) => {
             action.payload.forEach(({auth_asym_id, visible}) => {
                 if (state.statesByPolymer[auth_asym_id]) {

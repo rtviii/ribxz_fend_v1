@@ -136,26 +136,23 @@ const PolymerSearch = ({polymers, onFilterChange}) => {
 
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [activeView, setActiveView] = useState('polymers');
-    const service                     = useMolstarInstance('main');
-    const state                       = useAppSelector(state => state);
-    const rcsb_id                     = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const service = useMolstarInstance('main');
+    const state = useAppSelector(state => state);
+    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
 
     const {data: helices_data} = useRoutersRouterLociGetHelicesQuery({rcsbId: data?.rcsb_id});
-    const {data: ptc_data}     = useRoutersRouterLociStructurePtcQuery({rcsbId: data?.rcsb_id});
-    const {data: ligands_data}     = useRoutersRouterLigInStructureQuery({rcsbId: data?.rcsb_id});
+    const {data: ptc_data} = useRoutersRouterLociStructurePtcQuery({rcsbId: data?.rcsb_id});
+    const {data: ligands_data} = useRoutersRouterLigInStructureQuery({rcsbId: data?.rcsb_id});
 
-    const mstar      = useMolstarInstance('main');
+    const mstar = useMolstarInstance('main');
     const controller = mstar?.controller;
-    const ctx        = mstar?.viewer;
+    const ctx = mstar?.viewer;
 
     useEffect(() => {
         console.log(helices_data);
     }, [helices_data]);
 
     const [filteredPolymers, setFilteredPolymers] = useState([]);
-
-
-    
 
     // Combine all polymers
     const allPolymers = [...data.rnas, ...data.proteins, ...data.other_polymers]
@@ -204,7 +201,8 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                             <TooltipTrigger asChild>
                                 <button
                                     onClick={() => msc.polymers.restoreAllVisibility(rcsb_id)}
-                                    className="rounded-md px-2 py-1 text-sm text-gray-600 hover:bg-gray-100">
+                                    className="rounded-md px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 flex items-center gap-1">
+                                    Show All Components
                                     <Eye className="h-4 w-4" />
                                 </button>
                             </TooltipTrigger>
@@ -322,8 +320,8 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                         {ligands_data &&
                                             ligands_data.map(ligand => (
                                                 <LigandRow
-                                                key={ligand.chemicalId}
-                                                    ligand={ligand }
+                                                    key={ligand.chemicalId}
+                                                    ligand={ligand}
                                                     onToggleVisibility={() => {}}
                                                     onToggleSelection={() => {}}
                                                     onIsolate={() => {}}
