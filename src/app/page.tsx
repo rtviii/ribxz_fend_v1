@@ -148,7 +148,8 @@ const Homepage = () => {
                         documentation={[
                             {
                                 text: 'Fetch ids of all structures in the database:',
-                                code: `curl -X 'GET' \\ \n'https://api.ribosome.xyz/structures/all_rcsb_ids' \\ \n-H 'accept: application/json'`                            },
+                                code: `curl -X 'GET' \\ \n'https://api.ribosome.xyz/structures/all_rcsb_ids' \\ \n-H 'accept: application/json'`
+                            },
                             {
                                 text: 'Fetch complete metadata for a given structure:',
                                 code: `curl -X 'GET' \\ \n'https://api.ribosome.xyz/structures/profile?rcsb_id=4UG0' \\ \n-H 'accept: application/json'`
@@ -174,7 +175,7 @@ const Homepage = () => {
 
                     <SectionHeader
                         title="Ligand Binding Sites & Predictions"
-                        description={ `Data for nonpolymer-ligand binding sites across deposited structures and predictions derived from it. \nDemo: Multiple classes of antibiotics and their binding sites identified on the structure 7K00 (due to Watson et al., 2021) of the E. coli ribosome .` }
+                        description={`Data for nonpolymer-ligand binding sites across deposited structures and predictions derived from it. `}
                         documentation={[
                             {
                                 text: 'List all unique nonpolymeric ligands along with the structures they bind.',
@@ -198,7 +199,7 @@ const Homepage = () => {
 
                     <SectionHeader
                         title="Loci, Functional Sites & Regions of Interest"
-                        description={ `Coordinates, primary sequence annotations and structural landmarks. \nDemo:  Nascent Peptide Exit Tunnel (NPET) geometries produced via PTC and Constriction Site landmarks. ` }
+                        description={`Coordinates, primary sequence annotations and structural landmarks. Displayed are the Nascent Peptide Exit Tunnel (NPET) geometries produced via the PTC and constriction site landmarks. `}
                         documentation={[
                             {
                                 text: 'Download a `.ply` file containing the geometry of the human ribosome exit tunnel in 4UG0',
@@ -210,9 +211,9 @@ const Homepage = () => {
 `
                             },
                             {
-    text: 'The coordinate of the peptidyl transferase center (PTC) in the human ribosome 3J7Z',
-    code: "curl -X GET https://api.ribosome.xyz/loci/ptc?rcsb_id=3j7z -H 'accept: application/json'"
-}
+                                text: 'The coordinate of the peptidyl transferase center (PTC) in the human ribosome 3J7Z',
+                                code: "curl -X GET https://api.ribosome.xyz/loci/ptc?rcsb_id=3j7z -H 'accept: application/json'"
+                            }
                         ]}>
                         <TunnelDemos />
                     </SectionHeader>

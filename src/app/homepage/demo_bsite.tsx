@@ -11,10 +11,7 @@ import {MolstarDemoBsites, ScoredBsite} from '@/components/mstar/demos/molstar_d
 import {
     ribxz_api,
     useRoutersRouterLigDemo7K00Query,
-    useRoutersRouterStructStructureProfileQuery,
-    
-    
-
+    useRoutersRouterStructStructureProfileQuery
 } from '@/store/ribxz_api/ribxz_api';
 import {AppDispatch, useAppDispatch, useAppSelector} from '@/store/store';
 import {EmptyViewportControls} from './demo_tunnel_human';
@@ -190,7 +187,7 @@ export const BsiteDemo = () => {
         })();
     }, []);
 
-    const {data: ligands_data} = useRoutersRouterLigDemo7K00Query()
+    const {data: ligands_data} = useRoutersRouterLigDemo7K00Query();
     const {
         data: structure_data,
         isLoading: isLoadingProfile,
@@ -235,6 +232,12 @@ export const BsiteDemo = () => {
 
     return (
         <div className="bg-slate-100 rounded-md shadow-inner p-4">
+            <div className="mb-2">
+                <p className="text-sm text-gray-500 leading-relaxed">
+                    Multiple classes of antibiotics and their binding sites identified on the structure 7K00 (due
+                    to Watson et al., 2021) of the E. coli ribosome.
+                </p>
+            </div>
             <div className="flex gap-4 h-[32rem]">
                 {ligands_data && (
                     <div className="w-96 bg-white rounded-md p-2 shadow-sm">

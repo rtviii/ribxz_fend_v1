@@ -16,6 +16,7 @@ export const StructureCarousel = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const current_structures = useAppSelector(state => state.structures_page.current_structures);
     const structures_cursor = useAppSelector(state => state.structures_page.structures_cursor);
+    const total_count = useAppSelector(state => state.structures_page.total_structures_count);
     
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -52,7 +53,7 @@ export const StructureCarousel = () => {
             dispatch(set_total_structures_count(total_count));
             dispatch(set_structures_cursor(next_cursor));
             setHasMore(next_cursor !== null);
-            } catch (err) {
+        } catch (err) {
             console.error('Error fetching structures:', err);
         } finally {
             setIsLoading(false);
@@ -79,15 +80,18 @@ export const StructureCarousel = () => {
         }
     }, []);
 
+    // Only show load more if we have 20 or more total items
+    const shouldShowLoadMore = total_count >= 20 && hasMore;
+
     return (
-        <div className="w-full space-y-4 " ref={scrollContainerRef}>
+        <div className="w-full space-y-4" ref={scrollContainerRef}>
             <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
                 <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
                     {current_structures.map((structure, i) => (
                         <StructureCard _={structure} key={i} />
                     ))}
 
-                    {hasMore && (
+                    {shouldShowLoadMore && (
                         <div className="w-64 shrink-0" onClick={loadMore}>
                             <Card className="w-full h-full flex flex-col items-center justify-center hover:bg-muted cursor-pointer transition-colors rounded-md bg-slate-50">
                                 {isLoading ? (

@@ -148,9 +148,6 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const controller = mstar?.controller;
     const ctx = mstar?.viewer;
 
-    useEffect(() => {
-        console.log(helices_data);
-    }, [helices_data]);
 
     const [filteredPolymers, setFilteredPolymers] = useState([]);
 
@@ -279,7 +276,6 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                     });
                                                     const data = ctx?.cell_from_ref(polymer_component.ref);
                                                     const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
-                                                    console.log('Lcoi?', loci);
 
                                                     ctx?.ctx.managers.interactivity.lociHighlights.highlight({loci});
                                                 }
