@@ -97,6 +97,7 @@ const BindingSiteControlPanel: React.FC<ControlPanelProps> = ({
                         </div>
                         
                         <GlobalStructureSelection
+                            // @ts-ignore
                             onChange={onTargetStructureChange}
                             disabled={!current_ligand}
                         />

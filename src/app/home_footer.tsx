@@ -55,7 +55,7 @@ const ContactSection = () => {
         <ul className="list-none space-y-2 pl-0">
           <li>
             <a 
-              href="https://artemkushner.com" 
+              href="https://rtviii.xyz" 
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 hover:underline"
@@ -65,7 +65,7 @@ const ContactSection = () => {
           </li>
           <li>
             <a 
-              href="https://www.math.ubc.ca/~kdaoduc/" 
+              href="https://kdaoduc.com/about/" 
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 hover:underline"

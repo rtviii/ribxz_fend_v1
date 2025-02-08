@@ -1,28 +1,25 @@
 'use client'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { StructureFiltersComponent, Group, useDebounceFilters } from "@/components/filters/structure_filters_component"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Label } from "@/components/ui/label"
-import { Suspense, useEffect, useState } from "react"
-import { useAppDispatch, useAppSelector } from "@/store/store"
-import React from 'react';
-import { Select } from 'antd';
-// import { PolymerClassOption, groupedOptions } from "@/components/filters/polymers_filters_component"
-import { Protein, Rna, ribxz_api, useRoutersRouterStructPolymerClassesNomenclatureQuery } from "@/store/ribxz_api/ribxz_api"
-import PolymersTable from "@/components/ribxz/polymer_table"
-import { useSearchParams } from "next/navigation"
-import PolymerFiltersComponent from "@/components/filters/polymers_filters_component"
-import { useGetPolymersMutation } from "@/store/ribxz_api/polymers_api"
-import { set_current_polymers, set_total_parent_structures_count, set_total_polymers_count } from "@/store/slices/slice_polymers"
-import { Button } from "@/components/ui/button"
-import FloatingMenu from "@/components/ribxz/menu_floating"
 
-export default function PolymersCatalogue() {
-    //     TODO
+import { Suspense, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { useAppDispatch, useAppSelector } from "@/store/store"
+import { StructureFiltersComponent, useDebounceFilters } from "@/components/filters/structure_filters_component"
+import { Button } from "@/components/ui/button"
+import PolymersTable from "@/components/ribxz/polymer_table"
+import PolymerFiltersComponent from "@/components/filters/polymers_filters_component"
+import FloatingMenu from "@/components/ribxz/menu_floating"
+import { useGetPolymersMutation } from "@/store/ribxz_api/polymers_api"
+import { 
+    set_current_polymers, 
+    set_total_parent_structures_count, 
+    set_total_polymers_count 
+} from "@/store/slices/slice_polymers"
+
+// Separate client component for handling search params
+function PolymersContent() {
     const searchParams = useSearchParams()
     const class_param = searchParams.get('class')
-    //     TODO
-
+    
     const dispatch = useAppDispatch();
     const total_polymers_count = useAppSelector((state) => state.polymers_page.total_polymers_count)
     const current_polymers = useAppSelector((state) => state.polymers_page.current_polymers)
@@ -32,13 +29,13 @@ export default function PolymersCatalogue() {
     const [cursor, setCursor] = useState(null)
     const [isLoading, setIsLoading] = useState(false);
 
-    const [getPolymers, { isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error }] = useGetPolymersMutation()
+    const [getPolymers] = useGetPolymersMutation()
 
-    const fetchPolymers = async (newCursor: [string, string] | null = null) => {
+    const fetchPolymers = async (newCursor = null) => {
         setIsLoading(true);
 
         const payload = {
-            cursor: newCursor ? newCursor : null,
+            cursor: newCursor,
             limit: 100,
             year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
             search: filter_state.search || null,
@@ -52,7 +49,6 @@ export default function PolymersCatalogue() {
             uniprot_id: filter_state.uniprot_id || null
         };
 
-        console.log("Dispatching fetchpolymers with payload", payload);
         try {
             const result = await getPolymers(payload).unwrap();
             const { next_cursor, polymers: new_polymers, total_polymers_count, total_structures_count } = result;
@@ -89,40 +85,44 @@ export default function PolymersCatalogue() {
 
     if (!current_polymers) {
         return <div>Loading polymers...</div>;
-    } else {
+    }
 
-        return (
-            <Suspense fallback={<div>suspense</div>}>
-                <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
-                    <h1 className="text-2xl font-bold mb-6 ">Polymers</h1>
-                    <div className="grow"  >
-                        <div className="grid grid-cols-12 gap-4 min-h-[90vh]    ">
-                            <div className="col-span-3  flex flex-col min-h-full pr-4 space-y-4">
-                                <StructureFiltersComponent update_state="polymers" />
-                                <PolymerFiltersComponent />
-                                <FloatingMenu />
-                            </div>
-                            <div className="col-span-9 scrollbar-hidden">
-                                <PolymersTable polymers={current_polymers} />
-
-                                <Button
-                                    onClick={loadMore}
-                                    disabled={isLoading || !hasMore}
-                                    className="w-full mt-4 py-2 text-sm font-semibold transition-colors duration-200 ease-in-out"
-                                >
-                                    {isLoading ? 'Loading...' : hasMore ? 'Load More' : 'All polymers loaded'}
-                                    <span className="ml-2 text-sm font-normal">
-                                        (Showing {current_polymers.length} of {total_polymers_count} polymers)
-                                    </span>
-                                </Button>
-                            </div>
-                        </div>
+    return (
+        <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow outline">
+            <h1 className="text-2xl font-bold mb-6">Polymers</h1>
+            <div className="grow">
+                <div className="grid grid-cols-12 gap-4 min-h-[90vh]">
+                    <div className="col-span-3 flex flex-col min-h-full pr-4 space-y-4">
+                        <StructureFiltersComponent update_state="polymers" />
+                        <PolymerFiltersComponent />
+                        <FloatingMenu />
+                    </div>
+                    <div className="col-span-9 scrollbar-hidden">
+                        <PolymersTable polymers={current_polymers} />
+                        <Button
+                            onClick={loadMore}
+                            disabled={isLoading || !hasMore}
+                            className="w-full mt-4 py-2 text-sm font-semibold transition-colors duration-200 ease-in-out"
+                        >
+                            {isLoading ? 'Loading...' : hasMore ? 'Load More' : 'All polymers loaded'}
+                            <span className="ml-2 text-sm font-normal">
+                                (Showing {current_polymers.length} of {total_polymers_count} polymers)
+                            </span>
+                        </Button>
                     </div>
                 </div>
-            </Suspense>
-        )
+            </div>
+        </div>
+    )
+}
 
-    }
+// Main component with Suspense boundary
+export default function PolymersCatalogue() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <PolymersContent />
+        </Suspense>
+    )
 }
 
 export const dynamic = 'force-dynamic'

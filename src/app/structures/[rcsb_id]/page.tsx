@@ -181,106 +181,108 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
         const bsite_name = promptForBindingSiteName();
         selected_polymers;
     };
-    return service === null ? (
-        <>Loading... </>
-    ) : (
-        <div className="space-x-1">
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
-                onClick={() => {
-                    // ctx?.toggle_visibility_by_ref();
-                }}>
-                Toggle Structure
-            </Button>
 
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
-                onClick={() => {
-                    // ctx?.select_multiple_polymers(selected_polymers, 'remove');
-                    dispatch(clear_selection(null));
-                    service.viewer?.ctx.managers.structure.selection.clear();
-                }}>
-                Clear Selection
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    createNewSelection();
-                }}>
-                Create New Selection
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    createBindingSite();
-                }}>
-                Create Binding Site
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    service?.controller.landmarks.ptc(rcsb_id);
-                }}>
-                Render PTC
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    service?.viewer.landmarks.tunnel_geometry(rcsb_id);
-                }}>
-                Render Tunnel Geometry
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    service?.controller.landmarks.constriction_site(rcsb_id);
-                }}>
-                Render Constriction
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    service?.controller.mute_polymers(rcsb_id);
-                }}>
-                Mute Polymers
-            </Button>
+    return null
+    // return service === null ? (
+    //     <>Loading... </>
+    // ) : (
+    //     <div className="space-x-1">
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
+    //             onClick={() => {
+    //                 // ctx?.toggle_visibility_by_ref();
+    //             }}>
+    //             Toggle Structure
+    //         </Button>
 
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    service?.controller.experimental.half_cylinder_residues(nomenclature_map);
-                }}>
-                HalfCylinder Residues
-            </Button>
-            <Button
-                variant="outline"
-                size="sm"
-                className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-                onClick={() => {
-                    service?.controller.experimental.cylinder_residues(nomenclature_map);
-                }}>
-                Cylinder Residues
-            </Button>
-        </div>
-    );
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
+    //             onClick={() => {
+    //                 // ctx?.select_multiple_polymers(selected_polymers, 'remove');
+    //                 dispatch(clear_selection(null));
+    //                 service.viewer?.ctx.managers.structure.selection.clear();
+    //             }}>
+    //             Clear Selection
+    //         </Button>
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 createNewSelection();
+    //             }}>
+    //             Create New Selection
+    //         </Button>
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 createBindingSite();
+    //             }}>
+    //             Create Binding Site
+    //         </Button>
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 service?.controller.landmarks.ptc(rcsb_id);
+    //             }}>
+    //             Render PTC
+    //         </Button>
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 service?.viewer.landmarks.tunnel_geometry(rcsb_id);
+    //             }}>
+    //             Render Tunnel Geometry
+    //         </Button>
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 service?.controller.landmarks.constriction_site(rcsb_id);
+    //             }}>
+    //             Render Constriction
+    //         </Button>
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 service?.controller.mute_polymers(rcsb_id);
+    //             }}>
+    //             Mute Polymers
+    //         </Button>
+
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 service?.controller.experimental.half_cylinder_residues(nomenclature_map);
+    //             }}>
+    //             HalfCylinder Residues
+    //         </Button>
+    //         <Button
+    //             variant="outline"
+    //             size="sm"
+    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
+    //             onClick={() => {
+    //                 service?.controller.experimental.cylinder_residues(nomenclature_map);
+    //             }}>
+    //             Cylinder Residues
+    //         </Button>
+    //     </div>
+    // );
 };
 
 export default function StructurePage({params}: {params: Promise<{rcsb_id: string}>}) {
