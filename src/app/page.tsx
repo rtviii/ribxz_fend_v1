@@ -139,6 +139,8 @@ const Homepage = () => {
 
                 <section className="space-y-8">
                     <SectionHeader
+
+                    navigationPath={'/structures'}
                         title="Atomic Models: Structures and Polymers"
                         description={
                             <span>
@@ -174,6 +176,8 @@ const Homepage = () => {
                     </SectionHeader>
 
                     <SectionHeader
+
+                    navigationPath={'/ligands'}
                         title="Ligand Binding Sites & Predictions"
                         description={`Data for nonpolymer-ligand binding sites across deposited structures and predictions derived from it. `}
                         documentation={[

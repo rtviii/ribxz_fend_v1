@@ -79,10 +79,19 @@ export const DocSection = ({text, code}) => (
     </div>
 );
 
-export const SectionHeader = ({title, description, documentation, lastUpdate, className, children}) => {
+export const SectionHeader = ({
+    title,
+    description,
+    documentation,
+    lastUpdate,
+    className,
+    children,
+    navigationPath // New prop for navigation
+}) => {
     const [showDocs, setShowDocs] = useState(false);
     const [demoHeight, setDemoHeight] = useState(0);
     const demoRef = React.useRef(null);
+    const isClickable = !!navigationPath;
 
     React.useEffect(() => {
         if (demoRef.current) {
@@ -95,29 +104,56 @@ export const SectionHeader = ({title, description, documentation, lastUpdate, cl
         }
     }, [children]);
 
-    return (
-        <div className="mb-6">
-            <div className="flex items-start justify-between">
-                <div className="max-w-[75%]">
-                    {' '}
-                    {/* Added max-width constraint */}
-                    <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-                    <p className="mt-1 text-sm text-gray-500 whitespace-pre-line">{description}</p>
-                </div>
-
-                <button
-                    onClick={() => setShowDocs(prev => !prev)}
-                    className={cn(
-                        'px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 border-2 flex-shrink-0', // Added flex-shrink-0
-                        showDocs
-                            ? 'text-blue-600 bg-blue-50 border-blue-200 shadow-md'
-                            : 'text-gray-600 hover:text-gray-800 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
-                    )}>
-                    <Terminal className="h-5 w-5" />
-                    <span className="text-sm font-medium">Get via API</span>
-                </button>
+    const HeaderContent = () => (
+        <div className={cn(
+            "flex items-start justify-between  py-4 -my-4",  // Added vertical padding and negative margin
+            isClickable && "cursor-pointer"
+        )}>
+            <div className="max-w-[75%]">
+                <h2 className={cn(
+                    "text-lg font-semibold text-gray-900  group/nav flex items-center",
+                    isClickable && "group-hover/nav:text-blue-600 transition-colors duration-200"
+                )}>
+                    <span>{title}</span>
+                    {isClickable && (
+                        <span className="inline-flex items-center ml-2 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-200">
+                            <div className="w-8 bg-gradient-to-l from-gray-100 to-transparent h-full absolute right-full" />
+                            <ChevronRight className="h-5 w-5 text-blue-600" />
+                        </span>
+                    )}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 whitespace-pre-line">{description}</p>
             </div>
 
+            <button
+                onClick={(e) => {
+                    e.preventDefault(); // Prevent the default link behavior
+                    e.stopPropagation(); // Stop event from bubbling up to parent link
+                    setShowDocs(prev => !prev);
+                }}
+                className={cn(
+                    'px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 border-2 flex-shrink-0',
+                    showDocs
+                        ? 'text-blue-600 bg-blue-50 border-blue-200 shadow-md'
+                        : 'text-gray-600 hover:text-gray-800 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
+                )}>
+                <Terminal className="h-5 w-5" />
+                <span className="text-sm font-medium">Get via API</span>
+            </button>
+        </div>
+    );
+
+    const header = isClickable ? (
+        <Link href={navigationPath}>
+            <HeaderContent />
+        </Link>
+    ) : (
+        <HeaderContent />
+    );
+
+    return (
+        <div className="mb-6">
+            {header}
             {lastUpdate && <p className="mt-2 text-xs text-gray-500">Last update: {lastUpdate}</p>}
 
             <div className="mt-4 overflow-hidden">
@@ -146,6 +182,8 @@ export const SectionHeader = ({title, description, documentation, lastUpdate, cl
         </div>
     );
 };
+
+
 const CitationContent = ({citation}) => (
     <div className="absolute z-50 w-96 p-4 text-sm bg-white rounded-lg shadow-lg border border-gray-200 bottom-full left-full -ml-4">
         <p className="font-medium text-gray-900 mb-2">Citation:</p>
