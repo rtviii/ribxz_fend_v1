@@ -148,24 +148,14 @@ const Homepage = () => {
                         documentation={[
                             {
                                 text: 'Fetch ids of all structures in the database:',
-                                code: "$ curl -X 'GET' \
-  'https://api.ribosome.xyz/structures/all_rcsb_ids' \
-  -H 'accept: application/json'"
-                            },
+                                code: `curl -X 'GET' \\ \n'https://api.ribosome.xyz/structures/all_rcsb_ids' \\ \n-H 'accept: application/json'`                            },
                             {
                                 text: 'Fetch complete metadata for a given structure:',
-                                code: `
-$ curl -X 'GET' \
-'https://api.ribosome.xyz/structures/profile?rcsb_id=4UG0' \
-  -H 'accept: application/json'`
+                                code: `curl -X 'GET' \\ \n'https://api.ribosome.xyz/structures/profile?rcsb_id=4UG0' \\ \n-H 'accept: application/json'`
                             },
                             {
                                 text: `Find available atomic models based on structural features and metadata.\n Example: Get all structures that are whole (have both SSU and LSU present) and contain a tRNA chain deposited between 2015 and 2024. See api.ribosome.xyz for complete list of available parameters.`,
-                                code: `
-$ curl -X 'POST' \
-'https://api.ribosome.xyz/structures/list_structures' \n
--H 'accept: application/json' \n
--H 'Content-Type: application/json' \
+                                code: `curl -X 'POST' \\ \n'https://api.ribosome.xyz/structures/list_structures' \\ \n-H 'accept: application/json' \\ \n-H 'Content-Type: application/json' \\ 
 -d '{
   "year": [
     2015,
@@ -188,25 +178,18 @@ $ curl -X 'POST' \
                         documentation={[
                             {
                                 text: 'List all unique nonpolymeric ligands along with the structures they bind.',
-                                code: `
-$ curl -X 'GET' \n
-  'https://api.ribosome.xyz/ligands/list_ligands' \n
-  -H 'accept: application/json'
+                                code: `curl -X 'GET' \\ \n 'https://api.ribosome.xyz/ligands/list_ligands' \\ \n -H 'accept: application/json'
 `
                             },
                             {
                                 text: 'Get residues in the proximity of a given ligand in a structure. Ex. Get all residues within 5 Angstrom of Paromomcyin in E. coli 7K00:',
-                                code: `
-$ curl -X 'GET' \n
-  'https://api.ribosome.xyz/ligands/binding_pocket?source_structure=7K00&chemical_id=PAR&radius=5' \n
-  -H 'accept: application/json'
+                                code: `curl -X 'GET' \\ \n 'https://api.ribosome.xyz/ligands/binding_pocket?source_structure=7K00&chemical_id=PAR&radius=5' \\ \n -H 'accept: application/json'
 `
                             },
                             {
                                 text: "Attempt to predict a given ligand's binding site in a target structure based on existing site in source structure. Ex. Predict the binding site of PAR(Paromomycin) in E. coli 5AFI using 7K00.PAR as template:",
-                                code: `$ curl -X 'GET' \n
-  'https://api.ribosome.xyz/ligands/transpose?source_structure=7K00&target_structure=5AFI&chemical_id=PAR&radius=10' \n
-  -H 'accept: application/json'
+                                code: `curl -X 'GET' \\ \n 'https://api.ribosome.xyz/ligands/transpose?source_structure=7K00&target_structure=5AFI&chemical_id=PAR&radius=10'  \\ \n  -H 'accept: application/json'
+
 `
                             }
                         ]}>
@@ -219,28 +202,17 @@ $ curl -X 'GET' \n
                         documentation={[
                             {
                                 text: 'Download a `.ply` file containing the geometry of the human ribosome exit tunnel in 4UG0',
-                                code: ` 
-$ curl -X 'GET' \n
-  'https://api.ribosome.xyz/loci/tunnel_geometry?rcsb_id=4ug0&is_ascii=false' \n
-  -H 'accept: */*'
-`
+                                code: `curl -X 'GET' 'https://api.ribosome.xyz/loci/tunnel_geometry?rcsb_id=4ug0&is_ascii=false' -H 'accept: */*'`
                             },
                             {
                                 text: 'The coordinate of the constriction site formed by ribosomal proteins uL4 and uL22 in 8FC4',
-                                code: `
-$ curl -X 'GET' \n
-  'https://api.ribosome.xyz/loci/constriction_site?rcsb_id=8fc4' \n
-  -H 'accept: application/json'
+                                code: `curl -X 'GET' 'https://api.ribosome.xyz/loci/constriction_site?rcsb_id=8fc4'  -H 'accept: application/json'
 `
                             },
                             {
-                                text: 'The coordinate of the peptidyl transferase center (PTC) in the human ribosome 3J7Z',
-                                code: `
-$ curl -X 'GET' \n
-  'https://api.ribosome.xyz/loci/ptc?rcsb_id=3j7z' \n
-  -H 'accept: application/json'
-`
-                            }
+    text: 'The coordinate of the peptidyl transferase center (PTC) in the human ribosome 3J7Z',
+    code: "curl -X GET https://api.ribosome.xyz/loci/ptc?rcsb_id=3j7z -H 'accept: application/json'"
+}
                         ]}>
                         <TunnelDemos />
                     </SectionHeader>
