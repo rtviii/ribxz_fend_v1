@@ -2,7 +2,7 @@
 import {SelectValue, SelectTrigger, SelectItem, SelectContent, Select} from '@/components/ui/select';
 import {Button} from '@/components/ui/button';
 import {CardContent, Card} from '@/components/ui/card';
-import {StructureCard, StructureStack} from '../../components/ribxz/structure_card';
+import {groupStructuresByDOI, StructureCard, StructureStack} from '../../components/ribxz/structure_card';
 import {useCallback, useEffect, useState} from 'react';
 import {StructureFiltersComponent, useDebounceFilters} from '@/components/filters/structure_filters_component';
 import {ScrollArea} from '@/components/ui/scroll-area';
@@ -84,6 +84,7 @@ export default function StructureCatalogue() {
             fetchStructures(structures_cursor);
         }
     };
+    const groupedStructures = groupStructuresByDOI(current_structures);
 
     return (
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -99,10 +100,14 @@ export default function StructureCatalogue() {
                         <ScrollArea
                             className="flex-grow max-h-[90vh] overflow-y-auto border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2"
                             scrollHideDelay={1}>
-                            <div className=" gap-4 flex  flex-wrap   scrollbar-hidden">
-                                {current_structures.map(structure => (
-                                    <StructureCard key={structure.rcsb_id} _={structure} />
-                                ))}
+                            <div className="gap-4 flex flex-wrap scrollbar-hidden">
+                                {groupedStructures.map(structureGroup =>
+                                    structureGroup.length === 1 ? (
+                                        <StructureCard key={structureGroup[0].rcsb_id} _={structureGroup[0]} />
+                                    ) : (
+                                        <StructureStack key={structureGroup[0].rcsb_id} structures={structureGroup} />
+                                    )
+                                )}
                             </div>
 
                             {isLoading ? (

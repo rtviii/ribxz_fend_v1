@@ -309,13 +309,10 @@ export class MolstarStateController {
             }));
 
             visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                try {
                     const ref = this.retrievePolymerRef(auth_asym_id);
                     if (ref) {
                         this.viewer.interactions.setSubtreeVisibility(ref, visible);
                     }
-                } catch (e) {
-                }
             });
 
             // Batch update Redux state

@@ -4,6 +4,6 @@ const { parsed: { DJANGO_URL }, } = require("dotenv").config({ path: "./../../..
 // initialize an empty api service that we'll inject endpoints into later as needed
 
 export const empty_api = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://api.ribosome.xyz', } ),
+  baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_DJANGO_URL, } ),
   endpoints: () => ({}),
 })

@@ -1,4 +1,5 @@
 'use client';
+import { ChevronLeft } from 'lucide-react';
 import {CardContent, CardFooter, Card} from '@/components/ui/card';
 import {RibosomeStructure} from '@/store/ribxz_api/ribxz_api';
 import {HoverCardTrigger, HoverCardContent, HoverCard} from '@/components/ui/hover-card';
@@ -117,32 +118,85 @@ export function StructureCard({_}: {_: RibosomeStructure}) {
     );
 }
 
-export const StructureStack = ({structures}: {structures: RibosomeStructure[]}) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const currentStructure = structures[currentIndex];
+export const StructureStack = ({ structures }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const currentStructure = structures[currentIndex];
 
-    return (
-        <Card className="w-80 max-h-full h-full bg-white shadow-sm rounded-lg overflow-hidden relative transition hover:shadow-xl duration-100">
-            <div className="relative">
-                <div
-                    className="flex overflow-x-auto scrollbar-hide"
-                    style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                    {structures.map((structure, index) => (
-                        <div
-                            key={structure.rcsb_id}
-                            className={`flex-shrink-0 px-1 py-0.5 cursor-pointer text-[0.6rem] leading-tight ${
-                                index === currentIndex ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                            }`}
-                            onClick={() => setCurrentIndex(index)}>
-                            {structure.rcsb_id}
-                        </div>
-                    ))}
-                </div>
-                <StructureCard _={currentStructure} />
-            </div>
-            <div className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded-full text-xs">
-                {currentIndex + 1} / {structures.length}
-            </div>
-        </Card>
+  const nextStructure = () => {
+    setCurrentIndex((prev) => (prev + 1) % structures.length);
+  };
+
+  const prevStructure = () => {
+    setCurrentIndex((prev) => (prev - 1 + structures.length) % structures.length);
+  };
+
+  return (
+    <Card className="w-72 h-80 bg-white shadow-sm rounded-lg overflow-hidden relative transition hover:shadow-xl duration-100">
+      {/* Navigation Pills */}
+      <div className="absolute top-0 left-0 right-0 z-10 flex justify-center gap-1 p-1 bg-black/10">
+        {structures.map((_, index) => (
+          <button
+            key={index}
+            className={`h-1 rounded-full transition-all ${
+              index === currentIndex 
+                ? 'w-4 bg-blue-500' 
+                : 'w-1 bg-gray-300'
+            }`}
+            onClick={() => setCurrentIndex(index)}
+          />
+        ))}
+      </div>
+
+      {/* Main Structure Card */}
+      <div className="h-full">
+        <StructureCard _={currentStructure} />
+      </div>
+
+      {/* Navigation Arrows */}
+      {structures.length > 1 && (
+        <>
+          <button
+            onClick={prevStructure}
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/80 shadow-md hover:bg-white transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={nextStructure}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/80 shadow-md hover:bg-white transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </>
+      )}
+
+      {/* Structure Counter */}
+      <div className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded-full text-xs">
+        {currentIndex + 1} / {structures.length}
+      </div>
+    </Card>
+  );
+};
+
+// Helper function to group structures by DOI
+export const groupStructuresByDOI = (structures) => {
+  return structures.reduce((groups, structure) => {
+    const doi = structure.citation_pdbx_doi;
+    if (!doi) {
+      // If no DOI, treat as single structure
+      return [...groups, [structure]];
+    }
+    
+    const existingGroup = groups.find(group => 
+      group[0].citation_pdbx_doi === doi
     );
+    
+    if (existingGroup) {
+      existingGroup.push(structure);
+    } else {
+      groups.push([structure]);
+    }
+    
+    return groups;
+  }, []);
 };
