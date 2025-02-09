@@ -23,7 +23,7 @@ export const prefetchStructuresData = createAsyncThunk('prefetch_structures_data
   async (_, { dispatch }) => {
     const result = await dispatch(structuresApi.endpoints.getStructures.initiate({
       cursor: null,
-      limit: 20,
+      limit: 60,
     }));
 
     if ('data' in result) {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Plus, Loader2 } from 'lucide-react';
-import { StructureCard } from '@/components/ribxz/structure_card';
+import { StructureCard, groupStructuresByDOI } from '@/components/ribxz/structure_card';
 import { useAppSelector, useAppDispatch } from '@/store/store';
 import { 
     set_current_structures, 
@@ -12,15 +12,19 @@ import {
 import { useGetStructuresMutation } from '@/store/ribxz_api/structures_api';
 
 export const StructureCarousel = () => {
-    const dispatch = useAppDispatch();
+    const dispatch           = useAppDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const current_structures = useAppSelector(state => state.structures_page.current_structures);
-    const structures_cursor = useAppSelector(state => state.structures_page.structures_cursor);
-    const total_count = useAppSelector(state => state.structures_page.total_structures_count);
+    const structures_cursor  = useAppSelector(state => state.structures_page.structures_cursor);
+    const total_count        = useAppSelector(state => state.structures_page.total_structures_count);
     
-    const [hasMore, setHasMore] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
-    const [getStructures] = useGetStructuresMutation();
+    const [hasMore, setHasMore]                         = useState(true);
+    const [isLoading, setIsLoading]                     = useState(false);
+    const [getStructures]                               = useGetStructuresMutation();
+    const [stackCurrentIndices, setStackCurrentIndices] = useState<{[key: string]: number}>({});
+
+    // Group structures by DOI
+    const structureStacks = groupStructuresByDOI(current_structures);
 
     const handleWheel = (e: WheelEvent) => {
         const scrollViewport = scrollContainerRef.current?.querySelector('[data-radix-scroll-area-viewport]');
@@ -37,8 +41,7 @@ export const StructureCarousel = () => {
         try {
             const payload = {
                 cursor: newCursor,
-                limit: 10,
-                // Add any additional filter parameters here if needed
+                limit: 60,
             };
 
             const result = await getStructures(payload).unwrap();
@@ -66,6 +69,13 @@ export const StructureCarousel = () => {
         }
     };
 
+    const handleStackNavigate = (stackId: string, newIndex: number) => {
+        setStackCurrentIndices(prev => ({
+            ...prev,
+            [stackId]: newIndex
+        }));
+    };
+
     useEffect(() => {
         const element = scrollContainerRef.current;
         if (element) {
@@ -80,20 +90,24 @@ export const StructureCarousel = () => {
         }
     }, []);
 
-    // Only show load more if we have 20 or more total items
-    const shouldShowLoadMore = total_count >= 20 && hasMore;
+    const shouldShowLoadMore = total_count >= 60 && hasMore;
 
     return (
         <div className="w-full space-y-4" ref={scrollContainerRef}>
             <ScrollArea className="no-scrollbar w-full rounded-md border bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors">
                 <div className="bg-slate-100 flex p-4 space-x-4 shadow-inner">
-                    {current_structures.map((structure, i) => (
-                        <StructureCard _={structure} key={i} />
+                    {structureStacks.map((stack, i) => (
+                        <StructureCard
+                            key={stack[0].rcsb_id}
+                            structures={stack}
+                            currentIndex={stackCurrentIndices[stack[0].rcsb_id] || 0}
+                            onNavigate={(newIndex) => handleStackNavigate(stack[0].rcsb_id, newIndex)}
+                        />
                     ))}
 
                     {shouldShowLoadMore && (
                         <div className="w-64 shrink-0" onClick={loadMore}>
-                            <Card className="w-full h-full flex flex-col items-center justify-center hover:bg-muted cursor-pointer transition-colors rounded-md bg-slate-50">
+                            <Card className="w-full h-72 flex flex-col items-center justify-center hover:bg-muted cursor-pointer transition-colors rounded-md bg-slate-50">
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />

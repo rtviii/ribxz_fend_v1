@@ -17,6 +17,7 @@ export interface StructuresSlice {
     structures_cursor     : string | null,
     current_structures    : RibosomeStructure[],
     total_structures_count: number | null,
+    grouped_by_deposition: boolean,
     filters               : StructureFilters,
     last_db_update: null | string,
 }
@@ -26,6 +27,7 @@ const initialState: StructuresSlice = {
     structures_cursor     : null,
     current_structures    : [],
     total_structures_count: null,
+    grouped_by_deposition: true,
     filters               : {
         search          : '',
         subunit_presence: null,
@@ -41,6 +43,9 @@ export const structures_slice = createSlice({
     name: 'structures_slice',
     initialState,
     reducers: {
+        update_grouped_by_deposition(state, action: PayloadAction<boolean>) {
+            state.grouped_by_deposition = action.payload
+        },
 
         set_current_structures(state, action: PayloadAction<RibosomeStructure[]>) {
             state.current_structures = action.payload
@@ -74,13 +79,12 @@ export const structures_slice = createSlice({
 
 export const {
 
-
+    update_grouped_by_deposition,
     set_current_structures,
     set_total_structures_count,
     set_structures_filter,
     set_structures_cursor,
-    set_last_db_update
-
+    set_last_db_update,
 
 } = structures_slice.actions
 export default structures_slice.reducer

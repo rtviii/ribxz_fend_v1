@@ -81,69 +81,9 @@ export const Hero = () => {
         }
     };
 
-    const [getStructures, {isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error}] =
-        useGetStructuresMutation();
-    const [isLoading, setIsLoading] = useState(false);
-
-    const structures_cursor = useAppSelector(state => state.structures_page.structures_cursor);
-    const current_structures = useAppSelector(state => state.structures_page.current_structures);
-    const total_structures_count = useAppSelector(state => state.structures_page.total_structures_count);
-
     const filter_state = useAppSelector(state => state.structures_page.filters);
-    const debounced_filters = useDebounceFilters(filter_state, 250);
-    const [hasMore, setHasMore] = useState(true);
 
     const dispatch = useAppDispatch();
-    const fetchStructures = async (newCursor: string | null = null) => {
-        setIsLoading(true);
-        const payload = {
-            cursor: newCursor,
-            limit: 10,
-            year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
-            search: filter_state.search || null,
-            resolution:
-                filter_state.resolution[0] === null && filter_state.resolution[1] === null
-                    ? null
-                    : filter_state.resolution,
-            polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
-            source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
-            host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
-            subunit_presence: filter_state.subunit_presence || null
-        };
-
-        try {
-            const result = await getStructures(payload).unwrap();
-            const {structures: new_structures, next_cursor, total_count} = result;
-
-            if (newCursor === null) {
-                dispatch(set_current_structures(new_structures));
-            } else {
-                dispatch(set_current_structures([...current_structures, ...new_structures]));
-            }
-
-            dispatch(set_total_structures_count(total_count));
-
-            dispatch(set_structures_cursor(next_cursor));
-            setHasMore(next_cursor !== null);
-        } catch (err) {
-            console.error('Error fetching structures:', err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        dispatch(set_current_structures([]));
-        dispatch(set_structures_cursor(null));
-        setHasMore(true);
-        fetchStructures();
-    }, [debounced_filters]);
-
-    const loadMore = () => {
-        if (!isLoading && hasMore) {
-            fetchStructures(structures_cursor);
-        }
-    };
 
     return (
         <div className="mt-20 flex flex-col items-center justify-center">
@@ -173,12 +113,12 @@ export const Hero = () => {
             {/* Search Input */}
             <div className="w-full max-w-2xl relative z-10">
                 <Input
-                    className   = "w-full bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors"
-                    placeholder = "Search structures..."
-                    value       = {filter_state.search || ''}                                                                      // Always provide a string value
-                    onChange    = {handleInputChange}
-                    onFocus     = {handleInputFocus}
-                    onBlur      = {handleInputBlur}
+                    className="w-full bg-white/80 backdrop-blur-none border-gray-200 focus:border-gray-300 transition-colors"
+                    placeholder="Search structures..."
+                    value={filter_state.search || ''} // Always provide a string value
+                    onChange={handleInputChange}
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
                 />
             </div>
         </div>
