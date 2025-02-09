@@ -40,7 +40,7 @@ export default function StructureCatalogue() {
         setIsLoading(true);
         const payload = {
             cursor: newCursor,
-            limit: 20,
+            limit: 100,
             year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
             search: filter_state.search || null,
             resolution:
