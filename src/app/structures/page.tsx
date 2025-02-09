@@ -16,14 +16,15 @@ import {
     set_total_structures_count
 } from '@/store/slices/slice_structures';
 import FloatingMenu from '@/components/ribxz/menu_floating';
-import { BringToFrontIcon, Layers } from 'lucide-react';
+import {BringToFrontIcon, Layers} from 'lucide-react';
 
 export default function StructureCatalogue() {
-    const [groupByDeposition, setGroupByDeposition] = useState(true);
-     const [stackIndices, setStackIndices] = useState({});
-    const dispatch = useAppDispatch();
-    const filter_state = useAppSelector(state => state.structures_page.filters);
-    const debounced_filters = useDebounceFilters(filter_state, 250);
+
+    const groupByDeposition = useSelector((state: RootState) => state.structures_page.grouped_by_deposition);
+    const [stackIndices, setStackIndices]           = useState({});
+    const dispatch                                  = useAppDispatch();
+    const filter_state                              = useAppSelector(state => state.structures_page.filters);
+    const debounced_filters                         = useDebounceFilters(filter_state, 250);
 
     const [hasMore, setHasMore] = useState(true);
     // const [cursor, setCursor]                                                                               = useState(null)
@@ -110,24 +111,6 @@ export default function StructureCatalogue() {
                         <ScrollArea
                             className="flex-grow max-h-[90vh] overflow-y-auto border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2"
                             scrollHideDelay={1}>
- <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setGroupByDeposition(!groupByDeposition)}
-                    className="flex items-center gap-2"
-                >
-                    {groupByDeposition ? (
-                        <>
-                            <BringToFrontIcon className="h-4 w-4" />
-                            <span>Show Individual</span>
-                        </>
-                    ) : (
-                        <>
-                            <Layers className="h-4 w-4" />
-                            <span>Group by Deposition</span>
-                        </>
-                    )}
-                </Button>
                             <div className="gap-4 flex flex-wrap">
                                 {structures.map(group => (
                                     <StructureCard
@@ -155,6 +138,7 @@ export default function StructureCatalogue() {
                                         (Showing {current_structures.length} of {total_structures_count} structures)
                                     </span>
                                 </Button>
+
                             )}
                         </ScrollArea>
                     </div>
