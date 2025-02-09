@@ -2,7 +2,7 @@
 import {SelectValue, SelectTrigger, SelectItem, SelectContent, Select} from '@/components/ui/select';
 import {Button} from '@/components/ui/button';
 import {CardContent, Card} from '@/components/ui/card';
-import {groupStructuresByDOI, StructureCard, StructureStack} from '../../components/ribxz/structure_card';
+import {groupStructuresByDOI, StructureCard} from '../../components/ribxz/structure_card';
 import {useCallback, useEffect, useState} from 'react';
 import {StructureFiltersComponent, useDebounceFilters} from '@/components/filters/structure_filters_component';
 import {ScrollArea} from '@/components/ui/scroll-area';
@@ -16,10 +16,11 @@ import {
     set_total_structures_count
 } from '@/store/slices/slice_structures';
 import FloatingMenu from '@/components/ribxz/menu_floating';
+import { BringToFrontIcon, Layers } from 'lucide-react';
 
 export default function StructureCatalogue() {
-    // TODO:
-    // const [groupByDeposition, setGroupByDeposition]                                                         = useState(false);
+    const [groupByDeposition, setGroupByDeposition] = useState(true);
+     const [stackIndices, setStackIndices] = useState({});
     const dispatch = useAppDispatch();
     const filter_state = useAppSelector(state => state.structures_page.filters);
     const debounced_filters = useDebounceFilters(filter_state, 250);
@@ -84,7 +85,16 @@ export default function StructureCatalogue() {
             fetchStructures(structures_cursor);
         }
     };
-    const groupedStructures = groupStructuresByDOI(current_structures);
+    const handleStackNavigation = (stackId, newIndex) => {
+        setStackIndices(prev => ({
+            ...prev,
+            [stackId]: newIndex
+        }));
+    };
+
+    const structures = groupByDeposition
+        ? groupStructuresByDOI(current_structures)
+        : current_structures.map(structure => [structure]);
 
     return (
         <div className="max-w-screen max-h-screen min-h-screen p-4 flex flex-col flex-grow  outline ">
@@ -100,14 +110,37 @@ export default function StructureCatalogue() {
                         <ScrollArea
                             className="flex-grow max-h-[90vh] overflow-y-auto border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2"
                             scrollHideDelay={1}>
-                            <div className="gap-4 flex flex-wrap scrollbar-hidden">
-                                {groupedStructures.map(structureGroup =>
-                                    structureGroup.length === 1 ? (
-                                        <StructureCard key={structureGroup[0].rcsb_id} _={structureGroup[0]} />
-                                    ) : (
-                                        <StructureStack key={structureGroup[0].rcsb_id} structures={structureGroup} />
-                                    )
-                                )}
+ <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setGroupByDeposition(!groupByDeposition)}
+                    className="flex items-center gap-2"
+                >
+                    {groupByDeposition ? (
+                        <>
+                            <BringToFrontIcon className="h-4 w-4" />
+                            <span>Show Individual</span>
+                        </>
+                    ) : (
+                        <>
+                            <Layers className="h-4 w-4" />
+                            <span>Group by Deposition</span>
+                        </>
+                    )}
+                </Button>
+                            <div className="gap-4 flex flex-wrap">
+                                {structures.map(group => (
+                                    <StructureCard
+                                        key={group[0].rcsb_id}
+                                        structures={group.length === 1 ? group[0] : group}
+                                        currentIndex={stackIndices[group[0].rcsb_id] || 0}
+                                        onNavigate={
+                                            group.length > 1
+                                                ? newIndex => handleStackNavigation(group[0].rcsb_id, newIndex)
+                                                : null
+                                        }
+                                    />
+                                ))}
                             </div>
 
                             {isLoading ? (
