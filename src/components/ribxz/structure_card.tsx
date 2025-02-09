@@ -17,7 +17,7 @@ export function StructureCard({
   const isStackMode = Array.isArray(structures);
   const structure = isStackMode ? structures[currentIndex] : structures;
  
-    const taxid_dict = useAppSelector(state => state.homepage.taxid_dict); 
+  const taxid_dict = useAppSelector(state => state.homepage.taxid_dict); 
   const [hoveredDirection, setHoveredDirection] = useState(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -70,13 +70,13 @@ export function StructureCard({
         </div>
 
         {/* Content Section */}
-        <CardContent className="pt-3 px-4 relative">
-          {/* Stack Navigation */}
+        <CardContent className="px-4 pb-0 relative h-[50%]">
+          {/* Stack Navigation - Now with full-height gradients */}
           {isStackMode && structures.length > 1 && (
             <>
               {/* Left Navigation Area */}
               <div
-                className="absolute left-0 top-0 w-1/4 h-full cursor-pointer flex items-center justify-start px-2"
+                className="absolute left-0 inset-y-0 w-8 cursor-pointer flex items-center justify-start"
                 onMouseEnter={() => setHoveredDirection('left')}
                 onMouseLeave={() => setHoveredDirection(null)}
                 onClick={(e) => handleNavigate(e, 'prev')}
@@ -84,12 +84,12 @@ export function StructureCard({
                 <div className={`
                   absolute inset-y-0 left-0 w-24
                   transition-opacity duration-200
-                  ${hoveredDirection === 'left' ? 'opacity-20' : 'opacity-0'}
+                  ${hoveredDirection === 'left' ? 'opacity-10' : 'opacity-0'}
                   bg-gradient-to-r from-black to-transparent
                 `} />
                 <ChevronLeft 
                   className={`
-                    h-8 w-8 text-gray-600 z-10 transition-all duration-200
+                    h-6 w-6 text-gray-400 z-10 transition-all duration-200
                     ${hoveredDirection === 'left' ? 'scale-110' : 'scale-100'}
                   `}
                 />
@@ -97,7 +97,7 @@ export function StructureCard({
 
               {/* Right Navigation Area */}
               <div
-                className="absolute right-0 top-0 w-1/4 h-full cursor-pointer flex items-center justify-end px-2"
+                className="absolute right-0 inset-y-0 w-8 cursor-pointer flex items-center justify-end"
                 onMouseEnter={() => setHoveredDirection('right')}
                 onMouseLeave={() => setHoveredDirection(null)}
                 onClick={(e) => handleNavigate(e, 'next')}
@@ -105,12 +105,12 @@ export function StructureCard({
                 <div className={`
                   absolute inset-y-0 right-0 w-24
                   transition-opacity duration-200
-                  ${hoveredDirection === 'right' ? 'opacity-20' : 'opacity-0'}
+                  ${hoveredDirection === 'right' ? 'opacity-10' : 'opacity-0'}
                   bg-gradient-to-l from-black to-transparent
                 `} />
                 <ChevronRight 
                   className={`
-                    h-8 w-8 text-gray-600 z-10 transition-all duration-200
+                    h-6 w-6 text-gray-400 z-10 transition-all duration-200
                     ${hoveredDirection === 'right' ? 'scale-110' : 'scale-100'}
                   `}
                 />
@@ -124,9 +124,9 @@ export function StructureCard({
           )}
 
           {/* Card Content */}
-          <div className="text-gray-700 flex flex-col min-h-0">
+          <div className="text-gray-700 flex flex-col space-y-2 py-3">
             {/* Source Organism */}
-            <div className="flex justify-between items-center h-5">
+            <div className="flex justify-between items-center">
               <span className="text-[11px] text-gray-500">Source Organism:</span>
               <span className="text-[11px] font-medium">
                 {structure.src_organism_ids.map(taxid => 
@@ -137,7 +137,7 @@ export function StructureCard({
 
             {/* Authors */}
             {structure.citation_rcsb_authors && (
-              <div className="flex justify-between items-center h-5">
+              <div className="flex justify-between items-center">
                 <span className="text-[11px] text-gray-500">Authors:</span>
                 <HoverCard>
                   <HoverCardTrigger asChild>
@@ -164,7 +164,7 @@ export function StructureCard({
 
             {/* Citation Title */}
             {structure.citation_title && (
-              <div className="text-[11px] text-gray-500 mt-1 break-words line-clamp-2">
+              <div className="text-[11px] text-gray-500 break-words line-clamp-3">
                 {structure.citation_title}
               </div>
             )}
