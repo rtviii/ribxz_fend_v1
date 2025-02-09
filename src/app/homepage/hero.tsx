@@ -94,56 +94,56 @@ export const Hero = () => {
     const [hasMore, setHasMore] = useState(true);
 
     const dispatch = useAppDispatch();
-    const fetchStructures = async (newCursor: string | null = null) => {
-        setIsLoading(true);
-        const payload = {
-            cursor: newCursor,
-            limit: 10,
-            year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
-            search: filter_state.search || null,
-            resolution:
-                filter_state.resolution[0] === null && filter_state.resolution[1] === null
-                    ? null
-                    : filter_state.resolution,
-            polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
-            source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
-            host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
-            subunit_presence: filter_state.subunit_presence || null
-        };
+    // const fetchStructures = async (newCursor: string | null = null) => {
+    //     setIsLoading(true);
+    //     const payload = {
+    //         cursor: newCursor,
+    //         limit: 10,
+    //         year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
+    //         search: filter_state.search || null,
+    //         resolution:
+    //             filter_state.resolution[0] === null && filter_state.resolution[1] === null
+    //                 ? null
+    //                 : filter_state.resolution,
+    //         polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
+    //         source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
+    //         host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
+    //         subunit_presence: filter_state.subunit_presence || null
+    //     };
 
-        try {
-            const result = await getStructures(payload).unwrap();
-            const {structures: new_structures, next_cursor, total_count} = result;
+    //     try {
+    //         const result = await getStructures(payload).unwrap();
+    //         const {structures: new_structures, next_cursor, total_count} = result;
 
-            if (newCursor === null) {
-                dispatch(set_current_structures(new_structures));
-            } else {
-                dispatch(set_current_structures([...current_structures, ...new_structures]));
-            }
+    //         if (newCursor === null) {
+    //             dispatch(set_current_structures(new_structures));
+    //         } else {
+    //             dispatch(set_current_structures([...current_structures, ...new_structures]));
+    //         }
 
-            dispatch(set_total_structures_count(total_count));
+    //         dispatch(set_total_structures_count(total_count));
 
-            dispatch(set_structures_cursor(next_cursor));
-            setHasMore(next_cursor !== null);
-        } catch (err) {
-            console.error('Error fetching structures:', err);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    //         dispatch(set_structures_cursor(next_cursor));
+    //         setHasMore(next_cursor !== null);
+    //     } catch (err) {
+    //         console.error('Error fetching structures:', err);
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
-    useEffect(() => {
-        dispatch(set_current_structures([]));
-        dispatch(set_structures_cursor(null));
-        setHasMore(true);
-        fetchStructures();
-    }, [debounced_filters]);
+    // useEffect(() => {
+    //     dispatch(set_current_structures([]));
+    //     dispatch(set_structures_cursor(null));
+    //     setHasMore(true);
+    //     fetchStructures();
+    // }, [debounced_filters]);
 
-    const loadMore = () => {
-        if (!isLoading && hasMore) {
-            fetchStructures(structures_cursor);
-        }
-    };
+    // const loadMore = () => {
+    //     if (!isLoading && hasMore) {
+    //         fetchStructures(structures_cursor);
+    //     }
+    // };
 
     return (
         <div className="mt-20 flex flex-col items-center justify-center">

@@ -14,6 +14,7 @@ import {useState} from 'react';
 import {useAppSelector} from '@/store/store';
 import BottomSection from './home_footer';
 import {DemoFooter, ProteinPill, SectionHeader} from './home_components';
+import Head from 'next/head';
 
 const acknowledgements = [
     {
@@ -139,8 +140,7 @@ const Homepage = () => {
 
                 <section className="space-y-8">
                     <SectionHeader
-
-                    navigationPath={'/structures'}
+                        navigationPath={'/structures'}
                         title="Atomic Models: Structures and Polymers"
                         description={
                             <span>
@@ -176,8 +176,7 @@ const Homepage = () => {
                     </SectionHeader>
 
                     <SectionHeader
-
-                    navigationPath={'/ligands'}
+                        navigationPath={'/ligands'}
                         title="Ligand Binding Sites & Predictions"
                         description={`Data for nonpolymer-ligand binding sites across deposited structures and predictions derived from it. `}
                         documentation={[
