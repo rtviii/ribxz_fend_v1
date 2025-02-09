@@ -8,9 +8,6 @@ import {BsiteDemo} from './homepage/demo_bsite';
 import {Check, ChevronRight, Copy} from 'lucide-react';
 import {TunnelDemoBacterial} from './homepage/demo_tunnel_bacterial_ligand';
 import {TunnelDemoMito} from './homepage/demo_tunnel_mito';
-import {cn} from '@/components/utils';
-import {Terminal} from 'lucide-react';
-import {useState} from 'react';
 import {useAppSelector} from '@/store/store';
 import BottomSection from './home_footer';
 import {DemoFooter, ProteinPill, SectionHeader} from './home_components';
@@ -129,6 +126,7 @@ const TunnelDemos = () => {
         </div>
     );
 };
+
 
 const Homepage = () => {
     const last_pdb_sync = useAppSelector(state => state.structures_page.last_db_update);
