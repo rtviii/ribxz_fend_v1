@@ -5,8 +5,8 @@ export const metadata = {
     title: 'riboxyz',
     description: 'An interface to the atomic structure of the ribosome',
     icons: {
-        icon: '/goldmine.ico',
-        apple: '/goldmine.ico'
+        icon : '/favicon.ico',
+        apple: '/logo.ico'
     }
 }
 
