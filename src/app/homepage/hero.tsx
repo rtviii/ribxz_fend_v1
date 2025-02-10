@@ -82,8 +82,73 @@ export const Hero = () => {
     };
 
     const filter_state = useAppSelector(state => state.structures_page.filters);
+    const [getStructures, {isLoading: structs_isLoading, isError: structs_isErorr, error: structs_error}] =
+        useGetStructuresMutation();
+    const [isLoading, setIsLoading] = useState(false);
+    const debounced_filters = useDebounceFilters(filter_state, 250);
+    const [hasMore, setHasMore] = useState(true);
+
+    const structures_cursor = useAppSelector(state => state.structures_page.structures_cursor);
+    const current_structures = useAppSelector(state => state.structures_page.current_structures);
+    const total_structures_count = useAppSelector(state => state.structures_page.total_structures_count);
+
+
 
     const dispatch = useAppDispatch();
+    const fetchStructures = async (newCursor: string | null = null) => {
+        setIsLoading(true);
+        const payload = {
+            cursor: newCursor,
+            limit: 10,
+            year: filter_state.year[0] === null && filter_state.year[1] === null ? null : filter_state.year,
+            search: filter_state.search || null,
+            resolution:
+                filter_state.resolution[0] === null && filter_state.resolution[1] === null
+                    ? null
+                    : filter_state.resolution,
+            polymer_classes: filter_state.polymer_classes.length === 0 ? null : filter_state.polymer_classes,
+            source_taxa: filter_state.source_taxa.length === 0 ? null : filter_state.source_taxa,
+            host_taxa: filter_state.host_taxa.length === 0 ? null : filter_state.host_taxa,
+            subunit_presence: filter_state.subunit_presence || null
+        };
+
+        try {
+            const result = await getStructures(payload).unwrap();
+            const {structures: new_structures, next_cursor, total_count} = result;
+
+            if (newCursor === null) {
+                dispatch(set_current_structures(new_structures));
+            } else {
+                dispatch(set_current_structures([...current_structures, ...new_structures]));
+            }
+
+            dispatch(set_total_structures_count(total_count));
+
+            dispatch(set_structures_cursor(next_cursor));
+            setHasMore(next_cursor !== null);
+        } catch (err) {
+            console.error('Error fetching structures:', err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        dispatch(set_current_structures([]));
+        dispatch(set_structures_cursor(null));
+        setHasMore(true);
+        fetchStructures();
+    }, [debounced_filters]);
+
+    const loadMore = () => {
+        if (!isLoading && hasMore) {
+            fetchStructures(structures_cursor);
+        }
+    };
+
+
+
+
 
     return (
         <div className="mt-20 flex flex-col items-center justify-center">
