@@ -324,6 +324,8 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
+            
+            <Button onClick={()=>{ viewer?.downloads.downloadSelection('some.cif') }}>Download seelction</Button>
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={25}>
                     <Card

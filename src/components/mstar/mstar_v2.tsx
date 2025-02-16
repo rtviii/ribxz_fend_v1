@@ -13,7 +13,8 @@ import {
     Structure,
     StructureElement,
     StructureProperties,
-    StructureSelection
+    StructureSelection,
+    to_mmCIF
 } from 'molstar/lib/mol-model/structure';
 import {StructureQueryHelper} from 'molstar/lib/mol-plugin-state/helpers/structure-query';
 import {MolScriptBuilder, MolScriptBuilder as MS} from 'molstar/lib/mol-script/language/builder';
@@ -34,6 +35,9 @@ import {Asset} from 'molstar/lib/mol-util/assets';
 import {Loci} from 'molstar/lib/mol-model/loci';
 import PolymerColorschemeWarm from './providers/colorschemes/colorscheme_warm';
 import {ArbitraryCylinderRepresentationProvider} from './providers/cylinder_provider';
+import {DownloadHelper} from './download_helper';
+import {CifWriter} from 'molstar/lib/mol-io/writer/cif';
+import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
 
 export type ResidueSummary = {
     label_seq_id: number | null | undefined;
@@ -135,7 +139,6 @@ export class ribxzMstarv2 {
                 typeParams: sphere,
                 colorParams: {value: Color(0x0000ff)} // Blue color
             });
-
         },
 
         constriction_site: (xyz: number[]) => {
@@ -157,7 +160,6 @@ export class ribxzMstarv2 {
                 typeParams: sphere,
                 colorParams: {value: Color(0xff0000)} // Red color
             });
-
         }
     };
 
@@ -263,7 +265,6 @@ export class ribxzMstarv2 {
                 },
                 {tag: `${chemicalId}_`} // tag is optional, but useful for later reference
             );
-
 
             return structure;
         }
@@ -1360,6 +1361,87 @@ export class ribxzMstarv2 {
         const shape_loci = await meshObject.obj.data.repr.getAllLoci();
         return shape_loci;
     };
+
+    downloads = {
+        // Download the current selection as a CIF file
+        downloadSelection: async (filename: string = 'selection.cif') => {
+            const result = DownloadHelper.getCurrentStructureAndSelection(this.ctx);
+            if (!result) {
+                console.error('No structure or selection available');
+                return;
+            }
+
+            const {selectionStructure} = result;
+
+            // Convert the selection to CIF format using the correct API
+            const cifData = to_mmCIF('selection', selectionStructure);
+
+            // Create and download the blob
+            const blob = DownloadHelper.createBlob(cifData);
+            DownloadHelper.downloadBlob(blob, filename);
+        },
+
+        // Download the entire structure as a CIF file
+        downloadStructure: async (filename: string = 'structure.cif') => {
+            const state = this.ctx.state.data;
+            const structures = state.select(
+                StateSelection.Generators.rootsOfType(PluginStateObject.Molecule.Structure)
+            );
+
+            if (structures.length === 0 || !structures[0].obj) {
+                console.error('No structure loaded');
+                return;
+            }
+
+            const structure = structures[0].obj.data;
+
+            // Convert the structure to CIF format using the correct API
+            const cifData = to_mmCIF('structure', structure);
+
+            // Create and download the blob
+            const blob = DownloadHelper.createBlob(cifData);
+            DownloadHelper.downloadBlob(blob, filename);
+        },
+
+        // Download specific chains by their auth_asym_ids
+        downloadChains: async (auth_asym_ids: string[], filename: string = 'chains.cif') => {
+            const state = this.ctx.state.data;
+            const structures = state.select(
+                StateSelection.Generators.rootsOfType(PluginStateObject.Molecule.Structure)
+            );
+
+            if (structures.length === 0 || !structures[0].obj) {
+                console.error('No structure loaded');
+                return;
+            }
+
+            const structure = structures[0].obj.data;
+
+            // Create selection expression for the chains
+            const expr = this.residues.residue_cluster_expression(
+                auth_asym_ids.map(id => ({
+                    auth_asym_id: id,
+                    auth_seq_id: -1 // Use -1 to select entire chain
+                }))
+            );
+
+            // Get the selection
+            const sel = Script.getStructureSelection(expr, structure);
+            const selectedStructure = StructureSelection.unionStructure(sel);
+
+            if (!selectedStructure) {
+                console.error('Failed to create selection');
+                return;
+            }
+
+            // Convert the selected structure to CIF format using the correct API
+            const cifData = to_mmCIF('chains', selectedStructure);
+
+            // Create and download the blob
+            const blob = DownloadHelper.createBlob(cifData);
+            DownloadHelper.downloadBlob(blob, filename);
+        }
+    };
 }
 
 export async function createChainRangeVisualization(
@@ -1413,9 +1495,9 @@ export async function createChainRangeVisualization(
         return;
     }
 
-    const expr      = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
-    const update    = ctx.ctx.build();
-    const group     = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
+    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
+    const update = ctx.ctx.build();
+    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
     const selection = group.apply(
         StateTransforms.Model.StructureSelectionFromExpression,
         {
@@ -1489,5 +1571,4 @@ export async function createChainRangeVisualization(
         state: ctx.ctx.state.data,
         tree: update
     });
-
 }
