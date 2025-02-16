@@ -22,20 +22,31 @@ import {HelixLandmarks} from '../landmarks/helix_row';
 import {selectComponentById} from '@/store/molstar/slice_refs';
 import {Button} from '@/components/ui/button';
 import LigandRow from './ligand_component';
-interface PTCLandmarkProps {
+import {log} from 'node:console';
+interface LandmarkItemProps {
     onFocus?: () => void;
     onClick?: () => void;
-    onHover?: () => void;
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
     onDownload?: () => void;
     isActive?: boolean;
     className?: string;
 }
 
-const PTCLandmark = ({onFocus, onClick, onDownload, onHover, isActive = false, className}: PTCLandmarkProps) => {
+const PTCLandmark = ({
+    onFocus,
+    onClick,
+    onDownload,
+    onMouseEnter,
+    onMouseLeave,
+    isActive = false,
+    className
+}: LandmarkItemProps) => {
     return (
         <div
-            // onClick={onClick}
-            onMouseEnter={onHover}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onClick={onClick}
             className={cn(
                 'flex items-center justify-between p-2 rounded-md',
                 isActive ? 'bg-blue-50' : 'hover:bg-gray-50',
@@ -49,7 +60,7 @@ const PTCLandmark = ({onFocus, onClick, onDownload, onHover, isActive = false, c
             </div>
 
             <div className="flex items-center space-x-1">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClick}>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onFocus}>
                     <ScanSearch size={14} />
                 </Button>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onDownload}>
@@ -60,26 +71,20 @@ const PTCLandmark = ({onFocus, onClick, onDownload, onHover, isActive = false, c
     );
 };
 
-interface ConstrictionSiteLandmarkProps {
-    onFocus?: () => void;
-    onDownload?: () => void;
-    onHover?: () => void;
-    onClick?: () => void;
-    isActive?: boolean;
-    className?: string;
-}
-
 const ConstrictionSiteLandmark = ({
     onFocus,
     onDownload,
     onClick,
-    onHover,
+    onMouseEnter,
+    onMouseLeave,
     isActive = false,
     className
-}: ConstrictionSiteLandmarkProps) => {
+}: LandmarkItemProps) => {
     return (
         <div
-            // onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onClick={onClick}
             className={cn(
                 'flex items-center justify-between p-2 rounded-md',
                 isActive ? 'bg-blue-50' : 'hover:bg-gray-50',
@@ -93,7 +98,7 @@ const ConstrictionSiteLandmark = ({
             </div>
 
             <div className="flex items-center space-x-1">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClick}>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onFocus}>
                     <ScanSearch size={14} />
                 </Button>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onDownload}>
@@ -163,7 +168,9 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     }, [data]);
 
     const [PTCref, setPTCref] = useState('');
+    const [PTCxyz, setPTCxyz] = useState([0, 0, 0]);
     const [ConstrictionRef, setConstrictionRef] = useState('');
+    const [ConstrictionXyz, setConstrictionXyz] = useState([0, 0, 0]);
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
     if (!service?.viewer || !service?.controller) {
@@ -238,18 +245,77 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                 <div>
                                     <div className="text-sm text-gray-500">
                                         <PTCLandmark
-                                            onHover={() => highlightArbitrarySphere(ctx!.ctx, PTCref)}
+                                            onMouseEnter={() => {
+                                                controller?.landmarks.highlightSphere(
+                                                    ConstrictionXyz[0],
+                                                    ConstrictionXyz[1],
+                                                    ConstrictionXyz[2],
+                                                    2,
+                                                    'PTC (Peptidyl Transferase Center)'
+                                                );
+                                            }}
+                                            onMouseLeave={() => {
+                                                ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
+                                            }}
+                                            onFocus={() =>
+                                                ctx?.focusPosition(
+                                                    ConstrictionXyz[0],
+                                                    ConstrictionXyz[1],
+                                                    ConstrictionXyz[2]
+                                                )
+                                            }
                                             onClick={async () => {
-                                                const ptcref = await controller?.landmarks.ptc(rcsb_id);
-                                                setPTCref(ptcref);
+                                                console.log('PTCref', PTCref);
+                                                if (PTCref === '') {
+                                                    const [ptcref, xyz] = await controller?.landmarks.ptc(rcsb_id);
+                                                    setPTCref(ptcref);
+                                                    setPTCxyz(xyz);
+                                                } else {
+                                                    controller?.landmarks.selectSphere(
+                                                        ConstrictionXyz[0],
+                                                        ConstrictionXyz[1],
+                                                        ConstrictionXyz[2],
+                                                        2,
+                                                        'PTC (Peptidyl Transferase Center)'
+                                                    );
+                                                }
                                             }}
                                         />
                                         <ConstrictionSiteLandmark
-                                            onClick={async () => {
-                                                const constrictionRef = await controller?.landmarks.constriction_site(
-                                                    rcsb_id
+                                            onFocus={() =>
+                                                ctx?.focusPosition(
+                                                    ConstrictionXyz[0],
+                                                    ConstrictionXyz[1],
+                                                    ConstrictionXyz[2]
+                                                )
+                                            }
+                                            onMouseEnter={() => {
+                                                controller?.landmarks.highlightSphere(
+                                                    ConstrictionXyz[0],
+                                                    ConstrictionXyz[1],
+                                                    ConstrictionXyz[2],
+                                                    2,
+                                                    'PTC (Peptidyl Transferase Center)'
                                                 );
-                                                setConstrictionRef(constrictionRef);
+                                            }}
+                                            onMouseLeave={() => {
+                                                ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
+                                            }}
+                                            onClick={async () => {
+                                                if (constrictionRef === '') {
+                                                    const [constriction_ref, xyz] =
+                                                        await controller?.landmarks.constriction_site(rcsb_id);
+                                                    setConstrictionRef(constriction_ref);
+                                                    setConstrictionXyz(xyz);
+                                                } else {
+                                                    controller?.landmarks.selectSphere(
+                                                        ConstrictionXyz[0],
+                                                        ConstrictionXyz[1],
+                                                        ConstrictionXyz[2],
+                                                        2,
+                                                        'PTC (Peptidyl Transferase Center)'
+                                                    );
+                                                }
                                             }}
                                         />
                                         <HelixLandmarks
@@ -347,63 +413,5 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         </TooltipProvider>
     );
 };
-
-// First, you'll need to import these additional dependencies
-import {Representation} from 'molstar/lib/mol-repr/representation';
-import {PluginContext} from 'molstar/lib/mol-plugin/context';
-import {Structure} from 'molstar/lib/mol-model/structure';
-
-// Function to highlight the arbitrary sphere
-export async function highlightArbitrarySphere(
-    plugin: PluginContext,
-    sphereRef: string // Reference to your sphere component
-) {
-    // Get the sphere component from the state tree
-    const state = plugin.state.data;
-    const sphereObj = state.select(sphereRef)[0];
-
-    if (!sphereObj) return;
-
-    // Get the representation
-    const repr = sphereObj.obj?.data as Representation<Structure>;
-    if (!repr) return;
-
-    // Create a loci for the sphere
-    const sphere = repr.geometryVersions[0];
-    if (!sphere) return;
-
-    // Get the loci from the first location (since we only have one sphere)
-    const pickingId = {objectId: sphere.id, instanceId: 0, groupId: 0};
-    const loci = repr.visual.getLoci(pickingId, sphere.currentGroup, sphere.id);
-
-    // Apply highlighting
-    plugin.managers.interactivity.lociHighlights.highlightOnly({loci});
-}
-
-// Function to remove highlight
-export function removeHighlight(plugin: PluginContext) {
-    plugin.managers.interactivity.lociHighlights.clearHighlights();
-}
-
-// Example usage:
-/*
-// To highlight:
-await highlightArbitrarySphere(plugin, 'sphere-component-ref');
-
-// To remove highlight:
-removeHighlight(plugin);
-
-// To toggle highlight:
-let isHighlighted = false;
-
-function toggleHighlight() {
-    if (isHighlighted) {
-        removeHighlight(plugin);
-    } else {
-        highlightArbitrarySphere(plugin, 'sphere-component-ref');
-    }
-    isHighlighted = !isHighlighted;
-}
-*/
 
 export default ComponentsEasyAccessPanel;

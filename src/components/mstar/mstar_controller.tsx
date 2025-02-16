@@ -32,6 +32,9 @@ import {Color} from 'molstar/lib/mol-util/color/color';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
 import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
 import {Expression} from 'molstar/lib/mol-script/language/expression';
+import {StateObjectSelector} from 'molstar/lib/mol-state/object';
+import {DataLoci} from 'molstar/lib/mol-model/loci';
+import {Vec3} from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
@@ -115,31 +118,29 @@ export class MolstarStateController {
     };
 
     landmarks = {
-        ptc: async (rcsb_id: string): Promise<string> => {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/ptc?rcsb_id=${rcsb_id}`);
-            const data: PtcInfo = await response.json();
-            const [x, y, z] = data.location;
-
-            const structRef = Object.values(
-                this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map
-            )[0];
-            const representation = await this.viewer.ctx.builders.structure.representation.addRepresentation(structRef, {
-                type: 'arbitrary-sphere' as any,
-                typeParams: {
-                    x: x,
-                    y: y,
-                    z: z,
-                    radius: 2,
-                    label: 'PTC (Peptidyl Transferase Center)'
-                },
-                colorParams: {value: 0x0000ff}
-            });
-            
-            this.viewer.focusPosition(x, y, z);
+        ptc: async (rcsb_id: string): Promise<[string, [number, number, number]]> => {
+            const response       = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/ptc?rcsb_id=${rcsb_id}`);
+            const data: PtcInfo  = await response.json();
+            const [x, y, z]      = data.location;
+            const structRef      = Object.values( this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map )[0];
+            const representation = await this.viewer.ctx.builders.structure.representation.addRepresentation(
+                structRef,
+                {
+                    type: 'arbitrary-sphere' as any,
+                    typeParams: {
+                        x: x,
+                        y: y,
+                        z: z,
+                        radius: 2,
+                        label: 'PTC (Peptidyl Transferase Center)'
+                    },
+                    colorParams: {value: 0x0000ff}
+                }
+            );
             const ref = representation.ref;
-            return ref;
+            return [ref, [x, y, z]];
         },
-        constriction_site: async (rcsb_id: string) => {
+        constriction_site: async (rcsb_id: string):Promise<[string, [number, number, number]]> => {
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/constriction_site?rcsb_id=${rcsb_id}`
             );
@@ -149,20 +150,71 @@ export class MolstarStateController {
             const structRef = Object.values(
                 this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map
             )[0];
-            const representation = await this.viewer.ctx.builders.structure.representation.addRepresentation(structRef, {
-                type: 'arbitrary-sphere' as any,
-                typeParams: {
-                    x: x,
-                    y: y,
-                    z: z,
-                    radius: 2,
-                    label: 'uL22/uL4 Constriction Site'
-                },
-                colorParams: {value: 0x00ffff}
-            });
-            
+            const representation = await this.viewer.ctx.builders.structure.representation.addRepresentation(
+                structRef,
+                {
+                    type: 'arbitrary-sphere' as any,
+                    typeParams: {
+                        x: x,
+                        y: y,
+                        z: z,
+                        radius: 2,
+                        label: 'uL22/uL4 Constriction Site'
+                    },
+                    colorParams: {value: 0x00ffff}
+                }
+            );
+
             this.viewer.focusPosition(x, y, z);
-            // this.viewer.landmarks.constriction_site(data.location);
+            const ref = representation.ref;
+            return [ref, [x, y, z]];
+        },
+        highlightSphere: (
+            x: number,
+            y: number,
+            z: number,
+            radius: number,
+            label: string 
+        ): void => {
+            const sphereLoci = DataLoci(
+                'arbitrary-sphere-loci',
+                {
+                    center: Vec3.create(x, y, z),
+                    radius: radius
+                },
+                [0], // Indices (not used in this case)
+                undefined,
+                () => label // Label for the loci
+            );
+
+            // Highlight the loci using the representation
+            this.viewer.ctx.managers.interactivity.lociHighlights.highlight({
+                loci: sphereLoci
+            });
+        },
+
+        selectSphere: (
+            x: number,
+            y: number,
+            z: number,
+            radius: number,
+            label: string 
+        ): void => {
+
+            // Create the loci for the sphere
+            const sphereLoci = DataLoci(
+                'arbitrary-sphere-loci',
+                {
+                    center: Vec3.create(x, y, z),
+                    radius: radius
+                },
+                [0], // Indices (not used in this case)
+                undefined,
+                () => label // Label for the loci
+            );
+
+            // Select the loci using the representation
+            this.viewer.ctx.managers.structure.selection.fromLoci('add', sphereLoci)
         }
     };
 

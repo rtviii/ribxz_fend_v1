@@ -28,7 +28,6 @@ const ArbitrarySphereParams = {
 type ArbitrarySphereParams = typeof ArbitrarySphereParams;
 
 function ArbitrarySphereVisual(materialId: number): UnitsVisual<ArbitrarySphereParams> {
-    // Capture current props at this scope
     let currentProps: PD.Values<ArbitrarySphereParams>;
 
     return UnitsMeshVisual<ArbitrarySphereParams>(
@@ -43,7 +42,6 @@ function ArbitrarySphereVisual(materialId: number): UnitsVisual<ArbitrarySphereP
                 props: PD.Values<ArbitrarySphereParams>,
                 mesh?: Mesh
             ) => {
-                // Store the props for use in other methods
                 currentProps = props;
 
                 const mb = MeshBuilder.createState(16, 16, mesh);
