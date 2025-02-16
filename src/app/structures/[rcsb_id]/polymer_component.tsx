@@ -66,9 +66,9 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
         ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
     };
 
-    const color = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
-    const hexcol = Color.toHexStyle(color);
-    const textColor = getContrastColor(hexcol);
+    const color            = polymer.nomenclature.length > 0 ? PolymerColorschemeWarm[polymer.nomenclature[0]] : Color(0xfafafa);
+    const hexcol           = Color.toHexStyle(color);
+    const textColor        = getContrastColor(hexcol);
     const on_hover_styling = 'bg-blue-50/30 border-l-4 border-l-slate-400 bg-slate-200';
 
     return (
@@ -105,9 +105,8 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                             auth_asym_id={polymer.auth_asym_id}
                             sequence={polyComponent.sequence}
                             metadata={{
-                                type: polymer.entity_poly_polymer_type === 'RNA' ? 'Polynucleotide' : 'Polypeptide',
-                                chain_title:
-                                    polymer.nomenclature.length > 1 ? polymer.nomenclature[0] : polymer.auth_asym_id
+                                type       : polymer.entity_poly_polymer_type === 'RNA' ? 'Polynucleotide': 'Polypeptide',
+                                chain_title: polymer.nomenclature.length > 1 ? polymer.nomenclature[0]    : polymer.auth_asym_id
                             }}
                             onSelectionChange={selection => {
                             }}

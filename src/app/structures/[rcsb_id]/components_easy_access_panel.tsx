@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {TooltipProvider, Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
-import {DownloadIcon, Eye, EyeIcon} from 'lucide-react';
+import {DownloadIcon, Eye, EyeIcon, ScanSearch} from 'lucide-react';
 import {cn} from '@/components/utils';
 import {useAppSelector} from '@/store/store';
 
@@ -25,15 +25,17 @@ import LigandRow from './ligand_component';
 interface PTCLandmarkProps {
     onFocus?: () => void;
     onClick?: () => void;
+    onHover?: () => void;
     onDownload?: () => void;
     isActive?: boolean;
     className?: string;
 }
 
-const PTCLandmark = ({onFocus, onClick, onDownload, isActive = false, className}: PTCLandmarkProps) => {
+const PTCLandmark = ({onFocus, onClick, onDownload, onHover, isActive = false, className}: PTCLandmarkProps) => {
     return (
         <div
-            onClick={onClick}
+            // onClick={onClick}
+            onMouseEnter={onHover}
             className={cn(
                 'flex items-center justify-between p-2 rounded-md',
                 isActive ? 'bg-blue-50' : 'hover:bg-gray-50',
@@ -47,8 +49,8 @@ const PTCLandmark = ({onFocus, onClick, onDownload, isActive = false, className}
             </div>
 
             <div className="flex items-center space-x-1">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onFocus}>
-                    <EyeIcon className="h-4 w-4 text-gray-600" />
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClick}>
+                    <ScanSearch size={14} />
                 </Button>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onDownload}>
                     <DownloadIcon className="h-4 w-4 text-gray-600" />
@@ -61,6 +63,7 @@ const PTCLandmark = ({onFocus, onClick, onDownload, isActive = false, className}
 interface ConstrictionSiteLandmarkProps {
     onFocus?: () => void;
     onDownload?: () => void;
+    onHover?: () => void;
     onClick?: () => void;
     isActive?: boolean;
     className?: string;
@@ -70,12 +73,13 @@ const ConstrictionSiteLandmark = ({
     onFocus,
     onDownload,
     onClick,
+    onHover,
     isActive = false,
     className
 }: ConstrictionSiteLandmarkProps) => {
     return (
         <div
-            onClick={onClick}
+            // onClick={onClick}
             className={cn(
                 'flex items-center justify-between p-2 rounded-md',
                 isActive ? 'bg-blue-50' : 'hover:bg-gray-50',
@@ -89,8 +93,8 @@ const ConstrictionSiteLandmark = ({
             </div>
 
             <div className="flex items-center space-x-1">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onFocus}>
-                    <EyeIcon className="h-4 w-4 text-gray-600" />
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onClick}>
+                    <ScanSearch size={14} />
                 </Button>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={onDownload}>
                     <DownloadIcon className="h-4 w-4 text-gray-600" />
@@ -141,13 +145,11 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
 
     const {data: helices_data} = useRoutersRouterLociGetHelicesQuery({rcsbId: data?.rcsb_id});
-    const {data: ptc_data} = useRoutersRouterLociStructurePtcQuery({rcsbId: data?.rcsb_id});
     const {data: ligands_data} = useRoutersRouterLigInStructureQuery({rcsbId: data?.rcsb_id});
 
     const mstar = useMolstarInstance('main');
     const controller = mstar?.controller;
     const ctx = mstar?.viewer;
-
 
     const [filteredPolymers, setFilteredPolymers] = useState([]);
 
@@ -160,6 +162,8 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         setFilteredPolymers(allPolymers);
     }, [data]);
 
+    const [PTCref, setPTCref] = useState('');
+    const [ConstrictionRef, setConstrictionRef] = useState('');
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
     if (!service?.viewer || !service?.controller) {
@@ -234,12 +238,19 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                 <div>
                                     <div className="text-sm text-gray-500">
                                         <PTCLandmark
-                                            onClick={() => {
-                                                controller?.landmarks.ptc(rcsb_id);
+                                            onHover={() => highlightArbitrarySphere(ctx!.ctx, PTCref)}
+                                            onClick={async () => {
+                                                const ptcref = await controller?.landmarks.ptc(rcsb_id);
+                                                setPTCref(ptcref);
                                             }}
                                         />
                                         <ConstrictionSiteLandmark
-                                            onClick={() => controller?.landmarks.constriction_site(rcsb_id)}
+                                            onClick={async () => {
+                                                const constrictionRef = await controller?.landmarks.constriction_site(
+                                                    rcsb_id
+                                                );
+                                                setConstrictionRef(constrictionRef);
+                                            }}
                                         />
                                         <HelixLandmarks
                                             helicesData={helices_data}
@@ -336,5 +347,63 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         </TooltipProvider>
     );
 };
+
+// First, you'll need to import these additional dependencies
+import {Representation} from 'molstar/lib/mol-repr/representation';
+import {PluginContext} from 'molstar/lib/mol-plugin/context';
+import {Structure} from 'molstar/lib/mol-model/structure';
+
+// Function to highlight the arbitrary sphere
+export async function highlightArbitrarySphere(
+    plugin: PluginContext,
+    sphereRef: string // Reference to your sphere component
+) {
+    // Get the sphere component from the state tree
+    const state = plugin.state.data;
+    const sphereObj = state.select(sphereRef)[0];
+
+    if (!sphereObj) return;
+
+    // Get the representation
+    const repr = sphereObj.obj?.data as Representation<Structure>;
+    if (!repr) return;
+
+    // Create a loci for the sphere
+    const sphere = repr.geometryVersions[0];
+    if (!sphere) return;
+
+    // Get the loci from the first location (since we only have one sphere)
+    const pickingId = {objectId: sphere.id, instanceId: 0, groupId: 0};
+    const loci = repr.visual.getLoci(pickingId, sphere.currentGroup, sphere.id);
+
+    // Apply highlighting
+    plugin.managers.interactivity.lociHighlights.highlightOnly({loci});
+}
+
+// Function to remove highlight
+export function removeHighlight(plugin: PluginContext) {
+    plugin.managers.interactivity.lociHighlights.clearHighlights();
+}
+
+// Example usage:
+/*
+// To highlight:
+await highlightArbitrarySphere(plugin, 'sphere-component-ref');
+
+// To remove highlight:
+removeHighlight(plugin);
+
+// To toggle highlight:
+let isHighlighted = false;
+
+function toggleHighlight() {
+    if (isHighlighted) {
+        removeHighlight(plugin);
+    } else {
+        highlightArbitrarySphere(plugin, 'sphere-component-ref');
+    }
+    isHighlighted = !isHighlighted;
+}
+*/
 
 export default ComponentsEasyAccessPanel;

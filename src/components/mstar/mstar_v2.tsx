@@ -1,6 +1,6 @@
 import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
 import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
-import {ArbitrarySphereRepresentationProvider} from './providers/sphere_provider';
+import {ArbitrarySphereRepresentationProvider} from './providers/arbitrary_sphere_provider';
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
 import {PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {ribxzSpec} from './spec';
@@ -34,10 +34,10 @@ import {ResidueData} from '@/app/components/sequence_viewer';
 import {Asset} from 'molstar/lib/mol-util/assets';
 import {Loci} from 'molstar/lib/mol-model/loci';
 import PolymerColorschemeWarm from './providers/colorschemes/colorscheme_warm';
-import {ArbitraryCylinderRepresentationProvider} from './providers/cylinder_provider';
 import {DownloadHelper} from './download_helper';
 import {CifWriter} from 'molstar/lib/mol-io/writer/cif';
 import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
+import {Vec3} from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
 
 export type ResidueSummary = {
     label_seq_id: number | null | undefined;
@@ -77,7 +77,7 @@ export class ribxzMstarv2 {
         parent.appendChild(pluginContainer);
         this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
-        this.ctx.representation.structure.registry.add(ArbitraryCylinderRepresentationProvider);
+
         this.ctx.builders.structure.representation.registerPreset(SplitPolymerPreset);
         this.ctx.canvas3d?.setProps({
             camera: {helper: {axes: {name: 'off', params: {}}}}
@@ -1361,6 +1361,34 @@ export class ribxzMstarv2 {
         const shape_loci = await meshObject.obj.data.repr.getAllLoci();
         return shape_loci;
     };
+    // async addSelectableSphere(params: {x: number; y: number; z: number; radius?: number; color?: number}) {
+    //     const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
+    //     if (!structureRef) {
+    //         console.error('No structure loaded');
+    //         return;
+    //     }
+
+    //     return await this.ctx.builders.structure.representation.addRepresentation(structureRef, {
+    //         type: 'arbitrary-sphere' as any,
+    //         typeParams: {
+    //             x: params.x,
+    //             y: params.y,
+    //             z: params.z,
+    //             radius: params.radius || 2
+    //         },
+    //         colorParams: params.color ? {value: params.color} : undefined
+    //     });
+    // }
+    async focusPosition(x: number, y: number, z: number, radius: number = 5) {
+        // Create a sphere with the position and radius
+        const sphere = {
+            center: Vec3.create(x, y, z),
+            radius: radius
+        };
+
+        // Use the camera manager's focusSphere method
+        this.ctx.managers.camera.focusSphere(sphere);
+    }
 
     downloads = {
         // Download the current selection as a CIF file

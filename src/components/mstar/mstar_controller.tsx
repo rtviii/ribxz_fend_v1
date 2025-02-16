@@ -8,7 +8,8 @@ import {
     MolstarInstanceId,
     PolymerComponent,
     selectComponentsByType,
-    selectComponentsForRCSB
+    selectComponentsForRCSB,
+    selectRCSBIdsForInstance
 } from '@/store/molstar/slice_refs';
 import {ribxzMstarv2} from './mstar_v2';
 import {AppDispatch, RootState} from '@/store/store';
@@ -114,17 +115,54 @@ export class MolstarStateController {
     };
 
     landmarks = {
-        ptc: async (rcsb_id: string) => {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/ptc?rcsb_id=${rcsb_id}`);
+        ptc: async (rcsb_id: string): Promise<string> => {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/ptc?rcsb_id=${rcsb_id}`);
             const data: PtcInfo = await response.json();
-            this.viewer.landmarks.ptc(data.location);
+            const [x, y, z] = data.location;
+
+            const structRef = Object.values(
+                this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map
+            )[0];
+            const representation = await this.viewer.ctx.builders.structure.representation.addRepresentation(structRef, {
+                type: 'arbitrary-sphere' as any,
+                typeParams: {
+                    x: x,
+                    y: y,
+                    z: z,
+                    radius: 2,
+                    label: 'PTC (Peptidyl Transferase Center)'
+                },
+                colorParams: {value: 0x0000ff}
+            });
+            
+            this.viewer.focusPosition(x, y, z);
+            const ref = representation.ref;
+            return ref;
         },
         constriction_site: async (rcsb_id: string) => {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/constriction_site?rcsb_id=${rcsb_id}`
+                `${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/constriction_site?rcsb_id=${rcsb_id}`
             );
             const data: ConstrictionSite = await response.json();
-            this.viewer.landmarks.constriction_site(data.location);
+            const [x, y, z] = data.location;
+
+            const structRef = Object.values(
+                this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map
+            )[0];
+            const representation = await this.viewer.ctx.builders.structure.representation.addRepresentation(structRef, {
+                type: 'arbitrary-sphere' as any,
+                typeParams: {
+                    x: x,
+                    y: y,
+                    z: z,
+                    radius: 2,
+                    label: 'uL22/uL4 Constriction Site'
+                },
+                colorParams: {value: 0x00ffff}
+            });
+            
+            this.viewer.focusPosition(x, y, z);
+            // this.viewer.landmarks.constriction_site(data.location);
         }
     };
 
@@ -309,10 +347,10 @@ export class MolstarStateController {
             }));
 
             visibilityUpdates.forEach(({auth_asym_id, visible}) => {
-                    const ref = this.retrievePolymerRef(auth_asym_id);
-                    if (ref) {
-                        this.viewer.interactions.setSubtreeVisibility(ref, visible);
-                    }
+                const ref = this.retrievePolymerRef(auth_asym_id);
+                if (ref) {
+                    this.viewer.interactions.setSubtreeVisibility(ref, visible);
+                }
             });
 
             // Batch update Redux state
