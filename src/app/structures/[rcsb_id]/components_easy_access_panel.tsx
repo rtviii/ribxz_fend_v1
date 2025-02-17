@@ -61,8 +61,8 @@ const DownloadButton = ({onDownload}) => {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <DialogTrigger asChild>
-                        <Button className="h-8 w-8 p-0" variant="ghost" size="sm">
-                            <DownloadIcon className="h-4 w-4 text-gray-600" />
+                        <Button className=" p-0 h-4" variant="ghost" size="sm">
+                                Download Selection
                         </Button>
                     </DialogTrigger>
                 </TooltipTrigger>

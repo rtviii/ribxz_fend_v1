@@ -72,13 +72,6 @@ export const ProteinPill = ({text, color}) => {
     );
 };
 
-export const DocSection = ({text, code}) => (
-    <div className="mb-6">
-        <p className="text-sm text-gray-600 mb-2">{text}</p>
-        <CodeBlock code={code} />
-    </div>
-);
-
 export const SectionHeader = ({
     title,
     description,
@@ -86,7 +79,7 @@ export const SectionHeader = ({
     lastUpdate,
     className,
     children,
-    navigationPath // New prop for navigation
+    navigationPath
 }) => {
     const [showDocs, setShowDocs] = useState(false);
     const [demoHeight, setDemoHeight] = useState(0);
@@ -106,45 +99,32 @@ export const SectionHeader = ({
 
     const HeaderContent = () => (
         <div className={cn(
-            "flex items-start justify-between  py-4 -my-4",  // Added vertical padding and negative margin
-            isClickable && "cursor-pointer"
+            "relative p-4 rounded-xl transition-all duration-200",
+            isClickable && "hover:bg-blue-50/50 group cursor-pointer"
         )}>
             <div className="max-w-[75%]">
-                <h2 className={cn(
-                    "text-lg font-semibold text-gray-900  group/nav flex items-center",
-                    isClickable && "group-hover/nav:text-blue-600 transition-colors duration-200"
-                )}>
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2 group-hover:text-blue-600 transition-colors duration-200">
                     <span>{title}</span>
                     {isClickable && (
-                        <span className="inline-flex items-center ml-2 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-200">
-                            <div className="w-8 bg-gradient-to-l from-gray-100 to-transparent h-full absolute right-full" />
-                            <ChevronRight className="h-5 w-5 text-blue-600" />
-                        </span>
+                        <ChevronRight className="h-5 w-5 transform transition-transform duration-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1" />
                     )}
                 </h2>
-                <p className="mt-1 text-sm text-gray-500 whitespace-pre-line">{description}</p>
+                <p className="mt-2 text-sm text-gray-500">{description}</p>
+                {/* {isClickable && (
+                    <div className="mt-2 text-sm text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        Click to explore →
+                    </div>
+                )} */}
             </div>
 
-            <button
-                onClick={(e) => {
-                    e.preventDefault(); // Prevent the default link behavior
-                    e.stopPropagation(); // Stop event from bubbling up to parent link
-                    setShowDocs(prev => !prev);
-                }}
-                className={cn(
-                    'px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 border-2 flex-shrink-0',
-                    showDocs
-                        ? 'text-blue-600 bg-blue-50 border-blue-200 shadow-md'
-                        : 'text-gray-600 hover:text-gray-800 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
-                )}>
-                <Terminal className="h-5 w-5" />
-                <span className="text-sm font-medium">Get via API</span>
-            </button>
+            {isClickable && (
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-blue-100 rounded-xl transition-colors duration-200" />
+            )}
         </div>
     );
 
     const header = isClickable ? (
-        <Link href={navigationPath}>
+        <Link href={navigationPath} className="block">
             <HeaderContent />
         </Link>
     ) : (
@@ -152,38 +132,64 @@ export const SectionHeader = ({
     );
 
     return (
-        <div className="mb-6">
+        <div className="space-y-4">
             {header}
-            {lastUpdate && <p className="mt-2 text-xs text-gray-500">Last update: {lastUpdate}</p>}
+            {lastUpdate && (
+                <p className="text-xs text-gray-500">
+                    Last update: {lastUpdate}
+                </p>
+            )}
 
-            <div className="mt-4 overflow-hidden">
-                <div
-                    className={cn(
-                        'transition-all duration-300 flex w-[200%]',
-                        showDocs ? '-translate-x-1/2' : 'translate-x-0'
-                    )}>
-                    <div className="w-1/2 flex-shrink-0" ref={demoRef}>
-                        <div className={className}>{children}</div>
-                    </div>
+            <div>
+                <div className="overflow-hidden">
+                    <div
+                        className={cn(
+                            'transition-all duration-300 flex w-[200%]',
+                            showDocs ? '-translate-x-1/2' : 'translate-x-0'
+                        )}>
+                        <div className="w-1/2 flex-shrink-0" ref={demoRef}>
+                            <div className={className}>{children}</div>
+                        </div>
 
-                    <div className="w-1/2 flex-shrink-0">
-                        <div className="bg-gray-50 rounded-lg" style={{height: `${demoHeight}px`}}>
-                            <ScrollArea className="h-full">
-                                <div className="p-4">
-                                    {documentation.map((doc, index) => (
-                                        <DocSection key={index} {...doc} />
-                                    ))}
-                                </div>
-                            </ScrollArea>
+                        <div className="w-1/2 flex-shrink-0">
+                            <div 
+                                className="bg-gray-50 rounded-lg" 
+                                style={{height: `${demoHeight}px`}}
+                            >
+                                <ScrollArea className="h-full">
+                                    <div className="p-4">
+                                        {documentation?.map((doc, index) => (
+                                            <DocSection key={index} {...doc} />
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <button
+                    onClick={() => setShowDocs(prev => !prev)}
+                    className={cn(
+                        'mt-4 px-3 py-1.5 text-xs rounded-md transition-all duration-200 flex items-center gap-2 border w-fit',
+                        showDocs
+                            ? 'text-blue-600 bg-blue-50 border-blue-200 shadow-sm'
+                            : 'text-gray-500 hover:text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    )}>
+                    <Terminal className="h-4 w-4" />
+                    <span className="font-medium">Get via API</span>
+                </button>
             </div>
         </div>
     );
 };
 
-
+const DocSection = ({text, code}) => (
+    <div className="mb-6">
+        <p className="text-sm text-gray-600 mb-2">{text}</p>
+        {code && <CodeBlock code={code} />}
+    </div>
+);
 const CitationContent = ({citation}) => (
     <div className="absolute z-50 w-96 p-4 text-sm bg-white rounded-lg shadow-lg border border-gray-200 bottom-full left-full -ml-4">
         <p className="font-medium text-gray-900 mb-2">Citation:</p>
@@ -245,44 +251,43 @@ import 'highlight.js/styles/nord.css'; // or any other style you prefer
 // Register bash language
 hljs.registerLanguage('bash', bash);
 
-export const CodeBlock = ({ code }) => {
-  const [copied, setCopied] = useState(false);
+export const CodeBlock = ({code}) => {
+    const [copied, setCopied] = useState(false);
 
-  // Clean up code for copying
-  const copyCode = () => {
-    const cleanCode = code
-      .replace(/^\$ /gm, '')  // Remove $ prompts
-      .replace(/\\\s*\n\s*/g, ' ')  // Join lines that end in backslash
-      .trim();
-    
-    navigator.clipboard.writeText(cleanCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    // Clean up code for copying
+    const copyCode = () => {
+        const cleanCode = code
+            .replace(/^\$ /gm, '') // Remove $ prompts
+            .replace(/\\\s*\n\s*/g, ' ') // Join lines that end in backslash
+            .trim();
 
-  // Add $ prompt if not present
-  const displayCode = !code.startsWith('$ ') ? `$ ${code}` : code;
-  
-  // Highlight the code
-  const highlightedCode = hljs.highlight(displayCode, {
-    language: 'bash'
-  }).value;
+        navigator.clipboard.writeText(cleanCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
-  return (
-    <div className="relative group my-4">
-      <pre 
-        className="text-sm bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono"
-        dangerouslySetInnerHTML={{ __html: highlightedCode }}
-      />
-      <button
-        onClick={copyCode}
-        className="absolute top-2 right-2 p-1.5 rounded-md 
+    // Add $ prompt if not present
+    const displayCode = !code.startsWith('$ ') ? `$ ${code}` : code;
+
+    // Highlight the code
+    const highlightedCode = hljs.highlight(displayCode, {
+        language: 'bash'
+    }).value;
+
+    return (
+        <div className="relative group my-4">
+            <pre
+                className="text-sm bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto font-mono"
+                dangerouslySetInnerHTML={{__html: highlightedCode}}
+            />
+            <button
+                onClick={copyCode}
+                className="absolute top-2 right-2 p-1.5 rounded-md 
                   bg-gray-800 text-gray-300 opacity-0 group-hover:opacity-100 
                   hover:bg-gray-700 transition-all duration-150"
-        title="Copy to clipboard"
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      </button>
-    </div>
-  );
-};;
+                title="Copy to clipboard">
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </button>
+        </div>
+    );
+};
