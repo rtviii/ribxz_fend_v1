@@ -272,13 +272,13 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                     const [ptcref, xyz] = await controller.landmarks.ptc(rcsb_id);
                     setPTCref(ptcref);
                     setPTCxyz(xyz);
-                    
+
                     // Also create the constriction site at the same time
                     const [constriction_ref, constrictionXyz] = await controller.landmarks.constriction_site(rcsb_id);
                     setConstrictionRef(constriction_ref);
                     setConstrictionXyz(constrictionXyz);
                 } catch (error) {
-                    console.error("Error creating landmark spheres:", error);
+                    console.error('Error creating landmark spheres:', error);
                 }
             }
         };
@@ -413,16 +413,25 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                         'PTC (Peptidyl Transferase Center)'
                                                     );
                                                 }}
-                                                onDownload={() => {
-                                                    const selection = controller?.landmarks.selectSphere(
-                                                        PTCxyz[0],
-                                                        PTCxyz[1],
-                                                        PTCxyz[2],
-                                                        2,
-                                                        'PTC (Peptidyl Transferase Center)'
-                                                    );
-                                                    if (selection) {
-                                                        ctx?.downloads.downloadSelection('ptc.cif');
+                                                onDownload={async () => {
+                                                    try {
+                                                        const response = await fetch(
+                                                            `${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/ptc?rcsb_id=${rcsb_id}`
+                                                        );
+                                                        const data = await response.json();
+                                                        const blob = new Blob([JSON.stringify(data, null, 2)], {
+                                                            type: 'application/json'
+                                                        });
+                                                        const url = URL.createObjectURL(blob);
+                                                        const link = document.createElement('a');
+                                                        link.href = url;
+                                                        link.download = `${rcsb_id.toUpperCase()}_PTC.json`;
+                                                        document.body.appendChild(link);
+                                                        link.click();
+                                                        document.body.removeChild(link);
+                                                        URL.revokeObjectURL(url);
+                                                    } catch (error) {
+                                                        console.error('Error downloading PTC data:', error);
                                                     }
                                                 }}
                                             />
@@ -458,22 +467,34 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                         'CS (uL22/uL4 Constriction Site)'
                                                     );
                                                 }}
-                                                onDownload={() => {
-                                                    const selection = controller?.landmarks.selectSphere(
-                                                        ConstrictionXyz[0],
-                                                        ConstrictionXyz[1],
-                                                        ConstrictionXyz[2],
-                                                        2,
-                                                        'CS (uL22/uL4 Constriction Site)'
-                                                    );
-                                                    if (selection) {
-                                                        ctx?.downloads.downloadSelection('constriction_site.cif');
+                                                onDownload={async () => {
+                                                    try {
+                                                        const response = await fetch(
+                                                            `${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/constriction_site?rcsb_id=${rcsb_id}`
+                                                        );
+                                                        const data = await response.json();
+                                                        const blob = new Blob([JSON.stringify(data, null, 2)], {
+                                                            type: 'application/json'
+                                                        });
+                                                        const url = URL.createObjectURL(blob);
+                                                        const link = document.createElement('a');
+                                                        link.href = url;
+                                                        link.download = `${rcsb_id.toUpperCase()}_constriction_site.json`;
+                                                        document.body.appendChild(link);
+                                                        link.click();
+                                                        document.body.removeChild(link);
+                                                        URL.revokeObjectURL(url);
+                                                    } catch (error) {
+                                                        console.error(
+                                                            'Error downloading Constriction Site data:',
+                                                            error
+                                                        );
                                                     }
                                                 }}
                                             />
                                         )}
 
-                                        {hasHelices && (
+                                        {/* {hasHelices && (
                                             <HelixLandmarks
                                                 helicesData={helices_data}
                                                 onSelect={helix => {
@@ -537,7 +558,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                     ctx?.ctx.managers.camera.focusLoci(loci);
                                                 }}
                                             />
-                                        )}
+                                        )} */}
                                     </div>
                                 ) : (
                                     <div className="flex items-center justify-center h-full text-sm text-gray-400">
