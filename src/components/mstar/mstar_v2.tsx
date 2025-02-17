@@ -1361,111 +1361,24 @@ export class ribxzMstarv2 {
         const shape_loci = await meshObject.obj.data.repr.getAllLoci();
         return shape_loci;
     };
-    // async addSelectableSphere(params: {x: number; y: number; z: number; radius?: number; color?: number}) {
-    //     const structureRef = this.ctx.managers.structure.hierarchy.current.structures[0]?.cell.transform.ref;
-    //     if (!structureRef) {
-    //         console.error('No structure loaded');
-    //         return;
-    //     }
-
-    //     return await this.ctx.builders.structure.representation.addRepresentation(structureRef, {
-    //         type: 'arbitrary-sphere' as any,
-    //         typeParams: {
-    //             x: params.x,
-    //             y: params.y,
-    //             z: params.z,
-    //             radius: params.radius || 2
-    //         },
-    //         colorParams: params.color ? {value: params.color} : undefined
-    //     });
-    // }
     async focusPosition(x: number, y: number, z: number, radius: number = 5) {
-        // Create a sphere with the position and radius
         const sphere = {
             center: Vec3.create(x, y, z),
             radius: radius
         };
 
-        // Use the camera manager's focusSphere method
         this.ctx.managers.camera.focusSphere(sphere);
     }
 
     downloads = {
-        // Download the current selection as a CIF file
-        downloadSelection: async (filename: string = 'selection.cif') => {
+        downloadSelection: async (filename: string) => {
             const result = DownloadHelper.getCurrentStructureAndSelection(this.ctx);
             if (!result) {
                 console.error('No structure or selection available');
                 return;
             }
-
             const {selectionStructure} = result;
-
-            // Convert the selection to CIF format using the correct API
             const cifData = to_mmCIF('selection', selectionStructure);
-
-            // Create and download the blob
-            const blob = DownloadHelper.createBlob(cifData);
-            DownloadHelper.downloadBlob(blob, filename);
-        },
-
-        // Download the entire structure as a CIF file
-        downloadStructure: async (filename: string = 'structure.cif') => {
-            const state = this.ctx.state.data;
-            const structures = state.select(
-                StateSelection.Generators.rootsOfType(PluginStateObject.Molecule.Structure)
-            );
-
-            if (structures.length === 0 || !structures[0].obj) {
-                console.error('No structure loaded');
-                return;
-            }
-
-            const structure = structures[0].obj.data;
-
-            // Convert the structure to CIF format using the correct API
-            const cifData = to_mmCIF('structure', structure);
-
-            // Create and download the blob
-            const blob = DownloadHelper.createBlob(cifData);
-            DownloadHelper.downloadBlob(blob, filename);
-        },
-
-        // Download specific chains by their auth_asym_ids
-        downloadChains: async (auth_asym_ids: string[], filename: string = 'chains.cif') => {
-            const state = this.ctx.state.data;
-            const structures = state.select(
-                StateSelection.Generators.rootsOfType(PluginStateObject.Molecule.Structure)
-            );
-
-            if (structures.length === 0 || !structures[0].obj) {
-                console.error('No structure loaded');
-                return;
-            }
-
-            const structure = structures[0].obj.data;
-
-            // Create selection expression for the chains
-            const expr = this.residues.residue_cluster_expression(
-                auth_asym_ids.map(id => ({
-                    auth_asym_id: id,
-                    auth_seq_id: -1 // Use -1 to select entire chain
-                }))
-            );
-
-            // Get the selection
-            const sel = Script.getStructureSelection(expr, structure);
-            const selectedStructure = StructureSelection.unionStructure(sel);
-
-            if (!selectedStructure) {
-                console.error('Failed to create selection');
-                return;
-            }
-
-            // Convert the selected structure to CIF format using the correct API
-            const cifData = to_mmCIF('chains', selectedStructure);
-
-            // Create and download the blob
             const blob = DownloadHelper.createBlob(cifData);
             DownloadHelper.downloadBlob(blob, filename);
         }

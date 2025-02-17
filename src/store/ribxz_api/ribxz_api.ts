@@ -65,6 +65,15 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: () => ({url: `/structures/list_nomenclature`})
         }),
+        routersRouterPolymersGetPolymerData: build.query<
+            RoutersRouterPolymersGetPolymerDataApiResponse,
+            RoutersRouterPolymersGetPolymerDataApiArg
+        >({
+            query: queryArg => ({
+                url: `/polymers/polymer/`,
+                params: {rcsb_id: queryArg.rcsbId, auth_asym_id: queryArg.authAsymId, format: queryArg.format}
+            })
+        }),
         routersRouterPolymersPolynucleotideClass: build.query<
             RoutersRouterPolymersPolynucleotideClassApiResponse,
             RoutersRouterPolymersPolynucleotideClassApiArg
@@ -208,6 +217,12 @@ export type RoutersRouterStructListSourceTaxaApiArg = {
 };
 export type RoutersRouterStructPolymerClassesNomenclatureApiResponse = /** status 200 OK */ NomenclatureSet;
 export type RoutersRouterStructPolymerClassesNomenclatureApiArg = void;
+export type RoutersRouterPolymersGetPolymerDataApiResponse = unknown;
+export type RoutersRouterPolymersGetPolymerDataApiArg = {
+    rcsbId: string;
+    authAsymId: string;
+    format?: string;
+};
 export type RoutersRouterPolymersPolynucleotideClassApiResponse = /** status 200 OK */ Rna[];
 export type RoutersRouterPolymersPolynucleotideClassApiArg = {
     rnaClass: CytosolicRnaClass | MitochondrialRnaClass | TRna;
@@ -879,6 +894,7 @@ export const {
     useRoutersRouterStructChainsByStructQuery,
     useRoutersRouterStructListSourceTaxaQuery,
     useRoutersRouterStructPolymerClassesNomenclatureQuery,
+    useRoutersRouterPolymersGetPolymerDataQuery,
     useRoutersRouterPolymersPolynucleotideClassQuery,
     useRoutersRouterPolymersPolypeptideClassQuery,
     useRoutersRouterPolymersLifecycleFactorClassQuery,

@@ -4,7 +4,15 @@ import {TooltipProvider, Tooltip, TooltipContent, TooltipTrigger} from '@/compon
 import {DownloadIcon, Eye, EyeIcon, ScanSearch} from 'lucide-react';
 import {cn} from '@/components/utils';
 import {useAppSelector} from '@/store/store';
-
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogFooter,
+    DialogClose
+} from '@/components/ui/dialog';
 import {Search} from 'lucide-react';
 import {Input} from '@/components/ui/input';
 import {
@@ -22,7 +30,7 @@ import {HelixLandmarks} from '../landmarks/helix_row';
 import {selectComponentById} from '@/store/molstar/slice_refs';
 import {Button} from '@/components/ui/button';
 import LigandRow from './ligand_component';
-import {log} from 'node:console';
+
 interface LandmarkItemProps {
     onFocus?: () => void;
     onClick?: () => void;
@@ -32,6 +40,67 @@ interface LandmarkItemProps {
     isActive?: boolean;
     className?: string;
 }
+
+const DownloadButton = ({onDownload}) => {
+    const [open, setOpen] = useState(false);
+    const [filename, setFilename] = useState('');
+
+    const handleDownload = () => {
+        // Process the filename: trim whitespace and remove .cif if present
+        let processedName = filename.trim();
+        if (processedName.toLowerCase().endsWith('.cif')) {
+            processedName = processedName.slice(0, -4);
+        }
+        onDownload(`${processedName}.cif`);
+        setOpen(false);
+        setFilename('');
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                        <Button className="h-8 w-8 p-0" variant="ghost" size="sm">
+                            <DownloadIcon className="h-4 w-4 text-gray-600" />
+                        </Button>
+                    </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Download Selection</p>
+                </TooltipContent>
+            </Tooltip>
+
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Download Selection</DialogTitle>
+                </DialogHeader>
+                <div className="flex items-center space-x-2 py-4">
+                    <div className="grid flex-1 gap-2">
+                        <Input
+                            placeholder="Enter filename"
+                            value={filename}
+                            onChange={e => setFilename(e.target.value)}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter' && filename.trim()) {
+                                    handleDownload();
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
+                <DialogFooter className="flex space-x-2 justify-end">
+                    <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={handleDownload} disabled={!filename.trim()}>
+                        Download
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+};
 
 const PTCLandmark = ({
     onFocus,
@@ -146,8 +215,11 @@ const PolymerSearch = ({polymers, onFilterChange}) => {
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [activeView, setActiveView] = useState('polymers');
     const service = useMolstarInstance('main');
-    const state = useAppSelector(state => state);
-    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const rcsb_id = useAppSelector(s => 
+        Object.keys(s.mstar_refs.instances.main.rcsb_id_components_map)[0]
+    );
+    // const state = useAppSelector(state => state);
+    // const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
 
     const {data: helices_data} = useRoutersRouterLociGetHelicesQuery({rcsbId: data?.rcsb_id});
     const {data: ligands_data} = useRoutersRouterLigInStructureQuery({rcsbId: data?.rcsb_id});
@@ -209,7 +281,9 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button
-                                    onClick={() => msc.polymers.restoreAllVisibility(rcsb_id)}
+                                    onClick={() => {
+                                        ctx?.downloads.downloadSelection('some.cif');
+                                    }}
                                     className="h-8 w-8 p-0"
                                     variant="ghost"
                                     size="sm">
@@ -217,7 +291,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Download Selection</p>
+                                <DownloadButton onDownload={f => ctx?.downloads.downloadSelection(f)} />
                             </TooltipContent>
                         </Tooltip>
                         <Tooltip>
