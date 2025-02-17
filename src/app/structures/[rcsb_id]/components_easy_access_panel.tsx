@@ -185,10 +185,11 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     ];
 
     return (
-        <TooltipProvider delayDuration={100}>
+        <TooltipProvider delayDuration={0}>
             <div className="flex flex-col h-full">
                 <div className="h-8 flex items-center justify-between bg-gray-50 border-b">
-                    <div className="flex items-center">
+                    {/* Tabs moved to the right of the icons */}
+                    <div className="flex items-center flex-grow justify-start">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
@@ -204,19 +205,36 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                         ))}
                     </div>
 
-                    <TooltipProvider>
+                    <div className="flex items-center gap-1">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <button
+                                <Button
                                     onClick={() => msc.polymers.restoreAllVisibility(rcsb_id)}
-                                    className="rounded-md px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 flex items-center gap-1">
-                                    Show All Components
-                                    <Eye className="h-4 w-4" />
-                                </button>
+                                    className="h-8 w-8 p-0"
+                                    variant="ghost"
+                                    size="sm">
+                                    <DownloadIcon className="h-4 w-4 text-gray-600" />
+                                </Button>
                             </TooltipTrigger>
-                            <TooltipContent>Show all components</TooltipContent>
+                            <TooltipContent>
+                                <p>Download Selection</p>
+                            </TooltipContent>
                         </Tooltip>
-                    </TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    onClick={() => msc.polymers.restoreAllVisibility(rcsb_id)}
+                                    className="h-8 w-8 p-0"
+                                    variant="ghost"
+                                    size="sm">
+                                    <Eye className="h-4 w-4 text-gray-600" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Show All Components</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </div>
                 </div>
 
                 <div className="flex-grow min-h-0 relative overflow-hidden mt-4">
@@ -247,9 +265,9 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                         <PTCLandmark
                                             onMouseEnter={() => {
                                                 controller?.landmarks.highlightSphere(
-                                                    ConstrictionXyz[0],
-                                                    ConstrictionXyz[1],
-                                                    ConstrictionXyz[2],
+                                                    PTCxyz[0],
+                                                    PTCxyz[1],
+                                                    PTCxyz[2],
                                                     2,
                                                     'PTC (Peptidyl Transferase Center)'
                                                 );
@@ -257,24 +275,17 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                             onMouseLeave={() => {
                                                 ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
                                             }}
-                                            onFocus={() =>
-                                                ctx?.focusPosition(
-                                                    ConstrictionXyz[0],
-                                                    ConstrictionXyz[1],
-                                                    ConstrictionXyz[2]
-                                                )
-                                            }
+                                            onFocus={() => ctx?.focusPosition(PTCxyz[0], PTCxyz[1], PTCxyz[2])}
                                             onClick={async () => {
-                                                console.log('PTCref', PTCref);
                                                 if (PTCref === '') {
                                                     const [ptcref, xyz] = await controller?.landmarks.ptc(rcsb_id);
                                                     setPTCref(ptcref);
                                                     setPTCxyz(xyz);
                                                 } else {
                                                     controller?.landmarks.selectSphere(
-                                                        ConstrictionXyz[0],
-                                                        ConstrictionXyz[1],
-                                                        ConstrictionXyz[2],
+                                                        PTCxyz[0],
+                                                        PTCxyz[1],
+                                                        PTCxyz[2],
                                                         2,
                                                         'PTC (Peptidyl Transferase Center)'
                                                     );
@@ -295,14 +306,14 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                     ConstrictionXyz[1],
                                                     ConstrictionXyz[2],
                                                     2,
-                                                    'PTC (Peptidyl Transferase Center)'
+                                                    'CS (uL22/uL4 Constriction Site)'
                                                 );
                                             }}
                                             onMouseLeave={() => {
                                                 ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
                                             }}
                                             onClick={async () => {
-                                                if (constrictionRef === '') {
+                                                if (ConstrictionRef === '') {
                                                     const [constriction_ref, xyz] =
                                                         await controller?.landmarks.constriction_site(rcsb_id);
                                                     setConstrictionRef(constriction_ref);
@@ -313,7 +324,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                         ConstrictionXyz[1],
                                                         ConstrictionXyz[2],
                                                         2,
-                                                        'PTC (Peptidyl Transferase Center)'
+                                                        'CS (uL22/uL4 Constriction Site)'
                                                     );
                                                 }
                                             }}

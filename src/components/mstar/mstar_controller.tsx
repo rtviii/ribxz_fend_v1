@@ -164,8 +164,6 @@ export class MolstarStateController {
                     colorParams: {value: 0x00ffff}
                 }
             );
-
-            this.viewer.focusPosition(x, y, z);
             const ref = representation.ref;
             return [ref, [x, y, z]];
         },
