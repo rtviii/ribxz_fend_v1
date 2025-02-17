@@ -62,7 +62,7 @@ const DownloadButton = ({onDownload}) => {
                 <TooltipTrigger asChild>
                     <DialogTrigger asChild>
                         <Button className=" p-0 h-4" variant="ghost" size="sm">
-                                Download Selection
+                            Download Selection
                         </Button>
                     </DialogTrigger>
                 </TooltipTrigger>
@@ -215,20 +215,32 @@ const PolymerSearch = ({polymers, onFilterChange}) => {
 const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     const [activeView, setActiveView] = useState('polymers');
     const service = useMolstarInstance('main');
-    const rcsb_id = useAppSelector(s => 
-        Object.keys(s.mstar_refs.instances.main.rcsb_id_components_map)[0]
-    );
-    // const state = useAppSelector(state => state);
-    // const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+    const rcsb_id = useAppSelector(s => Object.keys(s.mstar_refs.instances.main.rcsb_id_components_map)[0]);
 
-    const {data: helices_data} = useRoutersRouterLociGetHelicesQuery({rcsbId: data?.rcsb_id});
-    const {data: ligands_data} = useRoutersRouterLigInStructureQuery({rcsbId: data?.rcsb_id});
+    // Fetch data for landmarks and ligands
+    const {data: helices_data, isLoading: isLoadingHelices} = useRoutersRouterLociGetHelicesQuery({
+        rcsbId: data?.rcsb_id
+    });
+    const {data: ligands_data, isLoading: isLoadingLigands} = useRoutersRouterLigInStructureQuery({
+        rcsbId: data?.rcsb_id
+    });
+
+    // Special queries for checking if PTC and Constriction Site are available
+    const {
+        data: ptcData,
+        isLoading: isLoadingPTC,
+        isError: isPTCError
+    } = useRoutersRouterLociStructurePtcQuery({rcsbId: data?.rcsb_id});
 
     const mstar = useMolstarInstance('main');
     const controller = mstar?.controller;
     const ctx = mstar?.viewer;
 
     const [filteredPolymers, setFilteredPolymers] = useState([]);
+    const [PTCref, setPTCref] = useState('');
+    const [PTCxyz, setPTCxyz] = useState([0, 0, 0]);
+    const [ConstrictionRef, setConstrictionRef] = useState('');
+    const [ConstrictionXyz, setConstrictionXyz] = useState([0, 0, 0]);
 
     // Combine all polymers
     const allPolymers = [...data.rnas, ...data.proteins, ...data.other_polymers]
@@ -239,10 +251,41 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         setFilteredPolymers(allPolymers);
     }, [data]);
 
-    const [PTCref, setPTCref] = useState('');
-    const [PTCxyz, setPTCxyz] = useState([0, 0, 0]);
-    const [ConstrictionRef, setConstrictionRef] = useState('');
-    const [ConstrictionXyz, setConstrictionXyz] = useState([0, 0, 0]);
+    // Check if there are any ligands and landmarks
+    const hasLigands = !isLoadingLigands && ligands_data && ligands_data.length > 0;
+    const hasHelices = !isLoadingHelices && helices_data && helices_data.length > 0;
+    const hasPTC = !isLoadingPTC && ptcData && !isPTCError;
+    const hasLandmarks = hasHelices || hasPTC;
+
+    // If tab selection is invalid based on available data, switch to 'polymers'
+    useEffect(() => {
+        if ((activeView === 'ligands' && !hasLigands) || (activeView === 'landmarks' && !hasLandmarks)) {
+            setActiveView('polymers');
+        }
+    }, [activeView, hasLigands, hasLandmarks]);
+
+    // Create landmark spheres on component mount when data is available
+    useEffect(() => {
+        const createLandmarks = async () => {
+            if (hasPTC && controller && rcsb_id && PTCref === '') {
+                try {
+                    const [ptcref, xyz] = await controller.landmarks.ptc(rcsb_id);
+                    setPTCref(ptcref);
+                    setPTCxyz(xyz);
+                    
+                    // Also create the constriction site at the same time
+                    const [constriction_ref, constrictionXyz] = await controller.landmarks.constriction_site(rcsb_id);
+                    setConstrictionRef(constriction_ref);
+                    setConstrictionXyz(constrictionXyz);
+                } catch (error) {
+                    console.error("Error creating landmark spheres:", error);
+                }
+            }
+        };
+
+        createLandmarks();
+    }, [hasPTC, controller, rcsb_id, PTCref]);
+
     if (isLoading) return <div className="text-xs">Loading components...</div>;
 
     if (!service?.viewer || !service?.controller) {
@@ -252,8 +295,8 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
     const {controller: msc} = service;
     const tabs = [
         {id: 'polymers', label: 'Polymers'},
-        {id: 'landmarks', label: 'Landmarks'},
-        {id: 'ligands', label: 'Ligands'}
+        {id: 'landmarks', label: 'Landmarks', disabled: !hasLandmarks},
+        {id: 'ligands', label: 'Ligands', disabled: !hasLigands}
     ];
 
     return (
@@ -263,17 +306,27 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                     {/* Tabs moved to the right of the icons */}
                     <div className="flex items-center flex-grow justify-start">
                         {tabs.map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveView(tab.id)}
-                                className={cn(
-                                    'px-3 py-1 text-xs transition-colors',
-                                    activeView === tab.id
-                                        ? 'bg-white text-blue-600 font-medium'
-                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                                )}>
-                                {tab.label}
-                            </button>
+                            <Tooltip key={tab.id}>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        onClick={() => !tab.disabled && setActiveView(tab.id)}
+                                        className={cn(
+                                            'px-3 py-1 text-xs transition-colors',
+                                            activeView === tab.id
+                                                ? 'bg-white text-blue-600 font-medium'
+                                                : tab.disabled
+                                                ? 'text-gray-400 cursor-not-allowed'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                        )}>
+                                        {tab.label}
+                                    </button>
+                                </TooltipTrigger>
+                                {tab.disabled && (
+                                    <TooltipContent>
+                                        <p>No {tab.label.toLowerCase()} identified</p>
+                                    </TooltipContent>
+                                )}
+                            </Tooltip>
                         ))}
                     </div>
 
@@ -334,28 +387,24 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
 
                         <div className="w-1/3 h-full flex-shrink-0">
                             <ScrollArea className="h-full">
-                                <div>
+                                {hasLandmarks ? (
                                     <div className="text-sm text-gray-500">
-                                        <PTCLandmark
-                                            onMouseEnter={() => {
-                                                controller?.landmarks.highlightSphere(
-                                                    PTCxyz[0],
-                                                    PTCxyz[1],
-                                                    PTCxyz[2],
-                                                    2,
-                                                    'PTC (Peptidyl Transferase Center)'
-                                                );
-                                            }}
-                                            onMouseLeave={() => {
-                                                ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
-                                            }}
-                                            onFocus={() => ctx?.focusPosition(PTCxyz[0], PTCxyz[1], PTCxyz[2])}
-                                            onClick={async () => {
-                                                if (PTCref === '') {
-                                                    const [ptcref, xyz] = await controller?.landmarks.ptc(rcsb_id);
-                                                    setPTCref(ptcref);
-                                                    setPTCxyz(xyz);
-                                                } else {
+                                        {hasPTC && (
+                                            <PTCLandmark
+                                                onMouseEnter={() => {
+                                                    controller?.landmarks.highlightSphere(
+                                                        PTCxyz[0],
+                                                        PTCxyz[1],
+                                                        PTCxyz[2],
+                                                        2,
+                                                        'PTC (Peptidyl Transferase Center)'
+                                                    );
+                                                }}
+                                                onMouseLeave={() => {
+                                                    ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
+                                                }}
+                                                onFocus={() => ctx?.focusPosition(PTCxyz[0], PTCxyz[1], PTCxyz[2])}
+                                                onClick={() => {
                                                     controller?.landmarks.selectSphere(
                                                         PTCxyz[0],
                                                         PTCxyz[1],
@@ -363,36 +412,44 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                         2,
                                                         'PTC (Peptidyl Transferase Center)'
                                                     );
+                                                }}
+                                                onDownload={() => {
+                                                    const selection = controller?.landmarks.selectSphere(
+                                                        PTCxyz[0],
+                                                        PTCxyz[1],
+                                                        PTCxyz[2],
+                                                        2,
+                                                        'PTC (Peptidyl Transferase Center)'
+                                                    );
+                                                    if (selection) {
+                                                        ctx?.downloads.downloadSelection('ptc.cif');
+                                                    }
+                                                }}
+                                            />
+                                        )}
+
+                                        {hasPTC && (
+                                            <ConstrictionSiteLandmark
+                                                onFocus={() =>
+                                                    ctx?.focusPosition(
+                                                        ConstrictionXyz[0],
+                                                        ConstrictionXyz[1],
+                                                        ConstrictionXyz[2]
+                                                    )
                                                 }
-                                            }}
-                                        />
-                                        <ConstrictionSiteLandmark
-                                            onFocus={() =>
-                                                ctx?.focusPosition(
-                                                    ConstrictionXyz[0],
-                                                    ConstrictionXyz[1],
-                                                    ConstrictionXyz[2]
-                                                )
-                                            }
-                                            onMouseEnter={() => {
-                                                controller?.landmarks.highlightSphere(
-                                                    ConstrictionXyz[0],
-                                                    ConstrictionXyz[1],
-                                                    ConstrictionXyz[2],
-                                                    2,
-                                                    'CS (uL22/uL4 Constriction Site)'
-                                                );
-                                            }}
-                                            onMouseLeave={() => {
-                                                ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
-                                            }}
-                                            onClick={async () => {
-                                                if (ConstrictionRef === '') {
-                                                    const [constriction_ref, xyz] =
-                                                        await controller?.landmarks.constriction_site(rcsb_id);
-                                                    setConstrictionRef(constriction_ref);
-                                                    setConstrictionXyz(xyz);
-                                                } else {
+                                                onMouseEnter={() => {
+                                                    controller?.landmarks.highlightSphere(
+                                                        ConstrictionXyz[0],
+                                                        ConstrictionXyz[1],
+                                                        ConstrictionXyz[2],
+                                                        2,
+                                                        'CS (uL22/uL4 Constriction Site)'
+                                                    );
+                                                }}
+                                                onMouseLeave={() => {
+                                                    ctx!.ctx.managers.interactivity.lociHighlights.clearHighlights();
+                                                }}
+                                                onClick={() => {
                                                     controller?.landmarks.selectSphere(
                                                         ConstrictionXyz[0],
                                                         ConstrictionXyz[1],
@@ -400,30 +457,68 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                         2,
                                                         'CS (uL22/uL4 Constriction Site)'
                                                     );
-                                                }
-                                            }}
-                                        />
-                                        <HelixLandmarks
-                                            helicesData={helices_data}
-                                            onSelect={helix => {
-                                                const residues = [];
-                                                for (let i = helix.start_residue; i <= helix.end_residue; i++) {
-                                                    residues.push({
-                                                        auth_asym_id: helix.chain_id,
-                                                        auth_seq_id: i
+                                                }}
+                                                onDownload={() => {
+                                                    const selection = controller?.landmarks.selectSphere(
+                                                        ConstrictionXyz[0],
+                                                        ConstrictionXyz[1],
+                                                        ConstrictionXyz[2],
+                                                        2,
+                                                        'CS (uL22/uL4 Constriction Site)'
+                                                    );
+                                                    if (selection) {
+                                                        ctx?.downloads.downloadSelection('constriction_site.cif');
+                                                    }
+                                                }}
+                                            />
+                                        )}
+
+                                        {hasHelices && (
+                                            <HelixLandmarks
+                                                helicesData={helices_data}
+                                                onSelect={helix => {
+                                                    const residues = [];
+                                                    for (let i = helix.start_residue; i <= helix.end_residue; i++) {
+                                                        residues.push({
+                                                            auth_asym_id: helix.chain_id,
+                                                            auth_seq_id: i
+                                                        });
+                                                    }
+                                                    const expr = ctx?.residues.residue_cluster_expression(residues);
+                                                    const polymer_component = selectComponentById(state, {
+                                                        componentId: helix.chain_id,
+                                                        instanceId: 'main'
                                                     });
-                                                }
-                                                const expr = ctx?.residues.residue_cluster_expression(residues);
-                                                const polymer_component = selectComponentById(state, {
-                                                    componentId: helix.chain_id,
-                                                    instanceId: 'main'
-                                                });
-                                                const data = ctx?.cell_from_ref(polymer_component.ref);
-                                                const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
-                                                ctx?.ctx.managers.structure.selection.fromLoci('add', loci);
-                                            }}
-                                            onMouseEnter={helix => {
-                                                {
+                                                    const data = ctx?.cell_from_ref(polymer_component.ref);
+                                                    const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
+                                                    ctx?.ctx.managers.structure.selection.fromLoci('add', loci);
+                                                }}
+                                                onMouseEnter={helix => {
+                                                    {
+                                                        const residues = [];
+                                                        for (let i = helix.start_residue; i <= helix.end_residue; i++) {
+                                                            residues.push({
+                                                                auth_asym_id: helix.chain_id,
+                                                                auth_seq_id: i
+                                                            });
+                                                        }
+                                                        const expr = ctx?.residues.residue_cluster_expression(residues);
+                                                        const polymer_component = selectComponentById(state, {
+                                                            componentId: helix.chain_id,
+                                                            instanceId: 'main'
+                                                        });
+                                                        const data = ctx?.cell_from_ref(polymer_component.ref);
+                                                        const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
+
+                                                        ctx?.ctx.managers.interactivity.lociHighlights.highlight({
+                                                            loci
+                                                        });
+                                                    }
+                                                }}
+                                                onMouseLeave={() => {
+                                                    ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
+                                                }}
+                                                onFocus={helix => {
                                                     const residues = [];
                                                     for (let i = helix.start_residue; i <= helix.end_residue; i++) {
                                                         residues.push({
@@ -439,44 +534,25 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                     const data = ctx?.cell_from_ref(polymer_component.ref);
                                                     const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
 
-                                                    ctx?.ctx.managers.interactivity.lociHighlights.highlight({loci});
-                                                }
-                                            }}
-                                            onMouseLeave={() => {
-                                                ctx?.ctx.managers.interactivity.lociHighlights.clearHighlights();
-                                            }}
-                                            onFocus={helix => {
-                                                const residues = [];
-                                                for (let i = helix.start_residue; i <= helix.end_residue; i++) {
-                                                    residues.push({
-                                                        auth_asym_id: helix.chain_id,
-                                                        auth_seq_id: i
-                                                    });
-                                                }
-                                                const expr = ctx?.residues.residue_cluster_expression(residues);
-                                                const polymer_component = selectComponentById(state, {
-                                                    componentId: helix.chain_id,
-                                                    instanceId: 'main'
-                                                });
-                                                const data = ctx?.cell_from_ref(polymer_component.ref);
-                                                const loci = ctx?.loci_from_expr(expr, data?.obj?.data);
-
-                                                ctx?.ctx.managers.camera.focusLoci(loci);
-
-                                                // Your focus logic
-                                            }}
-                                        />
+                                                    ctx?.ctx.managers.camera.focusLoci(loci);
+                                                }}
+                                            />
+                                        )}
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-sm text-gray-400">
+                                        No landmarks identified for this structure
+                                    </div>
+                                )}
                             </ScrollArea>
                         </div>
 
                         <div className="w-1/3 h-full flex-shrink-0">
                             <ScrollArea className="h-full">
                                 <div>
-                                    <div className="text-sm text-gray-500">
-                                        {ligands_data &&
-                                            ligands_data.map(ligand => (
+                                    {hasLigands ? (
+                                        <div className="text-sm text-gray-500">
+                                            {ligands_data.map(ligand => (
                                                 <LigandRow
                                                     key={ligand.chemicalId}
                                                     ligand={ligand}
@@ -488,7 +564,12 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                     isSelected={false}
                                                 />
                                             ))}
-                                    </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-sm text-gray-400">
+                                            No ligands identified for this structure
+                                        </div>
+                                    )}
                                 </div>
                             </ScrollArea>
                         </div>
