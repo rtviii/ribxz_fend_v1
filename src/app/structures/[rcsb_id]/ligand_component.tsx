@@ -49,35 +49,75 @@ const LigandRow = ({
     isSelected = false
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [localIsVisible, setLocalIsVisible] = useState(isVisible);
+    const [localIsSelected, setLocalIsSelected] = useState(isSelected);
 
     const service = useMolstarInstance('main');
     const controller = service?.controller;
     const viewer = service?.viewer;
-    const rcsbid = useAppSelector(state => selectRCSBIdsForInstance(state, 'main'))[0];
-    const ligref = useAppSelector(state =>
+    const rcsbId = useAppSelector(state => selectRCSBIdsForInstance(state, 'main'))[0];
+
+    // Get the ligand component reference from Redux state
+    const ligandComponent = useAppSelector(state =>
         selectComponentById(state, {
             componentId: ligand.chemicalId,
             instanceId: 'main'
         })
     );
 
-    const handleRowClick = () => {
-        setIsExpanded(!isExpanded);
+    const handleFocus = () => {
+        // If not already loaded, create the ligand
+        if (!ligandComponent?.ref) {
+            viewer?.ligands.create_ligand(rcsbId, ligand.chemicalId).then(created => {
+                // Focus on the newly created ligand
+                if (created?.ref) {
+                    viewer?.interactions.focus(created.ref);
+                }
+            });
+        } else {
+            // Focus on existing ligand
+            viewer?.interactions.focus(ligandComponent.ref);
+        }
+    };
 
-        viewer?.ligands.create_ligand(rcsbid, ligand.chemicalId);
-        viewer?.interactions.focus(ligref.ref);
+    const handleToggleVisibility = e => {};
+
+    // Toggle selection handler
+    const handleToggleSelection = e => {
+        e.stopPropagation();
+        if (ligandComponent?.ref && viewer) {
+            viewer.interactions.selection(ligandComponent.ref, localIsSelected ? 'remove' : 'add');
+            setLocalIsSelected(!localIsSelected);
+            onToggleSelection && onToggleSelection();
+        }
+    };
+
+    // Mouse interaction handlers
+    const handleMouseEnter = () => {
+        if (controller?.ligands) {
+            viewer?.interactions.highlight(ligandComponent?.ref);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (viewer) {
+            viewer.ctx.managers.interactivity.lociHighlights.clearHighlights();
+        }
     };
 
     const handleActionClick = (e, action) => {
         e.stopPropagation();
-        action();
+        action && action();
     };
 
     return (
-        <div className="border-b border-gray-200 last:border-b-0">
+        <div
+            className="border-b border-gray-200 last:border-b-0"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}>
             <div className="flex flex-col">
                 <div
-                    onClick={handleRowClick}
+                    onClick={() => setIsExpanded(!isExpanded)}
                     className="flex items-center justify-between rounded-md px-2 py-2 transition-colors hover:cursor-pointer hover:bg-slate-200">
                     <div className="flex items-center space-x-3">
                         <div className="text-gray-500">
@@ -98,67 +138,29 @@ const LigandRow = ({
 
                     {/* Right side - Actions */}
                     <div className="flex items-center space-x-1">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-8 w-8 p-0"
-                                        onClick={e => handleActionClick(e, onIsolate)}>
-                                        <ScanSearch className="h-4 w-4 text-gray-600" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Isolate view</TooltipContent>
-                            </Tooltip>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleFocus}>
+                            <ScanSearch className="h-4 w-4 text-gray-600" />
+                        </Button>
 
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
+                        {/* <Button
                                         variant="ghost"
                                         size="sm"
                                         className="h-8 w-8 p-0"
-                                        onClick={e => handleActionClick(e, onToggleVisibility)}>
-                                        {isVisible ? (
+                                        onClick={handleToggleVisibility}>
+                                        {localIsVisible ? (
                                             <Eye className="h-4 w-4 text-blue-600" />
                                         ) : (
                                             <EyeOff className="h-4 w-4 text-gray-400" />
                                         )}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Toggle visibility</TooltipContent>
-                            </Tooltip>
+                                    </Button> */}
 
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-8 w-8 p-0"
-                                        onClick={e => handleActionClick(e, onToggleSelection)}>
-                                        {isSelected ? (
-                                            <CheckSquare className="h-4 w-4 text-blue-600" />
-                                        ) : (
-                                            <Square className="h-4 w-4 text-gray-600" />
-                                        )}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Toggle selection</TooltipContent>
-                            </Tooltip>
-
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-8 w-8 p-0"
-                                        onClick={e => handleActionClick(e, onDownload)}>
-                                        <Download className="h-4 w-4 text-gray-600" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Download structure</TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleToggleSelection}>
+                            {localIsSelected ? (
+                                <CheckSquare className="h-4 w-4 text-blue-600" />
+                            ) : (
+                                <Square className="h-4 w-4 text-gray-600" />
+                            )}
+                        </Button>
                     </div>
                 </div>
 
