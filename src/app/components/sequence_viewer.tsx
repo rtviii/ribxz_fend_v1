@@ -15,22 +15,22 @@ interface SequenceViewerProps {
     sequence: ResidueData[];
     auth_asym_id: string;
     metadata?: {
-        chain_title ?: string;
+        chain_title?: string;
         structure_id?: string;
-        length      ?: number;
-        type        ?: 'Polypeptide' | 'Polynucleotide';
-        struct_ref  ?: string;
-        polymer_ref ?: string;
+        length?: number;
+        type?: 'Polypeptide' | 'Polynucleotide';
+        struct_ref?: string;
+        polymer_ref?: string;
     };
     onSelectionChange?: (selection: {indices: number[]; residues: ResidueData[]}) => void;
 }
 
 const CHUNK_SIZE = 200;
 const ResidueComponent = React.memo<{
-    residue      : ResidueData;
+    residue: ResidueData;
     absoluteIndex: number;
-    isSelected   : boolean;
-    showMarker   : boolean;
+    isSelected: boolean;
+    showMarker: boolean;
 }>(
     ({residue, absoluteIndex, isSelected, showMarker}) => (
         <div className="residue-wrapper" data-index={absoluteIndex}>
@@ -47,8 +47,8 @@ ResidueComponent.displayName = 'ResidueComponent';
 
 const ResidueBlock = React.memo<{
     blockResidues: ResidueData[];
-    blockStart   : number;
-    isSelected   : (index: number) => boolean;
+    blockStart: number;
+    isSelected: (index: number) => boolean;
 }>(({blockResidues, blockStart, isSelected}) => (
     <div className="residue-block">
         {blockResidues.map((residue, localIndex) => {
@@ -70,15 +70,15 @@ const ResidueBlock = React.memo<{
 ResidueBlock.displayName = 'ResidueBlock';
 
 const SequenceViewer: React.FC<SequenceViewerProps> = ({sequence, auth_asym_id, metadata, onSelectionChange}) => {
-    const dispatch       = useDispatch();
+    const dispatch = useDispatch();
     const selectionState = useAppSelector(state => state.sequenceViewer.selections[auth_asym_id]);
-    const selectedMap    = selectionState?.selectedMap || {};
-    const [isDragDeselecting, setIsDragDeselecting]   = useState(false);
-    const containerRef                                = useRef<HTMLDivElement>(null);
-    const [visibleRange, setVisibleRange]             = useState({start: 0, end: CHUNK_SIZE});
-    const [dragStart, setDragStart]                   = useState<number | null>(null);
-    const [dragEnd, setDragEnd]                       = useState<number | null>(null);
-    const [isCtrlPressed, setIsCtrlPressed]           = useState(false);
+    const selectedMap = selectionState?.selectedMap || {};
+    const [isDragDeselecting, setIsDragDeselecting] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [visibleRange, setVisibleRange] = useState({start: 0, end: CHUNK_SIZE});
+    const [dragStart, setDragStart] = useState<number | null>(null);
+    const [dragEnd, setDragEnd] = useState<number | null>(null);
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
     const [temporarySelection, setTemporarySelection] = useState<Record<string, ResidueData>>({});
     useEffect(() => {
         const container = containerRef.current;
@@ -400,7 +400,13 @@ export const SequenceViewerTrigger: React.FC<{
 }> = ({sequence, auth_asym_id, metadata, onSelectionChange}) => {
     const {openViewer} = useSequenceViewer();
 
-    const handleClick = (e: React.MouseEvent) => {
+    // Check if there are any selections for this auth_asym_id
+    const hasSelections = useAppSelector(state => {
+        const selections = state.sequenceViewer.selections[auth_asym_id];
+        return selections && Object.keys(selections.selectedMap).length > 0;
+    });
+
+    const handleClick = e => {
         e.stopPropagation();
         openViewer({
             sequence,
@@ -410,17 +416,26 @@ export const SequenceViewerTrigger: React.FC<{
         });
     };
 
-    // Determine if sequence is nucleotides or amino acids based on first residue
     const isNucleotide = metadata?.type === 'Polynucleotide';
 
     return (
         <button
             onClick={handleClick}
-            className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-full hover:bg-gray-200 hover:text-gray-800 transition-colors">
+            className={cn(
+                'inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-full transition-all',
+                'hover:bg-gray-200 hover:text-gray-800',
+                hasSelections ? 'bg-green-100 text-green-700 ring-2 ring-green-500/50' : 'bg-gray-100 text-gray-600'
+            )}>
             {isNucleotide ? (
-                <Dna size={12} className="text-gray-500" />
+                <Dna
+                    size={12}
+                    className={cn('transition-colors', hasSelections ? 'text-green-500' : 'text-gray-500')}
+                />
             ) : (
-                <Shapes size={12} className="text-gray-500" />
+                <Shapes
+                    size={12}
+                    className={cn('transition-colors', hasSelections ? 'text-green-500' : 'text-gray-500')}
+                />
             )}
             <span>
                 {sequence.length} {isNucleotide ? 'NTs' : 'AAs'}

@@ -1,6 +1,6 @@
 import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
 import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
-import {ArbitrarySphereRepresentationProvider} from './providers/sphere_provider';
+import {ArbitrarySphereRepresentationProvider} from './providers/arbitrary_sphere_provider';
 import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
 import {PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {ribxzSpec} from './spec';
@@ -13,7 +13,8 @@ import {
     Structure,
     StructureElement,
     StructureProperties,
-    StructureSelection
+    StructureSelection,
+    to_mmCIF
 } from 'molstar/lib/mol-model/structure';
 import {StructureQueryHelper} from 'molstar/lib/mol-plugin-state/helpers/structure-query';
 import {MolScriptBuilder, MolScriptBuilder as MS} from 'molstar/lib/mol-script/language/builder';
@@ -33,7 +34,10 @@ import {ResidueData} from '@/app/components/sequence_viewer';
 import {Asset} from 'molstar/lib/mol-util/assets';
 import {Loci} from 'molstar/lib/mol-model/loci';
 import PolymerColorschemeWarm from './providers/colorschemes/colorscheme_warm';
-import {ArbitraryCylinderRepresentationProvider} from './providers/cylinder_provider';
+import {DownloadHelper} from './download_helper';
+import {CifWriter} from 'molstar/lib/mol-io/writer/cif';
+import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
+import {Vec3} from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
 
 export type ResidueSummary = {
     label_seq_id: number | null | undefined;
@@ -73,7 +77,7 @@ export class ribxzMstarv2 {
         parent.appendChild(pluginContainer);
         this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
-        this.ctx.representation.structure.registry.add(ArbitraryCylinderRepresentationProvider);
+
         this.ctx.builders.structure.representation.registerPreset(SplitPolymerPreset);
         this.ctx.canvas3d?.setProps({
             camera: {helper: {axes: {name: 'off', params: {}}}}
@@ -135,7 +139,6 @@ export class ribxzMstarv2 {
                 typeParams: sphere,
                 colorParams: {value: Color(0x0000ff)} // Blue color
             });
-
         },
 
         constriction_site: (xyz: number[]) => {
@@ -157,7 +160,6 @@ export class ribxzMstarv2 {
                 typeParams: sphere,
                 colorParams: {value: Color(0xff0000)} // Red color
             });
-
         }
     };
 
@@ -263,7 +265,6 @@ export class ribxzMstarv2 {
                 },
                 {tag: `${chemicalId}_`} // tag is optional, but useful for later reference
             );
-
 
             return structure;
         }
@@ -1360,6 +1361,28 @@ export class ribxzMstarv2 {
         const shape_loci = await meshObject.obj.data.repr.getAllLoci();
         return shape_loci;
     };
+    async focusPosition(x: number, y: number, z: number, radius: number = 5) {
+        const sphere = {
+            center: Vec3.create(x, y, z),
+            radius: radius
+        };
+
+        this.ctx.managers.camera.focusSphere(sphere);
+    }
+
+    downloads = {
+        downloadSelection: async (filename: string) => {
+            const result = DownloadHelper.getCurrentStructureAndSelection(this.ctx);
+            if (!result) {
+                console.error('No structure or selection available');
+                return;
+            }
+            const {selectionStructure} = result;
+            const cifData = to_mmCIF('selection', selectionStructure);
+            const blob = DownloadHelper.createBlob(cifData);
+            DownloadHelper.downloadBlob(blob, filename);
+        }
+    };
 }
 
 export async function createChainRangeVisualization(
@@ -1413,9 +1436,9 @@ export async function createChainRangeVisualization(
         return;
     }
 
-    const expr      = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
-    const update    = ctx.ctx.build();
-    const group     = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
+    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
+    const update = ctx.ctx.build();
+    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
     const selection = group.apply(
         StateTransforms.Model.StructureSelectionFromExpression,
         {
@@ -1489,5 +1512,4 @@ export async function createChainRangeVisualization(
         state: ctx.ctx.state.data,
         tree: update
     });
-
 }

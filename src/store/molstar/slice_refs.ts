@@ -43,9 +43,9 @@ export type SubComponent = PolymerComponent | LigandComponent | BsiteComponent;
 
 interface HandleReferencesState {
     instances: Record<MolstarInstanceId, {
-        rcsb_id_root_ref_map: Record<RCSB_ID, MolstarRef>;
+        rcsb_id_root_ref_map  : Record<RCSB_ID, MolstarRef>;
         rcsb_id_components_map: Record<RCSB_ID, Array<auth_asym_id | chemical_id>>;
-        components: Record<string, SubComponent>;
+        components            : Record<string,  SubComponent>;
     }>;
 }
 

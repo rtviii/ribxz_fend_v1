@@ -33,107 +33,12 @@ import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_se
 import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 import FloatingMenu from '@/components/ribxz/menu_floating';
 
-const DownloadDropdown = ({rcsb_id}: {rcsb_id: string}) => {
-    const handleCifDownload = () => {
-        const link = document.createElement('a');
-        link.href = `https://files.rcsb.org/download/${rcsb_id}.cif`;
-        link.download = `${rcsb_id}.cif` || 'download';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                    <DownloadIcon className=" h-4 w-4" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleCifDownload}>
-                    <code className="text-blue-600 cursor-pointer">{rcsb_id}.mmcif</code>
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
-    );
-};
-
 const InfoRow = ({title, value}: {title: string; value: ReactNode}) => (
     <div className="flex justify-between items-center py-1 border-b border-gray-100 last:border-b-0">
         <h4 className="text-xs font-medium text-gray-600">{title}</h4>
         <div className="text-xs text-gray-800">{value}</div>
     </div>
 );
-
-const StructureHeader = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
-    return (
-        <div className="flex items-center justify-between  px-3 py-2">
-            <div className="flex items-center space-x-2 overflow-hidden">
-                <span className="font-medium">{data?.rcsb_id}</span>
-                <span className="italic text-xs truncate max-w-[150px]"></span>
-                <ExpMethodBadge
-                    className="text-xs"
-                    expMethod={data?.expMethod}
-                    resolution={data?.resolution?.toFixed(2)}
-                />
-            </div>
-        </div>
-    );
-};
-
-interface MolecularComponentBadgeProps {
-    id: string;
-    name: string;
-    type: 'protein' | 'rna' | 'ligand' | 'ion' | 'other' | 'non-id-polymer';
-    isSelected: boolean;
-    onClick: () => void;
-
-    onMouseEnter?: () => void;
-    onMouseLeave?: () => void;
-}
-
-const MolecularComponentBadge: React.FC<MolecularComponentBadgeProps> = ({
-    id,
-    name,
-    type,
-    isSelected,
-    onMouseEnter,
-    onMouseLeave,
-    onClick
-}) => {
-    const getTypeColor = (type: string) => {
-        switch (type) {
-            case 'protein':
-                return 'bg-blue-100 text-blue-800 hover:bg-blue-200';
-            case 'rna':
-                return 'bg-green-100 text-green-800 hover:bg-green-200';
-            case 'non-id-polymer':
-                return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
-            case 'ligand':
-                return 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200';
-            case 'ion':
-                return 'bg-purple-100 text-purple-800 hover:bg-purple-200';
-            default:
-                return 'bg-gray-100 text-gray-800 hover:bg-gray-200';
-        }
-    };
-
-    return (
-        <button
-            onClick={onClick}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-            className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors',
-                getTypeColor(type),
-                isSelected ? 'ring-2 ring-offset-1 ring-blue-500' : '',
-                'cursor-pointer'
-            )}>
-            {name}
-        </button>
-    );
-};
 
 const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
     if (isLoading) return <div className="text-xs">Loading...</div>;
@@ -165,11 +70,10 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
 };
 
 const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
-    const dispatch = useAppDispatch();
-    const state = useAppSelector(s => s);
-    const rcsb_id = Object.keys(state.mstar_refs.instances.main.rcsb_id_components_map)[0];
+
+    const dispatch          = useAppDispatch();
     const selected_polymers = useAppSelector(state => state.structure_page.selected);
-    const service = useMolstarInstance('main');
+    const service           = useMolstarInstance('main');
 
     const [newBookmarkName, promptForNewBookmark] = useUserInputPrompt('Enter a name for the new bookmark:');
     const [bindingSiteName, promptForBindingSiteName] = useUserInputPrompt('Enter a name for the binding site object:');
@@ -182,118 +86,17 @@ const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Rec
         selected_polymers;
     };
 
-    return null
-    // return service === null ? (
-    //     <>Loading... </>
-    // ) : (
-    //     <div className="space-x-1">
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
-    //             onClick={() => {
-    //                 // ctx?.toggle_visibility_by_ref();
-    //             }}>
-    //             Toggle Structure
-    //         </Button>
-
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700"
-    //             onClick={() => {
-    //                 // ctx?.select_multiple_polymers(selected_polymers, 'remove');
-    //                 dispatch(clear_selection(null));
-    //                 service.viewer?.ctx.managers.structure.selection.clear();
-    //             }}>
-    //             Clear Selection
-    //         </Button>
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 createNewSelection();
-    //             }}>
-    //             Create New Selection
-    //         </Button>
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 createBindingSite();
-    //             }}>
-    //             Create Binding Site
-    //         </Button>
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 service?.controller.landmarks.ptc(rcsb_id);
-    //             }}>
-    //             Render PTC
-    //         </Button>
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 service?.viewer.landmarks.tunnel_geometry(rcsb_id);
-    //             }}>
-    //             Render Tunnel Geometry
-    //         </Button>
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 service?.controller.landmarks.constriction_site(rcsb_id);
-    //             }}>
-    //             Render Constriction
-    //         </Button>
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 service?.controller.mute_polymers(rcsb_id);
-    //             }}>
-    //             Mute Polymers
-    //         </Button>
-
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 service?.controller.experimental.half_cylinder_residues(nomenclature_map);
-    //             }}>
-    //             HalfCylinder Residues
-    //         </Button>
-    //         <Button
-    //             variant="outline"
-    //             size="sm"
-    //             className="text-[10px] h-6 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-gray-600"
-    //             onClick={() => {
-    //                 service?.controller.experimental.cylinder_residues(nomenclature_map);
-    //             }}>
-    //             Cylinder Residues
-    //         </Button>
-    //     </div>
-    // );
+    return null;
 };
 
 export default function StructurePage({params}: {params: Promise<{rcsb_id: string}>}) {
-    const {rcsb_id} = use(params);
-    const {data, nomenclatureMap, isLoading} = useRibosomeStructureWithNomenclature(rcsb_id);
 
+    const {rcsb_id}                           = use(params);
+    const {data, nomenclatureMap, isLoading}  = useRibosomeStructureWithNomenclature(rcsb_id);
     const [leftPanelWidth, setLeftPanelWidth] = useState(25);
-
-    const molstarNodeRef = useRef<HTMLDivElement>(null);
+    const molstarNodeRef                      = useRef<HTMLDivElement>(null);
     const {viewer, controller, isInitialized} = useMolstarService(molstarNodeRef, 'main');
-    const [nomMap, setNomMap] = useState<Record<string, string> | null>(null);
+    const [nomMap, setNomMap]                 = useState<Record<string, string> | null>(null);
 
     useEffect(() => {
         if (!isInitialized || !data) return;
@@ -324,6 +127,7 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <BookmarkedSelections leftPanelWidth={leftPanelWidth} />
+
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={25}>
                     <Card

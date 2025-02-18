@@ -1,9 +1,7 @@
 import {MolScriptBuilder as MS, MolScriptBuilder} from 'molstar/lib/mol-script/language/builder';
 import {Queries, StructureQuery, StructureSelection} from 'molstar/lib/mol-model/structure';
 import {Structure, StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure/structure';
-import {
-    StructureSelectionQuery
-} from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
+import {StructureSelectionQuery} from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 import {StateObjectRef, StateObjectSelector} from 'molstar/lib/mol-state/object';
 import {compile} from 'molstar/lib/mol-script/runtime/query/compiler';
 import {QueryContext} from 'molstar/lib/mol-model/structure/query/context';
@@ -19,16 +17,16 @@ import _, {range} from 'lodash';
 import {Script} from 'molstar/lib/mol-script/script';
 import {Color} from 'molstar/lib/mol-util/color/color';
 import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
-import {ArbitrarySphereRepresentationProvider} from '../providers/sphere_provider';
+import {ArbitrarySphereRepresentationProvider} from '../providers/arbitrary_sphere_provider';
 import {PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import '../mstar.css';
 import {ThemeDataContext} from 'molstar/lib/mol-theme/theme';
 import {CustomElementProperty} from 'molstar/lib/mol-model-props/common/custom-element-property';
 import {Model, ElementIndex} from 'molstar/lib/mol-model/structure';
 import {VaryingResidueColorThemeProvider} from './color-scheme';
-import { ribxzMstarv2 } from '../mstar_v2';
-import { bindingSitesPreset, compositeBSitesPreset } from '@/app/homepage/bsite_preset';
-import { SplitPolymerPreset } from '../providers/polymer_preset';
+import {ribxzMstarv2} from '../mstar_v2';
+import {bindingSitesPreset, compositeBSitesPreset} from '@/app/homepage/bsite_preset';
+import {SplitPolymerPreset} from '../providers/polymer_preset';
 
 export interface ScoredBsite {
     [chain_auth_asym_id: string]: {[auth_seq_id: number]: number};
@@ -227,9 +225,6 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
         return expression;
     };
 
-
-
-
     async upload_mmcif_structure(
         rcsb_id: string,
         nomenclature_map: Record<string, string>
@@ -260,7 +255,7 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
         );
 
         await this.stylized();
-        return structure
+        return structure;
     }
 
     // TODO+============== REPRESENTATIONS
@@ -279,7 +274,6 @@ export class MolstarDemoBsites extends ribxzMstarv2 {
             tree: update
         });
     }
-
 
     async toggle_visibility_by_ref(representation: any, on_off: boolean) {
         if (representation['components'] === undefined) {
