@@ -4,7 +4,7 @@ import {Badge} from '@/components/ui/badge';
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 import {ScrollArea, ScrollBar} from '@/components/ui/scroll-area';
 import {Button} from '@/components/ui/button';
-import {ChevronDown, ChevronUp} from 'lucide-react';
+import {ChevronDown, ChevronUp, Download} from 'lucide-react';
 import {Polymer} from '@/store/ribxz_api/ribxz_api';
 import {useAppSelector} from '@/store/store';
 import {map_ncbi_tax_id_to_name} from '@/my_utils';
@@ -35,9 +35,7 @@ const PolymerTableRow: React.FC<PolymerTableRowProps> = ({
                     return <span>-</span>;
                 }
                 return (
-                    // <Badge variant="outline" className="text-xs font-mono px-1 m-0 truncate">
                     <span className="text-xs font-mono font-semibold">{polymer.nomenclature.join(', ')}</span>
-                    // </Badge>
                 );
             case 'auth_asym_id':
             case 'parent_rcsb_id':
@@ -142,6 +140,40 @@ const PolymersTable: React.FC<PolymersTableProps> = ({
         });
     };
 
+    // Function to convert polymer data to FASTA format
+    const generateFastaData = () => {
+        const selectedPolymers = primary_polymers.filter(polymer => 
+            selectedIds.has(`${polymer.parent_rcsb_id}-${polymer.auth_asym_id}`)
+        );
+        
+        return selectedPolymers.map(polymer => {
+            const sequence = polymer.entity_poly_seq_one_letter_code_can || '';
+            const header = `>${polymer.parent_rcsb_id}_${polymer.auth_asym_id} ${polymer.rcsb_pdbx_description || ''}`;
+            
+            // Format sequence in blocks of 80 characters
+            const formattedSequence = sequence.match(/.{1,80}/g)?.join('\n') || '';
+            
+            return `${header}\n${formattedSequence}`;
+        }).join('\n\n');
+    };
+
+    // Function to handle download
+    const handleDownloadSelected = () => {
+        if (selectedIds.size === 0) return;
+        
+        const fastaData = generateFastaData();
+        const blob = new Blob([fastaData], {type: 'text/plain'});
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `selected_polymers_${new Date().toISOString().split('T')[0]}.fasta`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     // Calculate column widths with description taking remaining space
     const tableWidth = '100%';
     const selectColumnWidth = 30;
@@ -223,14 +255,26 @@ const PolymersTable: React.FC<PolymersTableProps> = ({
                 <span className="text-xs font-medium">
                     {selectedIds.size} of {primary_polymers.length} selected
                 </span>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setShowSequence(!showSequence)}
-                    className="h-6 text-xs py-0">
-                    {showSequence ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
-                    {showSequence ? 'Hide Sequence' : 'Show Sequence'}
-                </Button>
+                <div className="flex space-x-2">
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleDownloadSelected}
+                        disabled={selectedIds.size === 0}
+                        className="h-6 text-xs py-0"
+                        title={selectedIds.size === 0 ? "Select polymers to download" : "Download selected polymers"}>
+                        <Download className="h-3 w-3 mr-1" />
+                        Download Selected
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setShowSequence(!showSequence)}
+                        className="h-6 text-xs py-0">
+                        {showSequence ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+                        {showSequence ? 'Hide Sequence' : 'Show Sequence'}
+                    </Button>
+                </div>
             </div>
             <div className="rounded-md border overflow-hidden">
                 {/* Header Table */}
