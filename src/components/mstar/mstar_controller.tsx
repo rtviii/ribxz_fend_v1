@@ -11,11 +11,11 @@ import {
     selectComponentsForRCSB,
     selectRCSBIdsForInstance
 } from '@/store/molstar/slice_refs';
-import {ribxzMstarv2} from './mstar_v2';
-import {AppDispatch, RootState} from '@/store/store';
+import { ribxzMstarv2 } from './mstar_v2';
+import { AppDispatch, RootState } from '@/store/store';
 
-import {MolScriptBuilder, MolScriptBuilder as MS} from 'molstar/lib/mol-script/language/builder';
-import {ConstrictionSite, PtcInfo} from '@/store/ribxz_api/ribxz_api';
+import { MolScriptBuilder, MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
+import { ConstrictionSite, PtcInfo } from '@/store/ribxz_api/ribxz_api';
 import {
     initializePolymerStates,
     setBatchPolymerVisibility,
@@ -23,18 +23,18 @@ import {
     setPolymerSelected,
     setPolymerVisibility
 } from '@/store/slices/slice_polymer_states';
-import {InteractionManagerConfig, MolstarEventHandlers} from './mstar_interactions';
-import {StructureElement, StructureProperties} from 'molstar/lib/mol-model/structure';
-import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
-import {setBindingSiteRef} from '@/app/homepage/demo_bsite_slice';
-import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
-import {Color} from 'molstar/lib/mol-util/color/color';
-import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
-import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
-import {Expression} from 'molstar/lib/mol-script/language/expression';
-import {StateObjectSelector} from 'molstar/lib/mol-state/object';
-import {DataLoci} from 'molstar/lib/mol-model/loci';
-import {Vec3} from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
+import { InteractionManagerConfig, MolstarEventHandlers } from './mstar_interactions';
+import { StructureElement, StructureProperties } from 'molstar/lib/mol-model/structure';
+import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/interactivity';
+import { setBindingSiteRef } from '@/app/homepage/demo_bsite_slice';
+import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
+import { Color } from 'molstar/lib/mol-util/color/color';
+import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
+import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
+import { Expression } from 'molstar/lib/mol-script/language/expression';
+import { StateObjectSelector } from 'molstar/lib/mol-state/object';
+import { DataLoci } from 'molstar/lib/mol-model/loci';
+import { Vec3 } from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
 
 export class MolstarStateController {
     private viewer: ribxzMstarv2;
@@ -88,7 +88,7 @@ export class MolstarStateController {
     private getLociDetails(loci: any) {
         if (loci.kind === 'element-loci') {
             const stats = StructureElement.Stats.ofLoci(loci);
-            const {elementCount, residueCount, chainCount} = stats;
+            const { elementCount, residueCount, chainCount } = stats;
 
             if (elementCount === 1 && residueCount === 0 && chainCount === 0) {
                 return this.getElementDetails(stats.firstElementLoc);
@@ -112,17 +112,43 @@ export class MolstarStateController {
         }
     };
 
-    clear = async () => {
-        this.dispatch(mapResetInstance({instanceId: this.instanceId}));
-        this.viewer.ctx.clear();
-    };
+    // clear = async () => {
+    //     this.dispatch(mapResetInstance({instanceId: this.instanceId}));
+    //     this.viewer.ctx.clear();
+    // };
+clear = async () => {
+  await this.viewer.ctx.dataTransaction(async () => {
+    // Clear selections and highlights
+    this.viewer.ctx.managers.structure.selection.clear();
+    this.viewer.ctx.managers.interactivity.lociHighlights.clearHighlights();
+
+    // Clear all structures
+    const structures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
+    for (const structure of structures) {
+      await this.viewer.ctx.managers.structure.hierarchy.remove([structure]);
+    }
+
+    // Reset the entire state
+    await this.viewer.ctx.clear();
+
+    // Reset Redux state
+    this.dispatch(mapResetInstance({ instanceId: this.instanceId }));
+
+    // Verify clearance
+    const remainingStructures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
+    if (remainingStructures.length > 0) {
+      console.error('Failed to clear all structures:', remainingStructures);
+      throw new Error('Incomplete state clearance');
+    }
+  });
+};
 
     landmarks = {
         ptc: async (rcsb_id: string): Promise<[string, [number, number, number]]> => {
-            const response       = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/ptc?rcsb_id=${rcsb_id}`);
-            const data: PtcInfo  = await response.json();
-            const [x, y, z]      = data.location;
-            const structRef      = Object.values( this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map )[0];
+            const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/ptc?rcsb_id=${rcsb_id}`);
+            const data: PtcInfo = await response.json();
+            const [x, y, z] = data.location;
+            const structRef = Object.values(this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map)[0];
             const representation = await this.viewer.ctx.builders.structure.representation.addRepresentation(
                 structRef,
                 {
@@ -134,13 +160,13 @@ export class MolstarStateController {
                         radius: 2,
                         label: 'PTC (Peptidyl Transferase Center)'
                     },
-                    colorParams: {value: 0x0000ff}
+                    colorParams: { value: 0x0000ff }
                 }
             );
             const ref = representation.ref;
             return [ref, [x, y, z]];
         },
-        constriction_site: async (rcsb_id: string):Promise<[string, [number, number, number]]> => {
+        constriction_site: async (rcsb_id: string): Promise<[string, [number, number, number]]> => {
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/constriction_site?rcsb_id=${rcsb_id}`
             );
@@ -161,7 +187,7 @@ export class MolstarStateController {
                         radius: 2,
                         label: 'uL22/uL4 Constriction Site'
                     },
-                    colorParams: {value: 0x00ffff}
+                    colorParams: { value: 0x00ffff }
                 }
             );
             const ref = representation.ref;
@@ -172,7 +198,7 @@ export class MolstarStateController {
             y: number,
             z: number,
             radius: number,
-            label: string 
+            label: string
         ): void => {
             const sphereLoci = DataLoci(
                 'arbitrary-sphere-loci',
@@ -196,7 +222,7 @@ export class MolstarStateController {
             y: number,
             z: number,
             radius: number,
-            label: string 
+            label: string
         ): void => {
 
             // Create the loci for the sphere
@@ -217,70 +243,124 @@ export class MolstarStateController {
     };
 
     async loadStructure(rcsb_id: string, nomenclature_map: Record<string, string>) {
-        rcsb_id = rcsb_id.toUpperCase();
-        const {root_ref, repr_ref, objects_polymer, objects_ligand} =
-            await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
+        try {
+            // Standardize RCSB ID
+            rcsb_id = rcsb_id.toUpperCase();
 
-        // Process polymer components
-        const polymerComponents = Object.entries(objects_polymer).reduce((acc, [localId, component]) => {
-            acc[localId] = {
-                type: 'polymer' as const,
-                rcsb_id,
-                ref: component.ref,
+            // Clear existing state first and wait for it to complete
+await this.clear();
+  // Wait for state to settle
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Validate that the state is actually clear
+            const structures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
+
+  if (structures.length > 0) {
+    
+    throw new Error('State not cleared before loading');
+  }
+            if (structures.length > 0) {
+                throw new Error('Failed to clear existing structures');
+            }
+
+            // Load new structure
+            const { root_ref, repr_ref, objects_polymer, objects_ligand } =
+                await this.viewer.components.upload_mmcif_structure(rcsb_id, nomenclature_map);
+
+            // Validate the new structure was loaded
+            if (!root_ref) {
+                throw new Error('Failed to load structure: no root reference');
+            }
+
+            // Process polymer components
+            const polymerComponents = Object.entries(objects_polymer).reduce((acc, [localId, component]) => {
+                acc[localId] = {
+                    type: 'polymer' as const,
+                    rcsb_id,
+                    ref: component.ref,
+                    auth_asym_id: localId,
+                    sequence: component.sequence
+                };
+                return acc;
+            }, {} as Record<string, PolymerComponent>);
+
+            // Process ligand components
+            const ligandComponents = Object.entries(objects_ligand).reduce((acc, [localId, component]) => {
+                acc[localId] = {
+                    type: 'ligand' as const,
+                    rcsb_id,
+                    ref: component.ref,
+                    chemicalId: localId
+                };
+                return acc;
+            }, {} as Record<string, LigandComponent>);
+
+            // Combine all components
+            const allComponents = {
+                ...polymerComponents,
+                ...ligandComponents
+            };
+
+            // Validate components were processed
+            if (Object.keys(allComponents).length === 0) {
+                throw new Error('No components were processed from structure');
+            }
+
+            // Add root ref to store
+            await this.dispatch(
+                mapAssetRootRefAdd({
+                    instanceId: this.instanceId,
+                    payload: [rcsb_id, root_ref]
+                })
+            );
+
+            // Add components to store
+            await this.dispatch(
+                mapAssetModelComponentsAdd({
+                    instanceId: this.instanceId,
+                    rcsbId: rcsb_id,
+                    components: allComponents
+                })
+            );
+
+            // Initialize polymer states
+            const polymerStateComponents = Object.keys(objects_polymer).map(localId => ({
                 auth_asym_id: localId,
-                sequence: component.sequence
-            };
-            return acc;
-        }, {} as Record<string, PolymerComponent>);
+                rcsb_id
+            }));
 
-        // Process ligand components
-        const ligandComponents = Object.entries(objects_ligand).reduce((acc, [localId, component]) => {
-            acc[localId] = {
-                type: 'ligand' as const,
-                rcsb_id,
-                ref: component.ref,
-                chemicalId: localId
-            };
-            return acc;
-        }, {} as Record<string, LigandComponent>);
+            await this.dispatch(initializePolymerStates(polymerStateComponents));
 
-        // Combine all components
-        const allComponents = {
-            ...polymerComponents,
-            ...ligandComponents
-        };
+            // Ensure state tree is updated
+            await PluginCommands.State.Update(this.viewer.ctx, {
+                state: this.viewer.ctx.state.data,
+                tree: this.viewer.ctx.state.data.tree
+            });
 
-        // Add root ref to store
-        this.dispatch(
-            mapAssetRootRefAdd({
-                instanceId: this.instanceId,
-                payload: [rcsb_id, root_ref]
-            })
-        );
+            // Final validation
+            const updatedStructures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
+            if (updatedStructures.length === 0) {
+                throw new Error('Structure failed to load after state updates');
+            }
 
-        // Add components to store
-        this.dispatch(
-            mapAssetModelComponentsAdd({
-                instanceId: this.instanceId,
-                rcsbId: rcsb_id,
+            return {
+                root_ref,
+                repr_ref,
                 components: allComponents
-            })
-        );
+            };
 
-        // Initialize polymer states (if you still need this)
-        const polymerStateComponents = Object.keys(objects_polymer).map(localId => ({
-            auth_asym_id: localId,
-            rcsb_id
-        }));
-        this.dispatch(initializePolymerStates(polymerStateComponents));
-
-        return {root_ref, repr_ref, components: allComponents};
+        } catch (error) {
+            console.error('Error loading structure:', error);
+            // Make sure to clean up if there's an error
+            await this.clear();
+            throw error;
+        }
     }
 
     async addBindingSite(
         rcsb_id: string,
         chemicalId: string,
-        siteData: {ref: string; repr_ref: string; sel_ref: string}
+        siteData: { ref: string; repr_ref: string; sel_ref: string }
     ) {
         const bsiteComponent: BsiteComponent = {
             type: 'bsite',
@@ -298,7 +378,7 @@ export class MolstarStateController {
             mapAssetModelComponentsAdd({
                 instanceId: this.instanceId,
                 rcsbId: rcsb_id,
-                components: {[bsiteId]: bsiteComponent}
+                components: { [bsiteId]: bsiteComponent }
             })
         );
 
@@ -353,7 +433,7 @@ export class MolstarStateController {
                     visible: localId === target_auth_asym_id
                 }));
 
-                visibilityUpdates.forEach(({auth_asym_id, visible}) => {
+                visibilityUpdates.forEach(({ auth_asym_id, visible }) => {
                     const component = this.getState().mstar_refs.instances[this.instanceId].components[auth_asym_id];
                     if (component?.ref) {
                         this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
@@ -374,7 +454,7 @@ export class MolstarStateController {
             const ref = this.retrievePolymerRef(auth_asym_id);
             if (ref) {
                 this.viewer.interactions.setSubtreeVisibility(ref, is_visible);
-                this.dispatch(setPolymerVisibility({rcsb_id, auth_asym_id, visible: is_visible}));
+                this.dispatch(setPolymerVisibility({ rcsb_id, auth_asym_id, visible: is_visible }));
             }
         },
 
@@ -382,7 +462,7 @@ export class MolstarStateController {
             const ref = this.retrievePolymerRef(auth_asym_id);
             if (ref) {
                 this.viewer.interactions.selection(ref, selected ? 'add' : 'remove');
-                this.dispatch(setPolymerSelected({rcsb_id, auth_asym_id, selected}));
+                this.dispatch(setPolymerSelected({ rcsb_id, auth_asym_id, selected }));
             }
         },
 
@@ -396,7 +476,7 @@ export class MolstarStateController {
                 visible: true
             }));
 
-            visibilityUpdates.forEach(({auth_asym_id, visible}) => {
+            visibilityUpdates.forEach(({ auth_asym_id, visible }) => {
                 const ref = this.retrievePolymerRef(auth_asym_id);
                 if (ref) {
                     this.viewer.interactions.setSubtreeVisibility(ref, visible);

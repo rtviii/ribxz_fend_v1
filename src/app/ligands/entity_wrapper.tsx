@@ -13,6 +13,9 @@ export const withEntityState = (WrappedComponent:any) => {
     icon,
     loadingTitle = 'Loading...',
     errorTitle = 'Error',
+    rcsb_id,
+    ctx_secondary,
+    bsiteVisibility,
     ...props 
   }) => {
     if (isLoading) {
@@ -62,7 +65,12 @@ export const withEntityState = (WrappedComponent:any) => {
       );
     }
 
-    return <WrappedComponent {...props} />;
+    return <WrappedComponent 
+    {...props} 
+    rcsb_id={rcsb_id}
+    ctx_secondary={ctx_secondary}
+    bsiteVisibility={bsiteVisibility}
+  />;;
   };
 };
 

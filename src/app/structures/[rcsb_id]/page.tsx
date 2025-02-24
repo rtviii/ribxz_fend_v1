@@ -32,6 +32,7 @@ import ComponentsEasyAccessPanel from './components_easy_access_panel';
 import {useMolstarInstance, useMolstarService} from '@/components/mstar/mstar_service';
 import {useRibosomeStructureWithNomenclature} from '@/components/ribxzhooks';
 import FloatingMenu from '@/components/ribxz/menu_floating';
+import { ComponentsPanelSkeleton, StructureInfoSkeleton, StructurePageSkeleton } from './skeletons';
 
 const InfoRow = ({title, value}: {title: string; value: ReactNode}) => (
     <div className="flex justify-between items-center py-1 border-b border-gray-100 last:border-b-0">
@@ -41,14 +42,13 @@ const InfoRow = ({title, value}: {title: string; value: ReactNode}) => (
 );
 
 const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
-    if (isLoading) return <div className="text-xs">Loading...</div>;
+    if (isLoading) return <StructureInfoSkeleton />;
     return (
-        // <Accordion type="multiple" defaultValue={['info']} className="w-full space-y-2">
         <div className="border border-gray-200 rounded-md shadow-inner bg-slate-100 p-2">
-            <h3 className="text-sm  font-semibold mb-2">
+            <h3 className="text-sm font-semibold mb-2">
                 <span>{data.rcsb_id.toUpperCase()}</span>
             </h3>
-            <p className="text-xs text-gray-500 mb-1 ">{data?.citation_title}</p>
+            <p className="text-xs text-gray-500 mb-1">{data?.citation_title}</p>
             <div className="space-y-0">
                 {data?.citation_rcsb_authors && (
                     <InfoRow title="Authors" value={<AuthorsHovercard authors={data.citation_rcsb_authors} />} />
@@ -65,9 +65,9 @@ const StructureInfoTab = ({data, isLoading}: {data: RibosomeStructure; isLoading
                 )}
             </div>
         </div>
-        // </Accordion>
     );
 };
+
 
 const SelectionAndStructureActions = ({nomenclature_map}: {nomenclature_map: Record<string, string> | null}) => {
 
@@ -123,6 +123,9 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
         },
         [resizeObserver]
     );
+  if (isLoading && !data) {
+        return <StructurePageSkeleton />;
+    }
 
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -138,10 +141,10 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                             <StructureInfoTab data={data!} isLoading={isLoading} />
                         </div>
                         <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
-                            {data ? (
+ {data ? (
                                 <ComponentsEasyAccessPanel data={data} isLoading={isLoading} />
                             ) : (
-                                <span>Loading..</span>
+                                <ComponentsPanelSkeleton />
                             )}
                         </div>
                     </Card>

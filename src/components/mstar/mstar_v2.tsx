@@ -1,13 +1,13 @@
-import {createPluginUI} from 'molstar/lib/mol-plugin-ui';
-import {PluginUIContext} from 'molstar/lib/mol-plugin-ui/context';
-import {ArbitrarySphereRepresentationProvider} from './providers/arbitrary_sphere_provider';
-import {renderReact18} from 'molstar/lib/mol-plugin-ui/react18';
-import {PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
-import {ribxzSpec} from './spec';
-import {SplitPolymerPreset as SplitPolymerPreset} from './providers/polymer_preset';
-import {PluginCommands} from 'molstar/lib/mol-plugin/commands';
-import {Color} from 'molstar/lib/mol-util/color';
-import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
+import { createPluginUI } from 'molstar/lib/mol-plugin-ui';
+import { PluginUIContext } from 'molstar/lib/mol-plugin-ui/context';
+import { ArbitrarySphereRepresentationProvider } from './providers/arbitrary_sphere_provider';
+import { renderReact18 } from 'molstar/lib/mol-plugin-ui/react18';
+import { PluginUISpec } from 'molstar/lib/mol-plugin-ui/spec';
+import { ribxzSpec } from './spec';
+import { SplitPolymerPreset as SplitPolymerPreset } from './providers/polymer_preset';
+import { PluginCommands } from 'molstar/lib/mol-plugin/commands';
+import { Color } from 'molstar/lib/mol-util/color';
+import { StateTransforms } from 'molstar/lib/mol-plugin-state/transforms';
 import {
     QueryContext,
     Structure,
@@ -16,28 +16,28 @@ import {
     StructureSelection,
     to_mmCIF
 } from 'molstar/lib/mol-model/structure';
-import {StructureQueryHelper} from 'molstar/lib/mol-plugin-state/helpers/structure-query';
-import {MolScriptBuilder, MolScriptBuilder as MS} from 'molstar/lib/mol-script/language/builder';
-import {Script} from 'molstar/lib/mol-script/script';
-import {Expression} from 'molstar/lib/mol-script/language/expression';
-import {BsiteComponent, LigandComponent, PolymerComponent} from '@/store/molstar/slice_refs';
-import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
-import {compile} from 'molstar/lib/mol-script/runtime/query/base';
+import { StructureQueryHelper } from 'molstar/lib/mol-plugin-state/helpers/structure-query';
+import { MolScriptBuilder, MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
+import { Script } from 'molstar/lib/mol-script/script';
+import { Expression } from 'molstar/lib/mol-script/language/expression';
+import { BsiteComponent, LigandComponent, PolymerComponent } from '@/store/molstar/slice_refs';
+import { createStructureRepresentationParams } from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
+import { compile } from 'molstar/lib/mol-script/runtime/query/base';
 // import {StateElements} from './__molstar_ribxz';
-import {StateObjectCell, StateObjectSelector, StateSelection} from 'molstar/lib/mol-state';
-import {setSubtreeVisibility} from 'molstar/lib/mol-plugin/behavior/static/state';
-import {StructureSelectionQueries} from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
+import { StateObjectCell, StateObjectSelector, StateSelection } from 'molstar/lib/mol-state';
+import { setSubtreeVisibility } from 'molstar/lib/mol-plugin/behavior/static/state';
+import { StructureSelectionQueries } from 'molstar/lib/mol-plugin-state/helpers/structure-selection-query';
 
-import {debounceTime} from 'rxjs/operators';
-import {InteractivityManager} from 'molstar/lib/mol-plugin-state/manager/interactivity';
-import {ResidueData} from '@/app/components/sequence_viewer';
-import {Asset} from 'molstar/lib/mol-util/assets';
-import {Loci} from 'molstar/lib/mol-model/loci';
+import { debounceTime } from 'rxjs/operators';
+import { InteractivityManager } from 'molstar/lib/mol-plugin-state/manager/interactivity';
+import { ResidueData } from '@/app/components/sequence_viewer';
+import { Asset } from 'molstar/lib/mol-util/assets';
+import { Loci } from 'molstar/lib/mol-model/loci';
 import PolymerColorschemeWarm from './providers/colorschemes/colorscheme_warm';
-import {DownloadHelper} from './download_helper';
-import {CifWriter} from 'molstar/lib/mol-io/writer/cif';
-import {PluginStateObject} from 'molstar/lib/mol-plugin-state/objects';
-import {Vec3} from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
+import { DownloadHelper } from './download_helper';
+import { CifWriter } from 'molstar/lib/mol-io/writer/cif';
+import { PluginStateObject } from 'molstar/lib/mol-plugin-state/objects';
+import { Vec3 } from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
 
 export type ResidueSummary = {
     label_seq_id: number | null | undefined;
@@ -65,7 +65,7 @@ const numToHexColor = (colorValue: number) => {
 export class ribxzMstarv2 {
     //@ts-ignore
     ctx: PluginUIContext;
-    constructor() {}
+    constructor() { }
     async init(parent: HTMLElement, spec: PluginUISpec = ribxzSpec) {
         while (parent.firstChild) {
             parent.removeChild(parent.firstChild);
@@ -75,19 +75,19 @@ export class ribxzMstarv2 {
         pluginContainer.style.height = '100%';
 
         parent.appendChild(pluginContainer);
-        this.ctx = await createPluginUI({target: parent, spec: spec, render: renderReact18});
+        this.ctx = await createPluginUI({ target: parent, spec: spec, render: renderReact18 });
         this.ctx.representation.structure.registry.add(ArbitrarySphereRepresentationProvider);
 
         this.ctx.builders.structure.representation.registerPreset(SplitPolymerPreset);
         this.ctx.canvas3d?.setProps({
-            camera: {helper: {axes: {name: 'off', params: {}}}}
+            camera: { helper: { axes: { name: 'off', params: {} } } }
         });
         const rendererParams: any = {
             backgroundColor: Color.fromRgb(255, 255, 255)
         };
         const renderer = this.ctx.canvas3d?.props.renderer;
         PluginCommands.Canvas3D.SetSettings(this.ctx, {
-            settings: {renderer: {...renderer, ...rendererParams}}
+            settings: { renderer: { ...renderer, ...rendererParams } }
         });
 
         this.setupHoverEvent(this.ctx, parent);
@@ -117,7 +117,7 @@ export class ribxzMstarv2 {
                     endZ: end[2],
                     radius
                 },
-                colorParams: {value: Color(0x000000)} // Black color
+                colorParams: { value: Color(0x000000) } // Black color
             });
         },
 
@@ -137,7 +137,7 @@ export class ribxzMstarv2 {
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: {value: Color(0x0000ff)} // Blue color
+                colorParams: { value: Color(0x0000ff) } // Blue color
             });
         },
 
@@ -158,7 +158,7 @@ export class ribxzMstarv2 {
             this.ctx.builders.structure.representation.addRepresentation(structureRef, {
                 type: 'arbitrary-sphere' as any,
                 typeParams: sphere,
-                colorParams: {value: Color(0xff0000)} // Red color
+                colorParams: { value: Color(0xff0000) } // Red color
             });
         }
     };
@@ -170,8 +170,8 @@ export class ribxzMstarv2 {
         ): Promise<{
             root_ref: string;
             repr_ref: string;
-            objects_polymer: Record<string, {ref: string; sequence: ResidueData[]}>;
-            objects_ligand: Record<string, {ref: string}>;
+            objects_polymer: Record<string, { ref: string; sequence: ResidueData[] }>;
+            objects_ligand: Record<string, { ref: string }>;
         }> => {
             let asset_url: string;
             asset_url = `https://models.rcsb.org/${rcsb_id.toUpperCase()}.bcif`;
@@ -181,7 +181,7 @@ export class ribxzMstarv2 {
                     isBinary: true,
                     label: `${rcsb_id.toUpperCase()}`
                 },
-                {state: {isGhost: true}}
+                { state: { isGhost: true } }
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
             const model = await this.ctx.builders.structure.createModel(trajectory);
@@ -189,7 +189,7 @@ export class ribxzMstarv2 {
 
             // );
 
-            const {components, representations, objects_polymer, objects_ligand} =
+            const { components, representations, objects_polymer, objects_ligand } =
                 await this.ctx.builders.structure.representation.applyPreset(
                     structure.ref,
                     'polymers-ligand-ribxz-theme',
@@ -210,8 +210,8 @@ export class ribxzMstarv2 {
         upload_mmcif_chain: async (rcsb_id: string, auth_asym_id: string) => {
             const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/polymer?rcsb_id=${rcsb_id}&auth_asym_id=${auth_asym_id}`;
             const data = await this.ctx.builders.data.download(
-                {url: Asset.Url(myUrl.toString()), isBinary: false},
-                {state: {isGhost: true}}
+                { url: Asset.Url(myUrl.toString()), isBinary: false },
+                { state: { isGhost: true } }
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
             const model = await this.ctx.builders.structure.createModel(trajectory);
@@ -221,8 +221,8 @@ export class ribxzMstarv2 {
         upload_mmcif_nonpolymer: async (rcsb_id: string, chemicalId: string) => {
             const myUrl = `${process.env.NEXT_PUBLIC_DJANGO_URL}/mmcif/nonpolymer?rcsb_id=${rcsb_id}&chemicalId=${chemicalId}`;
             const data = await this.ctx.builders.data.download(
-                {url: Asset.Url(myUrl.toString()), isBinary: false},
-                {state: {isGhost: true}}
+                { url: Asset.Url(myUrl.toString()), isBinary: false },
+                { state: { isGhost: true } }
             );
             const trajectory = await this.ctx.builders.structure.parseTrajectory(data, 'mmcif');
             const model = await this.ctx.builders.structure.createModel(trajectory);
@@ -250,7 +250,7 @@ export class ribxzMstarv2 {
                 structure,
                 {
                     color: 'uniform',
-                    colorParams: {value: `${ligand_color}`},
+                    colorParams: { value: `${ligand_color}` },
                     type: 'label',
                     typeParams: {
                         attachment: 'top-left',
@@ -261,9 +261,9 @@ export class ribxzMstarv2 {
                         borderColor: Color(0x000000)
                     },
                     size: 'uniform',
-                    sizeParams: {value: 10}
+                    sizeParams: { value: 10 }
                 },
-                {tag: `${chemicalId}_`} // tag is optional, but useful for later reference
+                { tag: `${chemicalId}_` } // tag is optional, but useful for later reference
             );
 
             return structure;
@@ -334,8 +334,8 @@ export class ribxzMstarv2 {
                 .to(struct.cell)
                 .group(
                     StateTransforms.Misc.CreateGroup,
-                    {label: `Residue ${auth_asym_id}:${auth_seq_id}`},
-                    {ref: `${selectionId}_group`}
+                    { label: `Residue ${auth_asym_id}:${auth_seq_id}` },
+                    { ref: `${selectionId}_group` }
                 );
 
             const selection = group.apply(
@@ -344,7 +344,7 @@ export class ribxzMstarv2 {
                     label: `Residue ${auth_asym_id}:${auth_seq_id}`,
                     expression: residueExpr
                 },
-                {ref: `${selectionId}_sel`}
+                { ref: `${selectionId}_sel` }
             );
 
             await PluginCommands.State.Update(this.ctx, {
@@ -377,7 +377,7 @@ export class ribxzMstarv2 {
             );
             const loci = StructureSelection.toLociWithSourceUnits(compiled);
 
-            this.ctx.managers.interactivity.lociHighlights.highlightOnly({loci});
+            this.ctx.managers.interactivity.lociHighlights.highlightOnly({ loci });
         },
 
         // Select a specific residue
@@ -411,7 +411,7 @@ export class ribxzMstarv2 {
                 addToSelection?: boolean;
             } = {}
         ) => {
-            const {focus = true, highlight = true, select = true, addToSelection = false} = options;
+            const { focus = true, highlight = true, select = true, addToSelection = false } = options;
 
             if (select) {
                 await this.residues.selectResidue(rcsb_id, auth_asym_id, auth_seq_id, addToSelection);
@@ -549,8 +549,8 @@ export class ribxzMstarv2 {
                     .to(struct.structureRef.cell)
                     .group(
                         StateTransforms.Misc.CreateGroup,
-                        {label: `${chemicalId} Ligand`},
-                        {ref: `${chemicalId}_ligand_group`}
+                        { label: `${chemicalId} Ligand` },
+                        { ref: `${chemicalId}_ligand_group` }
                     );
 
                 // Create selection with consistent ref naming
@@ -560,7 +560,7 @@ export class ribxzMstarv2 {
                         label: chemicalId,
                         expression: ligand
                     },
-                    {ref: `${chemicalId}_ligand_sel`}
+                    { ref: `${chemicalId}_ligand_sel` }
                 );
 
                 // Create ball-and-stick representation with consistent ref naming
@@ -569,10 +569,10 @@ export class ribxzMstarv2 {
                     createStructureRepresentationParams(this.ctx, struct.structureRef.cell.obj?.data, {
                         type: 'ball-and-stick',
                         color: 'uniform',
-                        colorParams: {value: Color(0xe24e1b)},
-                        typeParams: {ignoreLight: true, emissive: 0.1, sizeFactor: 0.2}
+                        colorParams: { value: Color(0xe24e1b) },
+                        typeParams: { ignoreLight: true, emissive: 0.1, sizeFactor: 0.2 }
                     }),
-                    {ref: `${chemicalId}_ligand_repr`}
+                    { ref: `${chemicalId}_ligand_repr` }
                 );
 
                 // Optional: Add label representation
@@ -605,7 +605,7 @@ export class ribxzMstarv2 {
         createBindingSiteComponent: async (
             rcsb_id: string,
             cell: StateObjectCell,
-            residues: {auth_asym_id: string; auth_seq_id: number}[],
+            residues: { auth_asym_id: string; auth_seq_id: number }[],
             chemicalId: string,
             nomenclature_map: Record<string, string>
         ): Promise<BsiteComponent> => {
@@ -617,8 +617,8 @@ export class ribxzMstarv2 {
                 .to(cell)
                 .group(
                     StateTransforms.Misc.CreateGroup,
-                    {label: `${chemicalId} Binding Site`},
-                    {ref: `${chemicalId}_bsite_group`}
+                    { label: `${chemicalId} Binding Site` },
+                    { ref: `${chemicalId}_bsite_group` }
                 );
 
             // Group residues by chain
@@ -653,7 +653,7 @@ export class ribxzMstarv2 {
                         label: `${chemicalId} Chain ${chain} Selection`,
                         expression: chainExpr
                     },
-                    {ref: `${chemicalId}_chain_${chain}_sel`}
+                    { ref: `${chemicalId}_chain_${chain}_sel` }
                 );
 
                 chainGroup.apply(
@@ -669,7 +669,7 @@ export class ribxzMstarv2 {
                             emissive: 0.1
                         }
                     }),
-                    {ref: `${chemicalId}_chain_${chain}_repr`}
+                    { ref: `${chemicalId}_chain_${chain}_repr` }
                 );
             }
 
@@ -697,7 +697,7 @@ export class ribxzMstarv2 {
         addBonds: async (
             rcsb_id: string,
             cell: StateObjectCell,
-            residues: {auth_asym_id: string; auth_seq_id: number}[],
+            residues: { auth_asym_id: string; auth_seq_id: number }[],
             chemicalId: string,
             nomenclature_map: Record<string, string>
         ) => {
@@ -720,6 +720,10 @@ export class ribxzMstarv2 {
                     number: i + 1
                 }));
                 const struct = structures[0];
+const rootRef = struct.structureRef.cell.transform.ref;
+    if (!rootRef) {
+      throw new Error('Root reference not found');
+    }
                 // Ligand expression creation
                 const ligand = MS.struct.filter.first([
                     MS.struct.generator.atomGroups({
@@ -752,7 +756,7 @@ export class ribxzMstarv2 {
                 const surroundingsWithoutLigandLoci = StructureSelection.toLociWithSourceUnits(compiled);
 
                 // Convert loci to residue list
-                const surroundingResidues: {auth_asym_id: string; auth_seq_id: number}[] = [];
+                const surroundingResidues: { auth_asym_id: string; auth_seq_id: number }[] = [];
                 const struct_Element = StructureElement.Loci.toStructure(surroundingsWithoutLigandLoci);
 
                 Structure.eachAtomicHierarchyElement(struct_Element, {
@@ -849,7 +853,7 @@ export class ribxzMstarv2 {
                 this.ctx.managers.structure.selection.fromLoci('add', loci);
             }
             if (focus_select.includes('highlight')) {
-                this.ctx.managers.interactivity.lociHighlights.highlight({loci});
+                this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
             }
         }
     };
@@ -860,12 +864,12 @@ export class ribxzMstarv2 {
             const struct = this.ctx.managers.structure.hierarchy.current.structures[0];
             const repr = struct.components[0].representations[0].cell;
 
-            const {selection} = StructureQueryHelper.createAndRun(struct.cell.obj!.data.root, sel);
+            const { selection } = StructureQueryHelper.createAndRun(struct.cell.obj!.data.root, sel);
             const bundle = StructureElement.Bundle.fromSelection(selection);
             const update = this.ctx.build();
 
             update.to(repr).apply(StateTransforms.Representation.TransparencyStructureRepresentation3DFromBundle, {
-                layers: [{bundle, value: 0.1}]
+                layers: [{ bundle, value: 0.1 }]
             });
 
             return update.commit();
@@ -886,12 +890,12 @@ export class ribxzMstarv2 {
                                 pp.outline.name === 'on'
                                     ? pp.outline.params
                                     : {
-                                          scale: 1,
-                                          color: Color(0x000000),
-                                          threshold: 0.33,
-                                          // @ts-ignore
-                                          includeTransparent: true
-                                      }
+                                        scale: 1,
+                                        color: Color(0x000000),
+                                        threshold: 0.33,
+                                        // @ts-ignore
+                                        includeTransparent: true
+                                    }
                         },
                         occlusion: {
                             name: 'on',
@@ -899,21 +903,21 @@ export class ribxzMstarv2 {
                                 pp.occlusion.name === 'on'
                                     ? pp.occlusion.params
                                     : {
-                                          // @ts-ignore
-                                          multiScale: {
-                                              name: 'off',
-                                              params: {}
-                                          },
-                                          radius: 5,
-                                          bias: 0.8,
-                                          blurKernelSize: 15,
-                                          blurDepthBias: 0.5,
-                                          samples: 32,
-                                          resolutionScale: 1,
-                                          color: Color(0x000000)
-                                      }
+                                        // @ts-ignore
+                                        multiScale: {
+                                            name: 'off',
+                                            params: {}
+                                        },
+                                        radius: 5,
+                                        bias: 0.8,
+                                        blurKernelSize: 15,
+                                        blurDepthBias: 0.5,
+                                        samples: 32,
+                                        resolutionScale: 1,
+                                        color: Color(0x000000)
+                                    }
                         },
-                        shadow: {name: 'off', params: {}}
+                        shadow: { name: 'off', params: {} }
                     }
                 });
             }
@@ -966,7 +970,7 @@ export class ribxzMstarv2 {
             const cell = state.select(StateSelection.Generators.byRef(ref))[0];
             if (!cell?.obj) return;
             const loci = Structure.toStructureElementLoci(cell.obj.data);
-            this.ctx.managers.interactivity.lociHighlights.highlight({loci});
+            this.ctx.managers.interactivity.lociHighlights.highlight({ loci });
             return;
         },
         selection: (ref: string, modifier: 'add' | 'remove') => {
@@ -1018,7 +1022,7 @@ export class ribxzMstarv2 {
     experimental = {
         ___cylinder_residues: async (
             struct_ref: string,
-            data: {[chain: string]: number[]},
+            data: { [chain: string]: number[] },
             nomenclature_map: Record<string, string>
         ) => {
             const structures = this.ctx.managers.structure.hierarchy.current.structures.map((structureRef, i) => ({
@@ -1031,7 +1035,7 @@ export class ribxzMstarv2 {
             // Create a group for the cylinder representation
             const group = update
                 .to(struct.structureRef.cell)
-                .group(StateTransforms.Misc.CreateGroup, {label: 'Cylinder Residues'}, {ref: 'cylinder_group'});
+                .group(StateTransforms.Misc.CreateGroup, { label: 'Cylinder Residues' }, { ref: 'cylinder_group' });
 
             // Create selections for each chain
             for (const chain in data) {
@@ -1051,7 +1055,7 @@ export class ribxzMstarv2 {
                         label: `Chain ${chain}`,
                         expression: chainExpr
                     },
-                    {ref: `chain_sel_${chain}`}
+                    { ref: `chain_sel_${chain}` }
                 );
 
                 // Apply representation with the color from your scheme
@@ -1066,7 +1070,7 @@ export class ribxzMstarv2 {
                             // value: Color(0xfafafa)
                         }
                     }),
-                    {ref: `repr_chain_${chain}`}
+                    { ref: `repr_chain_${chain}` }
                 );
 
                 // chainSel.apply(
@@ -1107,7 +1111,7 @@ export class ribxzMstarv2 {
                             params:
                                 pp.outline.name === 'on'
                                     ? pp.outline.params
-                                    : {scale: 1, color: Color(0x000000), threshold: 0.33}
+                                    : { scale: 1, color: Color(0x000000), threshold: 0.33 }
                         },
                         occlusion: {
                             name: 'on',
@@ -1115,12 +1119,12 @@ export class ribxzMstarv2 {
                                 pp.occlusion.name === 'on'
                                     ? pp.occlusion.params
                                     : {
-                                          bias: 0.8,
-                                          blurKernelSize: 15,
-                                          radius: 5,
-                                          samples: 32,
-                                          resolutionScale: 1
-                                      }
+                                        bias: 0.8,
+                                        blurKernelSize: 15,
+                                        radius: 5,
+                                        samples: 32,
+                                        resolutionScale: 1
+                                    }
                         }
                     }
                 });
@@ -1128,13 +1132,13 @@ export class ribxzMstarv2 {
         },
         cylinder_residues: async (
             struct_ref: string,
-            data: {[chain: string]: number[]},
+            data: { [chain: string]: number[] },
             nomenclature_map: Record<string, string>
         ) => {
             const cluster = [];
             for (var chain in data) {
                 for (var residue of data[chain]) {
-                    cluster.push({auth_asym_id: chain, auth_seq_id: residue});
+                    cluster.push({ auth_asym_id: chain, auth_seq_id: residue });
                 }
             }
 
@@ -1149,12 +1153,12 @@ export class ribxzMstarv2 {
             const update = this.ctx.build();
             const group = update
                 .to(struct.structureRef.cell)
-                .group(StateTransforms.Misc.CreateGroup, {label: 'somelavle'}, {ref: `somelalb`});
+                .group(StateTransforms.Misc.CreateGroup, { label: 'somelavle' }, { ref: `somelalb` });
 
             const chain_sel = group.apply(
                 StateTransforms.Model.StructureSelectionFromExpression,
-                {label: 'some', expression: expr},
-                {ref: 'any'}
+                { label: 'some', expression: expr },
+                { ref: 'any' }
             );
             chain_sel.apply(
                 StateTransforms.Representation.StructureRepresentation3D,
@@ -1167,7 +1171,7 @@ export class ribxzMstarv2 {
                         // value: Color(0xfafafa)
                     }
                 }),
-                {ref: `repr_any_cartoon`}
+                { ref: `repr_any_cartoon` }
             );
 
             // chain_sel.apply(
@@ -1204,7 +1208,7 @@ export class ribxzMstarv2 {
                             params:
                                 pp.outline.name === 'on'
                                     ? pp.outline.params
-                                    : {scale: 1, color: Color(0x000000), threshold: 0.33}
+                                    : { scale: 1, color: Color(0x000000), threshold: 0.33 }
                         },
                         occlusion: {
                             name: 'on',
@@ -1212,12 +1216,12 @@ export class ribxzMstarv2 {
                                 pp.occlusion.name === 'on'
                                     ? pp.occlusion.params
                                     : {
-                                          bias: 0.8,
-                                          blurKernelSize: 15,
-                                          radius: 5,
-                                          samples: 32,
-                                          resolutionScale: 1
-                                      }
+                                        bias: 0.8,
+                                        blurKernelSize: 15,
+                                        radius: 5,
+                                        samples: 32,
+                                        resolutionScale: 1
+                                    }
                         }
                     }
                 });
@@ -1250,7 +1254,7 @@ export class ribxzMstarv2 {
         function getLociDetails(loci: any) {
             if (loci.kind === 'element-loci') {
                 const stats = StructureElement.Stats.ofLoci(loci);
-                const {elementCount, residueCount, chainCount} = stats;
+                const { elementCount, residueCount, chainCount } = stats;
 
                 if (elementCount === 1 && residueCount === 0 && chainCount === 0) {
                     return getElementDetails(stats.firstElementLoc);
@@ -1303,8 +1307,8 @@ export class ribxzMstarv2 {
                     ...trackball,
                     animate:
                         trackball.animate.name === 'spin'
-                            ? {name: 'off', params: {}}
-                            : {name: 'spin', params: {speed: speed}}
+                            ? { name: 'off', params: {} }
+                            : { name: 'spin', params: { speed: speed } }
                 }
             }
         });
@@ -1377,7 +1381,7 @@ export class ribxzMstarv2 {
                 console.error('No structure or selection available');
                 return;
             }
-            const {selectionStructure} = result;
+            const { selectionStructure } = result;
             const cifData = to_mmCIF('selection', selectionStructure);
             const blob = DownloadHelper.createBlob(cifData);
             DownloadHelper.downloadBlob(blob, filename);
@@ -1427,7 +1431,7 @@ export async function createChainRangeVisualization(
     } = params;
 
     // Generate the range of residues
-    const residues = Array.from({length: range_end - range_start + 1}, (_, i) => range_start + i);
+    const residues = Array.from({ length: range_end - range_start + 1 }, (_, i) => range_start + i);
 
     // Upload the chain
     const chain = await ctx.components.upload_mmcif_chain(rcsb_id, auth_asym_id);
@@ -1436,16 +1440,16 @@ export async function createChainRangeVisualization(
         return;
     }
 
-    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({auth_asym_id, auth_seq_id: r})));
+    const expr = ctx.residues.residue_cluster_expression(residues.map(r => ({ auth_asym_id, auth_seq_id: r })));
     const update = ctx.ctx.build();
-    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, {label}, {ref: `${auth_asym_id}_res`});
+    const group = update.to(chain.cell).group(StateTransforms.Misc.CreateGroup, { label }, { ref: `${auth_asym_id}_res` });
     const selection = group.apply(
         StateTransforms.Model.StructureSelectionFromExpression,
         {
             label: `${auth_asym_id}_selection`,
             expression: expr
         },
-        {ref: `${auth_asym_id}_selection`}
+        { ref: `${auth_asym_id}_selection` }
     );
 
     if (!point_representation) {
@@ -1463,7 +1467,7 @@ export async function createChainRangeVisualization(
                     sizeFactor: 0.25
                 }
             }),
-            {ref: `${auth_asym_id}_repr`}
+            { ref: `${auth_asym_id}_repr` }
         );
     } else {
         selection.apply(
@@ -1480,7 +1484,7 @@ export async function createChainRangeVisualization(
                     sizeFactor: 4
                 }
             }),
-            {ref: `${auth_asym_id}_repr`}
+            { ref: `${auth_asym_id}_repr` }
         );
     }
 
@@ -1504,7 +1508,7 @@ export async function createChainRangeVisualization(
                 },
                 size: 'uniform'
             }),
-            {ref: `${auth_asym_id}_label`}
+            { ref: `${auth_asym_id}_label` }
         );
     }
 

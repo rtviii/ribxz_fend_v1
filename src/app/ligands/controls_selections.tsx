@@ -34,10 +34,6 @@ const BindingSiteControlPanel: React.FC<ControlPanelProps> = ({
                             <HoverCardContent align="start" className="w-80">
                                 <div className="space-y-2">
                                     <p className="text-sm">Select a source ligand-structure pair to analyze binding sites.</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        The radius determines the surrounding area to consider around the ligand.
-                                        Recommended range: 5-15Å
-                                    </p>
                                 </div>
                             </HoverCardContent>
                         </HoverCard>
@@ -83,8 +79,8 @@ const BindingSiteControlPanel: React.FC<ControlPanelProps> = ({
                                             Choose a target structure to predict potential binding sites.
                                         </p>
                                         <p className="text-sm text-muted-foreground">
-                                            The prediction algorithm will use the source binding site pattern
-                                            to identify similar geometric and chemical patterns in the target structure.
+                                            The algorithm will attempt to predict the source binding site pattern
+                                             in the target structure.
                                         </p>
                                     </div>
                                 </HoverCardContent>
