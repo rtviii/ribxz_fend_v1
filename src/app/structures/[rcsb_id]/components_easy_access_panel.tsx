@@ -30,6 +30,7 @@ import {HelixLandmarks} from '../landmarks/helix_row';
 import {selectComponentById} from '@/store/molstar/slice_refs';
 import {Button} from '@/components/ui/button';
 import LigandRow from './ligand_component';
+import { ComponentsPanelSkeleton } from './skeletons';
 
 interface LandmarkItemProps {
     onFocus?: () => void;
@@ -286,10 +287,10 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         createLandmarks();
     }, [hasPTC, controller, rcsb_id, PTCref]);
 
-    if (isLoading) return <div className="text-xs">Loading components...</div>;
+  if (isLoading) return <ComponentsPanelSkeleton />;
 
     if (!service?.viewer || !service?.controller) {
-        return <div className="text-xs">Initializing viewer...</div>;
+        return <ComponentsPanelSkeleton />;
     }
 
     const {controller: msc} = service;
