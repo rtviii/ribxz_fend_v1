@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useMolstarInstance } from '@/components/mstar/mstar_service';
-import { mapAssetModelComponentsAdd, selectComponentById } from '@/store/molstar/slice_refs';
+import { mapAssetModelComponentsAdd, mapResetInstance, selectComponentById } from '@/store/molstar/slice_refs';
 import { useSelector } from 'react-redux';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -13,9 +13,55 @@ import Image from 'next/image';
 import { Ellipsis } from 'lucide-react';
 import { cn } from '@/components/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ribxzMstarv2 } from '@/components/mstar/mstar_v2';
 import ResidueGrid from './residue_grid';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
+
+export const LoadingState = () => {
+  return (
+    <div className="flex flex-col items-center justify-center space-y-8 py-12">
+      {/* Top spinner with loading text */}
+      <div className="flex items-center gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+        <span className="text-lg text-muted-foreground">Loading prediction...</span>
+      </div>
+
+      {/* Skeleton UI for expected content */}
+      <div className="w-full max-w-2xl space-y-4">
+        {/* Structure info skeleton */}
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <Skeleton className="h-6 w-48" />
+          </div>
+          <div className="p-4">
+            <div className="space-y-3">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          </div>
+        </div>
+
+        {/* Binding site skeleton */}
+        <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-gray-200 bg-gray-50">
+            <Skeleton className="h-6 w-64" />
+          </div>
+          <div className="p-4">
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-2">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 rounded-md" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 // Shared button component
 const IconButton = ({ icon, onClick, title, active = false }) => (
@@ -78,7 +124,7 @@ const BsiteDownloadMenu = ({
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log("runnign download option inside mene");
-                  
+
                   option.onClick();
 
                   console.log("finished inside menu");
@@ -106,10 +152,16 @@ export const LigandPanel = ({
   formula_weight,
   pdbx_description,
   onFocus,
+  onMouseEnter,
+  onMouseLeave,
   className = '',
 }) => {
   return (
-    <div className={cn('rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden', className)}>
+    <div
+      className={cn('rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden', className)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
         <div className="flex items-center gap-2 min-w-0">
           <span className="truncate font-medium">Ligand {chemicalId}</span>
@@ -173,12 +225,18 @@ export const BindingSitePanel = ({
   nomenclature_map,
   onResidueClick,
   onResidueHover,
+  onMouseEnter,
+  onMouseLeave,
   className,
 }) => {
   const [groupByChain, setGroupByChain] = useState(true);
 
   return (
-    <div className={cn('rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden', className)}>
+    <div
+      className={cn('rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden', className)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
         <div className="flex items-center gap-2 min-w-0">
           <span className="truncate font-medium">{chemicalId} Binding Site</span>
@@ -227,7 +285,10 @@ const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data)
     const setupStructure = async () => {
       setIsLoading(true);
       setError(null);
+
       try {
+      await msc.clear(); // Clear Molstar state
+      dispatch(mapResetInstance({ instanceId: 'main' }))
         // Create nomenclature map
         const newNomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
           (prev, current) => {
@@ -291,6 +352,11 @@ const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data)
     };
 
     setupStructure();
+return () => {
+    setRootRef(null);
+    setNomenclatureMap({});
+    setError(null);
+  };
   }, [currentLigand, data, msc, ctx, bsiteRadius, dispatch]);
 
   return { rootRef, nomenclatureMap, isLoading, error };
@@ -342,7 +408,7 @@ export default function CurrentBindingSiteInfoPanel() {
   const ctx = mainMolstarService?.viewer;
   const msc = mainMolstarService?.controller;
 
-  const ligand_component = useSelector(state =>
+  const ligand_component = useAppSelector(state =>
     selectComponentById(state, {
       instanceId: 'main',
       rcsbId: current_ligand?.parent_structure.rcsb_id,
@@ -401,9 +467,10 @@ export default function CurrentBindingSiteInfoPanel() {
   }
 
   // Loading states
-  if (isLoadingProfile || isLoadingSetup || isLoadingResidues) {
-    return <div className="animate-pulse">Loading...</div>;
-  }
+// Loading states
+if (isLoadingProfile || isLoadingSetup || isLoadingResidues) {
+  return <LoadingState />;
+}
 
   const handleDownloadJSON = async () => {
     try {
@@ -444,21 +511,13 @@ export default function CurrentBindingSiteInfoPanel() {
   };
 
   const handleDownloadCIF = async (bsiteRef: string) => {
-    console.log("handle downlaod cif");
-    
-    if (!ctx) { 
-      
-    console.log("no context. return");
-      return };
-
-    console.log("got context");
+    if (!ctx) {
+      return
+    };
     const loci = ctx.loci_from_ref(bsiteRef);
     if (!loci) {
-      console.log("Did not produce loci");
       return;
     }
-    console.log("Got loci", loci);
-
 
     ctx.ctx.managers.structure.selection.clear();
     ctx.ctx.managers.structure.selection.fromLoci('add', loci);
@@ -467,13 +526,40 @@ export default function CurrentBindingSiteInfoPanel() {
     );
     ctx.ctx.managers.structure.selection.clear();
   };
+  const handleLigandHover = (isEntering: boolean) => {
+    if (!ctx) return;
+    if (isEntering) {
+      let loci = ctx.loci_from_ref(ligand_component.sel_ref);
+      ctx.ctx.managers.interactivity.lociHighlights.highlight({ loci });
+    } else {
+      ctx.ctx.managers.interactivity.lociHighlights.clearHighlights()
+    }
+  };
+
+  const handleBSiteHover = (isEntering: boolean) => {
+    if (!ctx || !msc) return;
+
+    const bsite = msc.bindingSites.retrieveBSiteComponent(
+      current_ligand.parent_structure.rcsb_id,
+      current_ligand.ligand.chemicalId
+    );
+
+    if (!bsite?.sel_ref) return;
+    if (isEntering) {
+      let loci = ctx.loci_from_ref(bsite.sel_ref);
+      ctx.ctx.managers.interactivity.lociHighlights.highlight({ loci })
+    } else {
+      ctx.ctx.managers.interactivity.lociHighlights.clearHighlights()
+    }
+  };
+
 
   return (
     <div className="space-y-4">
-      <Button onClick={() => {
-        console.log(refs_state);
-      }}>Log state</Button>
       <LigandPanel
+
+        onMouseEnter={() => handleLigandHover(true)}
+        onMouseLeave={() => handleLigandHover(false)}
         chemicalId={current_ligand.ligand.chemicalId}
         drugbank_id={current_ligand.ligand.drugbank_id}
         drugbank_description={current_ligand.ligand.drugbank_description}
@@ -485,6 +571,9 @@ export default function CurrentBindingSiteInfoPanel() {
       />
 
       <BindingSitePanel
+
+        onMouseEnter={() => handleBSiteHover(true)}
+        onMouseLeave={() => handleBSiteHover(false)}
         chemicalId={current_ligand.ligand.chemicalId}
         residueCount={surroundingResidues.length}
         visible={bsiteVisibility}
@@ -492,7 +581,7 @@ export default function CurrentBindingSiteInfoPanel() {
         onDownloadJSON={handleDownloadJSON}
         onDownloadCIF={() => {
           console.log("Running download cif");
-          
+
           const bsite = msc?.bindingSites.retrieveBSiteComponent(
             current_ligand.parent_structure.rcsb_id,
             current_ligand.ligand.chemicalId
@@ -501,7 +590,7 @@ export default function CurrentBindingSiteInfoPanel() {
 
           handleDownloadCIF(bsite?.sel_ref)
           console.log("ran handle download cif");
-          
+
         }
         }
 

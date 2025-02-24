@@ -139,18 +139,13 @@ export const handleReferencesSlice = createSlice({
             return initialState;
         },
 
-        mapResetInstance: (
-            state,
-            action: PayloadAction<{
-                instanceId: MolstarInstanceId;
-            }>
-        ) => {
-            state.instances[action.payload.instanceId] = {
-                rcsb_id_root_ref_map: {},
-                rcsb_id_components_map: {},
-                components: {}
-            };
-        }
+mapResetInstance: (state, action: PayloadAction<{ instanceId: MolstarInstanceId }>) => {
+  state.instances[action.payload.instanceId] = {
+    rcsb_id_root_ref_map: {},
+    rcsb_id_components_map: {},
+    components: {}
+  };
+}
     }
 });
 

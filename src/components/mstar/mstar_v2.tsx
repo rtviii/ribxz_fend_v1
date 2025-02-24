@@ -720,6 +720,10 @@ export class ribxzMstarv2 {
                     number: i + 1
                 }));
                 const struct = structures[0];
+const rootRef = struct.structureRef.cell.transform.ref;
+    if (!rootRef) {
+      throw new Error('Root reference not found');
+    }
                 // Ligand expression creation
                 const ligand = MS.struct.filter.first([
                     MS.struct.generator.atomGroups({
