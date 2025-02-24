@@ -15,6 +15,12 @@ import ResidueGrid from './residue_grid';
 import {GlobalStructureSelection} from '@/components/ribxz/ribxz_structure_selection';
 import {Spinner} from '@/components/ui/spinner';
 import {EnhancedStructureEntity, EnhancedBindingSiteEntity} from './entity_wrapper';
+import React  from 'react';
+import { cn } from '@/components/utils';
+import { Ellipsis } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
+
 
 const useStructureSetup = (
     selected_target_structure,
@@ -222,6 +228,12 @@ export default function BindingSitePredictionPanel() {
                 icon={<Inbox size={16} />}
                 loadingTitle="Predicting binding site..."
                 errorTitle="Error predicting binding site"
+                
+                rcsb_id={current_ligand?.parent_structure.rcsb_id}
+                ctx_secondary={ctx_secondary}
+                bsiteVisibility={bsiteVisibility}
+
+
                 className="min-w-0"
                 chemicalId={current_ligand?.ligand.chemicalId}
                 residueCount={predictionResidues?.length ?? 0}
