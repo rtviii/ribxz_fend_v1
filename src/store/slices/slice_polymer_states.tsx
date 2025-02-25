@@ -45,6 +45,14 @@ export const polymerStatesSlice = createSlice({
                 }
             });
         },
+clearAllSelections: (state) => {
+  // Iterate through all polymers and set selected to false
+  Object.keys(state.statesByPolymer).forEach(authAsymId => {
+    if (state.statesByPolymer[authAsymId]) {
+      state.statesByPolymer[authAsymId].selected = false;
+    }
+  });
+},
 
         setPolymerVisibility: (
             state,
@@ -117,6 +125,7 @@ export const polymerStatesSlice = createSlice({
             }
         }
     }
+
 });
 
 export const {
@@ -125,7 +134,9 @@ export const {
     setPolymerVisibility,
     setPolymerSelected,
     setPolymerIsolated,
-    setPolymerHovered
+    setPolymerHovered,
+
+  clearAllSelections  // Add this export
 } = polymerStatesSlice.actions;
 
 export default polymerStatesSlice.reducer;

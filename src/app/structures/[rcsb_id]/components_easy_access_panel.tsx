@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {ScrollArea} from '@/components/ui/scroll-area';
-import {TooltipProvider, Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
-import {DownloadIcon, Eye, EyeIcon, ScanSearch} from 'lucide-react';
-import {cn} from '@/components/utils';
-import {useAppSelector} from '@/store/store';
+import React, { useEffect, useState } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { DownloadIcon, Eye, EyeIcon, ScanSearch, X } from 'lucide-react';
+import { cn } from '@/components/utils';
+import { useAppDispatch, useAppSelector } from '@/store/store';
 import {
     Dialog,
     DialogContent,
@@ -13,8 +13,8 @@ import {
     DialogFooter,
     DialogClose
 } from '@/components/ui/dialog';
-import {Search} from 'lucide-react';
-import {Input} from '@/components/ui/input';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import {
     RibosomeStructure,
     useRoutersRouterLigEntityQuery,
@@ -22,15 +22,16 @@ import {
     useRoutersRouterLociGetHelicesQuery,
     useRoutersRouterLociStructurePtcQuery
 } from '@/store/ribxz_api/ribxz_api';
-import {useMolstarInstance} from '@/components/mstar/mstar_service';
-import {sort_by_polymer_class} from '@/my_utils';
+import { useMolstarInstance } from '@/components/mstar/mstar_service';
+import { sort_by_polymer_class } from '@/my_utils';
 import PolymerComponentRow from './polymer_component';
 import SequenceMolstarSync from '@/app/components/sequence_molstar_sync';
-import {HelixLandmarks} from '../landmarks/helix_row';
-import {selectComponentById} from '@/store/molstar/slice_refs';
-import {Button} from '@/components/ui/button';
+import { HelixLandmarks } from '../landmarks/helix_row';
+import { selectComponentById } from '@/store/molstar/slice_refs';
+import { Button } from '@/components/ui/button';
 import LigandRow from './ligand_component';
 import { ComponentsPanelSkeleton } from './skeletons';
+import { clearAllSelections } from '@/store/slices/slice_polymer_states';
 
 interface LandmarkItemProps {
     onFocus?: () => void;
@@ -42,7 +43,7 @@ interface LandmarkItemProps {
     className?: string;
 }
 
-const DownloadButton = ({onDownload}) => {
+const DownloadButton = ({ onDownload }) => {
     const [open, setOpen] = useState(false);
     const [filename, setFilename] = useState('');
 
@@ -179,7 +180,7 @@ const ConstrictionSiteLandmark = ({
     );
 };
 
-const PolymerSearch = ({polymers, onFilterChange}) => {
+const PolymerSearch = ({ polymers, onFilterChange }) => {
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearch = e => {
@@ -213,16 +214,16 @@ const PolymerSearch = ({polymers, onFilterChange}) => {
     );
 };
 
-const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; isLoading: boolean}) => {
+const ComponentsEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure; isLoading: boolean }) => {
     const [activeView, setActiveView] = useState('polymers');
     const service = useMolstarInstance('main');
     const rcsb_id = useAppSelector(s => Object.keys(s.mstar_refs.instances.main.rcsb_id_components_map)[0]);
 
     // Fetch data for landmarks and ligands
-    const {data: helices_data, isLoading: isLoadingHelices} = useRoutersRouterLociGetHelicesQuery({
+    const { data: helices_data, isLoading: isLoadingHelices } = useRoutersRouterLociGetHelicesQuery({
         rcsbId: data?.rcsb_id
     });
-    const {data: ligands_data, isLoading: isLoadingLigands} = useRoutersRouterLigInStructureQuery({
+    const { data: ligands_data, isLoading: isLoadingLigands } = useRoutersRouterLigInStructureQuery({
         rcsbId: data?.rcsb_id
     });
 
@@ -231,7 +232,7 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         data: ptcData,
         isLoading: isLoadingPTC,
         isError: isPTCError
-    } = useRoutersRouterLociStructurePtcQuery({rcsbId: data?.rcsb_id});
+    } = useRoutersRouterLociStructurePtcQuery({ rcsbId: data?.rcsb_id });
 
     const mstar = useMolstarInstance('main');
     const controller = mstar?.controller;
@@ -287,18 +288,19 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
         createLandmarks();
     }, [hasPTC, controller, rcsb_id, PTCref]);
 
-  if (isLoading) return <ComponentsPanelSkeleton />;
+    if (isLoading) return <ComponentsPanelSkeleton />;
 
     if (!service?.viewer || !service?.controller) {
         return <ComponentsPanelSkeleton />;
     }
 
-    const {controller: msc} = service;
+    const { controller: msc } = service;
     const tabs = [
-        {id: 'polymers', label: 'Polymers'},
-        {id: 'landmarks', label: 'Landmarks', disabled: !hasLandmarks},
-        {id: 'ligands', label: 'Ligands', disabled: !hasLigands}
+        { id: 'polymers', label: 'Polymers' },
+        { id: 'landmarks', label: 'Landmarks', disabled: !hasLandmarks },
+        { id: 'ligands', label: 'Ligands', disabled: !hasLigands }
     ];
+    const dispatch = useAppDispatch();
 
     return (
         <TooltipProvider delayDuration={0}>
@@ -316,8 +318,8 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                             activeView === tab.id
                                                 ? 'bg-white text-blue-600 font-medium'
                                                 : tab.disabled
-                                                ? 'text-gray-400 cursor-not-allowed'
-                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                                    ? 'text-gray-400 cursor-not-allowed'
+                                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                                         )}>
                                         {tab.label}
                                     </button>
@@ -332,6 +334,34 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                     </div>
 
                     <div className="flex items-center gap-1">
+
+
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+<Button
+  onClick={(e) => {
+    e.stopPropagation();
+    // Clear MolStar viewer selections - use a more direct approach
+    if (ctx?.ctx?.managers?.structure?.selection) {
+      ctx.ctx.managers.structure.selection.clear();
+      ctx.ctx.managers.interactivity.lociHighlights.clearHighlights();
+ctx.ctx.managers.interactivity.lociSelects.deselectAll();
+    }
+    // Clear Redux state selections
+    dispatch(clearAllSelections());
+  }}
+  className="h-8 w-8 p-0"
+  variant="ghost"
+  size="sm">
+  <X className="h-4 w-4 text-gray-600" />
+</Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Clear Selection</p>
+                            </TooltipContent>
+                        </Tooltip>
+
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button
@@ -578,10 +608,10 @@ const ComponentsEasyAccessPanel = ({data, isLoading}: {data: RibosomeStructure; 
                                                 <LigandRow
                                                     key={ligand.chemicalId}
                                                     ligand={ligand}
-                                                    onToggleVisibility={() => {}}
-                                                    onToggleSelection={() => {}}
-                                                    onIsolate={() => {}}
-                                                    onDownload={() => {}}
+                                                    onToggleVisibility={() => { }}
+                                                    onToggleSelection={() => { }}
+                                                    onIsolate={() => { }}
+                                                    onDownload={() => { }}
                                                     isVisible={true}
                                                     isSelected={false}
                                                 />

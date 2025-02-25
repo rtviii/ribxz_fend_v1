@@ -449,6 +449,23 @@ await this.clear();
                 }
             });
         },
+clearAllSelections : async (rcsb_id: string) => {
+    // Clear MolStar selections
+    this.viewer.ctx.managers.structure.selection.clear();
+    
+    // Get all components for this RCSB ID
+    const componentIds = this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
+    
+    // Create batch update for Redux
+    const selectionUpdates = componentIds.map(localId => ({
+        rcsb_id,
+        auth_asym_id: localId,
+        selected: false
+    }));
+    
+    // Dispatch batch update
+    this.dispatch(setBatchPolymerSelected(selectionUpdates));
+},
 
         setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
             const ref = this.retrievePolymerRef(auth_asym_id);
