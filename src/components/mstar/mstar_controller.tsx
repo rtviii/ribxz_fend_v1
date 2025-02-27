@@ -394,30 +394,50 @@ await this.clear();
             const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
         },
-        togglePolymersVisibility: async (rcsb_id: string, visible: boolean) => {
-            // Get only polymer components using our type discriminator
-            const polymerComponents = selectComponentsForRCSB(this.getState(), {
-                instanceId: this.instanceId,
-                rcsbId: rcsb_id,
-                componentType: 'polymer'
-            });
+togglePolymersVisibility: async (rcsb_id: string, visible: boolean): Promise<boolean> => {
+    try {
+        if (!rcsb_id || !this.viewer || !this.viewer.ctx) {
+            console.warn("Cannot toggle polymer visibility: Missing required references");
+            return false;
+        }
 
-            await this.viewer.ctx.dataTransaction(async () => {
-                // Update visibility for all polymer components
-                for (const component of polymerComponents) {
+        // Get polymer components using our selector helper
+        const polymerComponents = selectComponentsForRCSB(this.getState(), {
+            instanceId: this.instanceId,
+            rcsbId: rcsb_id,
+            componentType: 'polymer'
+        });
+
+        if (polymerComponents.length === 0) {
+            console.warn(`No polymer components found for structure ${rcsb_id}`);
+            return false;
+        }
+
+        await this.viewer.ctx.dataTransaction(async () => {
+            // Update visibility for all polymer components
+            for (const component of polymerComponents) {
+                if (component.ref) {
                     this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
                 }
+            }
 
-                // Batch update visibility states in Redux if you're tracking them
-                const visibilityUpdates = polymerComponents.map(component => ({
-                    rcsb_id,
-                    auth_asym_id: component.auth_asym_id,
-                    visible
-                }));
+            // Batch update visibility states in Redux
+            const visibilityUpdates = polymerComponents.map(component => ({
+                rcsb_id,
+                auth_asym_id: component.auth_asym_id,
+                visible
+            }));
 
-                this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
-            });
-        },
+            this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
+        });
+
+        return true;
+    } catch (error) {
+        console.error(`Error toggling polymer visibility for ${rcsb_id}:`, error);
+        return false;
+    }
+},
+
 
         highlightPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
             const ref = this.retrievePolymerRef(auth_asym_id);

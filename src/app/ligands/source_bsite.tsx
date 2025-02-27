@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { useMolstarInstance } from '@/components/mstar/mstar_service';
-import { mapAssetModelComponentsAdd, mapResetInstance, selectComponentById } from '@/store/molstar/slice_refs';
+import { mapAssetModelComponentsAdd, mapResetInstance, selectComponentById, selectComponentsForRCSB } from '@/store/molstar/slice_refs';
 import { useSelector } from 'react-redux';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -155,6 +155,9 @@ export const LigandPanel = ({
   onMouseEnter,
   onMouseLeave,
   className = '',
+
+  visible,           // Add this prop for visibility state
+  onToggleVisibility, // Add this prop for visibility toggle function
 }) => {
   return (
     <div
@@ -175,8 +178,17 @@ export const LigandPanel = ({
             </a>
           )}
         </div>
+
+
+
         <div className="flex gap-2">
           <IconButton icon={<Focus size={16} />} onClick={onFocus} title="Focus on ligand" />
+          <IconButton
+            icon={visible ? <Eye size={16} /> : <EyeOff size={16} />}
+            onClick={onToggleVisibility}
+            title={`${visible ? 'Hide' : 'Show'} structure`}
+            active={visible}
+          />
         </div>
       </div>
 
@@ -287,8 +299,8 @@ const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data)
       setError(null);
 
       try {
-      await msc.clear(); // Clear Molstar state
-      dispatch(mapResetInstance({ instanceId: 'main' }))
+        await msc.clear(); // Clear Molstar state
+        dispatch(mapResetInstance({ instanceId: 'main' }))
         // Create nomenclature map
         const newNomenclatureMap = [...data.proteins, ...data.rnas, ...data.other_polymers].reduce(
           (prev, current) => {
@@ -298,9 +310,6 @@ const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data)
           {}
         );
         setNomenclatureMap(newNomenclatureMap);
-
-        // Clear and load structure
-        msc.clear();
         const { root_ref } = await msc.loadStructure(currentLigand.parent_structure.rcsb_id, newNomenclatureMap);
         setRootRef(root_ref);
 
@@ -352,11 +361,11 @@ const useStructureSetup = (currentLigand, msc, ctx, bsiteRadius, dispatch, data)
     };
 
     setupStructure();
-return () => {
-    setRootRef(null);
-    setNomenclatureMap({});
-    setError(null);
-  };
+    return () => {
+      setRootRef(null);
+      setNomenclatureMap({});
+      setError(null);
+    };
   }, [currentLigand, data, msc, ctx, bsiteRadius, dispatch]);
 
   return { rootRef, nomenclatureMap, isLoading, error };
@@ -441,6 +450,73 @@ export default function CurrentBindingSiteInfoPanel() {
     bsite_radius
   );
 
+  // Add state for structure visibility
+  const [structureVisibility, setStructureVisibility] = useState(true);
+
+  // Initialize visibility when structure changes
+  useEffect(() => {
+    setStructureVisibility(true);
+  }, [rootRef]);
+
+  const safeToggleStructureVisibility = async () => {
+    if (!msc || !ctx || !current_ligand?.parent_structure?.rcsb_id || !rootRef) {
+      console.warn("Cannot toggle structure visibility: Missing required references");
+      return;
+    }
+
+    try {
+      const rcsbId = current_ligand.parent_structure.rcsb_id;
+      const setVisible = !structureVisibility;
+
+      const success = await msc.polymers.togglePolymersVisibility(rcsbId, setVisible);
+      if (success) {
+        setStructureVisibility(setVisible);
+      }
+      return;
+
+      // Fallback: Find polymer components manually and toggle visibility
+      // This uses the correct state structure from your Redux store
+      const polymerComponents = selectComponentsForRCSB(
+        refs_state,
+        {
+          instanceId: 'main',
+          rcsbId: rcsbId,
+          componentType: 'polymer'
+        }
+      );
+
+      if (polymerComponents.length === 0) {
+        console.warn(`No polymer components found for structure ${rcsbId}`);
+        return;
+      }
+
+      // Apply visibility change to all polymer components
+      await ctx.ctx.dataTransaction(async () => {
+        for (const comp of polymerComponents) {
+          if (comp.ref) {
+            ctx.interactions.setSubtreeVisibility(comp.ref, setVisible);
+          }
+        }
+      });
+
+      // Update state
+      setStructureVisibility(setVisible);
+
+    } catch (error) {
+      console.error("Error toggling structure visibility:", error);
+    }
+  };;
+
+  // State for visibility toggles
+  const [isToggling, setIsToggling] = useState(false); // Add this to prevent rapid toggling
+
+  // Reset visibility states when structure changes
+  useEffect(() => {
+    if (rootRef) {
+      setStructureVisibility(true);
+      setBsiteVisibility(true);
+    }
+  }, [rootRef, current_ligand?.parent_structure?.rcsb_id]);
 
   if (!current_ligand) {
     return (
@@ -467,10 +543,10 @@ export default function CurrentBindingSiteInfoPanel() {
   }
 
   // Loading states
-// Loading states
-if (isLoadingProfile || isLoadingSetup || isLoadingResidues) {
-  return <LoadingState />;
-}
+  // Loading states
+  if (isLoadingProfile || isLoadingSetup || isLoadingResidues) {
+    return <LoadingState />;
+  }
 
   const handleDownloadJSON = async () => {
     try {
@@ -568,6 +644,10 @@ if (isLoadingProfile || isLoadingSetup || isLoadingResidues) {
         onFocus={() => {
           ctx?.interactions.focus(ligand_component?.sel_ref);
         }}
+
+
+        visible={structureVisibility}
+        onToggleVisibility={safeToggleStructureVisibility}
       />
 
       <BindingSitePanel
@@ -594,7 +674,7 @@ if (isLoadingProfile || isLoadingSetup || isLoadingResidues) {
         }
         }
 
-        onToggleVisibility={() => {
+        onToggleVisibility={async () => {
           const toggleVisibility = async () => {
             const bsite = msc?.bindingSites.retrieveBSiteComponent(
               current_ligand.parent_structure.rcsb_id,
@@ -607,8 +687,9 @@ if (isLoadingProfile || isLoadingSetup || isLoadingResidues) {
               });
             }
           };
-          toggleVisibility();
-          setBsiteVisibility(!bsiteVisibility);
+          toggleVisibility().then(() => {
+            setBsiteVisibility(!bsiteVisibility);
+          });
         }}
         onFocus={() => {
           msc?.bindingSites.focusBindingSite(
