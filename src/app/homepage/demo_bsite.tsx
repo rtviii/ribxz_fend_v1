@@ -16,7 +16,7 @@ import {
 import {AppDispatch, useAppDispatch, useAppSelector} from '@/store/store';
 import {EmptyViewportControls} from './demo_tunnel_human';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
-import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
+import {MstarViewer} from '@/components/mstar/mstar_viewer';
 import {Expression} from 'molstar/lib/mol-script/language/expression';
 import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
 import {createStructureRepresentationParams} from 'molstar/lib/mol-plugin-state/helpers/structure-representation-params';
@@ -38,7 +38,7 @@ interface Ligand {
 }
 
 export const toggleBindingSiteVisibility = (
-    viewer: ribxzMstarv2,
+    viewer: MstarViewer,
     dispatch: AppDispatch,
     chemicalId: string,
     visible: boolean
@@ -55,7 +55,7 @@ export const toggleBindingSiteVisibility = (
     console.timeEnd('toggleBindingSiteVisibility');
 };
 // new utility function
-const updateMolstarState = async (viewer: ribxzMstarv2, operations: (update: any) => Promise<void>) => {
+const updateMolstarState = async (viewer: MstarViewer, operations: (update: any) => Promise<void>) => {
     await viewer.ctx.dataTransaction(async () => {
         const update = viewer.ctx.build();
         await operations(update);
@@ -68,7 +68,7 @@ const updateMolstarState = async (viewer: ribxzMstarv2, operations: (update: any
 
 // Modified createBindingSites
 export const createBindingSites = async (
-    viewer: ribxzMstarv2,
+    viewer: MstarViewer,
     dispatch: AppDispatch,
     ligands: Ligand[],
     bindingSites: Record<string, BindingSite>

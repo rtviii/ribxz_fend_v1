@@ -1,6 +1,6 @@
 'use client';
 import {useCallback, useEffect, useMemo, useState, useContext} from 'react';
-import {ribxzMstarv2} from './mstar_v2';
+import {MstarViewer} from './mstar_viewer';
 import {MolstarStateController} from './mstar_controller';
 import {AppStore, RootState, useAppDispatch} from '@/store/store';
 import React from 'react';
@@ -9,7 +9,7 @@ import { MolstarInstanceId } from '@/store/molstar/slice_refs';
 
 // Keep the existing interface
 interface MolstarService {
-    viewer: ribxzMstarv2;
+    viewer: MstarViewer;
     controller: MolstarStateController;
     instanceId: MolstarInstanceId;  // Add this
 }
@@ -60,7 +60,7 @@ export const useMolstarService = (
         const initMolstar = async () => {
             if (!containerRef.current || context?.getService(instanceId)) return;
 
-            const viewer = new ribxzMstarv2();
+            const viewer = new MstarViewer();
             await viewer.init(containerRef.current);
             
             // Pass instanceId to controller

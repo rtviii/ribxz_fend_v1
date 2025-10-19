@@ -369,7 +369,6 @@ export const SplitPolymerPreset = StructureRepresentationPresetProvider({
                     sequence: getResidueSequence(component, chainId, params.structureId.toUpperCase())
                 };
             }
-            // }
         }
 
         const ligands = getLigands(structure);

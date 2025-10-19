@@ -24,7 +24,7 @@ import {useAppDispatch, useAppSelector} from '@/store/store';
 import {clear_selection, set_tunnel_shape_loci, snapshot_selection} from '@/store/slices/slice_structure_page';
 import {cn} from '@/components/utils';
 import {useUserInputPrompt} from './user_input_prompt';
-import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
+import {MstarViewer} from '@/components/mstar/mstar_viewer';
 import {MolstarStateController} from '@/components/mstar/mstar_controller';
 import {BookmarkedSelections} from './bookmarked_selections.wip';
 import PolymerComponentRow from './polymer_component';
@@ -142,7 +142,7 @@ export default function StructurePage({params}: {params: Promise<{rcsb_id: strin
                         </div>
                         <div className="h-full  overflow-hidden p-2 bg-slate-100  rounded-sm shadow-inner">
  {data ? (
-                                <ComponentsEasyAccessPanel data={data} isLoading={isLoading} />
+<ComponentsEasyAccessPanel data={data} isLoading={isLoading} nomenclatureMap={nomenclatureMap} />
                             ) : (
                                 <ComponentsPanelSkeleton />
                             )}

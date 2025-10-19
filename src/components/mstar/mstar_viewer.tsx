@@ -62,7 +62,7 @@ const numToHexColor = (colorValue: number) => {
     const hexString = '#' + colorValue.toString(16).padStart(6, '0');
     return hexString;
 };
-export class ribxzMstarv2 {
+export class MstarViewer {
     //@ts-ignore
     ctx: PluginUIContext;
     constructor() { }
@@ -1390,7 +1390,7 @@ const rootRef = struct.structureRef.cell.transform.ref;
 }
 
 export async function createChainRangeVisualization(
-    ctx: ribxzMstarv2,
+    ctx: MstarViewer,
     params: {
         rcsb_id: string;
         auth_asym_id: string;

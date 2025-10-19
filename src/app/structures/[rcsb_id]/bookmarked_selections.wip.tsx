@@ -1,5 +1,5 @@
 'use client'
-import {ribxzMstarv2} from '@/components/mstar/mstar_v2';
+import {MstarViewer} from '@/components/mstar/mstar_viewer';
 import {useAppSelector} from '@/store/store';
 import {useState} from 'react';
 
@@ -22,7 +22,7 @@ export const BookmarkedSelections: React.FC<{
 }> = ({leftPanelWidth}) => {
     const selections = useAppSelector(state => state.structure_page.saved_selections);
     const bookmarks = Object.keys(selections);
-    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
+    const [ctx, setCtx] = useState<MstarViewer | null>(null);
 
     return (
         <div

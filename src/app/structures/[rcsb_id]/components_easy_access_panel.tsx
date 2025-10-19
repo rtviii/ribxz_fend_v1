@@ -214,7 +214,7 @@ const PolymerSearch = ({ polymers, onFilterChange }) => {
     );
 };
 
-const ComponentsEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructure; isLoading: boolean }) => {
+const ComponentsEasyAccessPanel = ({ data, isLoading, nomenclatureMap }: { data: RibosomeStructure; isLoading: boolean; nomenclatureMap: Record<string, string> | null }) => {
     const [activeView, setActiveView] = useState('polymers');
     const service = useMolstarInstance('main');
     const rcsb_id = useAppSelector(s => Object.keys(s.mstar_refs.instances.main.rcsb_id_components_map)[0]);
@@ -339,23 +339,23 @@ const ComponentsEasyAccessPanel = ({ data, isLoading }: { data: RibosomeStructur
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-<Button
-  onClick={(e) => {
-    e.stopPropagation();
-    // Clear MolStar viewer selections - use a more direct approach
-    if (ctx?.ctx?.managers?.structure?.selection) {
-      ctx.ctx.managers.structure.selection.clear();
-      ctx.ctx.managers.interactivity.lociHighlights.clearHighlights();
-ctx.ctx.managers.interactivity.lociSelects.deselectAll();
-    }
-    // Clear Redux state selections
-    dispatch(clearAllSelections());
-  }}
-  className="h-8 w-8 p-0"
-  variant="ghost"
-  size="sm">
-  <X className="h-4 w-4 text-gray-600" />
-</Button>
+                                <Button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // Clear MolStar viewer selections - use a more direct approach
+                                        if (ctx?.ctx?.managers?.structure?.selection) {
+                                            ctx.ctx.managers.structure.selection.clear();
+                                            ctx.ctx.managers.interactivity.lociHighlights.clearHighlights();
+                                            ctx.ctx.managers.interactivity.lociSelects.deselectAll();
+                                        }
+                                        // Clear Redux state selections
+                                        dispatch(clearAllSelections());
+                                    }}
+                                    className="h-8 w-8 p-0"
+                                    variant="ghost"
+                                    size="sm">
+                                    <X className="h-4 w-4 text-gray-600" />
+                                </Button>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Clear Selection</p>
@@ -390,6 +390,21 @@ ctx.ctx.managers.interactivity.lociSelects.deselectAll();
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Show All Components</p>
+                            </TooltipContent>
+
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    onClick={() => msc.experimental.cylinder_residues(nomenclatureMap)}
+                                    className="h-8 w-8 p-0"
+                                    variant="ghost"
+                                    size="sm">
+                                    <ScanSearch className="h-4 w-4 text-gray-600" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Cylinder Residues</p>
                             </TooltipContent>
                         </Tooltip>
                     </div>

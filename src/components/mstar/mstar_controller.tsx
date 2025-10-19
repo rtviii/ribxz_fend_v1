@@ -11,7 +11,7 @@ import {
     selectComponentsForRCSB,
     selectRCSBIdsForInstance
 } from '@/store/molstar/slice_refs';
-import { ribxzMstarv2 } from './mstar_v2';
+import { MstarViewer } from './mstar_viewer';
 import { AppDispatch, RootState } from '@/store/store';
 
 import { MolScriptBuilder, MolScriptBuilder as MS } from 'molstar/lib/mol-script/language/builder';
@@ -37,13 +37,13 @@ import { DataLoci } from 'molstar/lib/mol-model/loci';
 import { Vec3 } from 'molstar/lib/mol-math/linear-algebra/3d/vec3';
 
 export class MolstarStateController {
-    private viewer: ribxzMstarv2;
+    private viewer: MstarViewer;
     private dispatch: AppDispatch;
     private getState: () => RootState;
     private instanceId: MolstarInstanceId;
 
     constructor(
-        molstarViewer: ribxzMstarv2,
+        molstarViewer: MstarViewer,
         dispatch: AppDispatch,
         getState: () => RootState,
         instanceId: MolstarInstanceId
@@ -116,32 +116,32 @@ export class MolstarStateController {
     //     this.dispatch(mapResetInstance({instanceId: this.instanceId}));
     //     this.viewer.ctx.clear();
     // };
-clear = async () => {
-  await this.viewer.ctx.dataTransaction(async () => {
-    // Clear selections and highlights
-    this.viewer.ctx.managers.structure.selection.clear();
-    this.viewer.ctx.managers.interactivity.lociHighlights.clearHighlights();
+    clear = async () => {
+        await this.viewer.ctx.dataTransaction(async () => {
+            // Clear selections and highlights
+            this.viewer.ctx.managers.structure.selection.clear();
+            this.viewer.ctx.managers.interactivity.lociHighlights.clearHighlights();
 
-    // Clear all structures
-    const structures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
-    for (const structure of structures) {
-      await this.viewer.ctx.managers.structure.hierarchy.remove([structure]);
-    }
+            // Clear all structures
+            const structures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
+            for (const structure of structures) {
+                await this.viewer.ctx.managers.structure.hierarchy.remove([structure]);
+            }
 
-    // Reset the entire state
-    await this.viewer.ctx.clear();
+            // Reset the entire state
+            await this.viewer.ctx.clear();
 
-    // Reset Redux state
-    this.dispatch(mapResetInstance({ instanceId: this.instanceId }));
+            // Reset Redux state
+            this.dispatch(mapResetInstance({ instanceId: this.instanceId }));
 
-    // Verify clearance
-    const remainingStructures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
-    if (remainingStructures.length > 0) {
-      console.error('Failed to clear all structures:', remainingStructures);
-      throw new Error('Incomplete state clearance');
-    }
-  });
-};
+            // Verify clearance
+            const remainingStructures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
+            if (remainingStructures.length > 0) {
+                console.error('Failed to clear all structures:', remainingStructures);
+                throw new Error('Incomplete state clearance');
+            }
+        });
+    };
 
     landmarks = {
         ptc: async (rcsb_id: string): Promise<[string, [number, number, number]]> => {
@@ -248,17 +248,17 @@ clear = async () => {
             rcsb_id = rcsb_id.toUpperCase();
 
             // Clear existing state first and wait for it to complete
-await this.clear();
-  // Wait for state to settle
-  await new Promise(resolve => setTimeout(resolve, 100));
+            await this.clear();
+            // Wait for state to settle
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             // Validate that the state is actually clear
             const structures = this.viewer.ctx.managers.structure.hierarchy.current.structures;
 
-  if (structures.length > 0) {
-    
-    throw new Error('State not cleared before loading');
-  }
+            if (structures.length > 0) {
+
+                throw new Error('State not cleared before loading');
+            }
             if (structures.length > 0) {
                 throw new Error('Failed to clear existing structures');
             }
@@ -394,49 +394,49 @@ await this.clear();
             const ref = this.retrievePolymerRef(auth_asym_id);
             ref && this.viewer.interactions.focus(ref);
         },
-togglePolymersVisibility: async (rcsb_id: string, visible: boolean): Promise<boolean> => {
-    try {
-        if (!rcsb_id || !this.viewer || !this.viewer.ctx) {
-            console.warn("Cannot toggle polymer visibility: Missing required references");
-            return false;
-        }
-
-        // Get polymer components using our selector helper
-        const polymerComponents = selectComponentsForRCSB(this.getState(), {
-            instanceId: this.instanceId,
-            rcsbId: rcsb_id,
-            componentType: 'polymer'
-        });
-
-        if (polymerComponents.length === 0) {
-            console.warn(`No polymer components found for structure ${rcsb_id}`);
-            return false;
-        }
-
-        await this.viewer.ctx.dataTransaction(async () => {
-            // Update visibility for all polymer components
-            for (const component of polymerComponents) {
-                if (component.ref) {
-                    this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
+        togglePolymersVisibility: async (rcsb_id: string, visible: boolean): Promise<boolean> => {
+            try {
+                if (!rcsb_id || !this.viewer || !this.viewer.ctx) {
+                    console.warn("Cannot toggle polymer visibility: Missing required references");
+                    return false;
                 }
+
+                // Get polymer components using our selector helper
+                const polymerComponents = selectComponentsForRCSB(this.getState(), {
+                    instanceId: this.instanceId,
+                    rcsbId: rcsb_id,
+                    componentType: 'polymer'
+                });
+
+                if (polymerComponents.length === 0) {
+                    console.warn(`No polymer components found for structure ${rcsb_id}`);
+                    return false;
+                }
+
+                await this.viewer.ctx.dataTransaction(async () => {
+                    // Update visibility for all polymer components
+                    for (const component of polymerComponents) {
+                        if (component.ref) {
+                            this.viewer.interactions.setSubtreeVisibility(component.ref, visible);
+                        }
+                    }
+
+                    // Batch update visibility states in Redux
+                    const visibilityUpdates = polymerComponents.map(component => ({
+                        rcsb_id,
+                        auth_asym_id: component.auth_asym_id,
+                        visible
+                    }));
+
+                    this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
+                });
+
+                return true;
+            } catch (error) {
+                console.error(`Error toggling polymer visibility for ${rcsb_id}:`, error);
+                return false;
             }
-
-            // Batch update visibility states in Redux
-            const visibilityUpdates = polymerComponents.map(component => ({
-                rcsb_id,
-                auth_asym_id: component.auth_asym_id,
-                visible
-            }));
-
-            this.dispatch(setBatchPolymerVisibility(visibilityUpdates));
-        });
-
-        return true;
-    } catch (error) {
-        console.error(`Error toggling polymer visibility for ${rcsb_id}:`, error);
-        return false;
-    }
-},
+        },
 
 
         highlightPolymerComponent: async (rcsb_id: string, auth_asym_id: string) => {
@@ -469,23 +469,23 @@ togglePolymersVisibility: async (rcsb_id: string, visible: boolean): Promise<boo
                 }
             });
         },
-clearAllSelections : async (rcsb_id: string) => {
-    // Clear MolStar selections
-    this.viewer.ctx.managers.structure.selection.clear();
-    
-    // Get all components for this RCSB ID
-    const componentIds = this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
-    
-    // Create batch update for Redux
-    const selectionUpdates = componentIds.map(localId => ({
-        rcsb_id,
-        auth_asym_id: localId,
-        selected: false
-    }));
-    
-    // Dispatch batch update
-    this.dispatch(setBatchPolymerSelected(selectionUpdates));
-},
+        clearAllSelections: async (rcsb_id: string) => {
+            // Clear MolStar selections
+            this.viewer.ctx.managers.structure.selection.clear();
+
+            // Get all components for this RCSB ID
+            const componentIds = this.getState().mstar_refs.instances[this.instanceId].rcsb_id_components_map[rcsb_id] || [];
+
+            // Create batch update for Redux
+            const selectionUpdates = componentIds.map(localId => ({
+                rcsb_id,
+                auth_asym_id: localId,
+                selected: false
+            }));
+
+            // Dispatch batch update
+            this.dispatch(setBatchPolymerSelected(selectionUpdates));
+        },
 
         setPolymerVisibility: async (rcsb_id: string, auth_asym_id: string, is_visible: boolean) => {
             const ref = this.retrievePolymerRef(auth_asym_id);
@@ -639,7 +639,7 @@ clearAllSelections : async (rcsb_id: string) => {
     experimental = {
         cylinder_residues: async (nomenclature_map: Record<string, string> | null) => {
             if (!nomenclature_map) return;
-            const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/structures/cylinder_residues`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_URL}/loci/cylinder_residues`);
             const data = await response.json();
             const struct_ref = Object.values(
                 this.getState().mstar_refs.instances[this.instanceId].rcsb_id_root_ref_map

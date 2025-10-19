@@ -1,26 +1,26 @@
 'use client';
-import React, {useContext, useEffect, useRef, useState} from 'react';
-import {cn} from '@/components/utils';
-import {Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch, DownloadIcon, DotSquare, Ellipsis} from 'lucide-react';
-import {Polymer} from '@/store/ribxz_api/ribxz_api';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { cn } from '@/components/utils';
+import { Eye, EyeOff, Square, CheckSquare, Focus, ScanSearch, DownloadIcon, DotSquare, Ellipsis } from 'lucide-react';
+import { Polymer } from '@/store/ribxz_api/ribxz_api';
 import PolymerColorschemeDarkTemple from '@/components/mstar/providers/colorschemes/colorscheme_darktemple';
-import {Color} from 'molstar/lib/mol-util/color';
-import {useAppDispatch, useAppSelector} from '@/store/store';
-import {PolymerComponent, selectComponentById} from '@/store/molstar/slice_refs';
-import {SequenceViewerTrigger} from '@/app/components/sequence_viewer';
-import {selectPolymerStateByAuthId} from '@/store/slices/slice_polymer_states';
+import { Color } from 'molstar/lib/mol-util/color';
+import { useAppDispatch, useAppSelector } from '@/store/store';
+import { PolymerComponent, selectComponentById } from '@/store/molstar/slice_refs';
+import { SequenceViewerTrigger } from '@/app/components/sequence_viewer';
+import { selectPolymerStateByAuthId } from '@/store/slices/slice_polymer_states';
 import PolymerColorschemeWarm from '@/components/mstar/providers/colorschemes/colorscheme_warm';
-import {getContrastColor} from '@/my_utils';
-import {useMolstarInstance} from '@/components/mstar/mstar_service';
-import {GearIcon} from '@radix-ui/react-icons';
-import {Tooltip, TooltipContent, TooltipTrigger} from '@/components/ui/tooltip';
+import { getContrastColor } from '@/my_utils';
+import { useMolstarInstance } from '@/components/mstar/mstar_service';
+import { GearIcon } from '@radix-ui/react-icons';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useRoutersRouterPolymersGetPolymerDataQuery } from '@/store/ribxz_api/ribxz_api';
 
 
 const DownloadMenu = ({ polymer, molstarViewer, className }) => {
     // Skip the automatic data fetching
     const [isDownloading, setIsDownloading] = useState(false);
-    
+
     // Get polymer component reference from Redux state
     const polymerComponent = useAppSelector(state =>
         selectComponentById(state, {
@@ -93,7 +93,7 @@ const DownloadMenu = ({ polymer, molstarViewer, className }) => {
                     const state = molstarViewer.ctx.state.data;
                     const cell = state.select(polymerComponent.ref)[0];
                     if (!cell?.obj) return;
-                    
+
                     const loci = molstarViewer.loci_from_ref(polymerComponent.ref);
                     if (!loci) return;
 
@@ -152,14 +152,14 @@ const DownloadMenu = ({ polymer, molstarViewer, className }) => {
 
 
 
-  
+
 export type ResidueData = [string, number];
 
 interface PolymerComponentRowProps {
     polymer: Polymer;
 }
 
-const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
+const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({ polymer }) => {
     const polyComponent = useAppSelector(state =>
         selectComponentById(state, {
             instanceId: 'main',
@@ -249,7 +249,7 @@ const PolymerComponentRow: React.FC<PolymerComponentRowProps> = ({polymer}) => {
                                 chain_title:
                                     polymer.nomenclature.length > 1 ? polymer.nomenclature[0] : polymer.auth_asym_id
                             }}
-                            onSelectionChange={selection => {}}
+                            onSelectionChange={selection => { }}
                         />
                     )}
                     <button className={cn('rounded-full p-1 text-gray-500')} onClick={onIsolate} title="Isolate view">

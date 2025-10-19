@@ -5,7 +5,7 @@ import ResidueGrid from './residue_grid';
 import { cn } from '@/components/utils';
 import { Ellipsis } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ribxzMstarv2 } from '@/components/mstar/mstar_v2';
+import { MstarViewer } from '@/components/mstar/mstar_viewer';
 
 interface BindingSiteEntityProps {
     chemicalId: string;
@@ -21,7 +21,7 @@ interface BindingSiteEntityProps {
     onResidueHover: (residue: any) => void;
 
     rcsb_id:string;
-    ctx_secondary: ribxzMstarv2;
+    ctx_secondary: MstarViewer;
     bsiteVisibility:boolean
 }
 

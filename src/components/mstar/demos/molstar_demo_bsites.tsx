@@ -24,7 +24,7 @@ import {ThemeDataContext} from 'molstar/lib/mol-theme/theme';
 import {CustomElementProperty} from 'molstar/lib/mol-model-props/common/custom-element-property';
 import {Model, ElementIndex} from 'molstar/lib/mol-model/structure';
 import {VaryingResidueColorThemeProvider} from './color-scheme';
-import {ribxzMstarv2} from '../mstar_v2';
+import {MstarViewer} from '../mstar_viewer';
 import {bindingSitesPreset, compositeBSitesPreset} from '@/app/homepage/bsite_preset';
 import {SplitPolymerPreset} from '../providers/polymer_preset';
 
@@ -55,7 +55,7 @@ export const BsiteResidues = CustomElementProperty.create<number>({
 });
 
 _.memoize.Cache = WeakMap;
-export class MolstarDemoBsites extends ribxzMstarv2 {
+export class MolstarDemoBsites extends MstarViewer {
     //@ts-ignore
     ctx: PluginUIContext;
     constructor() {

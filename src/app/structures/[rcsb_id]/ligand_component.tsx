@@ -1,5 +1,5 @@
 import React from 'react';
-import {cn} from '@/components/utils';
+import { cn } from '@/components/utils';
 import {
     Eye,
     EyeOff,
@@ -12,15 +12,15 @@ import {
     Copy,
     Check
 } from 'lucide-react';
-import {Button} from '@/components/ui/button';
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
-import {useState, useEffect} from 'react';
-import {useMolstarInstance} from '@/components/mstar/mstar_service';
-import {mapAssetModelComponentsAdd, selectComponentById, selectRCSBIdsForInstance} from '@/store/molstar/slice_refs';
-import {useAppSelector, useAppDispatch} from '@/store/store';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useState, useEffect } from 'react';
+import { useMolstarInstance } from '@/components/mstar/mstar_service';
+import { mapAssetModelComponentsAdd, selectComponentById, selectRCSBIdsForInstance } from '@/store/molstar/slice_refs';
+import { useAppSelector, useAppDispatch } from '@/store/store';
 import ResidueGrid from '@/app/ligands/residue_grid';
 
-const CopyButton = ({text}) => {
+const CopyButton = ({ text }) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -41,7 +41,7 @@ const CopyButton = ({text}) => {
 };
 
 // Download Menu Component for Binding Site
-const BsiteDownloadMenu = ({onDownloadJSON, onDownloadCIF}) => {
+const BsiteDownloadMenu = ({ onDownloadJSON, onDownloadCIF }) => {
     const [isDownloading, setIsDownloading] = useState(false);
 
     const downloadOptions = [
@@ -145,13 +145,13 @@ const LigandRow = ({
                 try {
                     // Use a default radius of 5Å or get it from your state
                     const radius = 5; // Ideally get from state.ligands_page.radius
-                    
+
                     // First, make sure we have a ligand component
                     let currentLigandComponent = ligandComponent;
                     if (!ligandComponent?.ref) {
                         currentLigandComponent = await viewer.ligands.create_ligand(rcsbId, ligand.chemicalId);
                     }
-                    
+
                     // Get the root reference from the state
                     let rootRef;
                     if (controller) {
@@ -159,7 +159,7 @@ const LigandRow = ({
                             controller.getState().mstar_refs.instances.main.rcsb_id_root_ref_map
                         )[0];
                     }
-                    
+
                     if (!rootRef && viewer?.ctx) {
                         // Fallback if we can't get the root ref from the controller
                         const structures = viewer.ctx.managers.structure.hierarchy.current.structures;
@@ -167,13 +167,13 @@ const LigandRow = ({
                             rootRef = structures[0].cell.transform.ref;
                         }
                     }
-                    
+
                     if (rootRef) {
                         // If we don't have a binding site component, create one
                         if (!bsiteComponent?.ref) {
                             // Try to get nomenclature map from state if available
                             const nomenclatureMap = {};
-                            
+
                             // Create binding site - using the appropriate path (viewer)
                             const refs = await viewer.ligands.create_ligand_surroundings(
                                 rcsbId,
@@ -181,7 +181,7 @@ const LigandRow = ({
                                 radius,
                                 nomenclatureMap
                             );
-                            
+
                             // Add to state if needed via dispatch
                             if (controller && refs) {
                                 const bsiteId = `${ligand.chemicalId}_bsite`;
@@ -205,30 +205,30 @@ const LigandRow = ({
                                 }
                             }
                         }
-                        
+
                         // Then get surrounding residues
                         const residues = await viewer.get_selection_constituents(
                             rootRef,
                             ligand.chemicalId,
                             radius
                         );
-                        
+
                         if (residues && residues.length > 0) {
                             setSurroundingResidues(residues);
-                            
+
                             // Get nomenclature map from state if available
                             if (controller) {
                                 const state = controller.getState();
                                 const polymerComponents = Object.values(state.mstar_refs.instances.main.components)
                                     .filter(comp => comp.type === 'polymer');
-                                
+
                                 const newNomenclatureMap = {};
                                 polymerComponents.forEach(polymer => {
                                     if (polymer.type === 'polymer' && polymer.auth_asym_id) {
                                         newNomenclatureMap[polymer.auth_asym_id] = '';
                                     }
                                 });
-                                
+
                                 setNomenclatureMap(newNomenclatureMap);
                             }
                         }
@@ -239,7 +239,7 @@ const LigandRow = ({
                     setIsLoadingResidues(false);
                 }
             };
-            
+
             fetchSurroundingResidues();
         }
     }, [isExpanded, viewer, controller, rcsbId, ligand.chemicalId, bsiteComponent, ligandComponent, dispatch]);
@@ -355,11 +355,11 @@ const LigandRow = ({
                 rcsbId,
                 ligand.chemicalId
             );
-            
+
             if (bsite?.sel_ref && viewer) {
                 const loci = viewer.loci_from_ref(bsite.sel_ref);
                 if (!loci) return;
-    
+
                 viewer.ctx.managers.structure.selection.clear();
                 viewer.ctx.managers.structure.selection.fromLoci('add', loci);
                 viewer.downloads.downloadSelection(`${rcsbId}_${ligand.chemicalId}_binding_site.cif`);
@@ -388,7 +388,7 @@ const LigandRow = ({
             );
         }
     };
-const [bsiteSelected, setBsiteSelected] = useState(false);
+    const [bsiteSelected, setBsiteSelected] = useState(false);
     return (
         <div
             className="border-b border-gray-200 last:border-b-0"
@@ -421,10 +421,10 @@ const [bsiteSelected, setBsiteSelected] = useState(false);
                             <ScanSearch className="h-4 w-4 text-gray-600" />
                         </Button>
 
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0" 
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
                             onClick={handleToggleVisibility}>
                             {localIsVisible ? (
                                 <Eye className="h-4 w-4 text-blue-600" />
@@ -486,7 +486,7 @@ const [bsiteSelected, setBsiteSelected] = useState(false);
 
                         {/* Binding Site Section */}
                         <div className="mt-4 border-t border-gray-200 pt-4">
-                            <div 
+                            <div
                                 className="flex items-center justify-between mb-3"
                                 onMouseEnter={handleBindingSiteMouseEnter}
                                 onMouseLeave={handleMouseLeave}>
@@ -500,9 +500,9 @@ const [bsiteSelected, setBsiteSelected] = useState(false);
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="sm" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     className="h-8 w-8 p-0"
                                                     onClick={handleFocusBindingSite}>
                                                     <ScanSearch className="h-4 w-4 text-gray-600" />
@@ -517,9 +517,9 @@ const [bsiteSelected, setBsiteSelected] = useState(false);
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="sm" 
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
                                                     className="h-8 w-8 p-0"
                                                     onClick={handleToggleBindingSiteVisibility}>
                                                     {bsiteVisible ? (
@@ -540,36 +540,36 @@ const [bsiteSelected, setBsiteSelected] = useState(false);
                                         onDownloadCIF={handleDownloadBindingSiteCIF}
                                     />
 
-<Button 
-  variant="ghost" 
-  size="sm" 
-  className="h-8 w-8 p-0"
-  onClick={(e) => {
-    e.stopPropagation();
-    // Get the binding site component
-    const bsite = controller?.bindingSites.retrieveBSiteComponent(
-      rcsbId,
-      ligand.chemicalId
-    );
-    
-    // Toggle selection
-    if (bsite?.sel_ref && viewer) {
-      const loci = viewer.loci_from_ref(bsite.sel_ref);
-      if (loci) {
-        viewer.ctx.managers.structure.selection.fromLoci(
-          bsiteSelected ? 'remove' : 'add', 
-          loci
-        );
-        setBsiteSelected(!bsiteSelected);
-      }
-    }
-  }}>
-{bsiteSelected ? (
-  <CheckSquare className="h-4 w-4 text-blue-600" />
-) : (
-  <Square className="h-4 w-4 text-gray-600" />
-)}
-</Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            // Get the binding site component
+                                            const bsite = controller?.bindingSites.retrieveBSiteComponent(
+                                                rcsbId,
+                                                ligand.chemicalId
+                                            );
+
+                                            // Toggle selection
+                                            if (bsite?.sel_ref && viewer) {
+                                                const loci = viewer.loci_from_ref(bsite.sel_ref);
+                                                if (loci) {
+                                                    viewer.ctx.managers.structure.selection.fromLoci(
+                                                        bsiteSelected ? 'remove' : 'add',
+                                                        loci
+                                                    );
+                                                    setBsiteSelected(!bsiteSelected);
+                                                }
+                                            }
+                                        }}>
+                                        {bsiteSelected ? (
+                                            <CheckSquare className="h-4 w-4 text-blue-600" />
+                                        ) : (
+                                            <Square className="h-4 w-4 text-gray-600" />
+                                        )}
+                                    </Button>
 
                                 </div>
                             </div>

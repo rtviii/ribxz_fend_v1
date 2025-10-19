@@ -10,7 +10,7 @@ import {MolstarNode, ribxzSpec} from '@/components/mstar/spec';
 import {DefaultPluginUISpec, PluginUISpec} from 'molstar/lib/mol-plugin-ui/spec';
 import {Quat, Vec3} from 'molstar/lib/mol-math/linear-algebra';
 import {MolstarContext, useMolstarService} from '@/components/mstar/mstar_service';
-import {createChainRangeVisualization, ribxzMstarv2} from '@/components/mstar/mstar_v2';
+import {createChainRangeVisualization, MstarViewer} from '@/components/mstar/mstar_viewer';
 import {PluginUIComponent} from 'molstar/lib/mol-plugin-ui/base';
 import {Script} from 'molstar/lib/mol-script/script';
 import {StateTransforms} from 'molstar/lib/mol-plugin-state/transforms';
@@ -32,14 +32,14 @@ const range = (start: number, end: number): number[] => {
 };
 
 export const TunnelDemoMito = () => {
-    const [ctx, setCtx] = useState<ribxzMstarv2 | null>(null);
+    const [ctx, setCtx] = useState<MstarViewer | null>(null);
     const rcsb_id = '7A5G';
     const molstarNodeRef = useRef<HTMLDivElement>(null);
 
     // !Autoload structure
     useEffect(() => {
         (async () => {
-            const x = new ribxzMstarv2();
+            const x = new MstarViewer();
             const custom_spec: PluginUISpec = {
                 ...DefaultPluginUISpec(),
                 actions: [],
