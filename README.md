@@ -10,7 +10,7 @@ The config file looks something like this:
 // EXAMPLE (you have to provide correct parameters and rerun when the api changes)
 import type { ConfigFile } from '@rtk-query/codegen-openapi'
 const config: ConfigFile = {
-  schemaFile: 'https://r8-kdd.math.ubc.ca/openapi.json',  //<-- this is where you get the actual schema from
+  schemaFile: 'https://[hostname]/openapi.json',  //<-- this is where you get the actual schema from
   apiFile   : 'template_empty_api.ts', // <- this is the starter file 
   apiImport : 'emptySplitApi',         // <- the object into which the new api will be injected
   outputFile: 'template_empty_api.ts', // 
@@ -30,7 +30,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 // initialize an empty api service that we'll inject endpoints into later as needed
 export const emptySplitApi = createApi({
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://r8-kdd.math.ubc.ca' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://[hostname]' }),
   endpoints: () => ({}),
 })
 ```
