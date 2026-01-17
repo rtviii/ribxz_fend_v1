@@ -134,9 +134,6 @@ const injectedRtkApi = api.injectEndpoints({
         >({
             query: () => ({url: `/ligands/list_ligands`})
         }),
-        routersRouterLigEntity: build.query<RoutersRouterLigEntityApiResponse, RoutersRouterLigEntityApiArg>({
-            query: queryArg => ({url: `/ligands/entity`, params: {rcsb_id: queryArg.rcsbId}})
-        }),
         routersRouterLigInStructure: build.query<
             RoutersRouterLigInStructureApiResponse,
             RoutersRouterLigInStructureApiArg
@@ -149,7 +146,7 @@ const injectedRtkApi = api.injectEndpoints({
         routersRouterLociGetShape: build.query<RoutersRouterLociGetShapeApiResponse, RoutersRouterLociGetShapeApiArg>({
             query: queryArg => ({
                 url: `/loci/tunnel_geometry`,
-                params: {rcsb_id: queryArg.rcsbId, is_ascii: queryArg.isAscii}
+                params: {rcsb_id: queryArg.rcsbId, is_ascii: queryArg.isAscii, format: queryArg.format}
             })
         }),
         routersRouterLociGetHelices: build.query<
@@ -256,10 +253,6 @@ export type RoutersRouterLigLigTransposeApiArg = {
 };
 export type RoutersRouterLigListLigandsApiResponse = /** status 200 OK */ [object, object[]][];
 export type RoutersRouterLigListLigandsApiArg = void;
-export type RoutersRouterLigEntityApiResponse = unknown;
-export type RoutersRouterLigEntityApiArg = {
-    rcsbId: string;
-};
 export type RoutersRouterLigInStructureApiResponse = unknown;
 export type RoutersRouterLigInStructureApiArg = {
     rcsbId: string;
@@ -270,6 +263,7 @@ export type RoutersRouterLociGetShapeApiResponse = unknown;
 export type RoutersRouterLociGetShapeApiArg = {
     rcsbId: string;
     isAscii?: boolean;
+    format?: 'ply' | 'obj' | 'stl' | 'vtk';
 };
 export type RoutersRouterLociGetHelicesApiResponse = unknown;
 export type RoutersRouterLociGetHelicesApiArg = {
@@ -903,7 +897,6 @@ export const {
     useRoutersRouterLigLigNbhdQuery,
     useRoutersRouterLigLigTransposeQuery,
     useRoutersRouterLigListLigandsQuery,
-    useRoutersRouterLigEntityQuery,
     useRoutersRouterLigInStructureQuery,
     useRoutersRouterLigDemo7K00Query,
     useRoutersRouterLociGetShapeQuery,

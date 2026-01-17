@@ -4,11 +4,11 @@ const nextConfig = {
     //     ignoreBuildErrors: true
     // },
     // output: 'export',
-    swcMinify: false,
+    //swcMinify: false,
     // reactStrictMode:false
-    // typescript:{
-    //   ignoreBuildErrors:true
-    // }
+     typescript:{
+       ignoreBuildErrors:true
+     },
     images: {
         unoptimized: true,
         remotePatterns: [
@@ -21,7 +21,7 @@ const nextConfig = {
         ignoreDuringBuilds: true
     },
     experimental: {
-        missingSuspenseWithCSRBailout: false
+        //missingSuspenseWithCSRBailout: false
     }
 };
 
