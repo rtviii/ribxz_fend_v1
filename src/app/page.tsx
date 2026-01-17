@@ -198,26 +198,6 @@ const Homepage = () => {
                         <BsiteDemo />
                     </SectionHeader>
 
-                    <SectionHeader
-                        title="Loci, Functional Sites & Regions of Interest"
-                        description={`Coordinates, primary sequence annotations and structural landmarks. Displayed are the Nascent Peptide Exit Tunnel (NPET) geometries produced via the PTC and constriction site landmarks. `}
-                        documentation={[
-                            {
-                                text: 'Download a `.ply` file containing the geometry of the human ribosome exit tunnel in 4UG0',
-                                code: `curl -X 'GET' 'https://api.ribosome.xyz/loci/tunnel_geometry?rcsb_id=4ug0&is_ascii=false' -H 'accept: */*'`
-                            },
-                            {
-                                text: 'The coordinate of the constriction site formed by ribosomal proteins uL4 and uL22 in 8FC4',
-                                code: `curl -X 'GET' 'https://api.ribosome.xyz/loci/constriction_site?rcsb_id=8fc4'  -H 'accept: application/json'
-`
-                            },
-                            {
-                                text: 'The coordinate of the peptidyl transferase center (PTC) in the human ribosome 3J7Z',
-                                code: "curl -X GET https://api.ribosome.xyz/loci/ptc?rcsb_id=3j7z -H 'accept: application/json'"
-                            }
-                        ]}>
-                        <TunnelDemos />
-                    </SectionHeader>
                 </section>
             </div>
             {/* <Acknowledgements items={acknowledgements} /> */}
@@ -227,3 +207,25 @@ const Homepage = () => {
 };
 
 export default Homepage;
+
+
+//                     <SectionHeader
+//                         title="Loci, Functional Sites & Regions of Interest"
+//                         description={`Coordinates, primary sequence annotations and structural landmarks. Displayed are the Nascent Peptide Exit Tunnel (NPET) geometries produced via the PTC and constriction site landmarks. `}
+//                         documentation={[
+//                             {
+//                                 text: 'Download a `.ply` file containing the geometry of the human ribosome exit tunnel in 4UG0',
+//                                 code: `curl -X 'GET' 'https://api.ribosome.xyz/loci/tunnel_geometry?rcsb_id=4ug0&is_ascii=false' -H 'accept: */*'`
+//                             },
+//                             {
+//                                 text: 'The coordinate of the constriction site formed by ribosomal proteins uL4 and uL22 in 8FC4',
+//                                 code: `curl -X 'GET' 'https://api.ribosome.xyz/loci/constriction_site?rcsb_id=8fc4'  -H 'accept: application/json'
+// `
+//                             },
+//                             {
+//                                 text: 'The coordinate of the peptidyl transferase center (PTC) in the human ribosome 3J7Z',
+//                                 code: "curl -X GET https://api.ribosome.xyz/loci/ptc?rcsb_id=3j7z -H 'accept: application/json'"
+//                             }
+//                         ]}>
+//                         <TunnelDemos />
+//                     </SectionHeader>
